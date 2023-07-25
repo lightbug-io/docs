@@ -3,7 +3,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "@markdoc/markdoc": "latest",
@@ -17,6 +18,8 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "eslint": "^8.45.0",
+    "eslint-config-next": "^13.4.12",
     "typescript": "latest"
   }
 }

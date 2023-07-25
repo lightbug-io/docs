@@ -1,11 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export function TopNav({children}) {
   return (
     <nav>
       <div id="logo">
-        <img src="https://lightbug.io/images/logo-orange_hudcdce2ead9cbe2715b5cf652e648439f_53864_17x30_fit_q95_h2_box_3.webp" alt="Logo" />
+        <Image src="https://lightbug.io/images/logo-orange_hudcdce2ead9cbe2715b5cf652e648439f_53864_17x30_fit_q95_h2_box_3.webp" alt="Logo" width={17} height={30}/>
         <span id="logo-text">Lightbug</span>
       </div>
       <Link href="/" className="flex">
