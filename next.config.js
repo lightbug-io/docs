@@ -1,7 +1,7 @@
 const withMarkdoc = require('@markdoc/next.js');
 
 module.exports =
-  withMarkdoc(/* config: https://markdoc.io/docs/nextjs#options */)({
+  withMarkdoc({ tokenizerOptions: { allowComments: true } })({
     pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdoc'],
     // https://nextjs.org/docs/messages/next-image-unconfigured-host
     images: {

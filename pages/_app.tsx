@@ -14,8 +14,8 @@ import '../public/globals.css'
 import type { AppProps } from 'next/app'
 import type { MarkdocNextJsPageProps } from '@markdoc/next.js'
 
-const TITLE = 'Markdoc';
-const DESCRIPTION = 'A powerful, flexible, Markdown-based authoring framework';
+const TITLE = 'LightBug';
+const DESCRIPTION = 'Trackers and IoT devices';
 
 function collectHeadings(node, sections = []) {
   if (node) {
@@ -49,7 +49,7 @@ export default function MyApp({ Component, pageProps }: AppProps<MyAppProps>) {
   let description = DESCRIPTION;
   if (markdoc) {
     if (markdoc.frontmatter.title) {
-      title = markdoc.frontmatter.title;
+      title = title + ' - ' + markdoc.frontmatter.title;
     }
     if (markdoc.frontmatter.description) {
       description = markdoc.frontmatter.description;
@@ -68,11 +68,11 @@ export default function MyApp({ Component, pageProps }: AppProps<MyAppProps>) {
         <meta name="referrer" content="strict-origin" />
         <meta name="title" content={title} />
         <meta name="description" content={description} />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="shortcut icon" href="https://lightbug.io/favicon.ico" />
+        <link rel="icon" href="https://lightbug.io/favicon.ico" />
       </Head>
       <TopNav>
-        <Link href="/docs">Docs</Link>
+        {/* <Link href="/docs">Docs</Link> */}
       </TopNav>
       <div className="page">
         <SideNav />
@@ -84,7 +84,7 @@ export default function MyApp({ Component, pageProps }: AppProps<MyAppProps>) {
       <style jsx>
         {`
           .page {
-            position: fixed; 
+            position: fixed;
             top: var(--top-nav-height);
             display: flex;
             width: 100vw;

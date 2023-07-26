@@ -5,21 +5,24 @@ import Image from 'next/image';
 export function TopNav({children}) {
   return (
     <nav>
-      <div id="logo">
+      <a href="https://lightbug.io" id="logo" target="blank">
         <Image src="https://lightbug.io/images/logo-orange_hudcdce2ead9cbe2715b5cf652e648439f_53864_17x30_fit_q95_h2_box_3.webp" alt="Logo" width={17} height={30}/>
         <span id="logo-text">Lightbug</span>
-      </div>
+      </a>
       <Link href="/" className="flex">
         Overview
       </Link>
-      <Link href="/docs/intro" className="flex">
+      <Link href="/docs/introduction" className="flex">
         Documentation
       </Link>
-      <Link href="https://api.lightbug.cloud/docs/" className="flex">
-        API Reference v1
+      <Link href="https://api.lightbug.cloud/docs/" className="flex" target='blank'>
+        API Reference
       </Link>
       <Link href="/examples" className="flex">
         Examples
+      </Link>
+      <Link href="/sdk" className="flex">
+        SDKs
       </Link>
       <section>{children}</section>
       <style jsx>
