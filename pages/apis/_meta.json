@@ -1,0 +1,10 @@
+{
+  "overview": {
+    "title": "Overview",
+    "theme": {
+      "breadcrumb": false
+    }
+  },
+  "location": "Location",
+  "access": "Access"
+}

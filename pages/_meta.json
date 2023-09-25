@@ -1,15 +1,33 @@
 {
-  "index": "Introduction",
-  "another": "Another Page",
-  "advanced": "Advanced (A Folder)",
-  "about": {
-    "title": "About",
+  "*": {
     "type": "page"
   },
-  "contact": {
-    "title": "Contact ↗",
-    "type": "page",
-    "href": "https://twitter.com/shuding_",
-    "newWindow": true
+  "index": {
+    "title": "Intro",
+    "href": "/"
+  },
+  "devices": {
+    "title": "Devices"
+  },
+  "apis": {
+    "title" : "APIs"
+  },
+  "company": {
+    "title": "Company",
+    "type": "menu",
+    "items": {
+      "about": {
+        "title": "About ↗",
+        "type": "page",
+        "href": "https://lightbug.io/about/",
+        "newWindow": true
+      },
+      "support": {
+        "title": "Support ↗",
+        "type": "page",
+        "href": "https://support.lightbug.cloud/",
+        "newWindow": true
+      }
+    }
   }
 }
