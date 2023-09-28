@@ -1,8 +1,9 @@
 // Example from https://beta.reactjs.org/learn
 
-import React, { Component } from 'react';
+import React from 'react';
 import 'openapi-explorer';
 import styles from './oapi.module.css'
+import OApiFiltering from './oapi-filtering.mdx'
 
 interface OpenApiExplorerProps {
   collapse?: boolean;
@@ -29,8 +30,7 @@ export function OApi() {
       >
     <div slot="nav-section" className = {styles.customSectionBar}>Filtering</div>
     <div slot="custom-section" className = {styles.customSection}>
-      <div className = {styles.subheading}>FILTERING</div>
-      <p>docs about filtering..</p>
+      <OApiFiltering/>
     </div>
     <div slot="operations-header">
       <div className="nav-bar-section-title">Endpoints</div>
