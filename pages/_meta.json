@@ -9,8 +9,14 @@
   "devices": {
     "title": "Devices"
   },
-  "apis": {
-    "title" : "APIs"
+  "rest": {
+    "title" : "API",
+    "type": "page",
+    "theme": {
+      "sidebar": false,
+      "breadcrumb": false,
+      "layout": "full-width"
+    }
   },
   "company": {
     "title": "Company",
@@ -18,13 +24,11 @@
     "items": {
       "about": {
         "title": "About ↗",
-        "type": "page",
         "href": "https://lightbug.io/about/",
         "newWindow": true
       },
       "support": {
         "title": "Support ↗",
-        "type": "page",
         "href": "https://support.lightbug.cloud/",
         "newWindow": true
       }

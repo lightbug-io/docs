@@ -1,0 +1,91 @@
+/* Can use vars form nextra https://github.com/shuding/nextra/blob/main/packages/nextra/styles/variables.css */
+
+openapi-explorer {
+/* Layout */
+--layout: column;
+
+/* Borders and Spacing */
+--border-radius: 2px;
+--border-color: #d9d9d9;
+--light-border-color: #e8e8e8;
+--code-border-color: transparent;
+--nav-item-padding: 7px 10px;
+
+/* Fonts */
+--font-size-small: 13px;
+--font-size-mono: 13px;
+--font-size-regular: 16px;
+
+/* Colors */
+--bg: #ffffff;
+--bg2: #fafafa;
+--bg3: #f0f0f0;
+--light-bg: #d2d2d2;
+--fg: #444444;
+--fg2: #555555;
+--fg3: #626262;
+--light-fg: #8a8a8a;
+--selection-bg: #444;
+--selection-fg: #eee;
+--overlay-bg: rgba(0, 0, 0, 0.4);
+--input-bg: #ffffff;
+--placeholder-color: #9e9e9e;
+--hover-color: #fafafa;
+
+/* Brand Colors */
+--purple: #6f42c1;
+--red: #dc3545;
+--orange: #fd7e14;
+--yellow: #ffc107;
+--green: #28a745;
+--blue: #38b3f9;
+--gray: #465865;
+--pink: #e83e8c;
+--white: #fff;
+--light-purple: #F3F0FA;
+--light-red: #FCEEEF;
+--light-orange: #FFF4EB;
+--light-yellow: #FFFAEB;
+--light-green: #EFFBF1;
+--light-blue: #EBF7FE;
+--light-gray: #F3F5F7;
+
+/* Header and Navigation */
+/* --header-bg: #3E6077; */
+--header-bg: var(--white);
+/* --header-fg: #ffffff; */
+--header-fg: var(--fg);
+/* --header-color-darker: #2a4c63; */
+--header-color-darker: var(--white);
+/* --header-color-border: #486a81; */
+--header-color-border: var(--white);
+/* --nav-bg-color: #3E6077; */
+--nav-bg-color: var(--white);
+/* --nav-text-color: rgba(255, 255, 255, 0.65); */
+--nav-text-color: var(--fg);
+/* --nav-hover-bg-color: #25475e; */
+--nav-hover-bg-color: var(--bg3);
+/* --nav-hover-scrollbar-color: #204259; */
+--nav-hover-scrollbar-color: var(--bg3);
+/* --nav-hover-text-color: #ffffff; */
+--nav-hover-text-color: var(--fg);
+
+/* Code */
+--code-fg: #666;
+--inline-code-fg: brown;
+--code-property-color: #905;
+--code-keyword-color: #07a;
+--code-operator-color: #9a6e3a;
+
+/* Buttons and Primary Colors */
+/* --primary-color: #3E6077; */
+--primary-color: var(--orange);
+/* --secondary-color: #FBAF0B; */
+--secondary-color: var(--fg);
+--primary-btn-text-color: #FFFFFF;
+/* --resp-area-height: 300px; */
+--resp-area-height: 100%;
+--dialog-z-index: 1000;
+
+
+}

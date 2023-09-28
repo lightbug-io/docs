@@ -12,6 +12,7 @@
     "next": "latest",
     "nextra": "latest",
     "nextra-theme-docs": "latest",
+    "openapi-explorer": "^2.1.622",
     "prismjs": "latest",
     "react": "latest",
     "react-dom": "latest"
