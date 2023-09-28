@@ -26,10 +26,7 @@ const config: DocsThemeConfig = {
   footer: {
     text: 'LightBug Documentation',
   },
-  banner: {
-    text: 'Work in progress',
-    key: 'wip-001',
-  },
+  banner: {},
   feedback: {
     content: '',
   },
