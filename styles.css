@@ -1,5 +1,3 @@
-/* Can use vars form nextra https://github.com/shuding/nextra/blob/main/packages/nextra/styles/variables.css */
-
 openapi-explorer {
 /* Layout */
 --layout: column;
@@ -81,11 +79,10 @@ openapi-explorer {
 /* --primary-color: #3E6077; */
 --primary-color: var(--orange);
 /* --secondary-color: #FBAF0B; */
---secondary-color: var(--fg);
+--secondary-color: var(--fg3);
 --primary-btn-text-color: #FFFFFF;
 /* --resp-area-height: 300px; */
 --resp-area-height: 100%;
 --dialog-z-index: 1000;
-
 
 }

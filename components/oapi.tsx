@@ -27,12 +27,17 @@ export function OApi() {
       collapse = {true}
       hide-server-selection = {true}
       >
+    <div slot="nav-section" className = {styles.customSectionBar}>Filtering</div>
+    <div slot="custom-section" className = {styles.customSection}>
+      <div className = {styles.subheading}>FILTERING</div>
+      <p>docs about filtering..</p>
+    </div>
     <div slot="operations-header">
       <div className="nav-bar-section-title">Endpoints</div>
       <hr/>
     </div>
     <div slot="authentication">
-    <h1>Authentication</h1>
+      <div className = {styles.subheading}>AUTHENTICATION</div>
       <div>Replaces the authentication section</div>
     </div>
     </openapi-explorer>
