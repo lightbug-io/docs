@@ -3656,7 +3656,19 @@
         }
       }
     },
+    "security": [
+      {
+        "ApiKeyAuth": []
+      }
+    ],
     "components": {
+      "securitySchemes": {
+        "ApiKeyAuth": {
+          "type": "apiKey",
+          "in": "header",
+          "name": "Authorization"
+        }
+      },
       "schemas": {
         "x-any": {
           "type": "object"
