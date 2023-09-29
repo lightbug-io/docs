@@ -6,6 +6,9 @@
     "title": "Intro",
     "href": "/"
   },
+  "apps": {
+    "title": "Apps"
+  },
   "devices": {
     "title": "Devices"
   },
