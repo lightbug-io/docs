@@ -2,7 +2,7 @@
     "openapi": "3.0.1",
     "info": {
       "title": "TrackingAPI",
-      "description": "API for retrieving tracking data and changing settings on LightBug & RemoteThings tracking devices",
+      "description": "API for retrieving tracking data and changing settings on Lightbug & RemoteThings tracking devices",
       "version": "1.1.0"
     },
     "servers": [

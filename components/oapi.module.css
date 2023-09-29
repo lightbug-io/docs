@@ -15,3 +15,11 @@
     /* Matching the regular sections */
     padding: 1.5rem;
 }
+
+.tokenInput {
+    min-width: 50%;
+    color: var(--nav-hover-text-color);
+    background-color: var(--nav-hover-bg-color);
+    border: 1px solid var(--secondary-color);
+    text-indent: 5px;
+}

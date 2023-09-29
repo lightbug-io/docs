@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import 'openapi-explorer';
 import styles from './oapi.module.css'
 import OApiFiltering from './oapi-filtering.mdx'
+import OApiAuthentication from './oapi-authentication.mdx'
 
 interface OpenApiExplorerProps {
   collapse?: boolean;
@@ -21,17 +22,30 @@ declare global {
 export function OApi() {
   const specUrl = "/swagger/v1.json";
   const serverUrl = "https://api.lightbug.cloud/api";
+  var authToken = ""
+
+  const handleAuthTokenChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    authToken = event.target.value;
+  }
 
   useEffect(() => {
     const explorer = document.querySelector('openapi-explorer');
+
     const onSpecLoaded = (event: CustomEvent) => {
       event.detail.info.title = "Lightbug API";
-      console.log("spec loaded: ", event.detail);
     };
     explorer?.addEventListener('spec-loaded', onSpecLoaded);
 
+    const requestInterceptor = (event: CustomEvent) => {
+      if (authToken !== "") {
+        event.detail.request.options.headers.append('Authorization', authToken);
+      }
+    };
+    explorer?.addEventListener('request', requestInterceptor);
+
     return () => {
       explorer?.removeEventListener('spec-loaded', onSpecLoaded);
+      explorer?.removeEventListener('request', requestInterceptor);
     };
   }, []);
 
@@ -51,9 +65,8 @@ export function OApi() {
       <div className="nav-bar-section-title">Endpoints</div>
       <hr/>
     </div>
-    {/* <div slot="authentication">
-      <div className = {styles.subheading}>AUTHENTICATION</div>
-      Token: <input type="text" value={authToken} onChange={handleAuthTokenChange} />
-    </div> */}
+    <div slot="authentication">
+      <OApiAuthentication foo="bar" handleAuthTokenChange={handleAuthTokenChange}/>
+    </div>
     </openapi-explorer>
 }
