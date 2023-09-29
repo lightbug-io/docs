@@ -73,5 +73,8 @@ export function OApi() {
     <div slot="authentication">
       <OApiAuthentication handleAuthTokenChange={handleAuthTokenChange}/>
     </div>
+    {/* <div slot="post-/users/login">
+      <div>Special content for just one route</div>
+    </div> */}
     </openapi-explorer>
 }

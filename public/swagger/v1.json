@@ -12,14 +12,35 @@
     ],
     "tags": [
       {
-        "name": "device"
+        "name": "authentication"
+      },
+      {
+        "name": "users"
+      },
+      {
+        "name": "notifications"
+      },
+      {
+        "name": "devices"
+      },
+      {
+        "name": "points"
+      },
+      {
+        "name": "readings"
+      },
+      {
+        "name": "geofences"
+      },
+      {
+        "name": "rtk"
       }
     ],
     "paths": {
       "/devices/{id}/points/{fk}": {
         "get": {
           "tags": [
-            "device"
+            "points"
           ],
           "summary": "Retrieve a specific point for a device",
           "operationId": "device.prototype.__findById__points",
@@ -81,7 +102,7 @@
         },
         "delete": {
           "tags": [
-            "device"
+            "points"
           ],
           "summary": "Delete a specific point for a device",
           "operationId": "device.prototype.__destroyById__points",
@@ -119,7 +140,7 @@
       "/devices/{id}/config": {
         "get": {
           "tags": [
-            "device"
+            "devices"
           ],
           "summary": "Retrieve configuration for a device",
           "operationId": "device.prototype.__get__config",
@@ -179,7 +200,7 @@
         },
         "put": {
           "tags": [
-            "device"
+            "devices"
           ],
           "summary": "Update configuration for a device",
           "operationId": "device.prototype.__update__config",
@@ -260,7 +281,7 @@
       "/devices/{id}/readings/{fk}": {
         "get": {
           "tags": [
-            "device"
+            "readings"
           ],
           "summary": "Retrieve a specific reading for a device",
           "operationId": "device.prototype.__findById__readings",
@@ -324,7 +345,7 @@
       "/devices/{id}/gatewayReadings/{fk}": {
         "get": {
           "tags": [
-            "device"
+            "readings"
           ],
           "summary": "Find a related item by id for gatewayReadings.",
           "operationId": "device.prototype.__findById__gatewayReadings",
@@ -386,7 +407,7 @@
         },
         "put": {
           "tags": [
-            "device"
+            "readings"
           ],
           "summary": "Update a related item by id for gatewayReadings.",
           "operationId": "device.prototype.__updateById__gatewayReadings",
@@ -475,7 +496,7 @@
         },
         "delete": {
           "tags": [
-            "device"
+            "readings"
           ],
           "summary": "Delete a related item by id for gatewayReadings.",
           "operationId": "device.prototype.__destroyById__gatewayReadings",
@@ -513,7 +534,7 @@
       "/devices/{id}/notificationTriggers/{fk}": {
         "get": {
           "tags": [
-            "device"
+            "notifications"
           ],
           "summary": "Find a related item by id for notificationTriggers.",
           "operationId": "device.prototype.__findById__notificationTriggers",
@@ -575,7 +596,7 @@
         },
         "put": {
           "tags": [
-            "device"
+            "notifications"
           ],
           "summary": "Update an alert/notification trigger by id {fk} for device",
           "operationId": "device.prototype.__updateById__notificationTriggers",
@@ -664,7 +685,7 @@
         },
         "delete": {
           "tags": [
-            "device"
+            "notifications"
           ],
           "summary": "Remove alert/notification trigger by id {fk} for device",
           "operationId": "device.prototype.__destroyById__notificationTriggers",
@@ -702,7 +723,7 @@
       "/devices/{id}/transients/{fk}": {
         "get": {
           "tags": [
-            "device"
+            "devices"
           ],
           "summary": "Find a related item by id for transients.",
           "operationId": "device.prototype.__findById__transients",
@@ -764,7 +785,7 @@
         },
         "put": {
           "tags": [
-            "device"
+            "devices"
           ],
           "summary": "Update a related item by id for transients.",
           "operationId": "device.prototype.__updateById__transients",
@@ -853,7 +874,7 @@
         },
         "delete": {
           "tags": [
-            "device"
+            "devices"
           ],
           "summary": "Delete a related item by id for transients.",
           "operationId": "device.prototype.__destroyById__transients",
@@ -891,7 +912,7 @@
       "/devices/{id}/points": {
         "get": {
           "tags": [
-            "device"
+            "points"
           ],
           "summary": "Retrieve points for a device",
           "operationId": "device.prototype.__get__points",
@@ -969,7 +990,7 @@
       "/devices/{id}/messages": {
         "get": {
           "tags": [
-            "device"
+            "devices"
           ],
           "summary": "Queries messages of device.",
           "operationId": "device.prototype.__get__messages",
@@ -1045,7 +1066,7 @@
         },
         "post": {
           "tags": [
-            "device"
+            "devices"
           ],
           "summary": "Creates a new instance in messages of this model.",
           "operationId": "device.prototype.__create__messages",
@@ -1124,7 +1145,7 @@
         },
         "delete": {
           "tags": [
-            "device"
+            "devices"
           ],
           "summary": "Deletes all messages of this model.",
           "operationId": "device.prototype.__delete__messages",
@@ -1152,7 +1173,7 @@
       "/devices/{id}/readings": {
         "get": {
           "tags": [
-            "device"
+            "readings"
           ],
           "summary": "Retrieve readings for a device",
           "operationId": "device.prototype.__get__readings",
@@ -1230,7 +1251,7 @@
       "/devices/{id}/notificationTriggers": {
         "get": {
           "tags": [
-            "device"
+            "notifications"
           ],
           "summary": "Get alerts for device",
           "operationId": "device.prototype.__get__notificationTriggers",
@@ -1306,7 +1327,7 @@
         },
         "post": {
           "tags": [
-            "device"
+            "notifications"
           ],
           "summary": "Create alert/notification trigger for device",
           "operationId": "device.prototype.__create__notificationTriggers",
@@ -1385,7 +1406,7 @@
         },
         "delete": {
           "tags": [
-            "device"
+            "notifications"
           ],
           "summary": "Remove all alert/notification trigger for device",
           "operationId": "device.prototype.__delete__notificationTriggers",
@@ -1413,7 +1434,7 @@
       "/devices/{id}/transients": {
         "get": {
           "tags": [
-            "device"
+            "devices"
           ],
           "summary": "Queries transients of device.",
           "operationId": "device.prototype.__get__transients",
@@ -1491,7 +1512,7 @@
       "/devices/{id}": {
         "get": {
           "tags": [
-            "device"
+            "devices"
           ],
           "summary": "Find a model instance by {{id}} from the data source.",
           "operationId": "device.findById",
@@ -1554,7 +1575,7 @@
       "/devices/{id}/getRtkStatus": {
         "get": {
           "tags": [
-            "device"
+            "rtk"
           ],
           "summary": "RTK>Retrieve rtk status and config object for a device",
           "operationId": "device.prototype.getRtkStatus",
@@ -1608,7 +1629,7 @@
       "/devices/{id}/getRecentRtkLogs": {
         "get": {
           "tags": [
-            "device"
+            "rtk"
           ],
           "summary": "RTK>Get recent log events from rtk service",
           "operationId": "device.prototype.getRecentRtkLogs",
@@ -1677,7 +1698,7 @@
       "/devices/{id}/getRtkCommand": {
         "get": {
           "tags": [
-            "device"
+            "rtk"
           ],
           "summary": "RTK>Retrieve a command by messageId to check status",
           "operationId": "device.prototype.getRtkCommand",
@@ -1741,7 +1762,7 @@
       "/devices/{id}/queueRtkCmd_UpdateRateMs": {
         "get": {
           "tags": [
-            "device"
+            "rtk"
           ],
           "summary": "RTK>Change the update interval",
           "operationId": "device.prototype.queueRtkCmd_UpdateRateMs",
@@ -1805,7 +1826,7 @@
       "/devices/{id}/queueRtkCmd_AlertNow": {
         "get": {
           "tags": [
-            "device"
+            "rtk"
           ],
           "summary": "RTK>Trigger an alert now on the device",
           "operationId": "device.prototype.queueRtkCmd_AlertNow",
@@ -1869,7 +1890,7 @@
       "/devices/{id}/queueRtkCmd_AlertWithPrompt": {
         "get": {
           "tags": [
-            "device"
+            "rtk"
           ],
           "summary": "RTK>Trigger a prompt now on the device (response sent via MQTT)",
           "operationId": "device.prototype.queueRtkCmd_AlertWithPrompt",
@@ -1967,7 +1988,7 @@
       "/devices/{id}/queueRtkCmd_RebootRtk": {
         "get": {
           "tags": [
-            "device"
+            "rtk"
           ],
           "summary": "RTK>Reboot Rtk Module (useful for fixing multipath hysteresis issues)",
           "operationId": "device.prototype.queueRtkCmd_RebootRtk",
@@ -2021,7 +2042,7 @@
       "/devices/{id}/queueRtkCmd_SetPointBufferSize": {
         "get": {
           "tags": [
-            "device"
+            "rtk"
           ],
           "summary": "RTK>Set point buffer size",
           "operationId": "device.prototype.queueRtkCmd_SetPointBufferSize",
@@ -2085,7 +2106,7 @@
       "/devices/{id}/updateRtkBaseStatus": {
         "get": {
           "tags": [
-            "device"
+            "rtk"
           ],
           "summary": "RTK>External BaseStation Status Change",
           "operationId": "device.prototype.updateRtkBaseStatus",
@@ -2175,7 +2196,7 @@
       "/devices/{id}/flightMode": {
         "get": {
           "tags": [
-            "device"
+            "devices"
           ],
           "operationId": "device.prototype.flightMode",
           "parameters": [
@@ -2238,7 +2259,7 @@
       "/devices/{id}/setSafeZone": {
         "post": {
           "tags": [
-            "device"
+            "devices"
           ],
           "summary": "Update safe-zone for device",
           "operationId": "device.prototype.setSafeZone",
@@ -2331,7 +2352,7 @@
       "/devices/{id}/getSafeZone": {
         "get": {
           "tags": [
-            "device"
+            "devices"
           ],
           "summary": "Get safe-zone for device",
           "operationId": "device.prototype.getSafeZone",
@@ -2385,7 +2406,7 @@
       "/devices/{id}/nearbyDevices": {
         "get": {
           "tags": [
-            "device"
+            "devices"
           ],
           "operationId": "device.prototype.nearbyDevices",
           "parameters": [
@@ -2468,7 +2489,7 @@
       "/devices/{id}/nearbyDeviceData": {
         "get": {
           "tags": [
-            "device"
+            "devices"
           ],
           "operationId": "device.prototype.nearbyDeviceData",
           "parameters": [
@@ -2539,7 +2560,7 @@
       "/devices/{id}/setupSqsForwarding": {
         "get": {
           "tags": [
-            "device"
+            "devices"
           ],
           "operationId": "device.prototype.setupSqsForwarding",
           "parameters": [
@@ -2632,7 +2653,7 @@
       "/devices/{id}/setMetaItem": {
         "get": {
           "tags": [
-            "device"
+            "devices"
           ],
           "operationId": "device.prototype.setMetaItem",
           "parameters": [
@@ -2726,7 +2747,7 @@
       "/users/{id}/geofences/{fk}": {
         "get": {
           "tags": [
-            "user"
+            "geofences"
           ],
           "summary": "Find a related item by id for geofences.",
           "operationId": "user.prototype.__findById__geofences",
@@ -2788,7 +2809,7 @@
         },
         "put": {
           "tags": [
-            "user"
+            "users"
           ],
           "summary": "Update a related item by id for geofences.",
           "operationId": "user.prototype.__updateById__geofences",
@@ -2877,7 +2898,7 @@
         },
         "delete": {
           "tags": [
-            "user"
+            "users"
           ],
           "summary": "Delete a related item by id for geofences.",
           "operationId": "user.prototype.__destroyById__geofences",
@@ -2915,7 +2936,7 @@
       "/users/{id}/devices": {
         "get": {
           "tags": [
-            "user"
+            "devices"
           ],
           "summary": "Queries devices of user.",
           "operationId": "user.prototype.__get__devices",
@@ -2993,7 +3014,7 @@
       "/users/{id}/geofences": {
         "get": {
           "tags": [
-            "user"
+            "geofences"
           ],
           "summary": "Queries geofences of user.",
           "operationId": "user.prototype.__get__geofences",
@@ -3069,7 +3090,7 @@
         },
         "post": {
           "tags": [
-            "user"
+            "users"
           ],
           "summary": "Creates a new instance in geofences of this model.",
           "operationId": "user.prototype.__create__geofences",
@@ -3148,7 +3169,7 @@
         },
         "delete": {
           "tags": [
-            "user"
+            "users"
           ],
           "summary": "Deletes all geofences of this model.",
           "operationId": "user.prototype.__delete__geofences",
@@ -3176,7 +3197,7 @@
       "/users/login": {
         "post": {
           "tags": [
-            "user"
+            "authentication"
           ],
           "summary": "Login a user with username/email and password.",
           "operationId": "user.login",
@@ -3256,7 +3277,7 @@
       "/users/{id}/getDeviceSummary": {
         "get": {
           "tags": [
-            "user"
+            "devices"
           ],
           "summary": "Retrieve a summary of all devices on this user account.",
           "operationId": "user.prototype.getDeviceSummary",
@@ -3357,7 +3378,7 @@
       "/users/{id}/getDevicesInZone": {
         "get": {
           "tags": [
-            "user"
+            "devices"
           ],
           "summary": "Retrieve a list of devices in any given zone or group of zones.",
           "operationId": "user.prototype.getDevicesInZone",
@@ -3458,7 +3479,7 @@
       "/users/{id}/getDevicesByTag": {
         "get": {
           "tags": [
-            "user"
+            "devices"
           ],
           "summary": "Retrieve a list of devices matching a given tag.",
           "operationId": "user.prototype.getDevicesByTag",
@@ -3550,7 +3571,7 @@
       "/users/{id}/getMqttCredentials": {
         "get": {
           "tags": [
-            "user"
+            "users"
           ],
           "operationId": "user.prototype.getMqttCredentials",
           "parameters": [
