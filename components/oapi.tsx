@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import 'openapi-explorer';
 import styles from './oapi.module.css'
+import OApiOverview from './oapi-overview.mdx'
 import OApiFiltering from './oapi-filtering.mdx'
 import OApiAuthentication from './oapi-authentication.mdx'
 
@@ -65,8 +66,12 @@ export function OApi() {
       <div className="nav-bar-section-title">Endpoints</div>
       <hr/>
     </div>
+    <div slot="overview">
+      <OApiOverview/>
+    </div>
+    <div slot="overview-api-description"></div>
     <div slot="authentication">
-      <OApiAuthentication foo="bar" handleAuthTokenChange={handleAuthTokenChange}/>
+      <OApiAuthentication handleAuthTokenChange={handleAuthTokenChange}/>
     </div>
     </openapi-explorer>
 }

@@ -1,0 +1,11 @@
+import styles from './oapi.module.css'
+
+# Authentication
+
+Authorization for Lightbug API currently uses Bearer tokens generated from the `/users/login` endpoint.
+
+Enter a token to use with the API instead of your access token.
+
+Tokens have an expiration time and will need to occasionally be regenerated with a fresh login.
+
+Token: <input className={styles.tokenInput} placeholder="Token" type="text" onChange={props.handleAuthTokenChange} />
