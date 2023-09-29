@@ -1,3 +1,29 @@
+import Image from 'next/image'
+import LEDIndicators from '../../components/devices/LEDIndicators.mdx'
+import Buttons from '../../components/devices/Buttons.mdx'
+import Charging from '../../components/devices/Charging.mdx'
+import Activation from '../../components/devices/Activation.mdx'
+
 # Zero
 
-See https://lightbug.io/product/zero/
+https://lightbug.io/product/zero/
+
+## Overview
+
+<Image src="/images/devices/zero/overview.png" alt="Overview" width={400} height={400} />
+
+## LED Indicators
+
+<LEDIndicators name="zero"/>
+
+## Buttons
+
+<Buttons name="zero"/>
+
+## Charging
+
+<Charging name="zero" chargeTime="3 hours"/>
+
+## Activation
+
+<Activation/>

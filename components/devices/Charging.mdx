@@ -1,0 +1,24 @@
+import Image from 'next/image'
+
+You will need to charge your Lightbug {props.name} for at least **{props.chargeTime}** before initial use.
+
+The Lightbug {props.name} can be charged using the included Charging Dock either via wall adapter or via USB port.
+
+It is advisable to use an adapter plugged into a power socket rather than using a computer USB port or similar.
+
+**Hint:** Our trackers support Quick Charging! With Quick Charge, you can fully charge a depleted Pro tracker in just 2.5 hours.
+
+When placing the tracker onto the charging dock you will hear a beep and the battery LEDs will light up.
+
+<Image src={`/images/devices/${props.name}/charging.png`} alt="Device when changing" width={400} height={400} />
+
+While charging, the battery LEDs display the charge of the device like a power bank:
+
+ - 1st LED light blinking orange – the device is 0%-25% charged and charging
+ - 2nd LED light blinking orange – the device is 25%-50% charged and charging
+ - 3rd LED light blinking orange – the device is 50%-75% charged and charging
+ - 4th LED light blinking orange – the device is 75%-99% charged and is charging.
+
+The battery LEDs will turn off once the device is fully charged.
+
+A [quick button press](#quick-button-press) will display the state of charge.
