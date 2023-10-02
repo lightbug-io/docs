@@ -7,10 +7,12 @@
     "href": "/"
   },
   "apps": {
-    "title": "Apps"
+    "title": "Apps",
+    "display": "hidden"
   },
   "devices": {
-    "title": "Devices"
+    "title": "Devices",
+    "display": "hidden"
   },
   "rest": {
     "title" : "API",
