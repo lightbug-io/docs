@@ -1,5 +1,6 @@
 import React from 'react'
 import { DocsThemeConfig } from 'nextra-theme-docs'
+import { title } from 'process'
 
 const config: DocsThemeConfig = {
   darkMode: false,
@@ -30,6 +31,7 @@ const config: DocsThemeConfig = {
   feedback: {
     content: '',
   },
+  useNextSeoProps: () => ({ titleTemplate: '%s – Lightbug Documentation' })
 }
 
 export default config
