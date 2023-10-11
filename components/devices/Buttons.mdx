@@ -1,11 +1,9 @@
-import Image from 'next/image'
-
 ### Quick Button Press
 
 Pressing the button the tracker for less than 1 second will display the following information (from left to right).
 
 <p className="nx-mt-6 nx-leading-7" style={{ display: 'flex', alignItems: 'center' }}>
-  <Image src={`/images/devices/general/status-battery.png`} alt="Battery symbol" width={20} height={20} />
+  <img src={`/images/devices/general/status-battery.png`} alt="Battery symbol" width={20} height={20} />
   <span style={{paddingLeft: '10px'}}>The current charge of the tracker with 1-4 LEDs glowing solid orange</span>
 </p>
 
@@ -15,7 +13,7 @@ Pressing the button the tracker for less than 1 second will display the followin
   - 4 LEDs – device is 75-100% charged
 
 <p className="nx-mt-6 nx-leading-7" style={{ display: 'flex', alignItems: 'center' }}>
-  <Image src={`/images/devices/general/status-gps.png`} alt="GPS symbol" width={20} height={20} />
+  <img src={`/images/devices/general/status-gps.png`} alt="GPS symbol" width={20} height={20} />
   <span style={{paddingLeft: '10px'}}>GPS signal *</span>
 </p>
 
@@ -24,7 +22,7 @@ Solid orange 🟧 when operational, but solid red 🟥 when GPS is unavailable.
 It is normal for GPS to be unavailable when the tracker is indoors.
 
 <p className="nx-mt-6 nx-leading-7" style={{ display: 'flex', alignItems: 'center' }}>
-  <Image src={`/images/devices/general/status-gsm.png`} alt="GSM symbol" width={20} height={20} />
+  <img src={`/images/devices/general/status-gsm.png`} alt="GSM symbol" width={20} height={20} />
   <span style={{paddingLeft: '10px'}}>GSM signal *</span>
 </p>
 

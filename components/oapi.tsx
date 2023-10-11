@@ -30,7 +30,7 @@ export function OApiV1() {
   }
 
   useEffect(() => {
-    const explorer = document.querySelector('openapi-explorer');
+    const explorer = document.querySelector('openapi-explorer') as any;
 
     const onSpecLoaded = (event: CustomEvent) => {
       event.detail.info.title = "Lightbug API";

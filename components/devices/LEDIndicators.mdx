@@ -1,21 +1,19 @@
-import Image from 'next/image'
-
 The LEDs indicators can be found on the side of the {props.name}.
 
-<Image src={`/images/devices/${props.name}/leds.png`} alt="LEDs" width={400} height={400} />
+<img src={`/images/devices/${props.name}/leds.png`} alt="LEDs" width={400} height={400} />
 
 The small icons above each of the indicators show what information they display.
 
 <p className="nx-mt-6 nx-leading-7" style={{ display: 'flex', alignItems: 'center' }}>
-  <Image src={`/images/devices/general/status-battery.png`} alt="Battery symbol" width={20} height={20} />
+  <img src={`/images/devices/general/status-battery.png`} alt="Battery symbol" width={20} height={20} />
   <span style={{paddingLeft: '10px'}}>Battery</span>
 </p>
 <p className="nx-mt-6 nx-leading-7" style={{ display: 'flex', alignItems: 'center' }}>
-  <Image src={`/images/devices/general/status-gps.png`} alt="GPS symbol" width={20} height={20} />
+  <img src={`/images/devices/general/status-gps.png`} alt="GPS symbol" width={20} height={20} />
   <span style={{paddingLeft: '10px'}}>GPS signal</span>
 </p>
 <p className="nx-mt-6 nx-leading-7" style={{ display: 'flex', alignItems: 'center' }}>
-  <Image src={`/images/devices/general/status-gsm.png`} alt="GSM symbol" width={20} height={20} />
+  <img src={`/images/devices/general/status-gsm.png`} alt="GSM symbol" width={20} height={20} />
   <span style={{paddingLeft: '10px'}}>GSM signal</span>
 </p>
 
