@@ -20,9 +20,69 @@ declare global {
   }
 }
 
-export function OApi() {
+export function OApiV1() {
   const specUrl = "/swagger/v1.json";
   const serverUrl = "https://api.lightbug.cloud/api";
+  var authToken = ""
+
+  const handleAuthTokenChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    authToken = event.target.value;
+  }
+
+  useEffect(() => {
+    const explorer = document.querySelector('openapi-explorer');
+
+    const onSpecLoaded = (event: CustomEvent) => {
+      event.detail.info.title = "Lightbug API";
+    };
+    explorer?.addEventListener('spec-loaded', onSpecLoaded);
+
+    const requestInterceptor = (event: CustomEvent) => {
+      if (authToken !== "") {
+        event.detail.request.options.headers.append('Authorization', authToken);
+      }
+    };
+    explorer?.addEventListener('request', requestInterceptor);
+
+    return () => {
+      explorer?.removeEventListener('spec-loaded', onSpecLoaded);
+      explorer?.removeEventListener('request', requestInterceptor);
+    };
+  }, []);
+
+  return <openapi-explorer
+      className = {styles.oapi}
+      spec-url = {specUrl}
+      server-url = {serverUrl}
+      collapse = {true}
+      hide-server-selection = {true}
+      hide-schema-selection = {true}
+      >
+    <div slot="nav-section" className = {styles.customSectionBar}>Filtering</div>
+    <div slot="custom-section" className = {styles.customSection}>
+      <OApiFiltering/>
+    </div>
+    <div slot="operations-header">
+      <div className="nav-bar-section-title">Endpoints</div>
+      <hr/>
+    </div>
+    <div slot="overview">
+      <OApiOverview/>
+    </div>
+    <div slot="overview-api-description"></div>
+    <div slot="authentication">
+      <OApiAuthentication handleAuthTokenChange={handleAuthTokenChange}/>
+    </div>
+    {/* <div slot="post-/users/login">
+      <div>Special content for just one route</div>
+    </div> */}
+    </openapi-explorer>
+}
+
+
+export function OApiV2() {
+  const specUrl = "/swagger/v2.json";
+  const serverUrl = "https://api.lightbug.cloud/v2";
   var authToken = ""
 
   const handleAuthTokenChange = (event: React.ChangeEvent<HTMLInputElement>) => {

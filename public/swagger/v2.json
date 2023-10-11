@@ -1,0 +1,449 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Lightbug API",
+    "contact": {},
+    "version": "2"
+  },
+  "servers": [
+    {
+      "url": "https://api.thelightbug.com/v2"
+    }
+  ],
+  "paths": {
+    "/users/login": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Login and receive an access token for future requests",
+        "requestBody": {
+          "description": "Login",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    },
+    "/users/logout": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Logout and invalidate the token",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
+    },
+    "/users/refreshToken": {
+      "post": {
+        "tags": [
+          "users"
+        ],
+        "summary": "Get a new access token using a refresh token",
+        "requestBody": {
+          "description": "RefreshToken",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            }
+          }
+        },
+        "x-codegen-request-body-name": "request"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LoginRequest": {
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object",
+        "properties": {
+          "_refreshable": {
+            "maximum": 604800,
+            "type": "integer",
+            "description": "Generate a refresh token, which expires this many seconds after the access token. Max 7 days"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password of the user"
+          },
+          "username": {
+            "type": "string",
+            "description": "Email address of the user"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "expiry": {
+            "type": "string",
+            "description": "Expiry of the access token"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Optional: Single use refresh token, if refreshable is set"
+          },
+          "refreshTokenExpiry": {
+            "type": "string",
+            "description": "Optional: Expiry of the refresh token, if refreshable is set"
+          },
+          "token": {
+            "type": "string",
+            "description": "JWT access token"
+          },
+          "userId": {
+            "type": "integer",
+            "description": "User ID of the logged in user"
+          }
+        }
+      },
+      "LogoutResponse": {
+        "type": "object"
+      },
+      "RefreshTokenRequest": {
+        "required": [
+          "_refreshable",
+          "accessToken",
+          "refreshToken"
+        ],
+        "type": "object",
+        "properties": {
+          "_refreshable": {
+            "maximum": 604800,
+            "type": "integer",
+            "description": "New refresh token will expire this many seconds after the access token. Max 7 days"
+          },
+          "accessToken": {
+            "type": "string",
+            "description": "Current access token (may be expired)"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Current refresh token"
+          }
+        }
+      },
+      "RefreshTokenResponse": {
+        "type": "object",
+        "properties": {
+          "expiry": {
+            "type": "string",
+            "description": "Expiry of the access token"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Single use refresh token"
+          },
+          "refreshTokenExpiry": {
+            "type": "string",
+            "description": "Expiry of the refresh token"
+          },
+          "token": {
+            "type": "string",
+            "description": "JWT access token"
+          },
+          "userId": {
+            "type": "integer",
+            "description": "User ID of the logged in user"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "currency": {
+            "type": "string"
+          },
+          "deviceIds": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "locationCredits": {
+            "type": "integer"
+          },
+          "parentUserId": {
+            "type": "integer"
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/UserPreferences"
+          },
+          "resellerId": {
+            "type": "integer"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "stripeCustomer": {
+            "type": "string"
+          },
+          "stripeMeteredSubId": {
+            "type": "string"
+          },
+          "username": {
+            "type": "string"
+          },
+          "xeContactId": {
+            "type": "string"
+          }
+        }
+      },
+      "UserPreferences": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "object"
+        }
+      },
+      "httputil.HTTPError": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "example": "status bad request"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    }
+  }
+}

@@ -14,9 +14,31 @@
     "title": "Devices",
     "display": "hidden"
   },
-  "rest": {
+  "api": {
+    "display": "hidden",
     "title" : "API",
-    "type": "page",
+    "type": "menu",
+    "items":{
+      "api-v1": {
+        "title": "V1",
+        "href": "/api-v1"
+      },
+      "api-v2": {
+        "title": "V2",
+        "href": "/api-v2"
+      }
+    }
+  },
+  "api-v1": {
+    "title" : "API",
+    "theme": {
+      "sidebar": false,
+      "breadcrumb": false,
+      "layout": "full"
+    }
+  },
+  "api-v2": {
+    "display": "hidden",
     "theme": {
       "sidebar": false,
       "breadcrumb": false,
