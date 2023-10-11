@@ -44,6 +44,18 @@ export function OApiV1() {
     };
     explorer?.addEventListener('request', requestInterceptor);
 
+    // Add CSS to the shadow DOM
+    const apiExplorer = document.getElementsByTagName('openapi-explorer')[0];
+    const style = document.createElement('style');
+    style.innerHTML = `
+    #operations-root {
+      padding-top: 0px !important;
+    }
+    .section-gap--focused-mode {
+      padding-top: 0px !important;
+    }`
+    apiExplorer.shadowRoot.appendChild(style);
+
     return () => {
       explorer?.removeEventListener('spec-loaded', onSpecLoaded);
       explorer?.removeEventListener('request', requestInterceptor);
@@ -103,6 +115,18 @@ export function OApiV2() {
       }
     };
     explorer?.addEventListener('request', requestInterceptor);
+
+    // Add CSS to the shadow DOM
+    const apiExplorer = document.getElementsByTagName('openapi-explorer')[0];
+    const style = document.createElement('style');
+    style.innerHTML = `
+    #operations-root {
+      padding-top: 0px !important;
+    }
+    .section-gap--focused-mode {
+      padding-top: 0px !important;
+    }`
+    apiExplorer.shadowRoot.appendChild(style);
 
     return () => {
       explorer?.removeEventListener('spec-loaded', onSpecLoaded);

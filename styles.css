@@ -86,3 +86,8 @@ openapi-explorer {
 --dialog-z-index: 1000;
 
 }
+
+/* Don't limit the article to 100vh */
+article {
+    height: 100% !important;
+}
