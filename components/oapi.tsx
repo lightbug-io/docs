@@ -48,7 +48,7 @@ export function OApiV1() {
       explorer?.removeEventListener('spec-loaded', onSpecLoaded);
       explorer?.removeEventListener('request', requestInterceptor);
     };
-  }, []);
+  }, [authToken]);
 
   return <openapi-explorer
       className = {styles.oapi}
@@ -108,7 +108,7 @@ export function OApiV2() {
       explorer?.removeEventListener('spec-loaded', onSpecLoaded);
       explorer?.removeEventListener('request', requestInterceptor);
     };
-  }, []);
+  }, [authToken]);
 
   return <openapi-explorer
       className = {styles.oapi}

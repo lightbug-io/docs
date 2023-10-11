@@ -1,4 +1,9 @@
+import fs from 'fs'
+import path from 'path'
+import matter from 'gray-matter'
+
 export async function getAllPagesWithFrontMatter(dataType: string) {
+    const root = process.cwd()
     const files = fs.readdirSync(path.join(root, 'data', dataType))
     // @ts-ignore
     return files.reduce((allPages, pageSlug) => {
