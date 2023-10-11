@@ -1,7 +1,7 @@
 // Example from https://beta.reactjs.org/learn
 
 import React, { useEffect } from 'react';
-import 'openapi-explorer';
+import 'openapi-explorer/dist/es/openapi-explorer.js';
 import styles from './oapi.module.css'
 import OApiOverview from './oapi-overview.mdx'
 import OApiFiltering from './oapi-filtering.mdx'
