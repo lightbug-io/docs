@@ -11,8 +11,7 @@
     "display": "hidden"
   },
   "devices": {
-    "title": "Devices",
-    "display": "hidden"
+    "title": "Devices"
   },
   "apis": {
     "title" : "API",

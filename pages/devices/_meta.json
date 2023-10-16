@@ -1,10 +1,4 @@
 {
-  "overview": {
-    "title": "Overview",
-    "theme": {
-      "breadcrumb": false
-    }
-  },
   "zero": "Zero",
   "pro": "Pro",
   "enviro":"Enviro",
