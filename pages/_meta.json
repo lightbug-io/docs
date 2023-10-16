@@ -4,11 +4,14 @@
   },
   "index": {
     "title": "Intro",
-    "href": "/"
+    "href": "/",
+    "theme": {
+      "sidebar": false,
+      "layout": "full"
+    }
   },
   "apps": {
-    "title": "Apps",
-    "display": "hidden"
+    "title": "Apps"
   },
   "devices": {
     "title": "Devices"
