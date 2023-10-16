@@ -1,9 +1,8 @@
 import React from 'react'
 import { DocsThemeConfig } from 'nextra-theme-docs'
-import { title } from 'process'
 
 const config: DocsThemeConfig = {
-  darkMode: false,
+  darkMode: false, // Disable the switch for dark mode
   logo: (
     <div>
       <img style={{ marginLeft: '.5em', width: '17px', height: '30px', display: 'inline-block'}} src="https://lightbug.io/images/logo-orange_hudcdce2ead9cbe2715b5cf652e648439f_53864_17x30_fit_q95_h2_box_3.webp" alt="Logo" />
