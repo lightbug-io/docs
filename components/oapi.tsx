@@ -55,7 +55,7 @@ export function OApiV1() {
       margin-top: 65px !important;
     }
     .security-info-button {
-      margin-top: 10px !important;
+      margin-top: 20px !important;
     }
     `
     apiExplorer.shadowRoot.appendChild(style);
@@ -131,7 +131,7 @@ export function OApiV2() {
       margin-top: 65px !important;
     }
     .security-info-button {
-      margin-top: 10px !important;
+      margin-top: 20px !important;
     }
     `
     apiExplorer.shadowRoot.appendChild(style);

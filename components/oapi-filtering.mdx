@@ -6,7 +6,7 @@ When a filter URL parameter can be used, it will be documented in the endpoint's
 
 The parameter should be a JSON object with the following (optional) keys...
 
-## fields
+## fields [#fields?route=section--1]
 
 **Type: Object or Array**
 
@@ -24,7 +24,7 @@ Or:
 { fields: ["location", "timestamp"] }
 ```
 
-## limit
+## limit [#limit?route=section--1]
 
 **Type: Number**
 
@@ -36,7 +36,7 @@ For example:
 {limit: 5}
 ```
 
-## order
+## order [#order?route=section--1]
 
 **Type: String**
 
@@ -54,7 +54,7 @@ or for multiple properties
 { order: ['propertyName <ASC|DESC>’, 'propertyName <ASC|DESC>',...] }
 ```
 
-## skip (offset)
+## skip (offset) [#skip?route=section--1]
 
 **Type: Number**
 
@@ -66,7 +66,7 @@ For example:
 {skip: 50}
 ```
 
-## where
+## where [#where?route=section--1]
 
 **Type: Object**
 
@@ -86,7 +86,7 @@ Or, to use an operation
 
 Where op can be one of the following:
 
-### and
+### and [#and?route=section--1]
 
 logical and
 
@@ -94,7 +94,7 @@ logical and
 {where: {and: [condition1, condition2, ...]}}
 ```
 
-### or
+### or [#or?route=section--1]
 
 logical or
 
@@ -102,7 +102,7 @@ logical or
 {where: {or: [condition1, condition2, ...]}}
 ```
 
-### gt, gte
+### gt, gte  [#gt?route=section--1]
 
 greater than, greater than or equal
 
@@ -112,11 +112,11 @@ greater than, greater than or equal
 
 To get all points since 16:50:38 on 10 Nov 2017 (unix timestamp in milliseconds)
 
-### lt, lte
+### lt, lte  [#lt?route=section--1]
 
 less than, less than or equal
 
-### between
+### between [#between?route=section--1]
 
 True if the value is between the two specified values: greater
 than or equal to first value and less than or equal to second
@@ -129,15 +129,15 @@ value.
 To get all points between 16:50:38 on 5 Nov 2017 and 16:50:38
 on 10 Nov 2017
 
-### inq, nin
+### inq, nin  [#inq?route=section--1]
 
 In / not in an array of values
 
-### near
+### near  [#near?route=section--1]
 
 For geolocations, return the closest points, sorted in order of
 distance. Use with limit to return the n closest points.
 
-### neq
+### neq  [#neq?route=section--1]
 
 not equal to
