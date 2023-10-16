@@ -1,0 +1,21 @@
+{
+  "overview": {},
+  "authentication": {},
+  "ratelimits": {"title": "Rate Limits"},
+  "v1-spec": {
+    "title": "Version 1",
+    "theme": {
+      "breadcrumb": false,
+      "sidebar": false,
+      "layout": "full"
+    }
+  },
+  "v2-spec": {
+    "title": "Version 2",
+    "theme": {
+      "breadcrumb": false,
+      "sidebar": false,
+      "layout": "full"
+    }
+  }
+}

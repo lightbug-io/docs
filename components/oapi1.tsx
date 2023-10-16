@@ -3,7 +3,6 @@
 import React, { useEffect } from 'react';
 import 'openapi-explorer/dist/es/openapi-explorer.js';
 import styles from './oapi.module.css'
-import OApiRateLimits from './oapi-ratelimits.mdx'
 import OApiOverview from './oapi1-overview.mdx'
 import OApiFiltering from './oapi1-filtering.mdx'
 import OApiAuthentication from './oapi1-authentication.mdx'
@@ -69,10 +68,6 @@ export function OApi() {
       hide-server-selection = {true}
       hide-schema-selection = {true}
       >
-    <div slot="nav-section" className = {styles.customSectionBar}>Rate limits</div>
-    <div slot="custom-section" className = {styles.customSection}>
-      <OApiRateLimits/>
-    </div>
     <div slot="nav-section" className = {styles.customSectionBar}>Filtering</div>
     <div slot="custom-section" className = {styles.customSection}>
       <OApiFiltering/>

@@ -4,12 +4,10 @@ import styles from './oapi.module.css'
 
 Authorization uses JWT Bearer tokens generated from the [`/users/login`](#?route=post-/users/login) endpoint.
 
-Below you can enter a token to use with the API while using this documentation.
+You can find an overall summary of API authentication [here](/apis/authentication).
 
-Tokens have an expiration time and will need to occasionally be regenerated with a fresh login.
+Below you can enter a token to use with the API while browsing this documentation.
+
+Tokens from both the v1 and v2 API can be used here.
 
 Token: <input className={styles.tokenInput} placeholder="Token" type="text" onChange={props.handleAuthTokenChange} />
-
-**Backward compatability**
-
-Tokens from the [version 1](/api-v1#?route=post-/users/login) `/users/login` endpoint can also be used on the version 2 API.

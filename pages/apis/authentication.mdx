@@ -1,0 +1,38 @@
+# Authentication
+
+## API tokens
+
+Authorization for the Lightbug APIs make use of Bearer tokens generated via one of the following methods:
+
+ - Version 1: [api/users/login](/apis/v1-spec#?route=post-/users/login)
+ - Version 2: [v2/users/login](/apis/v2-spec#?route=post-/users/login)
+
+You can find code examples in many languages in each API specification page.
+
+An example `curl` request to log in with the [v2/users/login](/apis/v2-spec#?route=post-/users/login) endpoint would be:
+
+```sh
+curl --request POST \
+  --url https://api.lightbug.cloud/v2/users/login \
+  --data '{ "username": "example@demo.com", "password": "someSecurePassword" }'
+```
+
+In all further authenticated API calls, the generated token must be submitted in the `Authorization` header of the request:
+
+```sh
+curl -X GET "https://api.lightbug.cloud/apiEndpoint" -H "Authorization: someTokenValueHere"'
+```
+
+## Try it now
+
+The navigable documentation specifications provide an `Execute` button that can be used to test the APIs directly from the documentation.
+
+![](https://i.imgur.com/9fvEOSr.png)
+
+The `Execute` button will automatically add the `Authorization` header to the request based on the token provided in each documentation specification authentication page.
+
+![](https://i.imgur.com/jnbJshA.png)
+
+The full `curl` example request, including token, will be visible once the `Execute` button is pressed.
+
+![](https://i.imgur.com/NFXo6Qj.png)

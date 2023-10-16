@@ -14,34 +14,15 @@
     "title": "Devices",
     "display": "hidden"
   },
-  "api": {
+  "apis": {
     "title" : "API",
     "type": "menu",
     "items":{
-      "api-v1": {
-        "title": "V1",
-        "href": "/api-v1"
-      },
-      "api-v2": {
-        "title": "V2",
-        "href": "/api-v2"
-      }
-    }
-  },
-  "api-v1": {
-    "display": "hidden",
-    "theme": {
-      "sidebar": false,
-      "breadcrumb": false,
-      "layout": "full"
-    }
-  },
-  "api-v2": {
-    "display": "hidden",
-    "theme": {
-      "sidebar": false,
-      "breadcrumb": false,
-      "layout": "full"
+      "overview": { "title": "Overview" },
+      "authentication": { "title": "Authentication" },
+      "ratelimits": { "title": "Rate Limits" },
+      "v1-spec": { "title": "Version 1" },
+      "v2-spec": { "title": "Version 2" }
     }
   },
   "company": {
