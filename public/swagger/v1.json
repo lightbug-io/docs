@@ -68,29 +68,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/datapoint"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/datapoint"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/datapoint"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/datapoint"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/datapoint"
                   }
@@ -166,29 +145,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceConfig"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceConfig"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceConfig"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceConfig"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/deviceConfig"
                   }
@@ -217,24 +175,8 @@
             }
           ],
           "requestBody": {
-            "description": "Body (JSON)",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/deviceConfig"
-                }
-              },
-              "application/x-www-form-urlencoded": {
-                "schema": {
-                  "$ref": "#/components/schemas/deviceConfig"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/deviceConfig"
-                }
-              },
-              "text/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/deviceConfig"
                 }
@@ -244,29 +186,8 @@
           },
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceConfig"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceConfig"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceConfig"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceConfig"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/deviceConfig"
                   }
@@ -309,29 +230,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/sensorReading"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/sensorReading"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/sensorReading"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/sensorReading"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/sensorReading"
                   }
@@ -373,29 +273,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/sensorReading"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/sensorReading"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/sensorReading"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/sensorReading"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/sensorReading"
                   }
@@ -434,24 +313,8 @@
             }
           ],
           "requestBody": {
-            "description": "Body (JSON)",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/sensorReading"
-                }
-              },
-              "application/x-www-form-urlencoded": {
-                "schema": {
-                  "$ref": "#/components/schemas/sensorReading"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/sensorReading"
-                }
-              },
-              "text/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/sensorReading"
                 }
@@ -461,29 +324,8 @@
           },
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/sensorReading"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/sensorReading"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/sensorReading"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/sensorReading"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/sensorReading"
                   }
@@ -562,29 +404,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/notificationTrigger"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/notificationTrigger"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/notificationTrigger"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/notificationTrigger"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/notificationTrigger"
                   }
@@ -623,24 +444,8 @@
             }
           ],
           "requestBody": {
-            "description": "Body (JSON)",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/notificationTrigger"
-                }
-              },
-              "application/x-www-form-urlencoded": {
-                "schema": {
-                  "$ref": "#/components/schemas/notificationTrigger"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/notificationTrigger"
-                }
-              },
-              "text/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/notificationTrigger"
                 }
@@ -650,29 +455,8 @@
           },
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/notificationTrigger"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/notificationTrigger"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/notificationTrigger"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/notificationTrigger"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/notificationTrigger"
                   }
@@ -751,29 +535,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceTransient"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceTransient"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceTransient"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceTransient"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/deviceTransient"
                   }
@@ -812,24 +575,8 @@
             }
           ],
           "requestBody": {
-            "description": "Body (JSON)",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/deviceTransient"
-                }
-              },
-              "application/x-www-form-urlencoded": {
-                "schema": {
-                  "$ref": "#/components/schemas/deviceTransient"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/deviceTransient"
-                }
-              },
-              "text/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/deviceTransient"
                 }
@@ -839,29 +586,8 @@
           },
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceTransient"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceTransient"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceTransient"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceTransient"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/deviceTransient"
                   }
@@ -948,38 +674,6 @@
                       "$ref": "#/components/schemas/datapoint"
                     }
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/datapoint"
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/datapoint"
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/datapoint"
-                    }
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/datapoint"
-                    }
-                  }
                 }
               }
             }
@@ -1026,38 +720,6 @@
                       "$ref": "#/components/schemas/deviceMessage"
                     }
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/deviceMessage"
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/deviceMessage"
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/deviceMessage"
-                    }
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/deviceMessage"
-                    }
-                  }
                 }
               }
             }
@@ -1083,24 +745,8 @@
             }
           ],
           "requestBody": {
-            "description": "Body (JSON)",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/deviceMessage"
-                }
-              },
-              "application/x-www-form-urlencoded": {
-                "schema": {
-                  "$ref": "#/components/schemas/deviceMessage"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/deviceMessage"
-                }
-              },
-              "text/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/deviceMessage"
                 }
@@ -1110,29 +756,8 @@
           },
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceMessage"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceMessage"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceMessage"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/deviceMessage"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/deviceMessage"
                   }
@@ -1209,38 +834,6 @@
                       "$ref": "#/components/schemas/sensorReading"
                     }
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/sensorReading"
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/sensorReading"
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/sensorReading"
-                    }
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/sensorReading"
-                    }
-                  }
                 }
               }
             }
@@ -1287,38 +880,6 @@
                       "$ref": "#/components/schemas/notificationTrigger"
                     }
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/notificationTrigger"
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/notificationTrigger"
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/notificationTrigger"
-                    }
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/notificationTrigger"
-                    }
-                  }
                 }
               }
             }
@@ -1344,24 +905,8 @@
             }
           ],
           "requestBody": {
-            "description": "Body (JSON)",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/notificationTrigger"
-                }
-              },
-              "application/x-www-form-urlencoded": {
-                "schema": {
-                  "$ref": "#/components/schemas/notificationTrigger"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/notificationTrigger"
-                }
-              },
-              "text/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/notificationTrigger"
                 }
@@ -1371,29 +916,8 @@
           },
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/notificationTrigger"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/notificationTrigger"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/notificationTrigger"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/notificationTrigger"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/notificationTrigger"
                   }
@@ -1470,38 +994,6 @@
                       "$ref": "#/components/schemas/deviceTransient"
                     }
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/deviceTransient"
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/deviceTransient"
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/deviceTransient"
-                    }
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/deviceTransient"
-                    }
-                  }
                 }
               }
             }
@@ -1539,29 +1031,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/device"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/device"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/device"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/device"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/device"
                   }
@@ -1577,7 +1048,7 @@
           "tags": [
             "rtk"
           ],
-          "summary": "RTK>Retrieve rtk status and config object for a device",
+          "summary": "Retrieve RTK status and config object for a device",
           "operationId": "device.prototype.getRtkStatus",
           "parameters": [
             {
@@ -1593,29 +1064,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkDevice"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkDevice"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkDevice"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkDevice"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/iRtkDevice"
                   }
@@ -1631,7 +1081,7 @@
           "tags": [
             "rtk"
           ],
-          "summary": "RTK>Get recent log events from rtk service",
+          "summary": "Get recent log events from RTK service",
           "operationId": "device.prototype.getRecentRtkLogs",
           "parameters": [
             {
@@ -1656,38 +1106,6 @@
                       "$ref": "#/components/schemas/iRtkLog"
                     }
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/iRtkLog"
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/iRtkLog"
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/iRtkLog"
-                    }
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/iRtkLog"
-                    }
-                  }
                 }
               }
             }
@@ -1700,7 +1118,7 @@
           "tags": [
             "rtk"
           ],
-          "summary": "RTK>Retrieve a command by messageId to check status",
+          "summary": "Retrieve a command by messageId to check status",
           "operationId": "device.prototype.getRtkCommand",
           "parameters": [
             {
@@ -1726,29 +1144,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/iRtkCommand"
                   }
@@ -1764,7 +1161,7 @@
           "tags": [
             "rtk"
           ],
-          "summary": "RTK>Change the update interval",
+          "summary": "Change the update interval",
           "operationId": "device.prototype.queueRtkCmd_UpdateRateMs",
           "parameters": [
             {
@@ -1790,29 +1187,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/iRtkCommand"
                   }
@@ -1828,7 +1204,7 @@
           "tags": [
             "rtk"
           ],
-          "summary": "RTK>Trigger an alert now on the device",
+          "summary": "Trigger an alert now on the device",
           "operationId": "device.prototype.queueRtkCmd_AlertNow",
           "parameters": [
             {
@@ -1854,29 +1230,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/iRtkCommand"
                   }
@@ -1892,7 +1247,7 @@
           "tags": [
             "rtk"
           ],
-          "summary": "RTK>Trigger a prompt now on the device (response sent via MQTT)",
+          "summary": "Trigger a prompt now on the device (response sent via MQTT)",
           "operationId": "device.prototype.queueRtkCmd_AlertWithPrompt",
           "parameters": [
             {
@@ -1952,29 +1307,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/iRtkCommand"
                   }
@@ -1990,7 +1324,7 @@
           "tags": [
             "rtk"
           ],
-          "summary": "RTK>Reboot Rtk Module (useful for fixing multipath hysteresis issues)",
+          "summary": "Reboot RTK Module (useful for fixing multipath hysteresis issues)",
           "operationId": "device.prototype.queueRtkCmd_RebootRtk",
           "parameters": [
             {
@@ -2006,29 +1340,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/iRtkCommand"
                   }
@@ -2044,7 +1357,7 @@
           "tags": [
             "rtk"
           ],
-          "summary": "RTK>Set point buffer size",
+          "summary": "Set point buffer size",
           "operationId": "device.prototype.queueRtkCmd_SetPointBufferSize",
           "parameters": [
             {
@@ -2070,29 +1383,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkCommand"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/iRtkCommand"
                   }
@@ -2108,7 +1400,7 @@
           "tags": [
             "rtk"
           ],
-          "summary": "RTK>External BaseStation Status Change",
+          "summary": "External BaseStation Status Change",
           "operationId": "device.prototype.updateRtkBaseStatus",
           "parameters": [
             {
@@ -2160,29 +1452,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkBase"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkBase"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkBase"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/iRtkBase"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/iRtkBase"
                   }
@@ -2229,26 +1500,6 @@
                   "schema": {
                     "type": "object"
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "object"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "object"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "object"
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "object"
-                  }
                 }
               }
             }
@@ -2285,59 +1536,14 @@
                     "$ref": "#/components/schemas/GeoPoint"
                   }
                 }
-              },
-              "application/x-www-form-urlencoded": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GeoPoint"
-                  }
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GeoPoint"
-                  }
-                }
-              },
-              "text/xml": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GeoPoint"
-                  }
-                }
               }
             },
             "required": true
           },
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/geofence"
                   }
@@ -2370,29 +1576,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/geofence"
                   }
@@ -2441,38 +1626,6 @@
               "description": "Request was successful",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "type": "array",
                     "items": {
@@ -2530,26 +1683,6 @@
                   "schema": {
                     "type": "object"
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "object"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "object"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "object"
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "object"
-                  }
                 }
               }
             }
@@ -2595,46 +1728,6 @@
               "description": "Request was successful",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "type": "object",
                     "properties": {
@@ -2697,46 +1790,6 @@
                       }
                     }
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "status": {
-                        "type": "string"
-                      }
-                    }
-                  }
                 }
               }
             }
@@ -2775,29 +1828,8 @@
           ],
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/geofence"
                   }
@@ -2836,24 +1868,8 @@
             }
           ],
           "requestBody": {
-            "description": "Body (JSON)",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/geofence"
-                }
-              },
-              "application/x-www-form-urlencoded": {
-                "schema": {
-                  "$ref": "#/components/schemas/geofence"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/geofence"
-                }
-              },
-              "text/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/geofence"
                 }
@@ -2863,29 +1879,8 @@
           },
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/geofence"
                   }
@@ -2972,38 +1967,6 @@
                       "$ref": "#/components/schemas/device"
                     }
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/device"
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/device"
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/device"
-                    }
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/device"
-                    }
-                  }
                 }
               }
             }
@@ -3050,38 +2013,6 @@
                       "$ref": "#/components/schemas/geofence"
                     }
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/geofence"
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/geofence"
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/geofence"
-                    }
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/geofence"
-                    }
-                  }
                 }
               }
             }
@@ -3107,24 +2038,8 @@
             }
           ],
           "requestBody": {
-            "description": "Body (JSON)",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/geofence"
-                }
-              },
-              "application/x-www-form-urlencoded": {
-                "schema": {
-                  "$ref": "#/components/schemas/geofence"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/geofence"
-                }
-              },
-              "text/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/geofence"
                 }
@@ -3134,29 +2049,8 @@
           },
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/geofence"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/geofence"
                   }
@@ -3213,24 +2107,8 @@
             }
           ],
           "requestBody": {
-            "description": "Body (JSON)",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/credentials"
-                }
-              },
-              "application/x-www-form-urlencoded": {
-                "schema": {
-                  "$ref": "#/components/schemas/credentials"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "$ref": "#/components/schemas/credentials"
-                }
-              },
-              "text/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/credentials"
                 }
@@ -3240,29 +2118,8 @@
           },
           "responses": {
             "200": {
-              "description": "Body (JSON)",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/accessToken"
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/accessToken"
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "$ref": "#/components/schemas/accessToken"
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "$ref": "#/components/schemas/accessToken"
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "$ref": "#/components/schemas/accessToken"
                   }
@@ -3271,7 +2128,14 @@
             }
           },
           "deprecated": false,
-          "x-codegen-request-body-name": "credentials"
+          "x-codegen-request-body-name": "credentials",
+          "x-code-samples": [
+            {
+              "lang": "JavaScript",
+              "label": "JS + Axios",
+              "source": "xxx"
+            }
+          ]
         }
       },
       "/users/{id}/getDeviceSummary": {
@@ -3325,42 +2189,6 @@
               "description": "Request was successful",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "description": "Returns Array of device objects, with extra field `latestPoints`, containing an array of simplified datapoint objects. Datapoint fields included are 'id', 'timestamp', 'location', 'speed', 'course', 'accuracy', 'sendReason', 'address', 'deviceId', 'alertType'",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "description": "Returns Array of device objects, with extra field `latestPoints`, containing an array of simplified datapoint objects. Datapoint fields included are 'id', 'timestamp', 'location', 'speed', 'course', 'accuracy', 'sendReason', 'address', 'deviceId', 'alertType'",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "array",
-                    "description": "Returns Array of device objects, with extra field `latestPoints`, containing an array of simplified datapoint objects. Datapoint fields included are 'id', 'timestamp', 'location', 'speed', 'course', 'accuracy', 'sendReason', 'address', 'deviceId', 'alertType'",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "description": "Returns Array of device objects, with extra field `latestPoints`, containing an array of simplified datapoint objects. Datapoint fields included are 'id', 'timestamp', 'location', 'speed', 'course', 'accuracy', 'sendReason', 'address', 'deviceId', 'alertType'",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "type": "array",
                     "description": "Returns Array of device objects, with extra field `latestPoints`, containing an array of simplified datapoint objects. Datapoint fields included are 'id', 'timestamp', 'location', 'speed', 'course', 'accuracy', 'sendReason', 'address', 'deviceId', 'alertType'",
@@ -3433,42 +2261,6 @@
                       "$ref": "#/components/schemas/x-any"
                     }
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "description": "Returns Array of device objects, with extra field `latestPoints`, containing an array of simplified datapoint objects. Datapoint fields included are 'id', 'timestamp', 'location', 'speed', 'course', 'accuracy', 'sendReason', 'address', 'deviceId', 'alertType'",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "array",
-                    "description": "Returns Array of device objects, with extra field `latestPoints`, containing an array of simplified datapoint objects. Datapoint fields included are 'id', 'timestamp', 'location', 'speed', 'course', 'accuracy', 'sendReason', 'address', 'deviceId', 'alertType'",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "description": "Returns Array of device objects, with extra field `latestPoints`, containing an array of simplified datapoint objects. Datapoint fields included are 'id', 'timestamp', 'location', 'speed', 'course', 'accuracy', 'sendReason', 'address', 'deviceId', 'alertType'",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "description": "Returns Array of device objects, with extra field `latestPoints`, containing an array of simplified datapoint objects. Datapoint fields included are 'id', 'timestamp', 'location', 'speed', 'course', 'accuracy', 'sendReason', 'address', 'deviceId', 'alertType'",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
                 }
               }
             }
@@ -3525,42 +2317,6 @@
                       "$ref": "#/components/schemas/x-any"
                     }
                   }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "array",
-                    "description": "Returns Array of device objects",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "array",
-                    "description": "Returns Array of device objects",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "description": "Returns Array of device objects",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
-                },
-                "text/javascript": {
-                  "schema": {
-                    "type": "array",
-                    "description": "Returns Array of device objects",
-                    "items": {
-                      "$ref": "#/components/schemas/x-any"
-                    }
-                  }
                 }
               }
             }
@@ -3573,6 +2329,7 @@
           "tags": [
             "users"
           ],
+          "summary": "Get MQTT credentials for a user.",
           "operationId": "user.prototype.getMqttCredentials",
           "parameters": [
             {
@@ -3591,70 +2348,6 @@
               "description": "Request was successful",
               "content": {
                 "application/json": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "clientId": {
-                        "type": "string"
-                      },
-                      "username": {
-                        "type": "string"
-                      },
-                      "password": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "application/xml": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "clientId": {
-                        "type": "string"
-                      },
-                      "username": {
-                        "type": "string"
-                      },
-                      "password": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "text/xml": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "clientId": {
-                        "type": "string"
-                      },
-                      "username": {
-                        "type": "string"
-                      },
-                      "password": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "application/javascript": {
-                  "schema": {
-                    "type": "object",
-                    "properties": {
-                      "clientId": {
-                        "type": "string"
-                      },
-                      "username": {
-                        "type": "string"
-                      },
-                      "password": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "text/javascript": {
                   "schema": {
                     "type": "object",
                     "properties": {
@@ -4664,27 +3357,33 @@
           "type": "object",
           "properties": {
             "id": {
-              "type": "string"
+              "type": "string",
+              "description": "The token",
+              "example": "18rj0k2r81h2r980ijfd0m8f21"
             },
             "ttl": {
               "type": "number",
-              "description": "time to live in seconds (2 weeks by default)",
-              "format": ""
+              "description": "Time to live in seconds (2 weeks by default)",
+              "format": "",
+              "example": "1210000"
             },
             "scopes": {
               "type": "array",
-              "description": "Array of scopes granted to this access token.",
+              "description": "Array of scopes granted to this access token. (Not currently used)",
               "items": {
                 "type": "string"
-              }
+              },
+              "example": "[]"
             },
             "created": {
               "type": "string",
-              "format": "date-time"
+              "format": "date-time",
+              "example": "2023-10-12T10:31:09.273Z"
             },
             "userId": {
               "type": "number",
-              "format": ""
+              "format": "",
+              "example": "123"
             }
           }
         },
@@ -4731,10 +3430,12 @@
           "type": "object",
           "properties": {
             "username": {
-              "type": "string"
+              "type": "string",
+              "example": "foo@example.io"
             },
             "password": {
-              "type": "string"
+              "type": "string",
+              "example": "super-secure-password-67890"
             }
           }
         }

@@ -21,7 +21,7 @@ declare global {
 }
 
 export function OApiV1() {
-  const specUrl = "/swagger/v1.json";
+  const specUrl = "/swagger/v1.yaml";
   const serverUrl = "https://api.lightbug.cloud/api";
   var authToken = ""
 
@@ -89,9 +89,12 @@ export function OApiV1() {
     <div slot="authentication">
       <OApiAuthentication handleAuthTokenChange={handleAuthTokenChange}/>
     </div>
-    {/* <div slot="post-/users/login">
-      <div>Special content for just one route</div>
-    </div> */}
+    <div slot="post-/users/login">
+      <div>Use this route to get a token for use in subsequent authenticated requests.</div>
+      <div>The <code>id</code> in the response is the token.</div>
+      <div>This needs to be passed in the <code>Authorization</code> header of subsequent requests.</div>
+      <div>For example: <code>Authorization: h7d8j3921u091jfdwjd0j1</code></div>
+    </div>
     </openapi-explorer>
 }
 
