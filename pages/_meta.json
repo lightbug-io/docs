@@ -15,7 +15,6 @@
     "display": "hidden"
   },
   "api": {
-    "display": "hidden",
     "title" : "API",
     "type": "menu",
     "items":{
@@ -30,7 +29,7 @@
     }
   },
   "api-v1": {
-    "title" : "API",
+    "display": "hidden",
     "theme": {
       "sidebar": false,
       "breadcrumb": false,

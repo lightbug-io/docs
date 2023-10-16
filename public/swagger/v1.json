@@ -1,13 +1,13 @@
 {
     "openapi": "3.0.1",
     "info": {
-      "title": "TrackingAPI",
-      "description": "API for retrieving tracking data and changing settings on Lightbug & RemoteThings tracking devices",
+      "title": "Version 1",
+      "description": "API for retrieving tracking data and changing settings on Lightbug tracking devices",
       "version": "1.1.0"
     },
     "servers": [
       {
-        "url": "https://api.thelightbug.com/api"
+        "url": "https://api.lightbug.cloud/api"
       }
     ],
     "tags": [

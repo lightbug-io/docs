@@ -3,9 +3,10 @@
 import React, { useEffect } from 'react';
 import 'openapi-explorer/dist/es/openapi-explorer.js';
 import styles from './oapi.module.css'
-import OApiOverview from './oapi-overview.mdx'
-import OApiFiltering from './oapi-filtering.mdx'
-import OApiAuthentication from './oapi-authentication.mdx'
+import OApiRateLimits from './oapi-ratelimits.mdx'
+import OApiOverview from './oapi1-overview.mdx'
+import OApiFiltering from './oapi1-filtering.mdx'
+import OApiAuthentication from './oapi1-authentication.mdx'
 
 interface OpenApiExplorerProps {
   collapse?: boolean;
@@ -20,7 +21,7 @@ declare global {
   }
 }
 
-export function OApiV1() {
+export function OApi() {
   const specUrl = "/swagger/v1.yaml";
   const serverUrl = "https://api.lightbug.cloud/api";
   var authToken = ""
@@ -31,11 +32,6 @@ export function OApiV1() {
 
   useEffect(() => {
     const explorer = document.querySelector('openapi-explorer') as any;
-
-    const onSpecLoaded = (event: CustomEvent) => {
-      event.detail.info.title = "Lightbug API";
-    };
-    explorer?.addEventListener('spec-loaded', onSpecLoaded);
 
     const requestInterceptor = (event: CustomEvent) => {
       if (authToken !== "") {
@@ -61,7 +57,6 @@ export function OApiV1() {
     apiExplorer.shadowRoot.appendChild(style);
 
     return () => {
-      explorer?.removeEventListener('spec-loaded', onSpecLoaded);
       explorer?.removeEventListener('request', requestInterceptor);
     };
   }, [authToken]);
@@ -74,6 +69,10 @@ export function OApiV1() {
       hide-server-selection = {true}
       hide-schema-selection = {true}
       >
+    <div slot="nav-section" className = {styles.customSectionBar}>Rate limits</div>
+    <div slot="custom-section" className = {styles.customSection}>
+      <OApiRateLimits/>
+    </div>
     <div slot="nav-section" className = {styles.customSectionBar}>Filtering</div>
     <div slot="custom-section" className = {styles.customSection}>
       <OApiFiltering/>
@@ -95,81 +94,5 @@ export function OApiV1() {
       <div>This needs to be passed in the <code>Authorization</code> header of subsequent requests.</div>
       <div>For example: <code>Authorization: h7d8j3921u091jfdwjd0j1</code></div>
     </div>
-    </openapi-explorer>
-}
-
-
-export function OApiV2() {
-  const specUrl = "/swagger/v2.json";
-  const serverUrl = "https://api.lightbug.cloud/v2";
-  var authToken = ""
-
-  const handleAuthTokenChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    authToken = event.target.value;
-  }
-
-  useEffect(() => {
-    const explorer = document.querySelector('openapi-explorer');
-
-    const onSpecLoaded = (event: CustomEvent) => {
-      event.detail.info.title = "Lightbug API";
-    };
-    explorer?.addEventListener('spec-loaded', onSpecLoaded);
-
-    const requestInterceptor = (event: CustomEvent) => {
-      if (authToken !== "") {
-        event.detail.request.options.headers.append('Authorization', authToken);
-      }
-    };
-    explorer?.addEventListener('request', requestInterceptor);
-
-    // Add CSS to the shadow DOM
-    const apiExplorer = document.getElementsByTagName('openapi-explorer')[0];
-    const style = document.createElement('style');
-    // This style partially fixes scrolling issues, ensuring:
-    // - in most cases that the "filter" box is visible on top of the navbar at default scroll positions
-    // - the API Key auth button is also visible in the top right
-    style.innerHTML = `
-    .nav-bar {
-      margin-top: 65px !important;
-    }
-    .security-info-button {
-      margin-top: 20px !important;
-    }
-    `
-    apiExplorer.shadowRoot.appendChild(style);
-
-    return () => {
-      explorer?.removeEventListener('spec-loaded', onSpecLoaded);
-      explorer?.removeEventListener('request', requestInterceptor);
-    };
-  }, [authToken]);
-
-  return <openapi-explorer
-      className = {styles.oapi}
-      spec-url = {specUrl}
-      server-url = {serverUrl}
-      collapse = {true}
-      hide-server-selection = {true}
-      hide-schema-selection = {true}
-      >
-    <div slot="nav-section" className = {styles.customSectionBar}>Filtering</div>
-    <div slot="custom-section" className = {styles.customSection}>
-      <OApiFiltering/>
-    </div>
-    <div slot="operations-header">
-      <div className="nav-bar-section-title">Endpoints</div>
-      <hr/>
-    </div>
-    <div slot="overview">
-      <OApiOverview/>
-    </div>
-    <div slot="overview-api-description"></div>
-    <div slot="authentication">
-      <OApiAuthentication handleAuthTokenChange={handleAuthTokenChange}/>
-    </div>
-    {/* <div slot="post-/users/login">
-      <div>Special content for just one route</div>
-    </div> */}
     </openapi-explorer>
 }
