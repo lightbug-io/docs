@@ -47,13 +47,17 @@ export function OApiV1() {
     // Add CSS to the shadow DOM
     const apiExplorer = document.getElementsByTagName('openapi-explorer')[0];
     const style = document.createElement('style');
+    // This style partially fixes scrolling issues, ensuring:
+    // - in most cases that the "filter" box is visible on top of the navbar at default scroll positions
+    // - the API Key auth button is also visible in the top right
     style.innerHTML = `
-    #operations-root {
-      padding-top: 0px !important;
+    .nav-bar {
+      margin-top: 65px !important;
     }
-    .section-gap--focused-mode {
-      padding-top: 0px !important;
-    }`
+    .security-info-button {
+      margin-top: 10px !important;
+    }
+    `
     apiExplorer.shadowRoot.appendChild(style);
 
     return () => {
@@ -119,13 +123,17 @@ export function OApiV2() {
     // Add CSS to the shadow DOM
     const apiExplorer = document.getElementsByTagName('openapi-explorer')[0];
     const style = document.createElement('style');
+    // This style partially fixes scrolling issues, ensuring:
+    // - in most cases that the "filter" box is visible on top of the navbar at default scroll positions
+    // - the API Key auth button is also visible in the top right
     style.innerHTML = `
-    #operations-root {
-      padding-top: 0px !important;
+    .nav-bar {
+      margin-top: 65px !important;
     }
-    .section-gap--focused-mode {
-      padding-top: 0px !important;
-    }`
+    .security-info-button {
+      margin-top: 10px !important;
+    }
+    `
     apiExplorer.shadowRoot.appendChild(style);
 
     return () => {
