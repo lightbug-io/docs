@@ -3,29 +3,27 @@
     "type": "page"
   },
   "index": {
-    "title": "Intro",
+    "title": "Home",
     "href": "/",
     "theme": {
       "sidebar": false,
       "layout": "full"
     }
   },
-  "apps": {
-    "title": "Apps"
+  "introductions": {
+    "title": "Introductions"
   },
   "devices": {
     "title": "Devices"
   },
+  "apps": {
+    "title": "Apps"
+  },
   "apis": {
-    "title" : "API",
-    "type": "menu",
-    "items":{
-      "overview": { "title": "Overview" },
-      "authentication": { "title": "Authentication" },
-      "ratelimits": { "title": "Rate Limits" },
-      "v1-spec": { "title": "Version 1" },
-      "v2-spec": { "title": "Version 2" }
-    }
+    "title" : "APIs"
+  },
+  "silos": {
+    "title" : "Silos"
   },
   "company": {
     "title": "Company",

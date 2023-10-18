@@ -15,6 +15,10 @@ const config: DocsThemeConfig = {
       <link rel="icon" type="image/x-icon" href="https://lightbug.io/favicon.ico"></link>
     </>
   ),
+  sidebar: {
+    autoCollapse: true,
+    defaultMenuCollapseLevel: 1,
+  },
   project: {
     link: 'https://github.com/lightbug-io',
   },
