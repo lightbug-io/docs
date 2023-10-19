@@ -1,7 +1,8 @@
 {
   "overview": {},
   "authentication": {},
-  "ratelimits": {"title": "Rate Limits"},
+  "ratelimits": "Rate Limits",
+  "sdks": "SDKs",
   "v1-spec": {
     "title": "Version 1",
     "theme": {
