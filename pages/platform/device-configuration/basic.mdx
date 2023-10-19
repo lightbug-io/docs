@@ -1,0 +1,61 @@
+import { Callout } from 'nextra/components'
+
+# Basic
+
+The easiest to understand, and easiest to setup settings.
+
+## Name
+
+Name of the device for easy recognition.
+
+## Dot Color
+
+The color of the dot on the app map.
+
+## Update rate
+
+The desired update rate while the device is moving.
+
+## Beacon period
+
+When stationary, the device will automatically enter power saving mode.
+
+In this mode, it will send priodic beacon updates to confirm it is still operational, and download settings if they have changed.
+
+## Motion detection
+
+Choose weather the device should increase its reporting frequency when moving.
+
+When enabled the device will automatically wake up when moving and send beacons when stationary.
+
+<Callout type="info" emoji="ℹ️">
+  Battery life will be reduced when enabled.
+</Callout>
+
+### Sensitivity
+
+Options are:
+
+ - very
+ - default
+ - reduced
+ - low
+
+## Safe zones
+
+<Callout type="warning" emoji="⚠️">
+  There may be a delay between your device leaving home and motion detection being re-enabled.
+  Do not use these settings if you need instant motion detection.
+</Callout>
+
+### WiFi Network
+
+Allows you to ignore motion when the device detects a nearby WiFi network.
+
+When enabled you can ignore motion when near a single SSID.
+
+### Bluetooth
+
+Allows you to ignore motion when the device detects a nearby paired phone.
+
+This must be setup using the [mobile app](/apps/cloud).

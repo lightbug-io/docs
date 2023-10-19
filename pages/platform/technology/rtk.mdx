@@ -1,0 +1,15 @@
+# RTK (Real-time kinematic positioning)
+
+Some Lightbug devices include RTK (Real-time kinematic positioning) functionality.
+
+This allows for more accurate positioning than GPS alone.
+
+In summary:
+ - A stationary base station is placed at a known location with precisely surveyed coordinates
+ - The stationary device receives signals from satellites and calculates the difference between the observed and expected positions, sending these to backend servcies.
+ - A mobile device receives realtime correction data from the stationary device, allowing it to calculate its position more accurately than GPS alone.
+ - The mobile device sends its position to the backend services.
+
+## Further Reading
+
+ - https://en.wikipedia.org/wiki/Real-time_kinematic_positioning
