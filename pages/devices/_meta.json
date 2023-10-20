@@ -3,5 +3,6 @@
   "pro": "Pro",
   "enviro":"Enviro",
   "incognito":"Incognito",
-  "vehicle":"Vehicle"
+  "vehicle":"Vehicle",
+  "configuration":"Configuration"
 }

@@ -1,0 +1,40 @@
+import { Callout } from 'nextra/components'
+import { Tabs, Tab } from 'nextra/components'
+
+# Motion detection
+
+Choose weather the device should increase its reporting frequency when moving.
+
+When motion detection is enabled, the device will automatically wake up when moving and send beacons when stationary.
+
+<Callout type="info" emoji="ℹ️">
+  Battery life will be reduced when enabled.
+</Callout>
+
+## Sensitivity
+
+The motion level required to keep the device awake once it is moving.
+
+1 = most sensitive, 10 = least sensitive.
+
+This value should be lower or the same as the wake sensitivity.
+
+TODO show what numbers are used in the UI?
+
+## Advanced
+
+<Callout type="warning" emoji="⚠️">
+  Be sure you fully understand the implications of these settings before changing them on devies.
+</Callout>
+
+### Sensitivity after first move
+
+TODO
+
+### Stop timeout
+
+TODO
+
+### Detect shocks rather than falls
+
+TODO

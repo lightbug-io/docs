@@ -34,18 +34,13 @@ const ModeFlagsComponent = () => {
     <div style={{
       display: "flex",
       flexDirection: "column",
-      alignItems: "center",
       padding: "10px",
-      margin: "20px",
-      backgroundColor: "rgba(192, 192, 192, 0.8)",
-      borderRadius: "10px"
     }}>
       <input
         type="number"
         value={bitfieldValue}
         onChange={(e) => setBitfieldValue(parseInt(e.target.value))}
         style={{
-          margin: "10px",
           padding: "5px",
           borderRadius: "5px",
           textAlign: "center"
@@ -53,10 +48,9 @@ const ModeFlagsComponent = () => {
       />
       {bitfieldBits.map((bit, index) => (
         <div key={index} style={{ margin: "1px" }}>
-          {bit ? "✅" : "❌"} {bitfieldDescriptions[index]} - {1 << index}
+          {bit ? "✅" : "❌"} {1 << index}: {bitfieldDescriptions[index]}
         </div>
       ))}
-      <div style={{ marginTop: "5px" }}>🧮</div>
     </div>
   );
 };

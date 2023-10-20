@@ -1,0 +1,81 @@
+import { Callout } from 'nextra/components'
+import { Tabs, Tab } from 'nextra/components'
+
+# Transmission
+
+## Update rate
+
+The desired update rate while the device is moving.
+
+## Beacon period
+
+When stationary, the device will automatically enter power saving mode.
+
+In this mode, it will send priodic beacon updates to confirm it is still operational, report battery status, and download settings if they have changed.
+
+## Advanced
+
+<Callout type="warning" emoji="⚠️">
+  Be sure you fully understand the implications of these settings before changing them on devies.
+</Callout>
+
+## Packing
+
+TODO
+
+## Transmit only on beacon
+
+Collect data in wake mode, and limit transmission so that data is only uploaded every time a beacon is sent.
+
+## Enable power budget
+
+Abandon Transmissions that are taking too much power, to preserve battery.
+
+{/* stuff */}
+
+## Transmit only on beacon
+
+Collect data in wake mode, and limit transmission so that data is only uploaded every time a beacon is sent.
+
+## Network wake delay
+
+Delay transmission on first wake.
+
+Useful to avoid approximate locations when the device first wakes up (waiting gives GPS chance to lock in).
+
+Value is multiplied by 30s on the device side.
+
+Value of 2 = 60s = 1 minute.
+
+## Modem on when awake
+
+Leave cellular modem on and connected when the device is awake.
+
+Can improve performance in low signal areas.
+
+## Modem on in sleep
+
+Leave cellular modem on and connected when the device is in power-saving mode.
+
+Reduces time to first alert when device moves.
+
+## Lock 2G mode
+
+Force 2G mode and disable 4G network search.
+Reduces search time in countries with no 4G LTE-M / CAT-M1 coverage (e.g. the UK) but may prevent roaming when abroad.
+
+## Start Stop Only
+
+Only record points at the start and end of each trip to save power.
+
+## Lock wake on Button
+
+Lock wake mode when the button is pressed.
+
+Designed for SOS type usage.
+
+## Lock wake
+
+Disable power-saving mode.
+
+Stay awake even when device is stationary.
