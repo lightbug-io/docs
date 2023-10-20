@@ -1,0 +1,53 @@
+import { Callout } from 'nextra/components'
+import Behaviour from '../../../components/helper-tools/behaviour'
+import ModeControl from '../../../components/helper-tools/modecontrol'
+import ModeControl2 from '../../../components/helper-tools/modecontrol2'
+import SendReason from '../../../components/helper-tools/sendreasons'
+
+# Bitfield helpers
+
+The version 1 API exposes some rather low level settings and data from devices that may not be immediately obvious how to use or read.
+
+These mainly take the form of boolean (true/false) flags that control device behaviour or report device state.
+
+You can make use of the various helpers below to help you understand and use these values.
+
+## Device Settings
+
+### behaviour
+
+<Callout type="warning" emoji="⚠️">
+  DisableBluetooth & DisableWifi require a device reset to take effect.
+</Callout>
+
+<Callout emoji="🧮">
+  Use this calculator to determine the correct value to use for the `behaviour` settings.
+  <Behaviour />
+</Callout>
+
+### modeControl
+
+<Callout emoji="🧮">
+  Use this calculator to determine the correct value to use for the `modeControl` settings.
+  <ModeControl />
+</Callout>
+
+### modeControl2
+
+<Callout emoji="🧮">
+  Use this calculator to determine the correct value to use for the `modeControl2` settings.
+  <ModeControl2 />
+</Callout>
+
+## Datapoint State
+
+### sendReason
+
+<Callout type="warning" emoji="⚠️">
+  Special case 255/0xFF: device was checking in with server. Ignore all data
+</Callout>
+
+<Callout emoji="🧮">
+  Use this calculator to determine the correct value to use for the `sendReason` of datapoints.
+  <SendReason />
+</Callout>

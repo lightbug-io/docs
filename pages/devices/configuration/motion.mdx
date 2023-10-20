@@ -3,38 +3,52 @@ import { Tabs, Tab } from 'nextra/components'
 
 # Motion detection
 
-Choose weather the device should increase its reporting frequency when moving.
+Choose how a device detects and handles various types of movement.
 
-When motion detection is enabled, the device will automatically wake up when moving and send beacons when stationary.
+Ultimately, when motion detection is enabled, the device will wake up when moving and send beacons when stationary.
 
 <Callout type="info" emoji="ℹ️">
   Battery life will be reduced when enabled.
 </Callout>
 
-## Sensitivity
+## Sleep Sensitivity
 
-The motion level required to keep the device awake once it is moving.
+{/*In the API this is debounce*/}
 
-1 = most sensitive, 10 = least sensitive.
+Movement sensitivity on a scale of 1 to 10 while the device is asleep.
 
-This value should be lower or the same as the wake sensitivity.
+It is correlated to the number of consecutive milliseconds the acceleration needs to exceed a threshold to count as movement and wake up.
 
-TODO show what numbers are used in the UI?
+| Sensitivity | Description |
+| ----------- | ----------- |
+| 1 | Very sensitive |
+| 2 | Default |
+| 4 | Reduced |
+| 8 | Low |
 
-## Advanced
+
+## Wake Sensitivity
+
+{/*In the API this is movementSensitivity2*/}
+
+Movement sensitivity on a scale of 1 to 10 while the device is awake, to keep it awake.
+
+Also called "Sensitivity after first move".
 
 <Callout type="warning" emoji="⚠️">
-  Be sure you fully understand the implications of these settings before changing them on devies.
+  This value should be lower or the same as the wake sensitivity.
 </Callout>
 
-### Sensitivity after first move
+## Stop timeout
 
-TODO
+Select how long (in seconds) the device should wait before entering sleep mode after motion stops.
 
-### Stop timeout
+Shorter timeout will capture more stops (for example when a vehicle stops at traffic lights).
 
-TODO
+Longer timeout may increase battery life.
 
-### Detect shocks rather than falls
+## Detect shocks rather than falls
+
+{/*modeControl2 shockDetect*/}
 
 TODO

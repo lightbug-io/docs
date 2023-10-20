@@ -2,7 +2,6 @@
   "index": "Overview",
   "authentication": {},
   "ratelimits": "Rate Limits",
-  "sdks": "SDKs",
   "v1": "Version 1",
   "v2": "Version 2"
 }

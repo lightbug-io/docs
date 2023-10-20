@@ -6,5 +6,6 @@
       "layout": "full"
     }
   },
-  "modeControl": "Mode controls"
+  "sdks": "SDKs",
+  "bitfields": "Bitfiled helpers"
 }
