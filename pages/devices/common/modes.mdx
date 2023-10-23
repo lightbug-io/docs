@@ -1,5 +1,20 @@
+import { Callout } from 'nextra/components'
+
 # Modes
 
 ## Wake mode
 
+More frequent updates, but more battery usage.
+
+See the [update rate](devices/configuration/transmission#update-rate) device configuration.
+
+<Callout type="warning" emoji="⚠️">
+  If your device battery level is critical, wake mode may be disabled.
+  Generally this is 20% or less.
+</Callout>
+
 ## Sleep mode
+
+Will send updates based on the [beacon period](devices/configuration/transmission#beacon-period) set in device configuration.
+
+If [motion detection](devices/configuration/motion) is enabled, the device may wake up and send more regular updates.

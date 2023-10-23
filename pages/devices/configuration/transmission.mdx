@@ -27,10 +27,6 @@ This setting only applies while the device is awake.
 
 {/* TODO maximum number of points that can be sotred before sending? */}
 
-## Transmit only on beacon
-
-Collect data in wake mode, and limit transmission so that data is only uploaded every time a beacon is sent.
-
 ## Enable power budget
 
 Abandon Transmissions that are taking too much power, to preserve battery.
@@ -53,17 +49,23 @@ Value of 2 = 60s = 1 minute.
 
 ## Modem on when awake
 
+{/*behaviour GsmOnWhenAwake*/}
+
 Leave cellular modem on and connected when the device is awake.
 
 Can improve performance in low signal areas.
 
 ## Modem on in sleep
 
+{/*behaviour GsmOnWhenAsleep*/}
+
 Leave cellular modem on and connected when the device is in power-saving mode.
 
 Reduces time to first alert when device moves.
 
 ## Lock 2G mode
+
+{/*modeControl2 Lock2G*/}
 
 Force 2G mode and disable 4G network search.
 Reduces search time in countries with no 4G LTE-M / CAT-M1 coverage (e.g. the UK) but may prevent roaming when abroad.

@@ -3,22 +3,38 @@ import { Tabs, Tab } from 'nextra/components'
 
 # Sensors
 
-## GPS Timeout
-
-TODO
-
-## GPS stabilize time
-
-TODO
-
 ## Disable GPS
 
-TODO
+Disabled GPS functionality, such as GPS locations
 
 ## Disable WiFi
 
-TODO
+{/*behaviour DisableWifi*/}
+
+Disables WiFi functionality, such as WiFi locations, and safezones etc.
 
 ## Disable Bluetooth
 
-TODO
+{/*behaviour DisableBluetooth*/}
+
+Disable Bluetooth functionality, such as Bluetooth beacons, mobile pairing, safezones etc.
+
+## GPS Timeout
+
+Select the maximum amount of time the GPS will search for a fix before giving up.
+
+Recommended: 60 - 200 seconds
+
+## GPS stabilize time
+
+Choose how long the GPS should remain on for once a fix has been aquired.
+
+Longer times may increase accuracy, but will also increase battery usage.
+
+## Lock GPS on
+
+{/*behaviour GpsOnWhenAwake*/}
+
+Choose if the GPS should be left on when the device is moving.
+
+This increases accuracy, but will also increase battery usage.
