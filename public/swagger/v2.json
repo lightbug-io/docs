@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Verison 2",
+    "title": "Version 2",
     "contact": {},
     "version": "2"
   },
@@ -274,7 +274,7 @@
           "_refreshable": {
             "maximum": 604800,
             "type": "integer",
-            "description": "Generate a refresh token, which expires this many seconds after the access token. Max 7 days"
+            "description": "Generate a refresh token, which expires this many seconds after the access token expiry. Max 7 days"
           },
           "password": {
             "type": "string",
@@ -287,6 +287,11 @@
         }
       },
       "LoginResponse": {
+        "required": [
+          "expiry",
+          "token",
+          "userId"
+        ],
         "type": "object",
         "properties": {
           "expiry": {
@@ -325,7 +330,7 @@
           "_refreshable": {
             "maximum": 604800,
             "type": "integer",
-            "description": "New refresh token will expire this many seconds after the access token. Max 7 days"
+            "description": "A new refresh token will be generated, with an expiry this many seconds after the access token expiry. Max 7 days"
           },
           "accessToken": {
             "type": "string",
@@ -338,6 +343,13 @@
         }
       },
       "RefreshTokenResponse": {
+        "required": [
+          "expiry",
+          "refreshToken",
+          "refreshTokenExpiry",
+          "token",
+          "userId"
+        ],
         "type": "object",
         "properties": {
           "expiry": {
