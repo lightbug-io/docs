@@ -19,20 +19,28 @@ const config: DocsThemeConfig = {
     autoCollapse: true,
     defaultMenuCollapseLevel: 1,
   },
-  project: {
-    link: 'https://github.com/lightbug-io',
-  },
+  // project: {
+  //   link: 'https://github.com/lightbug-io',
+  // },
   chat: {
     link: '',
     icon: '',
   },
-  docsRepositoryBase: 'https://github.com/lightbug-io/docs',
+  // docsRepositoryBase: 'https://github.com/lightbug-io/docs',
+  // Ideally we could remove the edit link for now.. but we can't so link to support..
+  docsRepositoryBase: 'https://support.lightbug.cloud/support/tickets/new?docs_page=',
   footer: {
     text: 'Lightbug Documentation',
   },
-  banner: {},
+  banner: {
+    text: 'This documentation site is new and likely to change frequently',
+    key: 'wip-003',
+  },
   feedback: {
-    content: '',
+    content: "Report an issue",
+    useLink: () => {
+      return 'https://support.lightbug.cloud/support/tickets/new'
+    }
   },
   useNextSeoProps: () => ({ titleTemplate: '%s – Lightbug Documentation' })
 }
