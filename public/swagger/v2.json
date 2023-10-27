@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://api.thelightbug.com/v2"
+      "url": "https://api.lightbug.cloud/v2"
     }
   ],
   "paths": {
