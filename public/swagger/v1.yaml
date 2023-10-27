@@ -1389,7 +1389,7 @@ paths:
 
             const options = {
               method: 'POST',
-              url: 'https://api.thelightbug.com/api/users/login',
+              url: 'https://api.lightbug.cloud/api/users/login',
               headers: {'Content-Type': 'application/json'},
               data: {username: 'user@example.com', password: 'abc123...'}
             };
@@ -1406,7 +1406,7 @@ paths:
 
             var options = {
               method: 'POST',
-              url: 'https://api.thelightbug.com/api/users/login',
+              url: 'https://api.lightbug.cloud/api/users/login',
               headers: {'Content-Type': 'application/json'},
               data: {username: 'user@example.com', password: 'abc123...'}
             };
@@ -1422,7 +1422,7 @@ paths:
             $curl = curl_init();
 
             curl_setopt_array($curl, [
-              CURLOPT_URL => "https://api.thelightbug.com/api/users/login",
+              CURLOPT_URL => "https://api.lightbug.cloud/api/users/login",
               CURLOPT_RETURNTRANSFER => true,
               CURLOPT_ENCODING => "",
               CURLOPT_MAXREDIRS => 10,
@@ -1448,7 +1448,7 @@ paths:
           source: |
             import http.client
 
-            conn = http.client.HTTPSConnection("api.thelightbug.com")
+            conn = http.client.HTTPSConnection("api.lightbug.cloud")
             payload = "{\"username\": \"user@example.com\",\"password\": \"abc123...\"}"
             headers = { 'Content-Type': "application/json" }
             conn.request("POST", "/api/users/login", payload, headers)
@@ -1470,7 +1470,7 @@ paths:
             )
 
             func main() {
-              url := "https://api.thelightbug.com/api/users/login"
+              url := "https://api.lightbug.cloud/api/users/login"
               payload := strings.NewReader("{\"username\": \"user@example.com\",\"password\": \"abc123...\"}")
               req, _ := http.NewRequest("POST", url, payload)
               req.Header.Add("Content-Type", "application/json")
