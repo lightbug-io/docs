@@ -1701,7 +1701,7 @@ components:
           description: Internal use only
         sendReason:
           type: number
-          description: "Bitfield indicating reason for datapoint transmission and status of the device at the time.\n\r\nBit1(1): Wake mode active, \n\r\nBit2(2): Sleep mode active, \n\r\nBit3(4): Bluetooth disconnected, \n\r\nBit4(8): Outside of Safe-zone, \n\r\nBit5(16): Motion detected, \n\r\nBit6(32): Device started moving, \n\r\nBit7(64): Device stopped moving, \n\r\nBit8(128): Position is stale: last known location was used\n\r\nSpecial case 255/0xFF: device was checking in with server. Ignore all data"
+          description: "Bitfield indicating reason for datapoint transmission and status of the device at the time.\n\r\nBit1(1): Wake mode active, \n\r\nBit2(2): Sleep mode active, \n\r\nBit3(4): Bluetooth disconnected, \n\r\nBit4(8): Outside of Safe-zone, \n\r\nBit5(16): Motion detected, \n\r\nBit6(32): Device started moving, \n\r\nBit7(64): Device stopped moving, \n\r\nBit8(128): Position is stale: last known location was used"
           format: ''
         sats:
           type: number
