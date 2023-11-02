@@ -7,5 +7,6 @@
     }
   },
   "sdks": "SDKs",
-  "bitfields": "Bitfiled helpers"
+  "bitfields": "Bitfiled helpers",
+  "errorcodes": "Error codes"
 }
