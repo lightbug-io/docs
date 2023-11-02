@@ -30,6 +30,15 @@ const ModeFlagsComponent = () => {
     setBitfieldBits(calculateBitfield(bitfieldValue));
   }, [bitfieldValue]);
 
+  const handleValueChange = (e) => {
+    const value = parseInt(e.target.value);
+    if (value > 255) {
+      setBitfieldValue(255);
+    } else {
+      setBitfieldValue(value);
+    }
+  };
+
   return (
     <div style={{
       display: "flex",
@@ -39,12 +48,14 @@ const ModeFlagsComponent = () => {
       <input
         type="number"
         value={bitfieldValue}
-        onChange={(e) => setBitfieldValue(parseInt(e.target.value))}
+        onChange={handleValueChange}
         style={{
           padding: "5px",
           borderRadius: "5px",
           textAlign: "center"
         }}
+        max={255}
+        min={0}
       />
       {bitfieldBits.map((bit, index) => (
         <div key={index} style={{ margin: "1px" }}>
