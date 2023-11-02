@@ -4,6 +4,8 @@
   "enviro":"Enviro",
   "incognito":"Incognito",
   "vehicle":"Vehicle",
+  "razor":"Razor",
+  "rtk":"RTK",
   "common":"Common platform",
   "configuration":"Configuration"
 }
