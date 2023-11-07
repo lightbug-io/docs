@@ -5,14 +5,12 @@ import React, { useState, useEffect } from "react";
 const ModeFlagsComponent = () => {
   const [bitfieldValue, setBitfieldValue] = useState(0);
   const bitfieldDescriptions = [
-    "Wake mode active",
-    "Sleep mode active",
-    "Bluetooth disconnected",
-    "Outside of Safe-zone",
-    "Motion detected",
-    "Device started moving",
-    "Device stopped moving",
-    "Position is stale: last known location was used"
+    "MotionThreshold",
+    "Rotation",
+    "Jamming",
+    "Button",
+    "POI",
+    "Ignition"
   ];
 
   const calculateBitfield = (value) => {

@@ -3,6 +3,7 @@ import Behaviour from '../../../components/helper-tools/behaviour'
 import ModeControl from '../../../components/helper-tools/modecontrol'
 import ModeControl2 from '../../../components/helper-tools/modecontrol2'
 import SendReason from '../../../components/helper-tools/sendreasons'
+import AlertType from '../../../components/helper-tools/alerttype'
 
 # Bitfield helpers
 
@@ -43,11 +44,14 @@ You can make use of the various helpers below to help you understand and use the
 
 ### sendReason
 
-<Callout type="warning" emoji="⚠️">
-  Special case 255/0xFF: device was checking in with server. Ignore all data
+<Callout emoji="🧮">
+  Use this calculator to determine what any `sendReason` values mean.
+  <SendReason />
 </Callout>
 
+### alertType
+
 <Callout emoji="🧮">
-  Use this calculator to determine the correct value to use for the `sendReason` of datapoints.
-  <SendReason />
+  Use this calculator to determine what any `alertType` values mean.
+  <AlertType />
 </Callout>
