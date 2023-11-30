@@ -271,7 +271,7 @@
         ],
         "type": "object",
         "properties": {
-          "_refreshable": {
+          "refreshable": {
             "maximum": 604800,
             "type": "integer",
             "description": "Generate a refresh token, which expires this many seconds after the access token expiry. Max 7 days"
@@ -321,13 +321,13 @@
       },
       "RefreshTokenRequest": {
         "required": [
-          "_refreshable",
           "accessToken",
-          "refreshToken"
+          "refreshToken",
+          "refreshable"
         ],
         "type": "object",
         "properties": {
-          "_refreshable": {
+          "refreshable": {
             "maximum": 604800,
             "type": "integer",
             "description": "A new refresh token will be generated, with an expiry this many seconds after the access token expiry. Max 7 days"
@@ -455,7 +455,13 @@
         "type": "apiKey",
         "name": "Authorization",
         "in": "header"
+      },
+      "SiloKeyAuth": {
+        "type": "apiKey",
+        "name": "lbsilokey",
+        "in": "header"
       }
     }
-  }
+  },
+  "x-original-swagger-version": "2.0"
 }
