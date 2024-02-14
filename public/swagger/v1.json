@@ -2626,7 +2626,7 @@
             },
             "flashTryCount": {
               "type": "number",
-              "description": "Internal use. Set to 0 when changing otaFW",
+              "description": "Internal use. Set to 0 when changing otaFW. How many times the update command was sent from the server. This roughly equates to the number of times the device has tried to download the update file, but isn't necessarily 1:1. When 8, the update command will no longer be sent.",
               "format": ""
             },
             "homeWifiNetwork": {
