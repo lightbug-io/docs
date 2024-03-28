@@ -1,0 +1,51 @@
+name: Notify
+
+on:
+    push:
+        branches:
+            - main
+            - production
+
+jobs:
+    Notify:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/github-script@v6
+              id: action-message
+              with:
+                    script: |
+                            const commits = ${{ toJSON(github.event.commits) }}
+                            const repo = "${{ github.repository }}"
+                            const pusher = "${{ github.event.pusher.name }}"
+                            const branch = "${{ github.event.ref }}"
+                            const numberOfCommits = commits.length;
+                            const forced = ${{ github.event.forced}};
+                            const forcedText = forced ? ' (force)' : '';
+                            const repoUrl = `https://github.com/${repo}`;
+                            let actionMessage = `<${repoUrl}|${repo}>: ${pusher}${forcedText} pushed ${numberOfCommits} new commits to ${branch}:\n`;
+                            for (const commit of commits) {
+                                let shortHash = commit.id.slice(0, 7);
+                                let commitFirstLine = commit.message.split('\n')[0];
+
+                                const jiraRegex = /CLOUD-\d+/g;
+                                const jiraMatches = commit.message.match(jiraRegex);
+                                let jiraTickets = [];
+                                if (jiraMatches) {
+                                    jiraTickets = jiraMatches.map(match => `[${match}](https://lightbug.atlassian.net/browse/${match})`);
+                                }
+
+                                actionMessage += `- <${commit.url}|${shortHash}>: ${commitFirstLine}`;
+                                if (jiraTickets.length > 0) {
+                                    actionMessage += ` (${jiraTickets.join(', ')})`;
+                                }
+                                actionMessage += '\n';
+                            }
+                            actionMessage = actionMessage.trim();
+                            console.log(actionMessage);
+                            return actionMessage;
+            - name: Notify
+              if: ${{ always() }} # Use always to ensure that the notification is also send on failure of former steps
+              uses: teknatha136/actions-google-chat-text-message@main
+              with:
+                google-chat-webhook: '${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}'
+                text-message: ${{ steps.action-message.outputs.result }}
