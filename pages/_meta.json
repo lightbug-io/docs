@@ -38,6 +38,11 @@
         "title": "Support ↗",
         "href": "https://support.lightbug.cloud/",
         "newWindow": true
+      },
+      "shop": {
+        "title": "Shop ↗",
+        "href": "https://lightbug.io/shop/",
+        "newWindow": true
       }
     }
   }

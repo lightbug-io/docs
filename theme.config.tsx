@@ -32,10 +32,6 @@ const config: DocsThemeConfig = {
   footer: {
     text: 'Lightbug Documentation',
   },
-  banner: {
-    text: 'This documentation site is new and likely to change frequently',
-    key: 'wip-003',
-  },
   feedback: {
     content: "Report an issue",
     useLink: () => {
