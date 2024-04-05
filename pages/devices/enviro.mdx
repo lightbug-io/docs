@@ -1,5 +1,40 @@
+import LEDIndicators from '../../components/devices/LEDIndicators.mdx'
+import Buttons from '../../components/devices/Buttons.mdx'
+import Charging from '../../components/devices/Charging.mdx'
+import Activation from '../../components/devices/Activation.mdx'
+
 # Enviro
 
-More advanced documentation to come.
+https://lightbug.io/product/lb-dev-en2/
 
-For now see https://lightbug.io/product/enviro/
+## Overview
+
+The Envrio works in a similar way to the Pro.
+
+The main visual difference is that the Enviro is white and has holes in the top of the device, to allow for better sensor readings.
+
+<div style={{ display: 'flex' }}>
+    <div style={{ flex: 1 }}>
+        <img src="/images/devices/pro/overview.png" alt="Overview" width={400} height={400} />
+    </div>
+    <div style={{ flex: 1 }}>
+        <img src="https://lightbug.io/images/product/lightbug_environmental_tracker_angle_hu9ab20f642d871c308bdecfccb269d3c9_344178_600x600_fit_q100_box_2.png" alt="Enviro top" width={250} height={250} />
+    </div>
+</div>
+
+
+## LED Indicators
+
+<LEDIndicators name="enviro" imageName="pro"/>
+
+## Buttons
+
+<Buttons name="enviro"/>
+
+## Charging
+
+<Charging name="enviro" imageName="pro" chargeTime="5 hours"/>
+
+## Activation
+
+<Activation/>
