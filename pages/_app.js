@@ -2,7 +2,10 @@ import '../styles.css'
 import { ThemeProvider } from 'next-themes'
 import { useEffect } from 'react'
 import { useRouter } from 'next/router'
+import { ChakraProvider } from '@chakra-ui/react'
 
+
+import * as React from 'react'
 import * as ga from '../lib/ga'
 
 function MyApp({ Component, pageProps }) {
@@ -24,9 +27,11 @@ function MyApp({ Component, pageProps }) {
   }, [router.events])
 
   return  (
-    <ThemeProvider enableSystem={false} class="light" forcedTheme="nextra-docs">
-      <Component {...pageProps} />
-    </ThemeProvider>
+    <ChakraProvider>
+      <ThemeProvider enableSystem={false} class="light" forcedTheme="nextra-docs">
+        <Component {...pageProps} />
+      </ThemeProvider>
+    </ChakraProvider>
   )
 }
 

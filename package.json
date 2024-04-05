@@ -7,8 +7,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
     "@markdoc/markdoc": "latest",
     "@markdoc/next.js": "latest",
+    "framer-motion": "^11.0.25",
     "next": "latest",
     "nextra": "latest",
     "nextra-theme-docs": "latest",
