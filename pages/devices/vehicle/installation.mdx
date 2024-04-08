@@ -1,7 +1,7 @@
 import Buttons from '../../../components/devices/Buttons.mdx'
 import VehicleExtraStatus from '../../../components/devices/VehicleExtraStatus.mdx'
 import { Callout, Steps } from 'nextra/components'
-import { Card, CardHeader, CardBody, CardFooter, Image, Stack, Text } from '@chakra-ui/react'
+import { Card, CardHeader, CardBody, CardFooter, Image, Stack, Text, Grid, GridItem } from '@chakra-ui/react'
 
 # Installation
 
@@ -9,14 +9,23 @@ import { Card, CardHeader, CardBody, CardFooter, Image, Stack, Text } from '@cha
 
 You will likely need the following tools to complete installaiton.
 
- - Nose Pliers
- - Cutter Pliers
- - Cutters
+ - Long Nose Pliers
+ - Wire cutters or strippers
  - Screwdrivers
- - Tester
+ - Multi-meter / Tester
  - Spanners
  - Cable ties
  - Insulation tape
+
+ <Grid templateColumns='repeat(7, 1fr)' gap={6}>
+  <GridItem w='100%' h='10'><img src="https://upload.wikimedia.org/wikipedia/commons/1/1e/Alicate_boca_redonda.png"/> </GridItem>
+  <GridItem w='100%' h='10'><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Wire_cutter_-_Sept._2013.jpg/640px-Wire_cutter_-_Sept._2013.jpg"/></GridItem>
+  <GridItem w='100%' h='10'><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Swisstools_Screwdrivers_ESD_VDE.jpg/640px-Swisstools_Screwdrivers_ESD_VDE.jpg"/></GridItem>
+  <GridItem w='100%' h='10'><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/2017_Cyfrowy_miernik_uniwersalny.jpg/640px-2017_Cyfrowy_miernik_uniwersalny.jpg"/></GridItem>
+  <GridItem w='100%' h='10'><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Bremsleitungsschluessel.JPG/639px-Bremsleitungsschluessel.JPG"/></GridItem>
+  <GridItem w='100%' h='10'><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Cable_ties.jpg/640px-Cable_ties.jpg"/></GridItem>
+  <GridItem w='100%' h='10'><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Rolls_of_adhesive_tape.jpg/640px-Rolls_of_adhesive_tape.jpg"/></GridItem>
+</Grid>
 
 ## Finding the fuse box
 
@@ -70,15 +79,15 @@ Occasionally this fuse box is located in the boot of the vehicle.
 
 ### Step 1: Prep wires
 
-Using cutter pliers, strip a portion of each wire as required for proper and easy installation.
+Using wire cutters, strip a portion of each wire as required for proper and easy installation.
 
-TODO image
+![](https://i.imgur.com/F2ROuT5.png)
 
 ### Step 2: Access fuse box
 
 Identify the location of the secondary fuse box, and open/remove the cover.
 
-TODO image
+![](https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Car_fuse_box_Layout.jpg/640px-Car_fuse_box_Layout.jpg)
 
 ### Step 3: Identify the fuses
 
@@ -90,23 +99,27 @@ If the tester shows current while the vehicle is turned off, it is a “direct�
 
 If the tester shows current only when the vehicle is turned on, it is an “ignition” connection fuse.
 
+![](https://i.imgur.com/D3d4c4K.png)
+
 <Callout type="info" emoji="ℹ️">
 Always try to use fuses with a low current - eg 5A, 7.5A, 10A, & 15A.
 </Callout>
-
-TODO image
 
 ### Step 4: Connect to direct current
 
 Remove the chosen “direct” fuse using the nose pliers.
 
+![](https://i.imgur.com/xubSP5V.png)
+
 Connect the red wire to one of the fuse legs.
+
+![](https://i.imgur.com/iafp2W9.png)
 
 Using the tester, test both pins from the fuse holder to identify which side has the current.
 
 Return the fuse to the same slot ensuring that the leg with the red wire attached, is inserted to the side that holds no current.
 
-TODO insert image
+![](https://i.imgur.com/jFVRuv3.png)
 
 ### Step 5: Connect to ignition current
 
@@ -118,25 +131,23 @@ Using the tester, test both pins from the fuse holder to identify which side has
 
 Return the fuse to the same slot ensuring that the leg with the white wire attached, is inserted to the side that holds no current when the ignition is on
 
-TODO images
-
 ### Step 6: Connect to earth
 
 Connect the black wire to a metal part of the vehicle.
 
 This can be done by removing a screw, placing the wire and screwing it back in.
 
-TODO images
+![](https://i.imgur.com/qSuXSXQ.png)
 
 ### Step 7: Connect the tracker
 
-The vehicle tracker can now be connected via the simple Plug & Play connector.
+The vehicle tracker can now be connected via the 3 pin Juliette connector.
 
 <Callout type="warning" emoji="⚠️">
 Ensure you line up the markings so that the plug does not get damaged.
 </Callout>
 
-TODO images
+![](https://i.imgur.com/c7zaNPd.png)
 
 ### Step 8: Check functionality
 
@@ -144,9 +155,7 @@ Before attaching the tracker and cables to the vehicle, ensure the device is in 
 
 Should the wiring be correctly fitted, the battery of the tracker will be charging and a blue light will be visibly glowing through the plastic.
 
-TODO add image of blue LED
-
-TODO note about how to check the tracker is working when ignition is on?
+You can also check the [vehicle connection status](http://localhost:8093/devices/vehicle#vehicle-connection-status) with a button press to make the other device LEDs light up.
 
 ### Step 8: Secure the tracker
 
@@ -154,7 +163,7 @@ If you are satisfied with the connections and that the tracker is behaving norma
 
 Fold and tie all the connecting cables neatly, using cable ties and insulation tape.
 
-TODO add image of cables folding
+![](https://i.imgur.com/SaDkRZw.png)
 
 Locate a suitable place for mounting the tracker.
 
@@ -168,6 +177,10 @@ Please be aware that some vehicles do have metal in the windscreen, this can obs
 
 Use cable ties to mount the tracker to the vehicle.
 
+![](https://i.imgur.com/Kp9WmiA.png)
+
 Ensure that the device and cables are firmly fastened to the vehicle and will not shake loose, and so that there are no irritating vibrations nor sound when the vehicle is moving.
+
+![](https://i.imgur.com/qhWL4qk.png)
 
 </Steps>
