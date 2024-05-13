@@ -5,7 +5,7 @@ const config: DocsThemeConfig = {
   darkMode: false, // Disable the switch for dark mode
   logo: (
     <div>
-      <img style={{ marginLeft: '.5em', width: '17px', height: '30px', display: 'inline-block'}} src="https://lightbug.io/images/logo-orange_hudcdce2ead9cbe2715b5cf652e648439f_53864_17x30_fit_q95_h2_box_3.webp" alt="Logo" />
+      <img style={{ marginLeft: '.5em', width: '17px', height: '30px', display: 'inline-block'}} src="https://lightbug.io/images/logo-orange_hudcdce2ead9cbe2715b5cf652e648439f_53864_100x200_fit_q100_h2_box_2.webp" alt="Logo" />
       <span style={{ marginLeft: '.5em', fontSize: "150%", verticalAlign: "bottom" }}>Lightbug</span>
     </div>
   ),
