@@ -1,0 +1,9 @@
+{
+  "gps": "GPS",
+  "rtk": "RTK",
+  "wifi": "WiFi",
+  "gnss": "GNSS",
+  "wps": "WPS",
+  "bluetooth": "Bluetooth",
+  "cell-tower-triangulation": "Cell Tower Triangulation"
+}

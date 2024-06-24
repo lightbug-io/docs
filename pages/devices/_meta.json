@@ -1,4 +1,8 @@
 {
+  "overview": {
+    "title": "Overview",
+    "href": "/platform/devices"
+  },
   "zero": "Zero",
   "pro": "Pro",
   "enviro":"Enviro",
