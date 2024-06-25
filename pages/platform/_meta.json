@@ -1,8 +1,9 @@
 {
   "index": "Overview",
-  "devices": "Devices",
   "apps": "Apps",
   "apis": "APIs",
+  "devices": "Devices",
+  "firmware": "Firmware",
   "terminology": "Terminology",
   "help": "Help"
 }
