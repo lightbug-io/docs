@@ -1,0 +1,29 @@
+# Enviro
+
+Our core tracking device with additional environmental sensors.
+
+<v-img src="https://lightbug.io/images/product/lightbug_environmental_tracker_hu6a350a725fdca69abfd288f1b4171667_331520_600x600_fit_q100_box_2.png" alt="Envrio" style="width:200px"></v-img>
+
+## Specification
+
+| Attribute             | Value                                                                                        |
+| --------------------- | -------------------------------------------------------------------------------------------- |
+| Device                | EN2                                                                                          |
+| Size                  | 85 x 44 x 28.4 mm                                                                            |
+| Weight                | 152g                                                                                         |
+| Battery               | 6600mAh (Rechargable Lithium)                                                                |
+| Sim                   | Integrated                                                                                   |
+| GSM                   | Quadband 4G LTE-M & NBIoT + 2G                                                               |
+| Bluetooth             | 5.0                                                                                          |
+| Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS), WiFi & GSM                                       |
+| Sensors               | High accuracy Temperature & Humidity Sensors, Orientation, Accelerometer, External Bluetooth |
+| Memory                | up to 1000 locations update when they can't be transmitted                                   |
+| IP rating             | Shockproof                                                                                   |
+| Operating Temperature | -20°C to 60°C                                                                                |
+| Buttons               | 1                                                                                            |
+| LEDs                  | 6 (4x battery, 2x status)                                                                    |
+| Sound                 | Buzzer                                                                                       |
+| Charging              | Magnetic 4 pin connector                                                                     |
+| Additional            |                                                                                              |
+| Typical Usage         | TODO                                                                                         |
+| Optional              | NFC                                                                                          |
