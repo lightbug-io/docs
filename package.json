@@ -13,7 +13,7 @@
   "dependencies": {
     "cross-env": "^7.0.3",
     "vitepress-theme-api": "^0.1.7",
-    "vitepress-theme-openapi": "file:../../../github/enzonotario/vitepress-theme-openapi",
+    "vitepress-theme-openapi": "github:enzonotario/vitepress-theme-openapi#feature/sidebar",
     "vue-i18n": "^9.14.0",
     "vuetify": "^3.6.15"
   }
