@@ -12,6 +12,8 @@ If you have questions about a device thatis not currently listed as a core devic
 
 ## Timeline
 
+Includes legacy and current devices.
+
 ### 2022
 
 <v-row>

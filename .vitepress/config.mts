@@ -215,10 +215,18 @@ export default defineConfig({
           link: '/apps/cloud/',
           items: [
             { text: 'Creating Account', link: '/apps/cloud/creating-account' },
-            { text: 'The Map', link: '/apps/cloud/the-map' },
+            {
+              text: 'The Map',
+              link: '/apps/cloud/map/',
+              items: [
+                {text: 'Controls', link: '/apps/cloud/map/controls'},
+                {text: 'Device list', link: '/apps/cloud/map/device-list'},
+                {text: 'Device view', link: '/apps/cloud/map/device-view'},
+              ],
+            },
             {
               text: 'Account',
-              link: '/apps/cloud/account',
+              link: '/apps/cloud/account/',
               items: [
                 { text: 'Details', link: '/apps/cloud/account/details' },
                 { text: 'Preferences', link: '/apps/cloud/account/preferences' },

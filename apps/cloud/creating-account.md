@@ -152,3 +152,9 @@ Once a device has been added to the account, you'll be taken to the main interfa
 ### Ready to go
 
 <v-img src="https://i.imgur.com/7WRMdfm.png" style="max-height:250px"/>
+
+## Map
+
+Once the guide has been shown, you'll be taken to the [main map interface](/apps/cloud/the-map).
+
+![Lightbug Cloud Map](https://i.imgur.com/L6u6FgG.png)

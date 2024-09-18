@@ -26,10 +26,10 @@ location updates.
 trips.
 
  - **Hide Device Names:** This will hide the name of each device
-below the markers on the Map.
+below the markers on [the Map](/apps/cloud/map/device-view.md).
 
- - **Show last 24h exactly:** When opening the Map, the default
+ - **Show last 24h exactly:** When opening [a device on the Map](/apps/cloud/map/device-view#time-range), the default
 date and time selection will be the last 24 hours.
 
- - **Show today only:** When opening the Map, the default date
+ - **Show today only:** When opening [a device on the Map](/apps/cloud/map/device-view#time-range), the default date
 and time selection will be today’s data.
