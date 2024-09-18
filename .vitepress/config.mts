@@ -218,6 +218,7 @@ export default defineConfig({
             {
               text: 'The Map',
               link: '/apps/cloud/map/',
+              collapsed: true,
               items: [
                 {text: 'Controls', link: '/apps/cloud/map/controls'},
                 {text: 'Device list', link: '/apps/cloud/map/device-list'},
@@ -227,15 +228,18 @@ export default defineConfig({
             {
               text: 'Account',
               link: '/apps/cloud/account/',
+              collapsed: true,
               items: [
                 { text: 'Details', link: '/apps/cloud/account/details' },
                 { text: 'Preferences', link: '/apps/cloud/account/preferences' },
                 { text: 'Notifications', link: '/apps/cloud/account/notifications' },
+                { text: 'More', link: '/apps/cloud/account/more' },
               ],
             },
             {
               text: 'Devices',
               link: '/apps/cloud/device-overview',
+              collapsed: true,
               items: [
                 {
                   text: 'Configuration',

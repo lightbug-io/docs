@@ -23,6 +23,8 @@ The List will expand, and you will see all the devices on your account that have
 If your last location update was 2 days ago, the information here (including battery status) is from 2 days ago.
 :::
 
+<!-- TODO detail device search here too -->
+
 ## Device rows
 
 Each device row contains the following information:

@@ -6,9 +6,15 @@ The most common of these are GNSS (commonly refered to as GPS), but we also use 
 
 ## GNSS (Global Navigation Satellite System)
 
-GNSS is a set of satellite based navigation system, of which the first constellation was GPS, launched in the 70s. There are now 6 constellations in operation.
+GNSS is a set of satellite based navigation system, of which the first constellation was GPS, launched in the 70s.
 
-These satellites provide location and time information, anywhere on Earth where there is an unobstructed line of sight.
+Satellites provide location and time information, anywhere on Earth where there is an unobstructed line of sight.
+
+Getting a GPS lock can take some time, and this depeds on the environment and current satellite positions.
+
+### Constellations
+
+There are now 6 constellations in operation.
 
 Lightbug devices use GNSS satellite constellations as a primary means of determining their location, and this typically leads to accurate positioning of 0.5-5m outdoors.
 
@@ -19,7 +25,7 @@ Lightbug devices use GNSS satellite constellations as a primary means of determi
 - NavIC (India)
 - QZSS (Japan)
 
-**Example**
+### Example Position
 
 An example position from a Lightbug device making use of GNSS might look something like this:
 
@@ -47,7 +53,7 @@ Lightbug devices can make use of WiFi as a low energy and quick alternative to G
 
 This is particularly useful in urban areas where GPS signals may be obstructed.
 
-**Example**
+### Example Position
 
 An example position from a Lightbug device making use of WiFi positioning might look something like this:
 
@@ -76,7 +82,7 @@ Lightbug devices can make use of either infomation of the cell towers that they 
 
 Or as a fallback, the ID of the cell tower that they are connected to.
 
-**Example**
+### Example Position
 
 An example position from a Lightbug device making use of cellular positioning might look something like this:
 
