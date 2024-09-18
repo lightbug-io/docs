@@ -206,7 +206,6 @@ export default defineConfig({
           link: '/apps/cloud/',
           items: [
             { text: 'Creating Account', link: '/apps/cloud/creating-account' },
-            { text: 'Linking first tracker', link: '/apps/cloud/linking-first-tracker' },
             { text: 'The Map', link: '/apps/cloud/the-map' },
             {
               text: 'Account',
