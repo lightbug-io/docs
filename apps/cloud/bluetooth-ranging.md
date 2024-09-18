@@ -8,17 +8,7 @@ This feature that helps you find your tracker if it has been misplaced.
 
 When `Device is nearby` is displayed, you can press the `Range` button to use it.
 
-<v-tabs v-model="tab" bg-color="#fca377">
-  <v-tab value="mobile">Mobile</v-tab>
-  <!-- <v-tab value="desktop">Desktop</v-tab> -->
-</v-tabs>
-<v-tabs-items v-model="tab">
-  <v-tab-item value="mobile">
-    <v-img src="https://i.imgur.com/drMtvxa.png" style="height:200px"/>
-  </v-tab-item>
-  <v-tab-item value="desktop">
-  </v-tab-item>
-</v-tabs-items>
+<v-img src="https://i.imgur.com/drMtvxa.png" style="height:200px"/>
 
 The blue circle will fill up with colour as you get closer to
 the tracker.
@@ -27,17 +17,7 @@ We recommend slowly walking around and
 using the blue circle to get a better idea of where the
 tracker is.
 
-<v-tabs v-model="tab" bg-color="#fca377">
-  <v-tab value="mobile">Mobile</v-tab>
-  <!-- <v-tab value="desktop">Desktop</v-tab> -->
-</v-tabs>
-<v-tabs-items v-model="tab">
-  <v-tab-item value="mobile">
-    <v-img src="https://i.imgur.com/CCuuF5C.png" style="height:600px"/>
-  </v-tab-item>
-  <v-tab-item value="desktop">
-  </v-tab-item>
-</v-tabs-items>
+<v-img src="https://i.imgur.com/CCuuF5C.png" style="height:600px"/>
 
 Bluetooth cannot be used to reliably yield a direction. It
 uses signal strength to determine if you are close or far from
