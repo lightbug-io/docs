@@ -2,13 +2,6 @@
 outline: deep|
 ---
 
-<style>@import './node_modules/vitepress-theme-api/dist/style.css';</style>
-<script setup>
-import { useData } from 'vitepress'
-
-const { site, theme, page, frontmatter } = useData()
-</script>
-
 # Devices
 
 All of our devices are designed and made in the UK from the same modular components.
