@@ -52,7 +52,14 @@ export default defineConfig({
         link: '/fundamentals/index.html',
       },
       { text: 'Devices', link: '/devices/' },
-      { text: 'APIs', link: '/apis/' },
+      {
+        text: 'APIs',
+        items: [
+          { text: 'Overview', link: '/apis/' },
+          { text: 'Version 2', link: '/apis/v2/' },
+          { text: 'Version 1', link: '/apis/v1/' },
+        ],
+      },
       {
         text: 'Apps',
         items: [
