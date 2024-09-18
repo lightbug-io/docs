@@ -12,7 +12,7 @@ Our smallest core GPS tracking device.
 | Size                  | 56 x 37 x 12.9mm                                            |
 | Weight                | 35g                                                         |
 | Battery               | 1000mAh                                                     |
-| Sim                   | Integrated                                                  |
+| Sim                   | Integrated roaming sim                                      |
 | GSM                   | Quadband 4G LTE-M & NBIoT + 2G                              |
 | Bluetooth             | 5.0                                                         |
 | Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS), WiFi & GSM      |

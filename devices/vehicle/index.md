@@ -18,8 +18,8 @@ Our wired core GPS tracking device.
 | Size                  | 72 x 33 x 28.5 mm                                                              |
 | Power                 | Supports 6-80v (overvoltage protection to 200v)                                |
 | Weight                | 110g (approx)                                                                  |
-| Battery               | TODO                                                                           |
-| Sim                   | Integrated                                                                     |
+| Battery               | 2000mah mAh (Rechargable Lithium)                                              |
+| Sim                   | Integrated roaming sim                                                         |
 | GSM                   | Quadband 4G LTE-M & NBIoT + 2G                                                 |
 | Bluetooth             | 5.0                                                                            |
 | Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS), WiFi & GSM                         |

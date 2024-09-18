@@ -12,7 +12,7 @@ Our core tracking device with additional environmental sensors.
 | Size                  | 85 x 44 x 28.4 mm                                                                            |
 | Weight                | 152g                                                                                         |
 | Battery               | 6600mAh (Rechargable Lithium)                                                                |
-| Sim                   | Integrated                                                                                   |
+| Sim                   | Integrated roaming sim                                                                       |
 | GSM                   | Quadband 4G LTE-M & NBIoT + 2G                                                               |
 | Bluetooth             | 5.0                                                                                          |
 | Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS), WiFi & GSM                                       |
