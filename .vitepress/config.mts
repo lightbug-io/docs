@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 import { useSidebar } from 'vitepress-theme-openapi'
 import { loadSpec } from '../swagger/load'
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
-
+import { pagefindPlugin } from 'vitepress-plugin-pagefind'
 
 const sidebarSpec1 = useSidebar({ spec: loadSpec(1) })
 const sidebarSpec2 = useSidebar({ spec: loadSpec(2) })
@@ -17,10 +17,12 @@ function collapse(group) {
 export default defineConfig({
   title: "Lightbug Documentation",
   description: "home for everything Lightbug",
-  vite: {     // <=== insert this section
+  lang: 'en-GB',
+  vite: {
     ssr: {
       noExternal: ["vuetify"]
-    }
+    },
+    plugins: [pagefindPlugin()],
   },
   markdown: {
     config: (md) => {
