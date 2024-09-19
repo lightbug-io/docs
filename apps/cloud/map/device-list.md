@@ -39,8 +39,8 @@ Each device row contains the following information:
 
 | Image | Description |
 | --- | --- |
-| <v-img src="https://i.imgur.com/6iKfpTu.png" style="width:350px"/> | An active device, that has just transmitted data |
-| <v-img src="https://i.imgur.com/yeynpZl.png" style="width:350px"/> | An active device, that transmitted data 3 minutes ago
+| <v-img src="https://i.imgur.com/6iKfpTu.png" style="width:350px"/> | An active device, that has just transmitted data, and was charging on last transmit |
+| <v-img src="https://i.imgur.com/yeynpZl.png" style="width:350px"/> | An active device, that transmitted data 3 minutes ago, and was charging on last transmit
 | <v-img src="https://i.imgur.com/0Ws7yNs.png" style="width:350px"/> | An active device, that has not connected since 29 August 2024, and had very little battery on last transmitted |
 | <v-img src="https://i.imgur.com/ZYZseSF.png" style="width:350px"/> | A deactivated device, that last reported being on 72% battery |
 
