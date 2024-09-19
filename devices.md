@@ -21,4 +21,4 @@ The current core line up includes:
 
 ## Other
 
-We also make [custom devices](/devices/custom/), and have a number of devices that are [no longer in production](/devices/legacy/).
+We also make [custom devices](/devices/custom), and have a number of devices that are [no longer in production](/devices/legacy).

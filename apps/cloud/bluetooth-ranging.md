@@ -2,7 +2,7 @@
 # Bluetooth Ranging
 
 If you have paired the tracker to your smartphone, you will
-also have the option to use the ranging feature from [the map](the-map).
+also have the option to use the ranging feature from [the map](./map/).
 
 This feature that helps you find your tracker if it has been misplaced.
 

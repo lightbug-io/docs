@@ -48,8 +48,8 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       {
-        text: 'Fundamentals',
-        link: '/fundamentals/index.html',
+        text: 'Concepts',
+        link: '/concepts/index.html',
       },
       { text: 'Devices', link: '/devices/' },
       {
@@ -79,13 +79,22 @@ export default defineConfig({
       }
     ],
     sidebar: {
-      '/fundamentals': [
+      '/concepts': [
         {
-          text: 'Introduction',
-          link: '/fundamentals/',
+          text: 'Concepts',
+          link: '/concepts/',
           items: [
-            { text: 'IoT', link: '/fundamentals/iot' },
-            { text: 'Positioning', link: '/fundamentals/positioning' },
+            {
+              text: 'General',
+              items: [
+                { text: 'IoT', link: '/concepts/iot' },
+                { text: 'Positioning', link: '/concepts/positioning' },
+                { text: 'Observability', link: '/concepts/observability' },
+              ]
+            },
+            { text: 'Device', link: '/concepts/device' },
+            { text: 'Point', link: '/concepts/point' },
+            { text: 'Reading', link: '/concepts/reading' },
           ],
         },
       ],
@@ -268,6 +277,9 @@ export default defineConfig({
         {
           text: 'Admin',
           link: '/apps/admin/',
+          items : [
+            { text: 'Creating Account', link: '/apps/admin/creating-account' },
+          ],
         }
       ],
       '/silos': [

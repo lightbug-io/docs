@@ -2,6 +2,8 @@
 
 An account is needed to get started with the cloud platform and attached devices.
 
+Lightbug accounts are shared across all Lightbug interfaces.
+
 ## Registration
 
 First, [navigate to the login page](https://lightbug.cloud/#/auth/login).
@@ -155,6 +157,6 @@ Once a device has been added to the account, you'll be taken to the main interfa
 
 ## Map
 
-Once the guide has been shown, you'll be taken to the [main map interface](/apps/cloud/the-map).
+Once the guide has been shown, you'll be taken to the [main map interface](./map/).
 
 ![Lightbug Cloud Map](https://i.imgur.com/L6u6FgG.png)

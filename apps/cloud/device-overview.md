@@ -1,6 +1,6 @@
 # Device overview
 
-You can see an overview of your devices on [the map](the-map).
+You can see an overview of your devices on [the map](./map/).
 
 Below we see an example account with 17 devices.
 

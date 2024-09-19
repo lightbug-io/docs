@@ -10,19 +10,15 @@ import BitfieldCalculator from '../../components/BitfieldCalculator.vue'
 
 The version 1 API uses a number of terms that may not be familiar to all users.
 
-This glossary provides definitions for some of the more common terms.
-
-[[toc]]
-
 ## Points
 
-Points represent a single location update from a device, and contain a number of fields that provide information about the device's state at the time the location was recorded.
+General infomation about points can be found [in the concepts section](/concepts/point).
 
 ### sendReason
 
 `sendReason` is a field that is attached to every point that is sent from the device to the server.
 
-It is a bitfield, meaning that it can have multiple values set at once.
+In the V1 API it is a bitfield, meaning that it can have multiple values set at once.
 
 ::: info <v-icon icon="mdi-calculator-variant-outline"></v-icon> Use this calculator to determine what any sendReason values mean.
 <hr>
@@ -42,7 +38,7 @@ It is a bitfield, meaning that it can have multiple values set at once.
 
 `alertType` is a field that is attached to every point that is sent from the device to the server.
 
-It is a bitfield, meaning that it can have multiple values set at once.
+In the V1 API it is a bitfield, meaning that it can have multiple values set at once.
 
 ::: info <v-icon icon="mdi-calculator-variant-outline"></v-icon> Use this calculator to determine what any alertType values mean.
 <hr>
@@ -60,7 +56,9 @@ It is a bitfield, meaning that it can have multiple values set at once.
 
 Points can have device error codes attached to them.
 
-These have a positive integer value, up to a maximum of 255, but are not a bitfield.
+In the V1 API these are represented as a positive integer value, up to a maximum of 255, but are not a bitfield.
+
+These are stored in the `stringValue` field that is accessbile via the API.
 
 | Error Code | Description |
 |------------|-------------|
@@ -107,68 +105,6 @@ Some error codes are less useful for end users:
 | 21         | EEPROM error |
 | 22         | I2C error |
 :::
-
-## Readings
-
-Readings, or sensor readings, are sent along site [points](#points), and contain additional infomation that has been recorded by the device, at a given point in time.
-
-Each reading has a `type` field, which indicates what kind of reading it is.
-
-### Reading Types
-
-These reading types are sent from most devices:
-
-- temp
-- ble_seen
-- chg_voltage
-
-Some readings will only be sent by devices that have additional sensors built in, such as the [Enviro](/devices/enviro/):
-
-- humidity_bme
-- pressure_bme
-- temp_bme
-
-Or by devices that plug into power, such as the [Vehicle Tracker](/devices/vehicle/):
-
-- ext_voltage
-
-Many other sensor readings are available, and will continue to be documented here.
-
-If you need help understanding a reading type that is not listed here, please [contact us](https://support.lightbug.cloud/).
-
-- humidity
-- temp_hw
-- pressure_hw
-- light
-- heartrate
-- acc_ext
-- acc_maxForce
-- acc_maxTilt
-- geofence_log
-- lora_packet
-- uart_blob
-- ultra
-- unknown
-- temp_dht
-- tds_adc
-- tamper_detected
-- max_speed
-- loragw_seen_hack
-- light_detected
-- humidity_dht
-- chg_data
-- cadence
-- ble_seen
-- battery
-- adcraw_90
-- adcraw_245
-- adcraw_2
-- adcraw_10
-- adcraw_0
-- adc_90
-- adc_245
-- adc_10
-- accel_3d
 
 ## Device Settings
 
