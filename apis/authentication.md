@@ -1,14 +1,16 @@
 ---
 aside: true
-outline: 1
+outline: [1,3]
 ---
 
 <script setup lang="ts">
 import { useData } from 'vitepress'
+import { useTheme } from 'vitepress-theme-openapi'
 const { isDark } = useData()
 import { loadSpec } from '../swagger/load'
 const spec1 = loadSpec(1)
 const spec2 = loadSpec(2)
+useTheme().setHeadingLevels({ h1: 3, h2: 4, h3: 5 })
 </script>
 
 # Authentication
@@ -27,20 +29,12 @@ Tokens might look something like this:
  - `aLB1MKbtxLBb02A0fLFUwJ2nLBMaEFeo8ZLB0gHNCTYIGTJ12oBLB0FMlLBjAlLB`
  - `xLBJhbGciOiJIUzILBiIsILBhjd76IkpXCJ9.eyJle2hs0cy3MjMwMjk1OTjkdhcmcyI6ImdnIiwianRpIjoiZ0luLXNhN3BWYjFTNnhOZFAkchdy2kF2RzlFYzhfV0hlVnJUFUQ0QjN4X3BrbLBvcFh2VUMtX2poM0d0cVlkZ2dvVUUxZ3k0ckg4YTJPNDFxVW8PdUw4OHNPR2hQlkjdbxpWMjU5UE1vb3N5bVFHbmxibW1iYlZRYkNuN2tnRUllTLBLSksyNlNEOEpqbW1qSS15ZjBJSnZHU3NCeWhBekN3R1dwTXhoLBFrcE9VbS1lVkxTb1pwYUlhWkhkQlVycWtlUi1aNE55SnF4SEg4ZmpUaGw1bE81aHZFNVY1lkg890FCTk85anZjMlRRcGdiUGN0dGNazsdfyzBGOFdzIiwibmFtZSI6ImFkYW1AbGllkHRidWcuaW8iLCJzdWIiOjM4MDh9.LBpcVEbm0sywbcPScTg9j54SxdNydJuC_vncrh-fDps`
 
-<hr>
+## Version 2
 
-<OAOperation operationId="post-users-login" :spec="spec2" :isDark="isDark" :hideDefaultFooter="true">
-  <!-- <template v-slot:header><h1 id="v2-login">V2: Get an access token</h1></template> -->
-</OAOperation>
+<OAOperation operationId="post-users-login" :spec="spec2" :isDark="isDark" :hideDefaultFooter="true"/>
 
-<hr>
+<OAOperation operationId="post-users-refreshToken" :spec="spec2" :isDark="isDark" :hideDefaultFooter="true"/>
 
-<OAOperation operationId="post-users-refreshToken" :spec="spec2" :isDark="isDark" :hideDefaultFooter="true">
-  <template v-slot:header><h1 id="v2-refresh">V2: Refresh a token</h1></template>
-</OAOperation>
+## Version 1
 
-<hr>
-
-<OAOperation operationId="post-users-login" :spec="spec1" :isDark="isDark" :hideDefaultFooter="true">
-  <template v-slot:header><h1 id="v1-login">V1: Get an access token</h1></template>
-</OAOperation>
+<OAOperation operationId="post-users-login" :spec="spec1" :isDark="isDark" :hideDefaultFooter="true"/>
