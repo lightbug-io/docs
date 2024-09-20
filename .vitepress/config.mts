@@ -48,8 +48,8 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       {
-        text: 'Concepts',
-        link: '/concepts/index.html',
+        text: 'Basics',
+        link: '/basics/index.html',
       },
       { text: 'Devices', link: '/devices/' },
       {
@@ -79,22 +79,22 @@ export default defineConfig({
       }
     ],
     sidebar: {
-      '/concepts': [
+      '/basics': [
         {
-          text: 'Concepts',
-          link: '/concepts/',
+          text: 'Basics',
+          link: '/basics/',
           items: [
             {
               text: 'General',
               items: [
-                { text: 'IoT', link: '/concepts/iot' },
-                { text: 'Positioning', link: '/concepts/positioning' },
-                { text: 'Observability', link: '/concepts/observability' },
+                { text: 'IoT', link: '/basics/iot' },
+                { text: 'Positioning', link: '/basics/positioning' },
+                { text: 'Observability', link: '/basics/observability' },
               ]
             },
-            { text: 'Device', link: '/concepts/device' },
-            { text: 'Point', link: '/concepts/point' },
-            { text: 'Reading', link: '/concepts/reading' },
+            { text: 'Device', link: '/basics/device' },
+            { text: 'Point', link: '/basics/point' },
+            { text: 'Reading', link: '/basics/reading' },
           ],
         },
       ],
