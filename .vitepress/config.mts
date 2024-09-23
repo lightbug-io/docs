@@ -95,6 +95,7 @@ export default defineConfig({
             { text: 'Device', link: '/basics/device' },
             { text: 'Point', link: '/basics/point' },
             { text: 'Reading', link: '/basics/reading' },
+            { text: 'Billing', link: '/basics/billing' },
           ],
         },
       ],
