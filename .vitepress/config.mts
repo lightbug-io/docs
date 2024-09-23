@@ -243,6 +243,7 @@ export default defineConfig({
                 { text: 'Details', link: '/apps/cloud/account/details' },
                 { text: 'Preferences', link: '/apps/cloud/account/preferences' },
                 { text: 'Notifications', link: '/apps/cloud/account/notifications' },
+                { text: 'Geofences', link: '/apps/cloud/account/geofences.html' },
                 { text: 'More', link: '/apps/cloud/account/more' },
               ],
             },
@@ -252,15 +253,25 @@ export default defineConfig({
               collapsed: true,
               items: [
                 {
-                  text: 'Configuration',
-                  link: '/apps/cloud/device-configuration/',
+                  text: 'Settings',
+                  link: '/apps/cloud/device-settings/',
                   items: [
-                    { text: 'Modes', link: '/apps/cloud/device-configuration/modes.html' },
-                    { text: 'Notifications', link: '/apps/cloud/device-configuration/notifications.html' },
-                    { text: 'Tags', link: '/apps/cloud/device-configuration/tags.html' },
-                    { text: 'Data plan', link: '/apps/cloud/device-configuration/data-plan.html' },
-                    { text: 'Activations', link: '/apps/cloud/device-configuration/activations.html' },
-                    { text: 'Geofences', link: '/apps/cloud/device-configuration/geofences.html' },
+                    {
+                      text: 'Configuration',
+                      link: '/apps/cloud/device-settings/',
+                      items: [
+                        { text: 'Modes', link: '/apps/cloud/device-settings/modes.html' },
+                      ],
+                    },
+                    { text: 'Notifications', link: '/apps/cloud/device-settings/notifications.html' },
+                    { text: 'Tags', link: '/apps/cloud/device-settings/tags.html' },
+                    {
+                      text: 'Data plan',
+                      link: '/apps/cloud/device-settings/data-plan.html',
+                      items: [
+                        { text: 'Activations', link: '/apps/cloud/device-settings/activations.html' },
+                      ],
+                    },
                   ],
                 },
                 { text: 'Bluetooth Ranging', link: '/apps/cloud/bluetooth-ranging' },
