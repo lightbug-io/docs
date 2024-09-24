@@ -22,6 +22,10 @@ From here you can create a new geofence by clicking on the `+`. Delete them, or 
 
 To create a new geofence, click the `+` button in the top right corner.
 
+::: tip API hint
+You can also create geofences using the [API](/apis/v1/post-users-id-geofences.html), which provides you with more control over the geofence creation process.
+:::
+
 You'll be presented with a small configuration form, and a map to draw the geofence on.
 
 ![](https://i.imgur.com/XqQSMLT.png)
