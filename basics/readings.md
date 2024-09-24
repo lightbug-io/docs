@@ -1,6 +1,6 @@
 # Readings
 
-Readings, or sensor readings, are sent along site [points](./point), and contain additional infomation that has been recorded by the device, at a given point in time.
+Readings, or sensor readings, are sent along site [points](./points), and contain additional infomation that has been recorded by the device, at a given point in time.
 
 - Identifiers:
     - Reading ID: Unique identifier of the point

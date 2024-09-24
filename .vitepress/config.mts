@@ -303,6 +303,11 @@ export default defineConfig({
           link: '/apps/admin/',
           items : [
             { text: 'Creating Account', link: '/apps/admin/creating-account' },
+            { text: 'Permissions', link: '/apps/admin/permissions' },
+            { text: 'Devices', link: '/apps/admin/devices' },
+            { text: 'Configs', link: '/apps/admin/configs' },
+            { text: 'Users', link: '/apps/admin/users' },
+            { text: 'Invoice Audit', link: '/apps/admin/invoice-audit' },
           ],
         }
       ],

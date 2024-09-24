@@ -34,4 +34,4 @@ Points represent a single location update from a device, and contain a number of
 Different interfaces may expose these details in different ways, and you are encouraged to look at the individual interface documentaiton.
 :::
 
-Other infomation is often submitted with points, such as [readings](./reading)
+Other infomation is often submitted with points, such as [readings](./readings.html)
