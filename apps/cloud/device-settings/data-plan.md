@@ -1,3 +1,5 @@
 # Data plan
 
-For now, [see page 59 of the legacy user manual](https://lightbug.io/user_manual.pdf)
+The data plan page is where you can see all the devices you have activated, and manage their subscriptions, and billing.
+
+![](https://i.imgur.com/GC3e8rW.png)

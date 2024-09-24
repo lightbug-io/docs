@@ -92,9 +92,9 @@ export default defineConfig({
                 { text: 'Observability', link: '/basics/observability' },
               ]
             },
-            { text: 'Device', link: '/basics/device' },
-            { text: 'Point', link: '/basics/point' },
-            { text: 'Reading', link: '/basics/reading' },
+            { text: 'Devices', link: '/basics/devices' },
+            { text: 'Points', link: '/basics/points' },
+            { text: 'Readings', link: '/basics/readings' },
             { text: 'Billing', link: '/basics/billing' },
           ],
         },
@@ -244,7 +244,6 @@ export default defineConfig({
                 { text: 'Preferences', link: '/apps/cloud/account/preferences' },
                 { text: 'Notifications', link: '/apps/cloud/account/notifications' },
                 { text: 'Geofences', link: '/apps/cloud/account/geofences.html' },
-                { text: 'More', link: '/apps/cloud/account/more' },
               ],
             },
             {
@@ -269,8 +268,17 @@ export default defineConfig({
                       text: 'Data plan',
                       link: '/apps/cloud/device-settings/data-plan.html',
                       items: [
-                        { text: 'Activations', link: '/apps/cloud/device-settings/activations.html' },
+                        { text: 'Account', link: '/apps/cloud/device-settings/subscription-account.html' },
+                        { text: 'Devices', link: '/apps/cloud/device-settings/subscription-devices.html' },
                       ],
+                    },
+                    {
+                      text: 'Sharing',
+                      link: '/apps/cloud/device-settings/sharing.html',
+                    },
+                    {
+                      text: 'Schedule',
+                      link: '/apps/cloud/device-settings/schedule.html',
                     },
                   ],
                 },
@@ -281,6 +289,10 @@ export default defineConfig({
             {
               text: 'Reports',
               link: '/apps/cloud/reports',
+            },
+            {
+              text: 'Notifications',
+              link: '/apps/cloud/notifications',
             },
           ]
         }

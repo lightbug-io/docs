@@ -1,4 +1,4 @@
-# Point
+# Points
 
 Points represent a single location update from a device, and contain a number of fields that provide information about the device's state at the time the location was recorded.
 

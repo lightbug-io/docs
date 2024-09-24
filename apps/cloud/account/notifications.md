@@ -156,5 +156,4 @@ Within the `Message` key, you will find the notification data.
 
 ## Notification Log
 
-Notification Log means that the Notification tab will log all
-triggered notifications and alerts.
+Notification Log means that the [Notification tab](/apps/cloud/notifications.html) will log all triggered notifications and alerts.

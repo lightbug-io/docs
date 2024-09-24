@@ -1,4 +1,4 @@
-# Device
+# Devices
 
 Lightbug devices follow a common technical internal and external architecture.
 
