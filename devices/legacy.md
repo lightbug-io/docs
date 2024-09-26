@@ -14,6 +14,8 @@ If you have questions about a device thatis not currently listed as a core devic
 
 Includes legacy and current devices.
 
+<!-- TODO better pictures -->
+
 ### 2022
 
 <v-row>
@@ -54,6 +56,8 @@ Includes legacy and current devices.
         <v-img src="https://web.archive.org/web/20180818185318im_/https://thelightbug.com/images/rthub_front_long_battery_gps_tracker.png"/>
     </v-col>
 </v-row>
+
+<!-- TODO add wired vehicle tracker -->
 
 ### 2017
 

@@ -17,6 +17,8 @@ In the top left of the device view, you will see the device name, colour, as wel
 
 ![](https://i.imgur.com/rSNOeNC.png)
 
+<!-- TODO clicking the info bar, opens Device Infomation -->
+
 Clicking the dropdown will open the [History list](#history-list) for the device.
 
 ## Time range
@@ -59,10 +61,30 @@ The history list can be accessed by clicking the dropdown in the top left of the
 
 The list shows all the locations transmitted by the in the given [time range](#time-range).
 
+You can hover over a location in the list to see extra infomation (such as accuracy).
+
+You can click on any of the locations to, zoom to the location.
+
 <!-- TODO include documentation on trip view vs non trip view.. -->
 
 ## Dot
 
 ![](https://i.imgur.com/rCwVSve.png)
 
-<!-- TODO include a table of what each icon means.. -->
+<!-- TODO add all the dots.. -->
+
+General control
+
+- White: Device configuration
+- Yellow: Take me to this point on google maps (account preference to enable)
+- Red X: Close
+
+Some dots represent device seen.  The number on each of the dot represents the number of devices seen throughout the time frame.
+
+- Blue: BLE Devices (Paired or unpaired)
+- Orange: Other nearby Lightbugs
+
+Any events that have occured will be shown on the map as a dot.
+
+- Rotation sign (arrows)
+- Drop detection (triangle)

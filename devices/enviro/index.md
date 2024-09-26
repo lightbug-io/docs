@@ -13,7 +13,7 @@ Our core tracking device with additional environmental sensors.
 | Weight                | 152g                                                                                         |
 | Battery               | 6600mAh (Rechargable Lithium)                                                                |
 | Sim                   | Integrated roaming sim                                                                       |
-| GSM                   | Quadband 4G LTE-M & NBIoT + 2G                                                               |
+| GSM                   | Quadband 4G LTE-M & NBIoT + 2G fallback                                                               |
 | Bluetooth             | 5.0                                                                                          |
 | Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS), WiFi & GSM                                       |
 | Sensors               | High accuracy Temperature & Humidity Sensors, Orientation, Accelerometer, External Bluetooth |
@@ -25,5 +25,5 @@ Our core tracking device with additional environmental sensors.
 | Sound                 | Buzzer                                                                                       |
 | Charging              | Magnetic 4 pin connector                                                                     |
 | Additional            |                                                                                              |
-| Typical Usage         | TODO                                                                                         |
+| Typical Usage         | For tracking temperature & humidity sensitive non powered assets                                                                                         |
 | Optional              | NFC                                                                                          |

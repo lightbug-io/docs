@@ -16,11 +16,10 @@ Our wired core GPS tracking device.
 | --------------------- | ------------------------------------------------------------------------------ |
 | Device                | VT2                                                                            |
 | Size                  | 72 x 33 x 28.5 mm                                                              |
-| Power                 | Supports 6-80v (overvoltage protection to 200v)                                |
 | Weight                | 110g (approx)                                                                  |
 | Battery               | 2000mah mAh (Rechargable Lithium)                                              |
 | Sim                   | Integrated roaming sim                                                         |
-| GSM                   | Quadband 4G LTE-M & NBIoT + 2G                                                 |
+| GSM                   | Quadband 4G LTE-M & NBIoT + 2G fallback                                                |
 | Bluetooth             | 5.0                                                                            |
 | Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS), WiFi & GSM                         |
 | Sensors               | Temperature, Orientation, Accelerometer, External Bluetooth, Voltage, Ignition |
@@ -28,8 +27,8 @@ Our wired core GPS tracking device.
 | IP rating             | IP65 & shockproof                                                              |
 | Operating Temperature | 0°C to 60°C                                                                    |
 | Buttons               | 1                                                                              |
-| LEDs                  | TODO                                                                           |
-| Sound                 | TODO                                                                           |
-| Charging              | TODO                                                                           |
+| LEDs                  | 7 (4x battery, 2x status, 1x power)                                                                             |
+| Sound                 | None                                                                           |
+| Power                 | Supports 6-100v DC (overvoltage protection to 200v), via 3 pin Julet  connector |
 | Additional            | Configurable maximum power draw                                                |
-| Typical Usage         | TODO                                                                           |
+| Typical Usage         | Tracking of powered assets |

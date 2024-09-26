@@ -13,7 +13,7 @@ Our general purpose core GPS tracking device.
 | Weight                | 150g                                                        |
 | Battery               | 6600mAh (Rechargable Lithium)                               |
 | Sim                   | Integrated roaming sim                                      |
-| GSM                   | Quadband 4G LTE-M & NBIoT + 2G                              |
+| GSM                   | Quadband 4G LTE-M & NBIoT + 2G fallback                             |
 | Bluetooth             | 5.0                                                         |
 | Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS), WiFi & GSM      |
 | Sensors               | Temperature, Orientation, Accelerometer, External Bluetooth |
@@ -25,5 +25,6 @@ Our general purpose core GPS tracking device.
 | Sound                 | Buzzer                                                      |
 | Charging              | Magnetic 4 pin connector                                    |
 | Additional            |                                                             |
-| Typical Usage         | TODO                                                        |
+| Typical Usage         | Tracking non powered assets, for long time deployments   |
+| Mounting options | Adhesive pad, container mount, magnetic mount |
 | Optional              | NFC                                                         |

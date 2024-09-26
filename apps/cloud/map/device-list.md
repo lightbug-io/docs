@@ -35,6 +35,8 @@ Each device row contains the following information:
  - Time of last transmission (or activation state)
  - Signal strength of last transmission
  - Battery level of last transmission
+ - Tags (if any)
+ - Current zones (if any)
 
 Here are some examples of what the device rows can look like:
 
@@ -46,6 +48,7 @@ Here are some examples of what the device rows can look like:
 | <v-img src="https://i.imgur.com/ZYZseSF.png" style="width:350px"/> | A deactivated device, that last reported being on 72% battery |
 | <v-img src="https://i.imgur.com/MrymS6o.png" style="width:350px"/> | A deactivated device, that last reported being on 74% battery, and in the "Bristol area" zone. |
 | <v-img src="https://i.imgur.com/KND4U7x.png" style="width:350px"/> | A deactivated device, that last reported being on 100% battery, and in the "Bristol area" zone, and has a [tag](/apps/cloud/device-settings/tags.html) |
+| <v-img src="https://i.imgur.com/eVBH9OQ.png" style="width:350px"/> | When using wired trackers, Battery % will not be shown, Powered status (ignition) will be shown |
 | <v-img src="https://i.imgur.com/MEhzqHR.png" style="width:350px"/> | An active device, that has just transmitted data, and is in battery saver mode at 13% |
 | <v-img src="https://i.imgur.com/u3glJ6q.png" style="width:350px"/> | A bluetooth beacon that has been added to the account |
 

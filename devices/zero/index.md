@@ -13,7 +13,7 @@ Our smallest core GPS tracking device.
 | Weight                | 35g                                                         |
 | Battery               | 1000mAh                                                     |
 | Sim                   | Integrated roaming sim                                      |
-| GSM                   | Quadband 4G LTE-M & NBIoT + 2G                              |
+| GSM                   | Quadband 4G LTE-M & NBIoT + 2G fallback                              |
 | Bluetooth             | 5.0                                                         |
 | Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS), WiFi & GSM      |
 | Sensors               | Temperature, Orientation, Accelerometer, External Bluetooth |
@@ -24,8 +24,9 @@ Our smallest core GPS tracking device.
 | LEDs                  | 6 (4x battery, 2x status)                                   |
 | Sound                 | Buzzer                                                      |
 | Charging              | Magnetic 4 pin connector                                    |
-| Additional            | Keyring hole for easy attachment                            |
-| Typical Usage         | TODO                                                        |
+| Additional            |                       |
+| Typical Usage         | For tracking non powered assets, where you have a size or weight restriction  |
+| Mounting options | Adhesive pad, screw mount, keyring hole                                                      |
 | Optional              | NFC                                                         |
 
 ## Exterior
