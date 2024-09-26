@@ -4,17 +4,19 @@ A core feature of the cloud interface, reports allow you to view and download de
 
 ![](https://i.imgur.com/mwffaBW.png)
 
-All reports are generated instantly and for any custom time period
+All reports are generated instantly and for any custom time period, and for any set of devices.
+
+You can also export reports, or schedule them to be sent to you via email.
 
 ## General Reports
 
- - Status Report: Quick overview of current device status. Includes last connection, battery, current position and more.
- - Route Report: List of all the points transmitted by the device with street address, speed and course.
- - Trip Summary: Summary view of trips made, showing start and end location, time, distance and duration.
- - Detailed Trip Report: A more detailed version of the Trip Summary report showing every street address visited by the
+ - [Status Report](./reports/status): Quick overview of current device status. Includes last connection, battery, current position and more.
+ - [Route Report](./reports/route): List of all the points transmitted by the device with street address, speed and course.
+ - [Trip Summary](./reports/trip-summary): Summary view of trips made, showing start and end location, time, distance and duration.
+ - [Detailed Trip](./reports/detailed-trip): A more detailed version of the Trip Summary report showing every street address visited by the
 device.
- - Distance Report: Report of distance travelled between two dates.
- - Speeding Report: Quickly identify devices that have gone over a given speed limit.
+ - [Distance Report](./reports/distance): Report of distance travelled between two dates.
+ - [Speeding Report](./reports/speeding): Quickly identify devices that have gone over a given speed limit.
 
 ## Zone Reports
 

@@ -289,6 +289,52 @@ export default defineConfig({
             {
               text: 'Reports',
               link: '/apps/cloud/reports',
+              collapsed: true,
+              items: [
+                {
+                  text: 'General',
+                  collapsed: true,
+                  items: [
+                    {text: 'Status', link: '/apps/cloud/reports/status'},
+                    {text: 'Route', link: '/apps/cloud/reports/route'},
+                    {text: 'Trip Summary', link: '/apps/cloud/reports/trip-summary'},
+                    {text: 'Detailed Trip', link: '/apps/cloud/reports/detailed-trip'},
+                    {text: 'Distance', link: '/apps/cloud/reports/distance'},
+                    {text: 'Speeding', link: '/apps/cloud/reports/speeding'},
+                  ]
+                },
+                {
+                  text: 'Zones',
+                  collapsed: true,
+                  items: [
+                    {text: 'Zone by time', link: '/apps/cloud/reports/zone-by-time'},
+                    {text: 'Specific zone', link: '/apps/cloud/reports/specific-zone'},
+                    {text: 'Live zones', link: '/apps/cloud/reports/live-zones'},
+                    {text: 'Trip count', link: '/apps/cloud/reports/trip-count'},
+                    {text: 'Zone aggregate', link: '/apps/cloud/reports/zone-aggregate'},
+                    {text: 'Inventory', link: '/apps/cloud/reports/inventory'},
+                  ]
+                },
+                {
+                  text: 'Vehicle',
+                  collapsed: true,
+                  items: [
+                    {text: 'Vehicle Activity', link: '/apps/cloud/reports/vehicle-activity'},
+                    {text: 'Vehicle Summary', link: '/apps/cloud/reports/vehicle-summary'},
+                    {text: 'Vehicle Events', link: '/apps/cloud/reports/vehicle-events'},
+                  ]
+                },
+                {
+                  text: 'Sensor',
+                  collapsed: true,
+                  items: [
+                    {text: 'Temperature', link: '/apps/cloud/reports/temperature'},
+                    {text: 'Proximity', link: '/apps/cloud/reports/proximity'},
+                    {text: 'Battery Performance', link: '/apps/cloud/reports/battery-performance'},
+                    {text: 'Motion Data Report', link: '/apps/cloud/reports/motion-data'},
+                  ]
+                }
+              ],
             },
             {
               text: 'Notifications',
