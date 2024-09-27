@@ -51,15 +51,13 @@ const v1DescriptionOverrides = {
     'get-users-id-getDeviceSummary': 'Lists all devices for a user, with a summary of state, including most resent points.',
 }
 
-const v1RemoveSecurity = [
-    'post-users-login',
-]
-
 const v1Deprecated = [
     'get-devices-id-transients-fk',
 ]
 
 const v1ReTag = {
+    'post-users-login': 'authentication',
+
     // Keep the MQTT in its own section, near the bottom
     'get-users-id-getMqttCredentials': 'mqtt',
 
@@ -82,12 +80,48 @@ const v1ReTag = {
     'get-devices-id-flightMode': 'device-config',
     'get-devices-id-getSafeZone': 'device-config',
 
+    'get-devices-id-messages': 'device-misc',
     'post-devices-id-messages': 'device-misc',
     'delete-devices-id-messages': 'device-misc',
     'get-devices-id-transients': 'device-misc',
     'get-devices-id-transients-fk': 'device-misc',
     'get-devices-id-nearbyDevices': 'device-misc',
     'get-devices-id-nearbyDeviceData': 'device-misc',
+
+    'get-devices-id-getRtkStatus': 'rtk',
+    'get-devices-id-getRecentRtkLogs': 'rtk',
+    'get-devices-id-getRtkCommand': 'rtk',
+    'get-devices-id-queueRtkCmd-UpdateRateMs': 'rtk',
+    'get-devices-id-queueRtkCmd-AlertNow': 'rtk',
+    'get-devices-id-queueRtkCmd-AlertWithPrompt': 'rtk',
+    'get-devices-id-queueRtkCmd-RebootRtk': 'rtk',
+    'get-devices-id-queueRtkCmd-SetPointBufferSize': 'rtk',
+    'get-devices-id-updateRtkBaseStatus': 'rtk',
+
+    'get-devices-id': 'device',
+    'get-users-id-devices': 'device',
+    'get-users-id-getDeviceSummary': 'device',
+    'get-users-id-getDevicesInZone': 'device',
+    'get-users-id-getDevicesByTag': 'device',
+
+    'get-devices-id-points-fk': 'points',
+    'get-devices-id-points': 'points',
+    'delete-devices-id-points-fk': 'points',
+
+    'get-devices-id-readings-fk': 'readings',
+    'get-devices-id-readings': 'readings',
+    'put-devices-id-gatewayReadings-fk': 'readings',
+
+    'get-devices-id-notificationTriggers-fk': 'notifications',
+    'delete-devices-id-notificationTriggers-fk': 'notifications',
+    'put-devices-id-notificationTriggers-fk': 'notifications',
+    'get-devices-id-notificationTriggers': 'notifications',
+    'post-devices-id-notificationTriggers': 'notifications',
+    'delete-devices-id-notificationTriggers': 'notifications',
+
+    'get-users-id-geofences': 'geofences',
+    'get-users-id-geofences-fk': 'geofences',
+
 }
 
 const v1Removed = [
@@ -100,22 +134,25 @@ const v1Removed = [
 
 export function loadSpec(version: number): any {
     if (version === 1) {
-        // override all operations, to align with the "default" by the theme
-        // v2 doesnt have operation ids set, and just relies on this default too, and its "quite" nice
-        // method-path (where - is in place of / in the path)
         for (const path of Object.keys(spec1.paths)) {
-            for (const method of Object.keys(spec1.paths[path])) {
-                const operationId = `${method}${path.replace(/\//g, '-')}`
-                spec1.paths[path][method].operationId = operationId
-                // Also remove any { and } from the operationId
-                spec1.paths[path][method].operationId = operationId.replace(/{|}/g, '')
+            // Remove { and } from the path
+            const pathName = path.replace(/{/g, '').replace(/}/g, '')
+            if (pathName === path) {
+                continue // No change
             }
+            // Replace the path with the new path
+            spec1.paths[pathName] = spec1.paths[path]
+            // Remove the old path
+            delete spec1.paths[path]
         }
 
-        // override the summary of paths, based on the operation
+        // override stuff
         for (const path of Object.keys(spec1.paths)) {
             for (const method of Object.keys(spec1.paths[path])) {
-                const operationId = spec1.paths[path][method].operationId
+                // opertaionId is method-path (with / replaced with -)
+                let operationId = method + path.replace(/\//g, '-')
+                // Replace _ with -
+                operationId = operationId.replace(/_/g, '-')
                 if (v1Removed.includes(operationId)) {
                     delete spec1.paths[path][method]
                     continue
@@ -126,11 +163,10 @@ export function loadSpec(version: number): any {
                 if (operationId in v1DescriptionOverrides) {
                     spec1.paths[path][method].description = v1DescriptionOverrides[operationId]
                 }
-                if (v1RemoveSecurity.includes(operationId)) {
-                    spec1.paths[path][method].security = []
-                }
                 if (operationId in v1ReTag) {
                     spec1.paths[path][method].tags = [v1ReTag[operationId]]
+                } else {
+                    console.log('No re-tag for', operationId)
                 }
                 if (operationId in v1Deprecated) {
                     spec1.paths[path][method].deprecated = true
@@ -139,13 +175,20 @@ export function loadSpec(version: number): any {
                     // and the description
                     spec1.paths[path][method].description = `This endpoint is deprecated. ${spec1.paths[path][method].description}`
                 }
-                // If a method has a paremeter called include, then it is never required...
+                // If a method has a parameter called include, then it is never required...
                 if (spec1.paths[path][method].parameters) {
                     for (const param of spec1.paths[path][method].parameters) {
                         if (param.name === 'include') {
                             param.required = false
                         }
                     }
+                }
+                // Remove RTK> from all
+                if (spec1.paths[path][method].summary) {
+                    spec1.paths[path][method].summary = spec1.paths[path][method].summary.replace('RTK>', '')
+                }
+                if (spec1.paths[path][method].description) {
+                    spec1.paths[path][method].description = spec1.paths[path][method].description.replace('RTK>', '')
                 }
             }
         }

@@ -204,7 +204,7 @@ export default defineConfig({
                 {text: 'Filtering', link: '/apis/v1/filtering/'},
                 {text: 'SDKs', link: '/apis/v1/sdks/'},
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["authentication"], text: "Authentication", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
-                collapse(sidebarSpec1.generateSidebarGroup({ tag: ["devices"], text: "Devices", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
+                collapse(sidebarSpec1.generateSidebarGroup({ tag: ["device"], text: "Devices", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["device-config"], text: "Device Configuration", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["points"], text: "Points", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["readings"], text: "Readings", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
