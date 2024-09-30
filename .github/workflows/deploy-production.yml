@@ -10,7 +10,7 @@ on:
 env:
   DEPLOYMENT_NAME: "Production"
   SECRET_PREFIX: PRODUCTION_
-  SOURCE_DIR: out
+  SOURCE_DIR: .vitepress/dist
 
 # https://github.com/ouzi-dev/commit-status-updater/tree/v2/#workflow-permissions
 permissions:
@@ -25,7 +25,7 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: 21
 
       - name: Cache npm
         uses: actions/cache@v1
@@ -46,9 +46,9 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build
+        run: npm run docs:build
         env:
-          NEXT_PUBLIC_GOOGLE_ANALYTICS: ${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
+          PUBLIC_GOOGLE_ANALYTICS: ${{ secrets.PRODUCTION_PUBLIC_GOOGLE_ANALYTICS }}
 
       - name: Deploy
         if: success()
