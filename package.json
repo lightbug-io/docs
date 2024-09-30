@@ -1,32 +1,20 @@
 {
-  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@mdi/font": "^7.4.47",
+    "vitepress": "^1.3.3",
+    "vitepress-plugin-tabs": "^0.5.0"
+  },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "docs:dev": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress dev",
+    "docs:build": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress build",
+    "docs:preview": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress preview"
   },
   "dependencies": {
-    "@chakra-ui/react": "^2.8.2",
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.5",
-    "@markdoc/markdoc": "latest",
-    "@markdoc/next.js": "latest",
-    "framer-motion": "^11.0.25",
-    "next": "latest",
-    "nextra": "latest",
-    "nextra-theme-docs": "latest",
-    "openapi-explorer": "^2.1.622",
-    "prismjs": "latest",
-    "react": "latest",
-    "react-dom": "latest"
-  },
-  "devDependencies": {
-    "@types/node": "latest",
-    "@types/react": "latest",
-    "@types/react-dom": "latest",
-    "eslint": "^8.45.0",
-    "eslint-config-next": "^13.4.12",
-    "typescript": "latest"
+    "cross-env": "^7.0.3",
+    "vitepress-plugin-pagefind": "^0.4.10",
+    "vitepress-theme-openapi": "^0.0.3-alpha.31",
+    "vue-i18n": "^9.14.0",
+    "vuetify": "^3.6.15"
   }
 }

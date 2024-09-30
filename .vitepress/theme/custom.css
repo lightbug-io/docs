@@ -1,0 +1,17 @@
+:root {
+    --vp-layout-max-width: 1640px;
+    --vp-sidebar-width: 19rem;
+    --vp-c-brand-1: #fc7c3d;
+    --vp-c-brand-2: #e37039;
+    --vp-c-brand-3: #e37039;
+}
+
+/* Tweaks to the open api side bar appearance */
+.OASidebarItem-badge {
+    font-size: 0.60rem;
+}
+.OASidebarItem-text {
+    font-size: 0.7rem;
+    font-weight: 450;
+    line-height: normal;
+}
