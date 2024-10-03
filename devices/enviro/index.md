@@ -27,3 +27,21 @@ Our core tracking device with additional environmental sensors.
 | Additional            |                                                                                              |
 | Typical Usage         | For tracking temperature & humidity sensitive non powered assets                                                                                         |
 | Optional              | NFC                                                                                          |
+
+## Charging
+
+The Pro tracker is charged using a magnetic 4 pin connector, and should be charged for 5 hours before initial use.
+
+This connecter can be used with a magnetic cable or a pro chaging dock.
+
+<!-- TODO side by side picture of 2 charging methods -->
+
+| State                    | Indication                                                                   |
+| ------------------------ | ---------------------------------------------------------------------------- |
+| Disconnected             | No LEDs will be on                                                           |
+| Connected, Charging      | Battery LEDs display the charge of the device, and will blink while charging |
+| Connected, Fully charged | Battery LEDs display the charge of the device, no blinking will happen       |
+
+::: warning
+It is advised to use an adapter plugged into a power socket rather than using a computer USB port or similar.
+:::
