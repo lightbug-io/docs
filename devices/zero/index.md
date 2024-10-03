@@ -64,8 +64,7 @@ The Zero tracker is charged using a magnetic 4 pin connector, and should be char
 
 This connecter can be used with a magnetic cable or a zero chaging dock.
 
-TODO side by side picture of the two charging methods
-
+<!-- TODO side by side picture of 2 charging methods -->
 
 | State                    | Indication                                                                   |
 | ------------------------ | ---------------------------------------------------------------------------- |
