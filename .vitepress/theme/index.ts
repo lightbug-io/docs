@@ -1,5 +1,5 @@
 import DefaultTheme from 'vitepress/theme'
-import { theme, useOpenapi, useTheme } from 'vitepress-theme-openapi'
+import { theme, useOpenapi, useTheme } from 'vitepress-openapi'
 import type { Theme } from 'vitepress'
 import { enhanceAppWithTabs } from 'vitepress-plugin-tabs/client'
 import 'vuetify/styles'
@@ -9,7 +9,7 @@ import { createVuetify } from 'vuetify'
 import { VStepperVertical } from 'vuetify/labs/VStepperVertical'
 import '@mdi/font/css/materialdesignicons.css' // Ensure you are using css-loader
 
-import 'vitepress-theme-openapi/dist/style.css'
+import 'vitepress-openapi/dist/style.css'
 
 import './custom.css'
 
@@ -35,7 +35,7 @@ export default {
         const themeConfig = useTheme()
         themeConfig.setLocale('en') // en or es
 
-        // Uncomment below line when https://github.com/enzonotario/vitepress-theme-openapi/pull/51 is merged
+        // Uncomment below line when https://github.com/enzonotario/vitepress-openapi/pull/51 is merged
         // themeConfig.setResponseCodeSelector('select')
 
         theme.enhanceApp({ app })
