@@ -134,17 +134,7 @@ const v1Removed = [
 
 export function loadSpec(version: number): any {
     if (version === 1) {
-        for (const path of Object.keys(spec1.paths)) {
-            // Remove { and } from the path
-            const pathName = path.replace(/{/g, '').replace(/}/g, '')
-            if (pathName === path) {
-                continue // No change
-            }
-            // Replace the path with the new path
-            spec1.paths[pathName] = spec1.paths[path]
-            // Remove the old path
-            delete spec1.paths[path]
-        }
+        spec1.paths = normalizePaths(spec1.paths)
 
         // override stuff
         for (const path of Object.keys(spec1.paths)) {
@@ -195,7 +185,24 @@ export function loadSpec(version: number): any {
         return spec1
     }
     if (version === 2) {
+        spec2.paths = normalizePaths(spec2.paths)
         return spec2
     }
     return null
+}
+
+// Normalize paths by removing { and } from the path
+function normalizePaths(paths: any) {
+    for (const path of Object.keys(paths)) {
+        // Remove { and } from the path
+        const pathName = path.replace(/{/g, '').replace(/}/g, '')
+        if (pathName === path) {
+            continue // No change
+        }
+        // Replace the path with the new path
+        paths[pathName] = paths[path]
+        // Remove the old path
+        delete paths[path]
+    }
+    return paths
 }
