@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitepress'
-import { useSidebar } from 'vitepress-openapi'
+import { useSidebar } from 'vitepress-theme-openapi'
 import { loadSpec } from '../swagger/load'
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
 import { pagefindPlugin } from 'vitepress-plugin-pagefind'
@@ -160,14 +160,8 @@ export default defineConfig({
               collapsed: false,
               items: [
                 collapse(sidebarSpec2.generateSidebarGroup({
-                  tag: ["auth"],
-                  text: "Authentication",
-                  linkPrefix: '/apis/v2/',
-                  addedOperations: new Set(),
-                })),
-                collapse(sidebarSpec2.generateSidebarGroup({
                   tag: ["users", "published"],
-                  text: "Users",
+                  text: "Authentication",
                   linkPrefix: '/apis/v2/',
                   addedOperations: new Set(),
                 })),

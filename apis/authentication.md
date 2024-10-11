@@ -5,7 +5,7 @@ outline: [1,3]
 
 <script setup lang="ts">
 import { useData } from 'vitepress'
-import { useTheme } from 'vitepress-openapi'
+import { useTheme } from 'vitepress-theme-openapi'
 const { isDark } = useData()
 import { loadSpec } from '../swagger/load'
 const spec1 = loadSpec(1)

@@ -1,35 +1,6 @@
 {
   "components": {
     "schemas": {
-      "BuyPlansRequest": {
-        "properties": {
-          "currency": {
-            "description": "Currency to charge in (gbp, usd, eur)",
-            "enum": [
-              "usd",
-              "eur",
-              "gbp"
-            ],
-            "type": "string"
-          },
-          "products": {
-            "additionalProperties": {
-              "type": "integer"
-            },
-            "description": "Map of SKUs to quantity to add to the checkout",
-            "example": {
-              "SKU-1": 1,
-              "SKU-2": 7
-            },
-            "type": "object"
-          }
-        },
-        "required": [
-          "currency",
-          "products"
-        ],
-        "type": "object"
-      },
       "LoginRequest": {
         "properties": {
           "password": {
@@ -129,81 +100,6 @@
         "properties": {
           "processed": {
             "type": "boolean"
-          }
-        },
-        "type": "object"
-      },
-      "Plan": {
-        "properties": {
-          "displayName": {
-            "type": "string"
-          },
-          "features": {
-            "type": "string"
-          },
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string"
-          },
-          "onoWhitelistId": {
-            "description": "Connectivity *string `json:\"connectivity\"`\nGroup        string  `json:\"group\"`\nResellerID     *int32  `json:\"resellerId\"`\nResellerPlanID *int32  `json:\"resellerPlanId\"`\nArchived *int32 `json:\"archived\"`\nPlanType       string  `json:\"planType\"`",
-            "type": "integer"
-          },
-          "prices": {
-            "$ref": "#/components/schemas/ProductPricing"
-          },
-          "sku": {
-            "type": "string"
-          },
-          "sleepLimit": {
-            "type": "integer"
-          },
-          "wakeLimit": {
-            "description": "Term           string  `json:\"term\"`\nPrice          float64 `json:\"price\"`\nCurrency       string  `json:\"currency\"`\nOwnerID        int32   `json:\"ownerId\"`",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "ProductPricing": {
-        "properties": {
-          "eur": {
-            "description": "breaks:  example:\"[0,1.99],[10,1.89]\"` // Array of quantity to price in EUR",
-            "items": {
-              "items": {
-                "type": "number"
-              },
-              "type": "array"
-            },
-            "type": "array",
-            "uniqueItems": false
-          },
-          "gbp": {
-            "description": "breaks:   example:\"[1,2.34],[10,2.22]\"` // Array of quantity to price in GBP",
-            "items": {
-              "items": {
-                "type": "number"
-              },
-              "type": "array"
-            },
-            "type": "array",
-            "uniqueItems": false
-          },
-          "tax": {
-            "$ref": "#/components/schemas/ProductPricing"
-          },
-          "usd": {
-            "description": "breaks:   example:\"[1,4.35],[10,4.26]\"` // Array of quantity to price in USD",
-            "items": {
-              "items": {
-                "type": "number"
-              },
-              "type": "array"
-            },
-            "type": "array",
-            "uniqueItems": false
           }
         },
         "type": "object"
@@ -388,17 +284,6 @@
           }
         },
         "type": "object"
-      },
-      "internal_api_handlers_v2_users.UserPlanSummaryEntry": {
-        "properties": {
-          "count": {
-            "type": "integer"
-          },
-          "plan": {
-            "$ref": "#/components/schemas/Plan"
-          }
-        },
-        "type": "object"
       }
     },
     "securitySchemes": {
@@ -571,88 +456,8 @@
         ]
       }
     },
-    "/users/buyPlans": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BuyPlansRequest"
-              }
-            }
-          },
-          "description": "Request",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/httputil.HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/httputil.HTTPError"
-                }
-              }
-            },
-            "description": "Unauthorized"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": "Limit exceeded",
-            "headers": {
-              "X-Ratelimit-Limit": {
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Ratelimit-Remaining": {
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Ratelimit-Reset": {
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Purchases plans",
-        "tags": [
-          "users",
-          "published"
-        ]
-      }
-    },
     "/users/claimDevice": {
       "post": {
-        "description": "Claims a device for the user, adding it to your account",
         "requestBody": {
           "content": {
             "application/json": {
@@ -728,10 +533,10 @@
             "ApiKeyAuth": []
           }
         ],
-        "summary": "Claims a device",
+        "summary": "Claims that you are the owner of a device",
         "tags": [
-          "users",
-          "published"
+          "hidden",
+          "users"
         ]
       }
     },
@@ -820,7 +625,7 @@
         },
         "summary": "Login",
         "tags": [
-          "auth",
+          "users",
           "published"
         ]
       }
@@ -894,7 +699,7 @@
         ],
         "summary": "Logout",
         "tags": [
-          "auth",
+          "users",
           "published"
         ]
       }
@@ -988,93 +793,6 @@
         ]
       }
     },
-    "/users/plansSummary": {
-      "get": {
-        "description": "Gets a summary of plans for a user (already purchased)\nThis can list unused, and used plans with the `consumed` query parameter",
-        "parameters": [
-          {
-            "description": "Filter by plans that have already been consumed by devices or not",
-            "in": "query",
-            "name": "consumed",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/internal_api_handlers_v2_users.UserPlanSummaryEntry"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/httputil.HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/httputil.HTTPError"
-                }
-              }
-            },
-            "description": "Unauthorized"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": "Limit exceeded",
-            "headers": {
-              "X-Ratelimit-Limit": {
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Ratelimit-Remaining": {
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Ratelimit-Reset": {
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ],
-        "summary": "Summary of plans",
-        "tags": [
-          "users",
-          "published"
-        ]
-      }
-    },
     "/users/refreshToken": {
       "post": {
         "description": "Refresh the access token and refresh token that was retrieved during login.",
@@ -1160,7 +878,7 @@
         },
         "summary": "Refresh token",
         "tags": [
-          "auth",
+          "users",
           "published"
         ]
       }
