@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "cross-env": "^7.0.3",
-    "vitepress-openapi": "^0.0.3-alpha.37",
+    "vitepress-openapi": "^0.0.3-alpha.31",
     "vitepress-plugin-pagefind": "^0.4.10",
     "vue-i18n": "^9.14.0",
     "vuetify": "^3.6.15"
