@@ -1,5 +1,5 @@
-import spec1 from '../swagger/v1.json' with { type: 'json' }
-import spec2 from '../swagger/v2.json' with { type: 'json' }
+import spec1 from '../public/swagger/v1.json' with { type: 'json' }
+import spec2 from '../public/swagger/v2.json' with { type: 'json' }
 
 const v1SummaryOverrides = {
     'post-users-login': 'Login',
