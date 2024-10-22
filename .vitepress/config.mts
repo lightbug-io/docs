@@ -18,6 +18,7 @@ export default defineConfig({
   title: "Lightbug Documentation",
   description: "home for everything Lightbug",
   lang: 'en-GB',
+  cleanUrls: true,
   vite: {
     ssr: {
       noExternal: ["vuetify"]
@@ -67,7 +68,7 @@ export default defineConfig({
           { text: 'Admin', link: '/apps/admin/' },
         ]
       },
-      { text: 'Silos', link: '/silos/' },
+      { text: 'On Premise', link: '/silos/' },
       { text: 'Guides', link: '/guides/' },
       {
         text: 'Company',
@@ -365,7 +366,7 @@ export default defineConfig({
       ],
       '/silos': [
         {
-          text: 'Silos',
+          text: 'On Premise',
         }
       ],
       '/guides': [
