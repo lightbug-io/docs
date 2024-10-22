@@ -1,4 +1,5 @@
 import DefaultTheme from 'vitepress/theme'
+import Layout from './Layout.vue'
 import { theme, useOpenapi, useTheme } from 'vitepress-openapi'
 import type { Theme } from 'vitepress'
 import { enhanceAppWithTabs } from 'vitepress-plugin-tabs/client'
@@ -25,7 +26,7 @@ const vuetify = createVuetify({
 })
 
 export default {
-    ...DefaultTheme,
+    ...DefaultTheme, Layout,
     enhanceApp({ app, router, siteData }) {
         app.use(vuetify)
 

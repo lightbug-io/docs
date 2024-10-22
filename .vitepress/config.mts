@@ -19,6 +19,9 @@ export default defineConfig({
   description: "home for everything Lightbug",
   lang: 'en-GB',
   cleanUrls: true,
+  rewrites: {
+    '/onprem/' : '/silos/',
+  },
   vite: {
     ssr: {
       noExternal: ["vuetify"]
@@ -68,7 +71,7 @@ export default defineConfig({
           { text: 'Admin', link: '/apps/admin/' },
         ]
       },
-      { text: 'On Premise', link: '/silos/' },
+      { text: 'On Premise', link: '/onprem/' },
       { text: 'Guides', link: '/guides/' },
       {
         text: 'Company',
@@ -364,7 +367,7 @@ export default defineConfig({
           ],
         }
       ],
-      '/silos': [
+      '/onprem': [
         {
           text: 'On Premise',
         }
