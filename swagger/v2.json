@@ -573,6 +573,7 @@
     },
     "/users/buyPlans": {
       "post": {
+        "description": "Purchases plans for the user, adding them to the users plan pool",
         "requestBody": {
           "content": {
             "application/json": {
@@ -643,6 +644,11 @@
             }
           }
         },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
         "summary": "Purchases plans",
         "tags": [
           "users",
