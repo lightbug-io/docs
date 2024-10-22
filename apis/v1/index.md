@@ -2,12 +2,16 @@
 aside: false
 ---
 
-# Version 1: [/api](https://api.lightbug.cloud/api)
+# Version 1
 
-Accessible via: https://api.lightbug.cloud/api
+The version 1 API provides the most feature complete experience for interacting with the data in the Lightbug cloud.
 
-The first version of the API, which is still called by most Lightbug UI applications.
+The API data representation is very close to underlying data storage models, and some of the interactions are quite low level (such as granular bitfield device configurations).
 
-This API is very much tied to low level representations of data.
+For a more modern, higher level experience, we recommend the [V2 API](./../v2), where endpoints allow.
 
-As V2 is developed, a higher level set of interactions will be introduced.
+### Base URL
+
+```
+https://api.lightbug.cloud/api
+```

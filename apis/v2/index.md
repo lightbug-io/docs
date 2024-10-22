@@ -2,10 +2,22 @@
 aside: false
 ---
 
-# Version 2: [/v2](https://api.lightbug.cloud/v2)
+# Version 2
 
-Accessible via: https://api.lightbug.cloud/v2
+The version 2 API provides a modern, higher level experience for interacting with the data in the Lightbug cloud.
 
-This API is where new features and functionality will be added.
+New API functionality will be added to this version as devlopments happen.
 
-The first stage of this API was new authentication methods, including refreshable tokens.
+If you find that the V2 API does not provide the functionality you need, you may need to use the [V1 API](./../v1).
+
+### Base URL
+
+```
+https://api.lightbug.cloud/v2
+```
+
+### OpenAPI specification
+
+This documentaiton site is generated using and OpenAPI specification document.
+
+Clients will also soon be generated using this specification, as well as the specification being available for download.
