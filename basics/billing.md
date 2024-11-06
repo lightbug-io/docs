@@ -64,7 +64,7 @@ Two devices renew at the end of the month, making use of a pool that has 4 plan 
 Device A was activated the previous month and made use of a whole plan month this month.
 Device B was activated part way through the current month, and needs some credit applied to the invoice.
 
-78% of the month was used for this second plan (based on whole days of usage), thus 22% of the plan was credited back to the account.
+78% of device Bs plan was used (based on whole days of usage), leaving 22% of the plan to be credited back to the account.
 
 Assuming a price of $13 for 1 month of the unlimited plan, the invoice was credited $2.86, which covers this 22%.
 
