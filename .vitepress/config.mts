@@ -124,12 +124,16 @@ export default defineConfig({
                   link: '/devices/vehicle/',
                   collapsed: true,
                   items: [
-                    { text: 'Installation', link: '/devices/vehicle/installation.html' },
+                    { text: 'Installation', link: '/devices/vehicle/installation' },
                   ]
                 },
                 {
                   text: 'Enviro',
                   link: '/devices/enviro/',
+                },
+                {
+                  text: 'RTK',
+                  link: '/devices/rtk/',
                 },
               ]
             },
@@ -140,6 +144,10 @@ export default defineConfig({
             {
               text: 'Legacy',
               link: '/devices/legacy',
+              collapsed: true,
+              items: [
+                { text: 'VT2', link: '/devices/legacy/VT2' },
+              ]
             }
           ]
         }

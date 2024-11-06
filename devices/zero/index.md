@@ -2,7 +2,7 @@
 
 Our smallest core GPS tracking device.
 
-![Zero](https://lightbug.io/images/product/lightbug_small_gps_tracker_angle_hudd7e9e64707a5944b18e348e9bcb69b2_50144_600x600_fit_q100_box_2.png)
+<img src="https://lightbug.io/images/product-front/LB-DEV-ZE2_hu4ff3455ecb7f322eb1f00907f166ea0e_177507_600x900_fit_q95_h2_box_2.webp" alt="Zero" style="max-height: 250px; max-width: 380px">
 
 ## Specification
 
@@ -18,7 +18,7 @@ Our smallest core GPS tracking device.
 | Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS), WiFi & GSM      |
 | Sensors               | Temperature, Orientation, Accelerometer, External Bluetooth |
 | Memory                | up to 1000 locations update when they can't be transmitted  |
-| IP rating             | IP66 & shockproof                                           |
+| IP rating             | IP66 & Shockproof                                           |
 | Operating Temperature | 0°C to 50°C                                                 |
 | Buttons               | 1                                                           |
 | LEDs                  | 6 (4x battery, 2x status)                                   |

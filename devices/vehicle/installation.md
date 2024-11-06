@@ -4,6 +4,11 @@ The Vehicle Tracker is a simple device to install.
 
 It is designed to be installed by anyone with basic knowledge of vehicle maintenance.
 
+::: warning ⚠️ Warning
+Images in this guide are for illustrative purposes only and currently features our older VT2 device.
+If you purchase a vechicle tracker today, you will receive the VT3 device.
+:::
+
 ## Tools
 
 You will likely need the following tools to complete installaiton.
