@@ -85,15 +85,44 @@
       "LogoutResponse": {
         "type": "object"
       },
-      "PaginatedResult": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/data"
+      "OrderPlan": {
+        "properties": {
+          "consumedByDeviceId": {
+            "type": "integer"
+          },
+          "consumedOn": {
+            "type": "string"
+          },
+          "creditRemainingDays": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "orderId": {
+            "type": "integer"
+          },
+          "planId": {
+            "type": "integer"
+          },
+          "removedOn": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "integer"
           }
-        ],
+        },
+        "type": "object"
+      },
+      "PaginatedResult-OrderPlan": {
         "properties": {
           "data": {
-            "description": "Paginated data"
+            "description": "Paginated data",
+            "items": {
+              "$ref": "#/components/schemas/OrderPlan"
+            },
+            "type": "array",
+            "uniqueItems": false
           },
           "limit": {
             "description": "Requested elements per page",
@@ -110,25 +139,6 @@
           "totalPages": {
             "description": "Total pages of elements given limit and filters",
             "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "PasswordResetRequest": {
-        "properties": {
-          "username": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "username"
-        ],
-        "type": "object"
-      },
-      "PasswordResetResponse": {
-        "properties": {
-          "processed": {
-            "type": "boolean"
           }
         },
         "type": "object"
@@ -263,96 +273,6 @@
         ],
         "type": "object"
       },
-      "RegistrationRequest": {
-        "properties": {
-          "password": {
-            "minLength": 8,
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "password",
-          "username"
-        ],
-        "type": "object"
-      },
-      "RegistrationResponse": {
-        "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "username": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "User": {
-        "properties": {
-          "children": {
-            "items": {
-              "$ref": "#/components/schemas/User"
-            },
-            "type": "array",
-            "uniqueItems": false
-          },
-          "currency": {
-            "type": "string"
-          },
-          "deviceIds": {
-            "items": {
-              "type": "integer"
-            },
-            "type": "array",
-            "uniqueItems": false
-          },
-          "email": {
-            "type": "string"
-          },
-          "id": {
-            "type": "integer"
-          },
-          "locationCredits": {
-            "type": "integer"
-          },
-          "parentUserId": {
-            "type": "integer"
-          },
-          "preferences": {
-            "$ref": "#/components/schemas/UserPreferences"
-          },
-          "resellerId": {
-            "type": "integer"
-          },
-          "roles": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "uniqueItems": false
-          },
-          "stripeCustomer": {
-            "type": "string"
-          },
-          "stripeMeteredSubId": {
-            "type": "string"
-          },
-          "username": {
-            "type": "string"
-          },
-          "xeContactId": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "UserPreferences": {
-        "additionalProperties": {},
-        "type": "object"
-      },
       "UsersClaimDeviceRequest": {
         "properties": {
           "serial": {
@@ -363,17 +283,6 @@
         "required": [
           "serial"
         ],
-        "type": "object"
-      },
-      "data": {
-        "properties": {
-          "data": {
-            "items": {
-              "$ref": "#/components/schemas/User"
-            },
-            "type": "array"
-          }
-        },
         "type": "object"
       },
       "httputil.HTTPError": {
@@ -418,159 +327,6 @@
     "url": ""
   },
   "paths": {
-    "/users": {
-      "get": {
-        "description": "Gets an optionally filtered list of users.",
-        "parameters": [
-          {
-            "description": "Filter by ID. Multiple values work as ORs.",
-            "in": "query",
-            "name": "id",
-            "schema": {
-              "items": {
-                "type": "integer"
-              },
-              "type": "array"
-            }
-          },
-          {
-            "description": "Filter by username. * can be used as a wildcard.",
-            "in": "query",
-            "name": "username",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Limit for pagination, default 10, max 10000",
-            "in": "query",
-            "name": "_limit",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "description": "Page for pagination",
-            "in": "query",
-            "name": "_page",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "description": "Include additional data",
-            "in": "query",
-            "name": "_include",
-            "schema": {
-              "items": {
-                "enum": [
-                  "children",
-                  "roles",
-                  "deviceIds"
-                ],
-                "type": "string"
-              },
-              "type": "array"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/data"
-                    }
-                  ],
-                  "properties": {
-                    "data": {
-                      "description": "Paginated data"
-                    },
-                    "limit": {
-                      "description": "Requested elements per page",
-                      "type": "integer"
-                    },
-                    "page": {
-                      "description": "Requested page number",
-                      "type": "integer"
-                    },
-                    "totalElements": {
-                      "description": "Total elements in the database for given filters",
-                      "type": "integer"
-                    },
-                    "totalPages": {
-                      "description": "Total pages of elements given limit and filters",
-                      "type": "integer"
-                    }
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/httputil.HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/httputil.HTTPError"
-                }
-              }
-            },
-            "description": "Unauthorized"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": "Limit exceeded",
-            "headers": {
-              "X-Ratelimit-Limit": {
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Ratelimit-Remaining": {
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Ratelimit-Reset": {
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ],
-        "summary": "Gets users",
-        "tags": [
-          "hidden",
-          "users"
-        ]
-      }
-    },
     "/users/buyPlans": {
       "post": {
         "description": "Purchases plans for the user, adding them to the users plan pool",
@@ -651,8 +407,7 @@
         ],
         "summary": "Purchases plans",
         "tags": [
-          "users",
-          "published"
+          "users"
         ]
       }
     },
@@ -736,8 +491,7 @@
         ],
         "summary": "Claims a device",
         "tags": [
-          "users",
-          "published"
+          "users"
         ]
       }
     },
@@ -826,8 +580,7 @@
         },
         "summary": "Login",
         "tags": [
-          "auth",
-          "published"
+          "auth"
         ]
       }
     },
@@ -900,30 +653,52 @@
         ],
         "summary": "Logout",
         "tags": [
-          "auth",
-          "published"
+          "auth"
         ]
       }
     },
-    "/users/passwordReset": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PasswordResetRequest"
-              }
+    "/users/plans": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Filter by plans that have already been consumed by devices or not",
+            "in": "query",
+            "name": "consumed",
+            "schema": {
+              "type": "boolean"
             }
           },
-          "description": "PasswordReset",
-          "required": true
-        },
+          {
+            "description": "Filter by plan id",
+            "in": "query",
+            "name": "planId",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Limit for pagination, default 10, max 10000",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PasswordResetResponse"
+                  "$ref": "#/components/schemas/PaginatedResult-OrderPlan"
                 }
               }
             },
@@ -975,22 +750,16 @@
                 }
               }
             }
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/httputil.HTTPError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
           }
         },
-        "summary": "Start a password reset for a user",
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets plans that are available for a user (already purchased)",
         "tags": [
-          "hidden",
-          "users"
+          "plans"
         ]
       }
     },
@@ -1076,8 +845,7 @@
         ],
         "summary": "Summary of plans",
         "tags": [
-          "users",
-          "published"
+          "users"
         ]
       }
     },
@@ -1166,197 +934,7 @@
         },
         "summary": "Refresh token",
         "tags": [
-          "auth",
-          "published"
-        ]
-      }
-    },
-    "/users/register": {
-      "post": {
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegistrationRequest"
-              }
-            }
-          },
-          "description": "Registration",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegistrationResponse"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/httputil.HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/httputil.HTTPError"
-                }
-              }
-            },
-            "description": "Unauthorized"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": "Limit exceeded",
-            "headers": {
-              "X-Ratelimit-Limit": {
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Ratelimit-Remaining": {
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Ratelimit-Reset": {
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            }
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/httputil.HTTPError"
-                }
-              }
-            },
-            "description": "Internal Server Error"
-          }
-        },
-        "summary": "Register a new user",
-        "tags": [
-          "hidden",
-          "users"
-        ]
-      }
-    },
-    "/users/{id}": {
-      "get": {
-        "parameters": [
-          {
-            "description": "User ID, or 'me' to get the current user",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "description": "Include additional data",
-            "in": "query",
-            "name": "_include",
-            "schema": {
-              "items": {
-                "enum": [
-                  "children",
-                  "roles",
-                  "deviceIds"
-                ],
-                "type": "string"
-              },
-              "type": "array"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/httputil.HTTPError"
-                }
-              }
-            },
-            "description": "Bad Request"
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/httputil.HTTPError"
-                }
-              }
-            },
-            "description": "Unauthorized"
-          },
-          "429": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            },
-            "description": "Limit exceeded",
-            "headers": {
-              "X-Ratelimit-Limit": {
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Ratelimit-Remaining": {
-                "schema": {
-                  "type": "integer"
-                }
-              },
-              "X-Ratelimit-Reset": {
-                "schema": {
-                  "type": "integer"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ],
-        "summary": "Gets a user",
-        "tags": [
-          "hidden",
-          "users"
+          "auth"
         ]
       }
     }

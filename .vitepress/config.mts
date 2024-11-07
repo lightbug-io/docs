@@ -178,7 +178,7 @@ export default defineConfig({
                   addedOperations: new Set(),
                 })),
                 collapse(sidebarSpec2.generateSidebarGroup({
-                  tag: ["users", "published"],
+                  tag: ["users"],
                   text: "Users",
                   linkPrefix: '/apis/v2/',
                   addedOperations: new Set(),
