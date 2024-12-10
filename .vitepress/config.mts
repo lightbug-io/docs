@@ -197,6 +197,12 @@ export default defineConfig({
                   linkPrefix: '/apis/v2/',
                   addedOperations: new Set(),
                 })),
+                collapse(sidebarSpec2.generateSidebarGroup({
+                  tag: ["devices"],
+                  text: "Devices",
+                  linkPrefix: '/apis/v2/',
+                  addedOperations: new Set(),
+                })),
               ],
             },
             {
