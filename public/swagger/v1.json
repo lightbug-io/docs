@@ -868,6 +868,10 @@
                   "type": "array",
                   "items": {
                     "$ref": "#/components/schemas/datapoint"
+                  },
+                  "example": {
+                    "lng":0.1,
+                    "lat":0.1
                   }
                 }
               },

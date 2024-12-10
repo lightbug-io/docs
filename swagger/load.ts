@@ -47,7 +47,7 @@ const v1SummaryOverrides = {
 }
 
 const v1DescriptionOverrides = {
-    'get-devices-id-points': 'Gets one or more points for a device.',
+    'get-devices-id-points': 'Gets one or more points for a device, based on filtering.',
     'get-devices-id-points-fk': 'Get a specific point for device when you already know the device ID and point ID.',
     'get-users-id-getMqttCredentials': 'Retrieves a users MQTT Credentials if set, for legacy use in connecting to MQTT.',
     'get-users-id-getDeviceSummary': 'Lists all devices for a user, with a summary of state, including most resent points.',
@@ -134,6 +134,13 @@ const v1Removed = [
     'get-devices-id-transients-fk',
 ]
 
+const V1ParamExamples = {
+    'get-devices-id-points': {
+        // 'filter': '{"limit":10,"order":["timestamp DESC"],"where":{"between":["2024-12-01T00:00:00.000Z","2024-12-31T23:59:59.999Z"]}}',
+        'filter': '{"limit":10,"order":["timestamp DESC"]}',
+    },
+}
+
 export function loadSpec(version: number): any {
     if (version === 1) {
         spec1.paths = normalizePaths(spec1.paths)
@@ -160,6 +167,14 @@ export function loadSpec(version: number): any {
                 } else {
                     console.log('No re-tag for', operationId)
                 }
+                if (operationId in V1ParamExamples) {
+                    for (const param of spec1.paths[path][method].parameters) {
+                        if (param.name in V1ParamExamples[operationId]) {
+                            param.example = V1ParamExamples[operationId][param.name]
+                        }
+                    }
+                }
+
                 if (operationId in v1Deprecated) {
                     spec1.paths[path][method].deprecated = true
                     // Until this is actually rendered, also prefix the summary with "Deprecated"
