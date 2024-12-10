@@ -47,6 +47,8 @@ const v1SummaryOverrides = {
 }
 
 const v1DescriptionOverrides = {
+    'get-devices-id-points': 'Gets one or more points for a device.',
+    'get-devices-id-points-fk': 'Get a specific point for device when you already know the device ID and point ID.',
     'get-users-id-getMqttCredentials': 'Retrieves a users MQTT Credentials if set, for legacy use in connecting to MQTT.',
     'get-users-id-getDeviceSummary': 'Lists all devices for a user, with a summary of state, including most resent points.',
 }

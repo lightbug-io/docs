@@ -13,6 +13,20 @@ function collapse(group) {
   return group
 }
 
+function reorder(group: { items: { link: string }[] }, orderedLinks: string[]) {
+  const ordered: { link: string }[] = []
+  const unordered: { link: string }[] = []
+  for (const item of group.items) {
+    if (orderedLinks.includes(item.link)) {
+      ordered.push(item)
+    } else {
+      unordered.push(item)
+    }
+  }
+  group.items = ordered.concat(unordered)
+  return group
+}
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Lightbug Documentation",
@@ -224,7 +238,12 @@ export default defineConfig({
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["authentication"], text: "Authentication", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["device"], text: "Devices", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["device-config"], text: "Device Configuration", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
-                collapse(sidebarSpec1.generateSidebarGroup({ tag: ["points"], text: "Points", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
+                reorder(
+                  collapse(sidebarSpec1.generateSidebarGroup({ tag: ["points"], text: "Points", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
+                  [
+                    '/apis/v1/get-devices-id-points' // Of the points, this is likely the most important..
+                  ],
+                ),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["readings"], text: "Readings", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["readings-gateway"], text: "Gateway readings", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["notifications"], text: "Notifications", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
