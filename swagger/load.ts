@@ -182,6 +182,22 @@ export function loadSpec(version: number): any {
                 if (spec1.paths[path][method].description) {
                     spec1.paths[path][method].description = spec1.paths[path][method].description.replace('RTK>', '')
                 }
+
+                // Remove everything except application/json from them all
+                if (spec1.paths[path][method].responses) {
+                    for (const response of Object.keys(spec1.paths[path][method].responses)) {
+                        if (response === '200' && spec1.paths[path][method].responses[response].content) {
+                            const content = spec1.paths[path][method].responses[response].content
+                            for (const type of Object.keys(content)) {
+                                if (type !== 'application/json') {
+                                    delete content[type]
+                                }
+                            }
+                        } else {
+                            delete spec1.paths[path][method].responses[response]
+                        }
+                    }
+                }
             }
         }
         return spec1
