@@ -16,6 +16,7 @@ const v1SummaryOverrides = {
     // device
     'get-devices-id': 'Get device',
     'get-users-id-getDeviceSummary': 'Summary of devices',
+    'post-devices-changeTags': 'Change tags for a device',
 
     // device config stuff
     'get-devices-id-setupSqsForwarding': 'Set SQS forwarding for a device',
@@ -141,6 +142,13 @@ const V1ParamExamples = {
     },
 }
 
+const V1BodyExamples = {
+    'post-devices-changeTags': {
+        'ids': '[1, 2, 3]',
+        'tagEdits': '[{"tag":"test_1:foo","originalTagKey":"test_1"}]',
+    }
+}
+
 export function loadSpec(version: number): any {
     if (version === 1) {
         spec1.paths = normalizePaths(spec1.paths)
@@ -171,6 +179,17 @@ export function loadSpec(version: number): any {
                     for (const param of spec1.paths[path][method].parameters) {
                         if (param.name in V1ParamExamples[operationId]) {
                             param.example = V1ParamExamples[operationId][param.name]
+                        }
+                    }
+                }
+                if (operationId in V1BodyExamples) {
+                    if (spec1.paths[path][method].requestBody) {
+                        for (const content of Object.keys(spec1.paths[path][method].requestBody.content)) {
+                            for (const prop of Object.keys(spec1.paths[path][method].requestBody.content[content].schema.properties)) {
+                                if (prop in V1BodyExamples[operationId]) {
+                                    spec1.paths[path][method].requestBody.content[content].schema.properties[prop].example = V1BodyExamples[operationId][prop]
+                                }
+                            }
                         }
                     }
                 }

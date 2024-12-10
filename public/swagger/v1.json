@@ -2286,6 +2286,96 @@
         "summary": "Get safe-zone for device"
       }
     },
+    "/devices/changeTags": {
+      "post": {
+        "tags": [
+          "device"
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ids": {
+                    "type": "string",
+                    "format": "JSON",
+                    "example": "[1,2,3]"
+                  },
+                  "tagEdits": {
+                    "type": "string",
+                    "format": "JSON"
+                  }
+                },
+                "required": [
+                  "ids",
+                  "tagEdits"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Request was successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "text/xml": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "text/javascript": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
     "/devices/{id}/nearbyDevices": {
       "get": {
         "tags": [
