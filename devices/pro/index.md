@@ -2,7 +2,7 @@
 
 Our general purpose core GPS tracking device.
 
-![Pro](https://lightbug.io/images/product/lightbugpro_long_battery_gps_tracker_front_angle_hu1efae6568a90815f04b7f3bc766c6e25_30829_600x600_fit_q100_box_2.png)
+<img src="https://lightbug.io/images/product-front/LB-DEV-PR2_hu128f0c9381f6a9afd4c494ea04934e0d_235936_600x900_fit_q95_h2_box_2.webp" alt="Pro" style="max-height: 250px; max-width: 380px">
 
 ## Specification
 
@@ -18,7 +18,7 @@ Our general purpose core GPS tracking device.
 | Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS), WiFi & GSM      |
 | Sensors               | Temperature, Orientation, Accelerometer, External Bluetooth |
 | Memory                | up to 1000 locations update when they can't be transmitted  |
-| IP rating             | IP66 & shockproof                                           |
+| IP rating             | IP66 & Shockproof                                           |
 | Operating Temperature | -20°C to 60°C                                               |
 | Buttons               | 1                                                           |
 | LEDs                  | 6 (4x battery, 2x status)                                   |

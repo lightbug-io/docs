@@ -4,6 +4,11 @@ The Vehicle Tracker is a simple device to install.
 
 It is designed to be installed by anyone with basic knowledge of vehicle maintenance.
 
+::: warning ⚠️ Warning
+Images in this guide are for illustrative purposes only and currently features our older VT2 device.
+If you purchase a vechicle tracker today, you will receive the VT3 device.
+:::
+
 ## Tools
 
 You will likely need the following tools to complete installaiton.
@@ -120,7 +125,9 @@ Occasionally this fuse box is located in the boot of the vehicle.
 
 ### Step 1: Prep wires
 
-Using wire cutters, strip a portion of each wire as required for proper and easy installation.
+The VT3 device wires come with a removable insulation end which should suffice for connection.
+
+If you need more wire exposed, you can use wire cutters to strip the wire.
 
 ![Wire stripping](https://i.imgur.com/F2ROuT5.png)
 
@@ -166,11 +173,11 @@ Return the fuse to the same slot ensuring that the leg with the red wire attache
 
 Remove the chosen “ignition” fuse using the nose pliers.
 
-Connect the white wire to one of the fuse legs.
+Connect the yellow wire to one of the fuse legs.
 
 Using the tester, test both pins from the fuse holder to identify which side has the current when the ignition is on.
 
-Return the fuse to the same slot ensuring that the leg with the white wire attached, is inserted to the side that holds no current when the ignition is on
+Return the fuse to the same slot ensuring that the leg with the yellow wire attached, is inserted to the side that holds no current when the ignition is on
 
 ### Step 6: Connect to earth
 
@@ -182,13 +189,13 @@ This can be done by removing a screw, placing the wire and screwing it back in.
 
 ### Step 7: Connect the tracker
 
-The vehicle tracker can now be connected via the 3 pin Juliette connector.
+The vehicle tracker can now be connected via the 3 pin connector.
 
 ::: warning ⚠️ Warning
-Ensure you line up the markings so that the plug does not get damaged.
+Ensure the plug is correctly oriented and aligned with the socket before pushing it in.
 :::
 
-![](https://i.imgur.com/c7zaNPd.png)
+<!-- ![](https://i.imgur.com/c7zaNPd.png) TODO update image of cable connection for VT3 -->
 
 
 ### Step 8: Check functionality

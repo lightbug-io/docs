@@ -13,11 +13,29 @@ function collapse(group) {
   return group
 }
 
+function reorder(group: { items: { link: string }[] }, orderedLinks: string[]) {
+  const ordered: { link: string }[] = []
+  const unordered: { link: string }[] = []
+  for (const item of group.items) {
+    if (orderedLinks.includes(item.link)) {
+      ordered.push(item)
+    } else {
+      unordered.push(item)
+    }
+  }
+  group.items = ordered.concat(unordered)
+  return group
+}
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Lightbug Documentation",
   description: "home for everything Lightbug",
   lang: 'en-GB',
+  cleanUrls: true,
+  rewrites: {
+    '/onprem/' : '/silos/',
+  },
   vite: {
     ssr: {
       noExternal: ["vuetify"]
@@ -67,7 +85,7 @@ export default defineConfig({
           { text: 'Admin', link: '/apps/admin/' },
         ]
       },
-      { text: 'Silos', link: '/silos/' },
+      { text: 'On Premise', link: '/onprem/' },
       { text: 'Guides', link: '/guides/' },
       {
         text: 'Company',
@@ -120,12 +138,16 @@ export default defineConfig({
                   link: '/devices/vehicle/',
                   collapsed: true,
                   items: [
-                    { text: 'Installation', link: '/devices/vehicle/installation.html' },
+                    { text: 'Installation', link: '/devices/vehicle/installation' },
                   ]
                 },
                 {
                   text: 'Enviro',
                   link: '/devices/enviro/',
+                },
+                {
+                  text: 'RTK',
+                  link: '/devices/rtk/',
                 },
               ]
             },
@@ -136,6 +158,10 @@ export default defineConfig({
             {
               text: 'Legacy',
               link: '/devices/legacy',
+              collapsed: true,
+              items: [
+                { text: 'VT2', link: '/devices/legacy/VT2' },
+              ]
             }
           ]
         }
@@ -166,7 +192,7 @@ export default defineConfig({
                   addedOperations: new Set(),
                 })),
                 collapse(sidebarSpec2.generateSidebarGroup({
-                  tag: ["users", "published"],
+                  tag: ["users"],
                   text: "Users",
                   linkPrefix: '/apis/v2/',
                   addedOperations: new Set(),
@@ -212,7 +238,12 @@ export default defineConfig({
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["authentication"], text: "Authentication", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["device"], text: "Devices", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["device-config"], text: "Device Configuration", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
-                collapse(sidebarSpec1.generateSidebarGroup({ tag: ["points"], text: "Points", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
+                reorder(
+                  collapse(sidebarSpec1.generateSidebarGroup({ tag: ["points"], text: "Points", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
+                  [
+                    '/apis/v1/get-devices-id-points' // Of the points, this is likely the most important..
+                  ],
+                ),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["readings"], text: "Readings", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["readings-gateway"], text: "Gateway readings", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["notifications"], text: "Notifications", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
@@ -363,9 +394,9 @@ export default defineConfig({
           ],
         }
       ],
-      '/silos': [
+      '/onprem': [
         {
-          text: 'Silos',
+          text: 'On Premise',
         }
       ],
       '/guides': [

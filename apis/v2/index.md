@@ -8,7 +8,7 @@ The version 2 API provides a modern, higher level experience for interacting wit
 
 New API functionality will be added to this version as devlopments happen.
 
-If you find that the V2 API does not provide the functionality you need, you may need to use the [V1 API](./../v1).
+If you find that the V2 API does not provide the functionality you need, you may need to use the [V1 API](./../v1/).
 
 ### Base URL
 

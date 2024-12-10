@@ -1,5 +1,5 @@
-import spec1 from '../swagger/v1.json' with { type: 'json' }
-import spec2 from '../swagger/v2.json' with { type: 'json' }
+import spec1 from '../public/swagger/v1.json' with { type: 'json' }
+import spec2 from '../public/swagger/v2.json' with { type: 'json' }
 
 const v1SummaryOverrides = {
     'post-users-login': 'Login',
@@ -47,6 +47,8 @@ const v1SummaryOverrides = {
 }
 
 const v1DescriptionOverrides = {
+    'get-devices-id-points': 'Gets one or more points for a device, based on filtering.',
+    'get-devices-id-points-fk': 'Get a specific point for device when you already know the device ID and point ID.',
     'get-users-id-getMqttCredentials': 'Retrieves a users MQTT Credentials if set, for legacy use in connecting to MQTT.',
     'get-users-id-getDeviceSummary': 'Lists all devices for a user, with a summary of state, including most resent points.',
 }
@@ -132,6 +134,13 @@ const v1Removed = [
     'get-devices-id-transients-fk',
 ]
 
+const V1ParamExamples = {
+    'get-devices-id-points': {
+        // 'filter': '{"limit":10,"order":["timestamp DESC"],"where":{"between":["2024-12-01T00:00:00.000Z","2024-12-31T23:59:59.999Z"]}}',
+        'filter': '{"limit":10,"order":["timestamp DESC"]}',
+    },
+}
+
 export function loadSpec(version: number): any {
     if (version === 1) {
         spec1.paths = normalizePaths(spec1.paths)
@@ -158,6 +167,14 @@ export function loadSpec(version: number): any {
                 } else {
                     console.log('No re-tag for', operationId)
                 }
+                if (operationId in V1ParamExamples) {
+                    for (const param of spec1.paths[path][method].parameters) {
+                        if (param.name in V1ParamExamples[operationId]) {
+                            param.example = V1ParamExamples[operationId][param.name]
+                        }
+                    }
+                }
+
                 if (operationId in v1Deprecated) {
                     spec1.paths[path][method].deprecated = true
                     // Until this is actually rendered, also prefix the summary with "Deprecated"
@@ -179,6 +196,22 @@ export function loadSpec(version: number): any {
                 }
                 if (spec1.paths[path][method].description) {
                     spec1.paths[path][method].description = spec1.paths[path][method].description.replace('RTK>', '')
+                }
+
+                // Remove everything except application/json from them all
+                if (spec1.paths[path][method].responses) {
+                    for (const response of Object.keys(spec1.paths[path][method].responses)) {
+                        if (response === '200' && spec1.paths[path][method].responses[response].content) {
+                            const content = spec1.paths[path][method].responses[response].content
+                            for (const type of Object.keys(content)) {
+                                if (type !== 'application/json') {
+                                    delete content[type]
+                                }
+                            }
+                        } else {
+                            delete spec1.paths[path][method].responses[response]
+                        }
+                    }
                 }
             }
         }
