@@ -232,6 +232,15 @@ export function loadSpec(version: number): any {
                         }
                     }
                 }
+
+                // Make sure that all schemas have "type": "object", if they don't have another type defined
+                if (spec1.components.schemas) {
+                    for (const schema of Object.keys(spec1.components.schemas)) {
+                        if (!spec1.components.schemas[schema].type) {
+                            spec1.components.schemas[schema].type = 'object'
+                        }
+                    }
+                }
             }
         }
         return spec1
