@@ -35,10 +35,7 @@ export default {
         // Setup Theme
         const themeConfig = useTheme()
         themeConfig.setLocale('en') // en or es
-
-        // Uncomment below line when https://github.com/enzonotario/vitepress-openapi/pull/51 is merged
-        // themeConfig.setResponseCodeSelector('select')
-
+        themeConfig.setResponseCodeSelector('select')
         theme.enhanceApp({ app })
     }
 } satisfies Theme

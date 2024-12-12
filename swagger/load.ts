@@ -16,6 +16,7 @@ const v1SummaryOverrides = {
     // device
     'get-devices-id': 'Get device',
     'get-users-id-getDeviceSummary': 'Summary of devices',
+    'post-devices-changeTags': 'Change tags for a device',
 
     // device config stuff
     'get-devices-id-setupSqsForwarding': 'Set SQS forwarding for a device',
@@ -136,9 +137,18 @@ const v1Removed = [
 
 const V1ParamExamples = {
     'get-devices-id-points': {
-        // 'filter': '{"limit":10,"order":["timestamp DESC"],"where":{"between":["2024-12-01T00:00:00.000Z","2024-12-31T23:59:59.999Z"]}}',
-        'filter': '{"limit":10,"order":["timestamp DESC"]}',
+        'filter': [
+            '{"limit":10,"order":["timestamp DESC"]}',
+            '{"where":{"between":["2024-12-01T00:00:00.000Z","2024-12-01T23:59:59.999Z"]},"order":["timestamp DESC"]}',
+        ],
     },
+}
+
+const V1BodyExamples = {
+    'post-devices-changeTags': {
+        'ids': '[1, 2, 3]',
+        'tagEdits': '[{"tag":"test_1:foo","originalTagKey":"test_1"}]',
+    }
 }
 
 export function loadSpec(version: number): any {
@@ -171,6 +181,17 @@ export function loadSpec(version: number): any {
                     for (const param of spec1.paths[path][method].parameters) {
                         if (param.name in V1ParamExamples[operationId]) {
                             param.example = V1ParamExamples[operationId][param.name]
+                        }
+                    }
+                }
+                if (operationId in V1BodyExamples) {
+                    if (spec1.paths[path][method].requestBody) {
+                        for (const content of Object.keys(spec1.paths[path][method].requestBody.content)) {
+                            for (const prop of Object.keys(spec1.paths[path][method].requestBody.content[content].schema.properties)) {
+                                if (prop in V1BodyExamples[operationId]) {
+                                    spec1.paths[path][method].requestBody.content[content].schema.properties[prop].example = V1BodyExamples[operationId][prop]
+                                }
+                            }
                         }
                     }
                 }
@@ -210,6 +231,15 @@ export function loadSpec(version: number): any {
                             }
                         } else {
                             delete spec1.paths[path][method].responses[response]
+                        }
+                    }
+                }
+
+                // Make sure that all schemas have "type": "object", if they don't have another type defined
+                if (spec1.components.schemas) {
+                    for (const schema of Object.keys(spec1.components.schemas)) {
+                        if (!spec1.components.schemas[schema].type) {
+                            spec1.components.schemas[schema].type = 'object'
                         }
                     }
                 }
