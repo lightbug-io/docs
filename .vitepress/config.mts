@@ -156,6 +156,10 @@ export default defineConfig({
               link: '/devices/custom',
             },
             {
+              text: 'Peripherals',
+              link: '/devices/peripherals',
+            },
+            {
               text: 'Legacy',
               link: '/devices/legacy',
               collapsed: true,
