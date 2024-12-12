@@ -137,8 +137,10 @@ const v1Removed = [
 
 const V1ParamExamples = {
     'get-devices-id-points': {
-        // 'filter': '{"limit":10,"order":["timestamp DESC"],"where":{"between":["2024-12-01T00:00:00.000Z","2024-12-31T23:59:59.999Z"]}}',
-        'filter': '{"limit":10,"order":["timestamp DESC"]}',
+        'filter': [
+            '{"limit":10,"order":["timestamp DESC"]}',
+            '{"where":{"between":["2024-12-01T00:00:00.000Z","2024-12-01T23:59:59.999Z"]},"order":["timestamp DESC"]}',
+        ],
     },
 }
 
