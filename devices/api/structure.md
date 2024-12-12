@@ -4,16 +4,45 @@ outline: deep
 
 # Structure
 
+In a byte stream, a message may look as follows:
+
+```
+<prefix>
+<message
+    <version> <length> <type> <header data> <payload data> <checksum>
+>
+```
+
+Each data element may look as follows:
+
+```
+<field count> <fields> <data (as bBytes)>
+```
+
+## Prefix
+
+To aid reading from a possibly noisy byte stream, the protocol defines that messages can be prefixed with a set of start bytes.
+
+`0x4c, 0x42`, or `76, 66`, which is the ASCII representation of `LB`.
+
+This is REQUIRED for on device communication (though is optional in the protocol itself).
+
+In combinatio with the protocol version, this allows for a simple check that indicates you are probably looking at the start of a message.
+
+`0x4c 0x42 0x03` or `76 66 3` fo example
+
+## Message
+
 The general structure of a message is as follows:
 
 | Byte position | Description                        | Type                      | Example |
 | ------------- | ---------------------------------- | ------------------------- | -- |
 | 1             | Protocol Version (always 3)        | uint8                     | 3 |
-| 2 - 3         | Message Length                     | uint16                    | 11 0 |
-| 4 - 5         | Message Type                       | uint16                    | 1 0 |
-| 5 - a         | Header Data (field count, fields, data) | uint16, []uint8, []bBytes | 0 0 |
-| a - b         | Data (field count, fields, data)   | uint16, []uint8, []bBytes | 0 0 |
-| b - n | Checksum | uint16 | 75 190 |
+| 2 -> 3         | Message Length                     | uint16                    | 11 0 |
+| 4 -> 5         | Message Type                       | uint16                    | 1 0 |
+| 5 -> a         | Header Data (field count, fields, data) | uint16, []uint8, []bBytes | 0 0 |
+| a -> b         | Payload Data (field count, fields, data)   | uint16, []uint8, []bBytes | 0 0 |
+| b -> n | Checksum | uint16 | 75 190 |
 
 So the full above example would be:
 
@@ -23,18 +52,37 @@ So the full above example would be:
 | Hex | `03 0b 00 01 00 00 00 00 00 4b be` |
 | Bytes    | `0x03 0x0b 0x00 0x01 0x00 0x00 0x00 0x00 0x00 0x4b 0xbe` |
 
-## Components
+### Components
 
-- Prefix: Possibly Optional prefix bytes
 - Protocol Version: The version of the protocol. Always 3.
 - Message Length: The length of the message, including the version, header, data, and checksum.
 - Message Type: The type of message. This is used to determine how to interpret the message. (See [Message Types](#message-types) below.)
+- Data: Both data field (header and payload) are made up of the same format:
+  - Field Count: The number of fields in the data.
+  - Fields: The fields in the data.
+  - Data: The data itself, making used of bBytes to represent length and values.
 
-### Prefix bytes
+#### Data
 
-To aid reading from a possibly noisy byte stream, messages can be prefixed with a set of start bytes.
+Within each Data element (the header data, or payload data), the structure is as follows:
 
-`0x4c, 0x42`, or `76, 66`, which is the ASCII representation of `LB`.
+| Byte position | Description      | Type  | Example |
+| ------------- | ---------------- | ----- | ------- |
+| 1             | Number of fields (n) | uint8 | 2       |
+| 2 -> 2+n       | Field types | []uint8 | 1 2        |
+| 2+n -> end | Data | []bBytes | [1 8] [3 9 9 9]  |
+
+This data includes `2` data fields, the first of type `1`, with value byte array `[8]`, the second of type `3`, with value byte array `[9 9 9]`.
+
+#### bBytes
+
+bBytes are a byte array that represents a length and then the data itself.
+
+For example, `[1 8]` would represent a byte array of length 1, with the value 8.
+
+Or `[3 9 9 9]` would represent a byte array of length 3, with the values 9, 9, 9.
+
+
 
 ## Examples
 

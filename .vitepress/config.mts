@@ -198,10 +198,6 @@ export default defineConfig({
               link: '/devices/api/structure',
             },
             {
-              text: 'Examples',
-              link: '/devices/api/examples',
-            },
-            {
               text: 'Headers',
               link: '/devices/api/headers',
             },
