@@ -69,7 +69,7 @@ export default defineConfig({
         text: 'Hardware',
         items: [
           { text: 'Devices', link: '/devices/' },
-          { text: 'APIs', link: '/devices/api' },
+          { text: 'APIs', link: '/devices/api/' },
         ],
       },
       {
@@ -84,7 +84,7 @@ export default defineConfig({
         text : 'APIs',
         items: [
           { text: 'Cloud', link: '/apis/' },
-          { text: 'Device', link: '/devices/api' },
+          { text: 'Device', link: '/devices/api/' },
         ]
       },
       { text: 'On Premise', link: '/onprem/' },
@@ -174,7 +174,43 @@ export default defineConfig({
               ]
             }
           ]
-        }
+        },
+        {
+          text: 'API',
+          link : '/devices/api/',
+        },
+      ],
+      '/devices/api/': [
+        {
+          text: 'Devices',
+          link : '/devices',
+        },
+        {
+          text: 'API',
+          link : '/devices/api/',
+          items: [
+            {
+              text: 'Overview',
+              link: '/devices/api/',
+            },
+            {
+              text: 'Structure',
+              link: '/devices/api/structure',
+            },
+            {
+              text: 'Examples',
+              link: '/devices/api/examples',
+            },
+            {
+              text: 'Headers',
+              link: '/devices/api/headers',
+            },
+            {
+              text: 'Messages',
+              link: '/devices/api/messages',
+            },
+          ]
+        },
       ],
       '/apis': [
         {
