@@ -66,27 +66,33 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       {
-        text: 'Basics',
-        link: '/basics/index.html',
-      },
-      { text: 'Devices', link: '/devices/' },
-      {
-        text: 'APIs',
+        text: 'Hardware',
         items: [
-          { text: 'Overview', link: '/apis/' },
-          { text: 'Version 2', link: '/apis/v2/' },
-          { text: 'Version 1', link: '/apis/v1/' },
+          { text: 'Devices', link: '/devices/' },
+          { text: 'APIs', link: '/devices/api' },
         ],
       },
       {
-        text: 'Apps',
+        text: 'Cloud',
         items: [
-          { text: 'Cloud', link: '/apps/cloud/' },
-          { text: 'Admin', link: '/apps/admin/' },
+          { text: 'Cloud App', link: '/apps/cloud/' },
+          { text: 'Admin App', link: '/apps/admin/' },
+          { text: 'Web APIs', link: '/apis/' },
+        ],
+      },
+      {
+        text : 'APIs',
+        items: [
+          { text: 'Cloud', link: '/apis/' },
+          { text: 'Device', link: '/devices/api' },
         ]
       },
       { text: 'On Premise', link: '/onprem/' },
       { text: 'Guides', link: '/guides/' },
+      {
+        text: 'Terminology',
+        link: '/basics/index.html',
+      },
       {
         text: 'Company',
         items: [
