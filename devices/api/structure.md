@@ -40,7 +40,7 @@ The general structure of a message is as follows:
 | 1             | Protocol Version (always 3)        | uint8                     | 3 |
 | 2 -> 3         | Message Length                     | uint16                    | 11 0 |
 | 4 -> 5         | Message Type                       | uint16                    | 1 0 |
-| 5 -> a         | Header Data (field count, fields, data) | uint16, []uint8, []bBytes | 0 0 |
+| 6 -> a         | Header Data (field count, fields, data) | uint16, []uint8, []bBytes | 0 0 |
 | a -> b         | Payload Data (field count, fields, data)   | uint16, []uint8, []bBytes | 0 0 |
 | b -> n | Checksum | uint16 | 75 190 |
 
@@ -59,7 +59,7 @@ So the full above example would be:
 - Message Type: The type of message. This is used to determine how to interpret the message. (See [Message Types](#message-types) below.)
 - Data: Both data field (header and payload) are made up of the same format:
   - Field Count: The number of fields in the data.
-  - Fields: The fields in the data.
+  - Fields: List of field types in the data
   - Data: The data itself, making used of bBytes to represent length and values.
 
 #### Data
@@ -69,10 +69,10 @@ Within each Data element (the header data, or payload data), the structure is as
 | Byte position | Description      | Type  | Example |
 | ------------- | ---------------- | ----- | ------- |
 | 1             | Number of fields (n) | uint8 | 2       |
-| 2 -> 2+n       | Field types | []uint8 | 1 2        |
-| 2+n -> end | Data | []bBytes | [1 8] [3 9 9 9]  |
+| 2 -> 2+n      | Field types | []uint8 | 1 2        |
+| 2+n+1 -> end  | Data | []bBytes | [1 8] [3 9 9 9]  |
 
-This data includes `2` data fields, the first of type `1`, with value byte array `[8]`, the second of type `3`, with value byte array `[9 9 9]`.
+This data includes `2` data fields, the first of type `1`, with value byte array `[8]`, the second of type `2`, with value byte array `[9 9 9]`.
 
 #### bBytes
 

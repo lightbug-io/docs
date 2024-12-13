@@ -15,7 +15,7 @@ Used to acknowledge a previously sent message.
 | Field | Name               | Description                         | Type |
 | ----- | ------------------ | ----------------------------------- | ---- |
 | 1     | Acked message type | Type of message that is being acked |  uint16    |
-| 2     | Acekd message ID                   | ID if the message that is being acked, if previously provided. | uintn |
+| 2     | Acked message ID   | ID if the message that is being acked, if previously provided. | uintn |
 
 ## 6: KeepAlive
 
@@ -43,8 +43,8 @@ Send arbitrary data.
 | Field | Name       | Description                      | Type   | Example |
 | ----- | ---------- | -------------------------------- | ------ | ------- |
 | 1     | Search GPS | Search for GPS (0 = no, 1 = yes) | uint8  | 0       |
-| 2     | Data       | Up to 200 bytes of data to send  | []byte | 0x00 0x01 0x02 |
-| 3    | Retries           | Number of retires                                 | uint8 | 1 |
+| 2     | Data       | Up to 200 bytes of data to send  | []byte | 0x03 0x00 0x01 0x02 |
+| 3     | Retries    | Number of retires                | uint8  | 1 |
 <!-- Priority -->
 
 ## 31: GSM CFUN
