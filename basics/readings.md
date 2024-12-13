@@ -1,11 +1,11 @@
 # Readings
 
-Readings, or sensor readings, are sent along site [points](./points), and contain additional infomation that has been recorded by the device, at a given point in time.
+Readings, or sensor readings, are sent along site [points](./points), and contain additional information that has been recorded by the device, at a given point in time.
 
 - Identifiers:
     - Reading ID: Unique identifier of the point
     - Device ID: Device that the point relates to
-    - Transmission ID: Hash that relates to the transmission the data was received in. Can be used to connect mutiple points and readings.
+    - Transmission ID: Hash that relates to the transmission the data was received in. Can be used to connect multiple points and readings.
     - Gateway ID: If set (and visible), the data was received via a device with this ID
     - SensorDeviceID
 - Timestamps:
@@ -17,7 +17,7 @@ Readings, or sensor readings, are sent along site [points](./points), and contai
     - Additional meta data
 
 :::info
-Different interfaces may expose these details in different ways, and you are encouraged to look at the individual interface documentaiton.
+Different interfaces may expose these details in different ways, and you are encouraged to look at the individual interface documentation.
 :::
 
 ## Types

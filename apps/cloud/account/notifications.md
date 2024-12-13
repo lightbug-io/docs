@@ -76,7 +76,7 @@ You will receive a response that looks something like this:
 
 Once the subscription is confirmed, you will start to receive notifications.
 
-You can also take a look at the [AWS SNS documentaiton for this step](https://docs.aws.amazon.com/sns/latest/dg/SendMessageToHttp.confirm.html).
+You can also take a look at the [AWS SNS documentation for this step](https://docs.aws.amazon.com/sns/latest/dg/SendMessageToHttp.confirm.html).
 
 ### Message Format
 

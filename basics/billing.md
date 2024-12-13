@@ -11,7 +11,7 @@ If you are on the old billing system, (pay per location, reseller billing, per d
 
 All user accounts have a pool of plan credits.
 
-When devices are activated, or when the monthly billing cycle occours, the device will consume plan credits from the pool of the owner of the device.
+When devices are activated, or when the monthly billing cycle occurs, the device will consume plan credits from the pool of the owner of the device.
 
 If no credits are available of the required type, the plan will be purchased automatically, added to the pool, and then consumed by the device.
 

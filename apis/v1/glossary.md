@@ -12,7 +12,7 @@ The version 1 API uses a number of terms that may not be familiar to all users.
 
 ## Points
 
-General infomation about points can be found [in the basics section](/basics/points.html).
+General information about points can be found [in the basics section](/basics/points.html).
 
 ### sendReason
 
@@ -58,7 +58,7 @@ Points can have device error codes attached to them.
 
 In the V1 API these are represented as a positive integer value, up to a maximum of 255, but are not a bitfield.
 
-These are stored in the `stringValue` field that is accessbile via the API.
+These are stored in the `stringValue` field that is accessible via the API.
 
 | Error Code | Description |
 |------------|-------------|

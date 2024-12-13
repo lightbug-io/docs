@@ -2,7 +2,7 @@
 
 Lightbug devices follow a common technical internal and external architecture.
 
-You can find more infomation about current devices [in the devices section](/devices)
+You can find more information about current devices [in the devices section](/devices)
 
 ## Identity
 
@@ -17,21 +17,21 @@ You should find this printed on a sticker on your device, along with a QR code t
 ![](https://i.imgur.com/Sfi9Org.png)
 
 ::: warning
-On older lightbug products, a barcode might be on the outside ofthe device, instead of a QR code, and may show the device ID, rather than serial number.
+On older Lightbug products, a barcode might be on the outside of the device, instead of a QR code, and may show the device ID, rather than serial number.
 :::
 
 ### Other IDs
 
 You might find other unique identifiers exposed in various interfaces.
 
- - ID, internal lightbug cloud (or silo) id for the device
+ - ID, internal Lightbug cloud (or silo) id for the device
  - IMEI number, associated with the mobile device, that identifies the device to the network ([Wikipedia](https://en.wikipedia.org/wiki/International_Mobile_Equipment_Identity))
  - ICCID number, associated with the SIM ([Wikipedia](https://en.wikipedia.org/wiki/SIM_card#ICCID))
- - Bluetooth MAC Addresss, associated with the Bluetooth radio ([Wikipedia](https://en.wikipedia.org/wiki/MAC_address))
+ - Bluetooth MAC Address, associated with the Bluetooth radio ([Wikipedia](https://en.wikipedia.org/wiki/MAC_address))
 
 ## Modes
 
-Our devices can generall be in one of two modes.
+Our devices can general be in one of two modes.
 
 ### Sleep mode
 

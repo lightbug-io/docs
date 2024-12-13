@@ -11,7 +11,7 @@ The subscription panel will summarize the current subscription state for the sel
 ![](https://i.imgur.com/2ME23K2.png)
 :::
 
-Basic device infomation will be displayed, such as name, serial number, and subscription status.
+Basic device information will be displayed, such as name, serial number, and subscription status.
 
 ## Plans
 

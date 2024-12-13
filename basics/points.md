@@ -5,7 +5,7 @@ Points represent a single location update from a device, and contain a number of
 - Identifiers:
     - Point ID: Unique identifier of the point
     - Device ID: Device that the point relates to
-    - Transmission ID: Hash that relates to the transmission the data was received in. Can be used to connect mutiple points and readings.
+    - Transmission ID: Hash that relates to the transmission the data was received in. Can be used to connect multiple points and readings.
 - Timestamps:
     - Time the device recorded the point. (Can be 1970 if the device didn't know the time)
     - Time the point was successfully received by the receiving endpoint
@@ -21,17 +21,17 @@ Points represent a single location update from a device, and contain a number of
     - Battery voltage
     - Battery percent
     - Average charge
-    - Currnet used this transmission
+    - Current used this transmission
 - Metadata:
     - GSM signal
-    - GPS Satelite count
+    - GPS Satellite count
     - Errors, relating to current or previous operations
     - Send reason
     - Move type
     - Alert type
 
 :::info
-Different interfaces may expose these details in different ways, and you are encouraged to look at the individual interface documentaiton.
+Different interfaces may expose these details in different ways, and you are encouraged to look at the individual interface documentation.
 :::
 
-Other infomation is often submitted with points, such as [readings](./readings.html)
+Other information is often submitted with points, such as [readings](./readings.html)

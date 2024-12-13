@@ -1,12 +1,12 @@
 # Modes
 
-There are 3 modes available for configuring your device, all selectedable from the `Type` section of configuration.
+There are 3 modes available for configuring your device, all selectable from the `Type` section of configuration.
 
- - **Easy mode**: designed to provide the most optimised settings for common use cases.
+ - **Easy mode**: designed to provide the most optimized settings for common use cases.
  - **Flexible mode**: designed to give you a little more control but is still easy to set up.
- - **Advanced mode**: - only recommended if you have spoken to our support team firts.
+ - **Advanced mode**: - only recommended if you have spoken to our support team first.
 
- Selecting a mode will automatically set display differnet options in the various sections of the configuration page.
+ Selecting a mode will automatically set display different options in the various sections of the configuration page.
 
  :::tabs
  === Easy mode

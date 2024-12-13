@@ -13,7 +13,7 @@ Built up to 2024.
 | Device                | VT2                                                                            |
 | Size                  | 72 x 33 x 28.5 mm                                                              |
 | Weight                | 110g (approx)                                                                  |
-| Battery               | 2000mah mAh (Rechargable Lithium)                                              |
+| Battery               | 2000mah mAh (Rechargeable Lithium)                                              |
 | Sim                   | Integrated roaming sim                                                         |
 | GSM                   | Quadband 4G LTE-M & NBIoT + 2G fallback                                                |
 | Bluetooth             | 5.0                                                                            |

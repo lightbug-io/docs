@@ -20,7 +20,7 @@ Designed for use where a power source is available.
 | First produced        | 2024 |
 | Size                  | 96 x 75 x 26 mm                                                                |
 | Weight                | 142-180g (depending on battery configuration) + 36g cable                      |
-| Battery               | 1x 2000mah mAh (Rechargable), Room to double capacity                          |
+| Battery               | 1x 2000mah mAh (Rechargeable), Room to double capacity                          |
 | Sim                   | Integrated roaming sim                                                         |
 | GSM                   | 4G LTE CAT-1 Global Operation (850/900/1800/1900MHz integ. antenna), 2G GPRS Fallback |
 | Bluetooth             | 5.0                                                                            |

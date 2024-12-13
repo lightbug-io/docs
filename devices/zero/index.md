@@ -55,14 +55,14 @@ The device has a single button that can be used to trigger different events.
 | Trigger    | Indication | Event                                                                                                                                      | Details |
 | ---------- | ------|------------------------------------------------------------------------------------------------------------------------------------ | -- |
 |  < 1 second | Battery and status LEDs will light up | | Shows you current status |
-| 1-3 second | The battery LEDs will flash from left to right in a cycle, and you will hear a small beep. | Send button press event & location | Initially sending an imediate location, followed by a more accurate location once found.
+| 1-3 second | The battery LEDs will flash from left to right in a cycle, and you will hear a small beep. | Send button press event & location | Initially sending an immediate location, followed by a more accurate location once found.
 | 15 second | The battery LEDs may go blank for a second, but then will flash from left to right in a cycle, and you will hear a small beep. | Hard reset | Recommended if you are experiencing network related performance issues |
 
 ## Charging
 
 The Zero tracker is charged using a magnetic 4 pin connector, and should be charged for 3 hours before initial use.
 
-This connecter can be used with a magnetic cable or a zero chaging dock.
+This connecter can be used with a magnetic cable or a zero charging dock.
 
 <!-- TODO side by side picture of 2 charging methods -->
 

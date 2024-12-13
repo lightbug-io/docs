@@ -51,7 +51,7 @@ It will guide you through the steps of adding your first device to your account.
 
 Swipe the screen, or click the `NEXT` button to proceed through the onboarding process.
 
-The first screen tells you some useful initial infomation about a core device.
+The first screen tells you some useful initial information about a core device.
 
 :::tabs
 == Desktop
@@ -112,7 +112,7 @@ After selecting a plan, if payment details are not yet attached to your account,
 <v-img src="https://i.imgur.com/H9Td6jM.png" style="max-height:400px"/>
 :::
 
-Successfull payment and plan activation will take you to the last page of the onboarding process.
+Successful payment and plan activation will take you to the last page of the onboarding process.
 
 :::tabs
 == Desktop

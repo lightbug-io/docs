@@ -4,8 +4,8 @@ sidebar: false
 # Adding your first device
 
 - **Target Audience**: First time users
-- **Dificulty**: Easy
-- **Prerequistes**: A Lightbug device that is not yet added to a Lightbug Cloud account.
+- **Difficulty**: Easy
+- **Prerequisites**: A Lightbug device that is not yet added to a Lightbug Cloud account.
 
 ## Guide
 

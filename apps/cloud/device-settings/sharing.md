@@ -28,7 +28,7 @@ To turn off sharing, simply toggle the `Turn on sharing` switch off.
 
 ## The shared map
 
-By defalt the shared map will look something like this:
+By default the shared map will look something like this:
 
 ![](https://i.imgur.com/78Eg5kP.png)
 

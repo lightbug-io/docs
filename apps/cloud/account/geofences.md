@@ -36,7 +36,7 @@ The fields are:
 | --- | --- |
 | Name | The name of the geofence |
 | Alert | Whether to trigger a [nottification](/apps/cloud/account/notifications.html) when the device enters or exits the geofence |
-| Type | Arbritrary categorization of the geofence, for used in reporting |
+| Type | Arbitrary categorization of the geofence, for used in reporting |
 
 To draw the geofence, find the area that you want to cover on the map, and select either `Circle` or `Polygon` from the options.
 

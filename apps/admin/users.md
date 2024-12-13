@@ -6,13 +6,13 @@ Manage the sub users of your account.
 
 Here you can:
 
- - See basic user infomation
+ - See basic user information
  - Change the password of sub accounts
- - Change permissions for sub acconuts
+ - Change permissions for sub accounts
 
 ## Permissions
 
-Selecting `Change permissions` will present you with some options for specifica permissions, and also the ability to reset the permissions to default.
+Selecting `Change permissions` will present you with some options for specific permissions, and also the ability to reset the permissions to default.
 
 ![](https://i.imgur.com/UYMroSr.png)
 

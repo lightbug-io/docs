@@ -10,9 +10,9 @@ aside: false
 
 In many cases, location can not be retrieved instantly, it takes time to get a [GPS fix](/basics/positioning#gnss-global-navigation-satellite-system) and if that fails, the [other location technologies](/basics/positioning) come into action.
 
-After a device hasdetermined its location, it has to connect to the internet via the mobile networks in order to send the location information.
+After a device has determined its location, it has to connect to the internet via the mobile networks in order to send the location information.
 
-Once the infomation has been recieved by our servers, during normal operation it should be visible to you within a few seconds.
+Once the information has been received by our servers, during normal operation it should be visible to you within a few seconds.
 
 ## Why is my tracker not transmitting?
 
