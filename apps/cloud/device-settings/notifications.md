@@ -12,7 +12,7 @@ There you can enable mobile push notifications, email alerts and API push notifi
 
 ![](https://i.imgur.com/3Nj7E61.png)
 
-## Status Notifcations
+## Status Notifications
 
 Low Battery alert will trigger when the battery level reaches 30%.
 
@@ -30,7 +30,7 @@ You can also trigger this when the battery level is 15%.
 
 ![](https://i.imgur.com/PZm66bJ.png)
 
-## Zone Notifcations
+## Zone Notifications
 
 To set various geofencing alerts, you will need to go to the Geofence Editor Section in the Account tab
 

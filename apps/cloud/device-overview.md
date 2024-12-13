@@ -65,7 +65,7 @@ Clicking on a device in this list will:
 
 The left hand side drop down can now be used to show the datapoints for the device in the selected time range.
 
-Additional icons surround the tracker dot, which present additional infomation and options:
+Additional icons surround the tracker dot, which present additional information and options:
 
  - **Settings**: Navigate to the settings page for the device
  - **Open in maps**: Open the device location in Google Maps (if configured in user settings)

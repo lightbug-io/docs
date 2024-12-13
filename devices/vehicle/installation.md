@@ -6,12 +6,12 @@ It is designed to be installed by anyone with basic knowledge of vehicle mainten
 
 ::: warning ⚠️ Warning
 Images in this guide are for illustrative purposes only and currently features our older VT2 device.
-If you purchase a vechicle tracker today, you will receive the VT3 device.
+If you purchase a vehicle tracker today, you will receive the VT3 device.
 :::
 
 ## Tools
 
-You will likely need the following tools to complete installaiton.
+You will likely need the following tools to complete installation.
 
 <v-row>
     <v-col
@@ -99,7 +99,7 @@ The below pictorial representation shows only one particular scenario, but they 
 
 ### Step 1: Check the manual
 
-Check your vehicle owner’s manual and familiarize yourself with the location of the fuse boxs.
+Check your vehicle owner’s manual and familiarize yourself with the location of the fuse boxes.
 
 One is usually under your dashboard, to the side of your steering wheel and the other one is normally located under the hood of the car.
 

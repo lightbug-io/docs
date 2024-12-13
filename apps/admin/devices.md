@@ -24,10 +24,10 @@ Some actions can be applied on a per device level, these all exist on the right 
 - Activate / Deactivate
 - Manage Users
 - Manage Settings
-- Display device infomation
+- Display device information
 - Migrate
 
-### Device infomation
+### Device information
 
 Verbose information about the device, such as the last known location, battery level, and more.
 

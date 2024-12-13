@@ -2,7 +2,7 @@
 
 Lightbug devices make use of a combination of technologies to determine their location.
 
-The most common of these are GNSS (commonly refered to as GPS), but we also use other technologies fill in the gaps when a GPS lock many not be found due to device configuration.
+The most common of these are GNSS (commonly referred to as GPS), but we also use other technologies fill in the gaps when a GPS lock many not be found due to device configuration.
 
 ## GNSS (Global Navigation Satellite System)
 
@@ -10,7 +10,7 @@ GNSS is a set of satellite based navigation system, of which the first constella
 
 Satellites provide location and time information, anywhere on Earth where there is an unobstructed line of sight.
 
-Getting a GPS lock can take some time, and this depeds on the environment and current satellite positions.
+Getting a GPS lock can take some time, and this depends on the environment and current satellite positions.
 
 ### Constellations
 
@@ -78,7 +78,7 @@ Cellular networks can also be used to determine the location of a device.
 
 This is the least accurate of the positioning methods, but can be used as a backup when GPS and WiFi are not available.
 
-Lightbug devices can make use of either infomation of the cell towers that they can see along with the signal strength to determine their location.
+Lightbug devices can make use of either information of the cell towers that they can see along with the signal strength to determine their location.
 
 Or as a fallback, the ID of the cell tower that they are connected to.
 

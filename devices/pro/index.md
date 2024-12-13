@@ -11,7 +11,7 @@ Our general purpose core GPS tracking device.
 | Device                | PR2                                                         |
 | Size                  | 85 x 44 x 28.4 mm                                           |
 | Weight                | 150g                                                        |
-| Battery               | 6600mAh (Rechargable Lithium)                               |
+| Battery               | 6600mAh (Rechargeable Lithium)                               |
 | Sim                   | Integrated roaming sim                                      |
 | GSM                   | Quadband 4G LTE-M & NBIoT + 2G fallback                             |
 | Bluetooth             | 5.0                                                         |
@@ -33,7 +33,7 @@ Our general purpose core GPS tracking device.
 
 The Pro tracker is charged using a magnetic 4 pin connector, and should be charged for 5 hours before initial use.
 
-This connecter can be used with a magnetic cable or a pro chaging dock.
+This connecter can be used with a magnetic cable or a pro charging dock.
 
 <!-- TODO side by side picture of 2 charging methods -->
 

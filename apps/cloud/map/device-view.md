@@ -13,11 +13,11 @@ The device view focuses in on a single device point, and shows detailed informat
 
 ## Details
 
-In the top left of the device view, you will see the device name, colour, as well as infomation about the last transmission.
+In the top left of the device view, you will see the device name, color, as well as information about the last transmission.
 
 ![](https://i.imgur.com/rSNOeNC.png)
 
-<!-- TODO clicking the info bar, opens Device Infomation -->
+<!-- TODO clicking the info bar, opens Device Information -->
 
 Clicking the dropdown will open the [History list](#history-list) for the device.
 
@@ -61,7 +61,7 @@ The history list can be accessed by clicking the dropdown in the top left of the
 
 The list shows all the locations transmitted by the in the given [time range](#time-range).
 
-You can hover over a location in the list to see extra infomation (such as accuracy).
+You can hover over a location in the list to see extra information (such as accuracy).
 
 You can click on any of the locations to, zoom to the location.
 
@@ -84,7 +84,7 @@ Some dots represent device seen.  The number on each of the dot represents the n
 - Blue: BLE Devices (Paired or unpaired)
 - Orange: Other nearby Lightbugs
 
-Any events that have occured will be shown on the map as a dot.
+Any events that have occurred will be shown on the map as a dot.
 
 - Rotation sign (arrows)
 - Drop detection (triangle)

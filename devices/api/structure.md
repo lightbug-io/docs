@@ -27,9 +27,9 @@ To aid reading from a possibly noisy byte stream, the protocol defines that mess
 
 This is REQUIRED for on device communication (though is optional in the protocol itself).
 
-In combinatio with the protocol version, this allows for a simple check that indicates you are probably looking at the start of a message.
+In combination with the protocol version, this allows for a simple check that indicates you are probably looking at the start of a message.
 
-`0x4c 0x42 0x03` or `76 66 3` fo example
+`0x4c 0x42 0x03` or `76 66 3` for example
 
 ## Message
 

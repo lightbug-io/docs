@@ -15,7 +15,7 @@ Used to acknowledge a previously sent message.
 | Field | Name               | Description                         | Type |
 | ----- | ------------------ | ----------------------------------- | ---- |
 | 1     | Acked message type | Type of message that is being acked |  uint16    |
-| 2     | Acekd message ID                   | ID if the message that is being acked, if previosuly provided. | uintn |
+| 2     | Acekd message ID                   | ID if the message that is being acked, if previously provided. | uintn |
 
 ## 6: KeepAlive
 

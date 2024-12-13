@@ -2,7 +2,7 @@
 
 The Lightbug cloud app targets individual users and small businesses.
 
-It provides an intuative interface to manage devices, view their status, and configure their settings.
+It provides an intuitive interface to manage devices, view their status, and configure their settings.
 
 ![](https://i.imgur.com/Hb86sI2.png)
 
