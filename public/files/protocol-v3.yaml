@@ -90,23 +90,23 @@ messages:
     name: "Transmit Now"
     description: "Transmit data immediately"
     group: "ondevice"
-  data:
-    1:
-      name: "Search GPS"
-      description: "0 = no, 1 = yes"
-      type: "uint8"
-    2:
-      name: "Data"
-      description: "can be up to 200 bytes"
-      type: "bytes"
-    3:
-      name: "Retries"
-      description: "0 - 10"
-      type: "uint8"
-    4:
-      name: "Priority"
-      description: "0 - 1"
-      type: "uint8"
+    data:
+      1:
+        name: "Search GPS"
+        description: "0 = no, 1 = yes"
+        type: "uint8"
+      2:
+        name: "Data"
+        description: "can be up to 200 bytes"
+        type: "bytes"
+      3:
+        name: "Retries"
+        description: "0 - 10"
+        type: "uint8"
+      4:
+        name: "Priority"
+        description: "0 - 1"
+        type: "uint8"
   31:
     name: "GSM CFUN"
     description: "GSM functionality control"
