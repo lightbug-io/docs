@@ -62,30 +62,51 @@ export default defineComponent({
         const showComments = ref(true);
         const headers = ref<any>({});
 
+        const alignComment = (line: string, comment: string, maxLength: number) => {
+            const padding = ' '.repeat(Math.max(1, maxLength - line.length));
+            return `${line}${padding}// ${comment}`;
+        };
+
+        const getMaxLengthPlusOne = (lines: string[]) => {
+            return Math.max(...lines.map(line => line.length)) +1;
+        };
+
         const computedGoHeaderConstantsIndividual = computed(() => {
             let goConstants = '';
+            const lines = [];
+            for (const key in headers.value) {
+                const name = headers.value[key].name.toUpperCase().replace(/ /g, '_');
+                lines.push(`const ${prefix.value}${name} = ${key}`);
+            }
+            const maxLength = getMaxLengthPlusOne(lines);
             for (const key in headers.value) {
                 const name = headers.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = headers.value[key].description || '';
-                goConstants += `const ${prefix.value}${name} = ${key}`;
+                let line = `const ${prefix.value}${name} = ${key}`;
                 if (showComments.value) {
-                    goConstants += ` // ${description}`;
+                    line = alignComment(line, description, maxLength);
                 }
-                goConstants += '\n';
+                goConstants += `${line}\n`;
             }
             return goConstants;
         });
 
         const computedGoHeaderConstantsGrouped = computed(() => {
             let goConstants = 'const (\n';
+            const lines = [];
+            for (const key in headers.value) {
+                const name = headers.value[key].name.toUpperCase().replace(/ /g, '_');
+                lines.push(`    ${prefix.value}${name} = ${key}`);
+            }
+            const maxLength = getMaxLengthPlusOne(lines);
             for (const key in headers.value) {
                 const name = headers.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = headers.value[key].description || '';
-                goConstants += `\t${prefix.value}${name} = ${key}`;
+                let line = `    ${prefix.value}${name} = ${key}`;
                 if (showComments.value) {
-                    goConstants += ` // ${description}`;
+                    line = alignComment(line, description, maxLength);
                 }
-                goConstants += '\n';
+                goConstants += `${line}\n`;
             }
             goConstants += ')';
             return goConstants;
@@ -93,14 +114,21 @@ export default defineComponent({
 
         const computedCppHeaderConstants = computed(() => {
             let cppConstants = 'enum LB_MESSAGE_HEADERS : uint8_t {\n';
+            const lines = [];
             const headerKeys = Object.keys(headers.value);
+            headerKeys.forEach((key) => {
+                const name = headers.value[key].name.toUpperCase().replace(/ /g, '_');
+                lines.push(`    ${prefix.value}${name} = ${key}`);
+            });
+            const maxLength = getMaxLengthPlusOne(lines);
             headerKeys.forEach((key, index) => {
                 const name = headers.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = headers.value[key].description || '';
-                cppConstants += `\t${prefix.value}${name}\t= ${key}`;
+                let line = `    ${prefix.value}${name} = ${key}`;
                 if (showComments.value) {
-                    cppConstants += ` // ${description}`;
+                    line = alignComment(line, description, maxLength);
                 }
+                cppConstants += `${line}`;
                 if (index < headerKeys.length - 1) {
                     cppConstants += ',\n';
                 }
@@ -111,28 +139,40 @@ export default defineComponent({
 
         const computedTsHeaderConstants = computed(() => {
             let tsConstants = '';
+            const lines = [];
+            for (const key in headers.value) {
+                const name = headers.value[key].name.toUpperCase().replace(/ /g, '_');
+                lines.push(`export const ${prefix.value}${name} = ${key};`);
+            }
+            const maxLength = getMaxLengthPlusOne(lines);
             for (const key in headers.value) {
                 const name = headers.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = headers.value[key].description || '';
-                tsConstants += `export const ${prefix.value}${name} = ${key};`;
+                let line = `export const ${prefix.value}${name} = ${key};`;
                 if (showComments.value) {
-                    tsConstants += ` // ${description}`;
+                    line = alignComment(line, description, maxLength);
                 }
-                tsConstants += '\n';
+                tsConstants += `${line}\n`;
             }
             return tsConstants;
         });
 
         const computedToitHeaderConstants = computed(() => {
             let toitConstants = '';
+            const lines = [];
+            for (const key in headers.value) {
+                const name = headers.value[key].name.toUpperCase().replace(/ /g, '_');
+                lines.push(`${prefix.value}${name} /int ::= ${key}`);
+            }
+            const maxLength = getMaxLengthPlusOne(lines);
             for (const key in headers.value) {
                 const name = headers.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = headers.value[key].description || '';
-                toitConstants += `${prefix.value}${name} /int ::= ${key}`;
+                let line = `${prefix.value}${name} /int ::= ${key}`;
                 if (showComments.value) {
-                    toitConstants += ` // ${description}`;
+                    line = alignComment(line, description, maxLength);
                 }
-                toitConstants += '\n';
+                toitConstants += `${line}\n`;
             }
             return toitConstants;
         });
