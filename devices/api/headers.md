@@ -2,9 +2,15 @@
 outline: [1,3]
 ---
 
+<script setup>
+import ProtocolHeaders from '../../components/ProtocolHeaders.vue'
+</script>
+
 # Headers
 
 These header values keys are reserved across all message types.
+
+<ProtocolHeaders/>
 
 ## 1: Message ID
 

@@ -1,0 +1,245 @@
+version: 3
+limits:
+  MAX_DATA_FIELD_LEN: 200 # As currently defined in Firmware
+  MAX_HEADER_FILED_LEN: 20 # As currently defined in Firmware
+groups:
+  general:
+    description: "General messages"
+  bootserver:
+    description: "Device to Boot server communication"
+  livelink:
+    description: "Device to LiveLink server communication"
+  ondevice:
+    description: "On device communication (between CPUs)"
+  ondevice-ux:
+    description: "On device communication (between CPUs), specifically for user interface and interactions"
+header:
+  1:
+    name: "Message ID"
+    description: "ID that can be used by receiver to ACK, and client to track for various responses, or re-sends"
+    type: "uintn"
+  2:
+    name: "Client ID"
+    description: "ID of the client sending the message"
+    type: "uintn"
+  3:
+    name: "Response to Message ID"
+    description: "ID of the message that is being responded to"
+    type: "uintn"
+  4:
+    name: "Message Status"
+    description: "Status of the message. If omitted, assume OK?"
+    type: "uintn"
+    values:
+      1:
+        name: "OK"
+        description: "Everything appears to be OK"
+      2:
+        name: "NOT_OK"
+        description: "Something went wrong while processing the message"
+  10:
+    name: "Forwarded For"
+    description: "ID of the client sending the original message that is being forwarded"
+  11:
+    name: "Forwarded RSSI"
+    description: "RSSI of the original message being forwarded"
+  12:
+    name: "Forwarded SNR"
+    description: "SNR of the original message being forwarded"
+  13:
+    name: "Forwarded Type"
+    description: "Type of the original message being forwarded"
+    type: "uintn"
+    values:
+      1: "LORA Base Station"
+  20:
+    name: "Method"
+    description: "Request a service to be perform an action"
+    type : "uintn"
+    values:
+      1:
+        name: "SET"
+        description: "Set one or more values that are provided in the message payload"
+      2:
+        name: "GET"
+        description: "Get one or more values that have their keys provided in the message payload. If no keys are provided, all available values are returned"
+      3:
+        name: "SUBSCRIBE"
+        description: "Subscribe to a value or values. If no keys are provided, all available values will be subscribed to. If a value changes, the service will send a message with the new value"
+messages:
+  5:
+    name: "General ACK"
+    description: "General ACK message"
+    group: "general"
+    data:
+      1:
+        name: "ACKed Type"
+        description: "Type of previous message being ACKed"
+        type: "uint16"
+        typeExplain: "V3 Protocol specifies that message types are uint16"
+      2:
+        name: "ACKed ID"
+        description: "ID of previous message being ACKed (if provided in the original message header)"
+        type: "uintn"
+        typeExplain: "Message ID is variable length"
+  6:
+    name: "General Keep Alive"
+    description: "General keep alive message"
+    group: "general"
+  30:
+    name: "Transmit Now"
+    description: "Transmit data immediately"
+    group: "ondevice"
+  data:
+    1:
+      name: "Search GPS"
+      description: "0 = no, 1 = yes"
+      type: "uint8"
+    2:
+      name: "Data"
+      description: "can be up to 200 bytes"
+      type: "bytes"
+    3:
+      name: "Retries"
+      description: "0 - 10"
+      type: "uint8"
+    4:
+      name: "Priority"
+      description: "0 - 1"
+      type: "uint8"
+  31:
+    name: "GSM CFUN"
+    description: "GSM functionality control"
+    group: "ondevice"
+    data:
+      1:
+        name: "Mode"
+        description: "0 or 1"
+        type: "uint8"
+      2:
+        name: "Duration"
+        description: "max 259200, 4 bytes values"
+        type: "uint32"
+      3:
+        name: "GSM ONOFF"
+        description: ""
+        type: "uint8"
+  32:
+    name: "GSM IMEI"
+    description: "GSM IMEI information"
+    group: "ondevice"
+    data:
+      1:
+        name: "IMEI"
+        description: "IMEI"
+        type: "bytes"
+  33:
+    name: "GSM ICCID"
+    description: "GSM ICCID information"
+    group: "ondevice"
+    data:
+      1:
+        name: "ICCID"
+        description: "ICCID"
+        type: "bytes"
+  34:
+    name: "Device Info Status"
+    description: "Device status information"
+    group: "ondevice"
+  35:
+    name: "Device Info ID"
+    description: "Device ID information"
+    group: "ondevice"
+  36:
+    name: "Device Info Time"
+    description: "Device time information"
+    group: "ondevice"
+    data:
+      1:
+        name: "Unix Time"
+        description: "Unix time"
+        type: "uint32"
+      2:
+        name: "Year"
+        description: "Year"
+        type: "uint16"
+      3:
+        name: "Month"
+        description: "Month"
+        type: "uint8"
+      4:
+        name: "Date"
+        description: "Date"
+        type: "uint8"
+      5:
+        name: "Weekday"
+        description: "Weekday"
+        type: "uint8"
+      6:
+        name: "Hour"
+        description: "Hour"
+        type: "uint8"
+      7:
+        name: "Minute"
+        description: "Minute"
+        type: "uint8"
+      8:
+        name: "Second"
+        description: "Second"
+        type: "uint8"
+  37:
+    name: "Last Position"
+    description: "Last known position"
+    group: "ondevice"
+    data:
+      1:
+        name: "alt"
+        description: "Altitude"
+        type: "uint32"
+      2:
+        name: "lat"
+        description: "Latitude"
+        type: "uint32"
+      3:
+        name: "lng"
+        description: "Longitude"
+        type: "uint32"
+      4:
+        name: "speed"
+        description: "Speed"
+        type: "uint32"
+  1004:
+    name: "LORA V4 Forwarding"
+    description: "Forwarding LORA V4 message"
+  10000:
+    name: "UX Command Start"
+    description: "Start UX command"
+    group: "ondevice-ux"
+  10009:
+    name: "UX Text Page"
+    description: "UX text page"
+    group: "ondevice-ux"
+  10010:
+    name: "UX Update Menu"
+    description: "Update UX menu"
+    group: "ondevice-ux"
+  10011:
+    name: "UX Draw Bitmap"
+    description: "Draw bitmap in UX"
+    group: "ondevice-ux"
+  10012:
+    name: "UX Menu Select"
+    description: "Select UX menu item"
+    group: "ondevice-ux"
+  10013:
+    name: "UX Button Press"
+    description: "Press UX button"
+    group: "ondevice-ux"
+  10014:
+    name: "UX Full Refresh"
+    description: "Full refresh of UX"
+    group: "ondevice-ux"
+  11000:
+    name: "UX Command End"
+    description: "End UX command"
+    group: "ondevice-ux"

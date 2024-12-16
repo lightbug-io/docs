@@ -12,7 +12,9 @@
     "docs:preview": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress preview"
   },
   "dependencies": {
+    "@highlightjs/vue-plugin": "^2.1.0",
     "cross-env": "^7.0.3",
+    "highlight.js": "^11.11.0",
     "vitepress-openapi": "^0.0.3-alpha.51",
     "vitepress-plugin-pagefind": "^0.4.10",
     "vue-i18n": "^9.14.0",

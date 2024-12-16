@@ -10,6 +10,16 @@ import { createVuetify } from 'vuetify'
 import { VStepperVertical } from 'vuetify/labs/VStepperVertical'
 import '@mdi/font/css/materialdesignicons.css' // Ensure you are using css-loader
 
+import 'highlight.js/styles/stackoverflow-light.css'
+import hljs from 'highlight.js/lib/core';
+import javascript from 'highlight.js/lib/languages/javascript';
+import cpp from 'highlight.js/lib/languages/cpp';
+import go from 'highlight.js/lib/languages/go';
+import hljsVuePlugin from "@highlightjs/vue-plugin";
+hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('cpp', cpp);
+hljs.registerLanguage('go', go);
+
 import 'vitepress-openapi/dist/style.css'
 
 import './custom.css'
@@ -29,6 +39,7 @@ export default {
     ...DefaultTheme, Layout,
     enhanceApp({ app, router, siteData }) {
         app.use(vuetify)
+        app.use(hljsVuePlugin)
 
         enhanceAppWithTabs(app)
 

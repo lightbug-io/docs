@@ -40,7 +40,9 @@ export default defineConfig({
     ssr: {
       noExternal: ["vuetify"]
     },
-    plugins: [pagefindPlugin()],
+    plugins: [
+      pagefindPlugin(),
+    ],
   },
   markdown: {
     config: (md) => {
