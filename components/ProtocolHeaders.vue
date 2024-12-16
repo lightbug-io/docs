@@ -2,6 +2,7 @@
     <v-card>
         <v-tabs v-model="activeTab" bg-color="primary">
             <v-tab value="go">Go</v-tab>
+            <v-tab value="toit">Toit</v-tab>
             <v-tab value="cpp">C++</v-tab>
             <v-tab value="ts">TypeScript</v-tab>
         </v-tabs>
@@ -22,8 +23,11 @@
             <div v-else-if="activeTab === 'cpp'">
                 <highlightjs language="cpp" :code="cppHeaderConstants" />
             </div>
-            <div v-else>
+            <div v-else-if="activeTab === 'ts'">
                 <highlightjs language="typescript" :code="tsHeaderConstants" />
+            </div>
+            <div v-else>
+                <highlightjs language="toit" :code="toitHeaderConstants" />
             </div>
         </v-card-text>
     </v-card>
@@ -46,6 +50,7 @@ export default defineComponent({
         const goHeaderConstantsGrouped = ref('');
         const cppHeaderConstants = ref('');
         const tsHeaderConstants = ref('');
+        const toitHeaderConstants = ref('');
 
         const generateGoConstants = (headers: any) => {
             let goConstants = '';
@@ -75,6 +80,15 @@ export default defineComponent({
             return tsConstants;
         };
 
+        const generateToitConstants = (headers: any) => {
+            let toitConstants = '';
+            for (const key in headers) {
+                const name = headers[key].name.toUpperCase().replace(/ /g, '_');
+                toitConstants += `HEADER_${name} /int ::= ${key}\n`;
+            }
+            return toitConstants;
+        };
+
         const loadHeaderConstants = async () => {
             try {
                 const response = await fetch('/files/protocol-v3.yaml');
@@ -101,6 +115,9 @@ export default defineComponent({
 
                 // Generate TypeScript constants
                 tsHeaderConstants.value = generateTsConstants(headers);
+
+                // Generate Toit constants
+                toitHeaderConstants.value = generateToitConstants(headers);
             } catch (error) {
                 console.error('Error loading YAML file:', error);
             }
@@ -123,6 +140,7 @@ export default defineComponent({
             goHeaderConstantsGrouped,
             cppHeaderConstants,
             tsHeaderConstants,
+            toitHeaderConstants,
             setActiveTab,
             setGoFormat,
         };
