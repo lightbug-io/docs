@@ -196,6 +196,20 @@ export default defineConfig({
             {
               text: 'Structure',
               link: '/devices/api/structure',
+              items: [
+                {
+                  text: 'Prefix',
+                  link: '/devices/api/structure#prefix',
+                },
+                {
+                  text: 'Message',
+                  link: '/devices/api/structure#message',
+                },
+                {
+                  text: 'Examples',
+                  link: '/devices/api/structure#examples',
+                },
+              ]
             },
             {
               text: 'Headers',

@@ -4,32 +4,55 @@ outline: deep
 
 # Structure
 
-In a byte stream, a message may look as follows:
+::: tip ℹ️ Info
+All integers are in [little-endian](https://en.wikipedia.org/wiki/Endianness) format eg. (uint16 `1` is represented as `0x01 0x00`).
+:::
+
+In a byte stream, a message takes the follow structure:
 
 ```
-<prefix>
-<message
+<prefix> <message
     <version> <length> <type> <header data> <payload data> <checksum>
 >
 ```
 
-Each data element may look as follows:
+The header data, and payload data, are made up of the same structure:
 
 ```
 <field count> <fields> <data (as bBytes)>
 ```
 
+As an example empty message including prefix (with no additional header or payload data):
+
+```
+76 66 3 11 0 1 0 0 0 0 0 75 190
+^     ^ ^    ^   ^   ^   ^
+|     | |    |   |   |    checksum 2 bytes
+|     | |    |   |   payload data (0 fields)
+|     | |    |   header data (0 fields)
+|     | |    message type 1
+|     | message length 11
+|     protocol version 3
+prefix (LB)
+```
+
 ## Prefix
 
-To aid reading from a possibly noisy byte stream, the protocol defines that messages can be prefixed with a set of start bytes.
+To aid reading from a possibly noisy byte stream, and to increase efficiency, the messages are prefixed with a set of start bytes.
 
 `0x4c, 0x42`, or `76, 66`, which is the ASCII representation of `LB`.
 
-This is REQUIRED for on device communication (though is optional in the protocol itself).
-
 In combination with the protocol version, this allows for a simple check that indicates you are probably looking at the start of a message.
 
-`0x4c 0x42 0x03` or `76 66 3` for example
+`0x4c 0x42 0x03` or `76 66 3` for example.
+
+## Stop
+
+The 2 bytes after the prefix and protocol version indicate the length of the message which gives you a stop point.
+
+In total the first 5 bytes would look something like this:
+
+`0x4c 0x42 0x03 0x0b 0x00` or `76 66 3 11 0` for example.
 
 ## Message
 
