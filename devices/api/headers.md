@@ -24,37 +24,24 @@ Can be used with ACK messages to identify the message that is being ACKed.
 
 Used to identify the client that sent the message where appropriate.
 
-## Chunking
-
-TODO document...
-
-### 3: Chunk Count
-### 4: Chunk Index
-
-## Forwarding
-
-TODO document...
-
-### 10: Forward For
-### 11: RSSI
-### 12: SNR
-### 13: Forwarded Type
-
-## Services
-
-### 20: Method
-
-- 1: Set, Request a change, using the data provided.
-- 2: Get, Request the current value.
-- 3: Subscribe, Request to be notified of changes.
-
-### 22: Response Message ID
+## 3: Response Message ID
 
 This message is responding to a previous message with the specified message ID.
 
-### 23: Response Status
+## 4: Message Status
 
 The status of the response.
 
  - 1: OK
  - 2: NOT OK
+
+## 5: Method
+
+- 1: Set, Request a change, using the data provided.
+- 2: Get, Request the current value.
+- 3: Subscribe, Request to be notified of changes.
+
+## 10: Forwarded For
+## 11: Forwarded RSSI
+## 12: Forwarded SNR
+## 13: Forwarded Type

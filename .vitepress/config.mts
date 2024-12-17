@@ -219,7 +219,7 @@ export default defineConfig({
             },
             {
               text: 'Messages',
-              link: '/devices/api/messages',
+              // link: '/devices/api/messages',
               items: [
                 {
                   text: 'Generic',

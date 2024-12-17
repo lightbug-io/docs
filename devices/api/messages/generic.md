@@ -4,11 +4,13 @@ outline: [1,3]
 
 # Generic
 
-Message types that can be used in a variety of situations
+Message types that can be used in a variety of situations.
 
 ## 5: ACK
 
 Used to acknowledge a previously sent message.
+
+Used in most communication that doesn't already
 
 **Data fields**
 
