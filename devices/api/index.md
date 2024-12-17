@@ -2,9 +2,14 @@
 outline: deep
 ---
 
-# WIP Device API
+# Device API
 
 The Lightbug communication protocol, also called the V3 protocol, is a byte oriented protocol used in a variety of settings around device communication.
+
+::: warning ⚠️ Warning
+This is work in progress documentation.
+The protocol is finalized, but the documentation is still being written, and message values may change.
+:::
 
 The protocol builds on top of existing Lightbug Protocols, and is designed to be:
  - Efficient to read, build
