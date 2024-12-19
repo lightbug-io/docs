@@ -4,6 +4,7 @@ outline: [1,3]
 
 <script setup>
 import ProtocolHeaders from '../../components/ProtocolHeaders.vue'
+import GenerateConsts from '../../components/GenerateConsts.vue'
 </script>
 
 # Headers
