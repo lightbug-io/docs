@@ -1,7 +1,3 @@
----
-outline: [1,3]
----
-
 <script setup>
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 </script>
@@ -19,7 +15,6 @@ There are then multiple message types, each which represents its own service.
 ## 30: Transmit Now
 
 Send arbitrary data.
-
 
 **Data fields**
 
@@ -42,13 +37,21 @@ TODO document...
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
 | 1     | IMEI | 15 bytes ASCII data | []byte  | 51 53 48 49 50 51 52 53 49 50 51 52 53 54 48 | 350123451234560 |
 
-**GET**
+### GET
 
-If you wanted to GET the IMEI from a device, you would send a message with:
+If you wanted to GET the IMEI from a device, the message sequence may look s follows.
+
+#### Request
+
+An initial request, asking for the IMEI:
  - Message Type: 32
  - Header Field Type 1: A valid message ID
  - Header Field Type 5: 2 (GET)
  - Payload Field Type 1: 0 (no data)
+
+::: tip ℹ️ Info
+This explicitly requests the IMEI field to be included in the response. Omitting the payload field would have the same effect, as the default (when no fields are requested) is to include all fields.
+:::
 
 Sending the payload field indicates that you want that field to exist in the response.
 
@@ -71,11 +74,15 @@ Sending the payload field indicates that you want that field to exist in the res
 |---------------------------------> Protocol Version 3
 ```
 
+#### ACK
+
 You can expect an ACK to your request, and then a response message with the IMEI.
 
 The ACK for this message would contain the same message ID (payload field 1) and the message ID of the message being ACKed (payload field 2).
 
 `3 17 0 5 0 0 0 2 0 1 2 1 32 1 234 176 65`
+
+#### Response
 
 The response headers would:
  - Include its own message ID for the receiver to ACK: 1 -> 22
@@ -114,11 +121,11 @@ Interact with device time.
 | 1     | Unix     | Unix Time         | uint32 | 1734014057 |
 | 2     | Year     | Year              | uint8 | 24 |
 | 3     | Month    | Month             | uint8 | 12 |
-| 4     | Day     | Day              | uint8 | 31 |
+| 4     | Day      | Day               | uint8 | 31 |
+| 5     | Weekday  | Day of the Week   | | |
 | 6     | Hour     | Hour              | uint8 | 24 |
 | 7     | Minute   | Minute            | uint8 | 59 |
 | 8     | Second   | Second            | uint8 | 59 |
-<!-- | 5     | Weekday  | Day of the Week   | | | -->
 
 <!-- TODO, should year be a full year instead of just 24...?! -->
 
