@@ -3,7 +3,6 @@ outline: [1,3]
 ---
 
 <script setup>
-import ProtocolHeaders from '../../components/ProtocolHeaders.vue'
 import GenerateConsts from '../../components/GenerateConsts.vue'
 </script>
 
@@ -11,7 +10,7 @@ import GenerateConsts from '../../components/GenerateConsts.vue'
 
 These header field types are reserved across all message types.
 
-<ProtocolHeaders/>
+<GenerateConsts :prefix="'MH_'" :enumName="'MyEnum'" :dataPath="'header'"/>
 
 ## 1: Message ID
 
