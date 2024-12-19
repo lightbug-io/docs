@@ -47,10 +47,10 @@ header:
         description: "Set one or more values that are provided in the message payload"
       2:
         name: "GET"
-        description: "Get one or more values that have their keys provided in the message payload. If no keys are provided, all available values are returned"
+        description: "Get one or more values that have their types provided in the message payload. If no payload types are provided, all available values are returned"
       3:
         name: "SUBSCRIBE"
-        description: "Subscribe to a value or values. If no keys are provided, all available values will be subscribed to. If a value changes, the service will send a message with the new value"
+        description: "Subscribe to a value or values. If no payload types are provided, all available values will be subscribed to. If a value changes, the service will send a message with the new value"
 
   10:
     name: "Forwarded For"

@@ -196,6 +196,10 @@ export default defineConfig({
               link: '/devices/api/',
             },
             {
+              text: 'Glossary',
+              link: '/devices/api/glossary',
+            },
+            {
               text: 'Structure',
               link: '/devices/api/structure',
               items: [

@@ -9,7 +9,7 @@ import GenerateConsts from '../../components/GenerateConsts.vue'
 
 # Headers
 
-These header values keys are reserved across all message types.
+These header field types are reserved across all message types.
 
 <ProtocolHeaders/>
 
