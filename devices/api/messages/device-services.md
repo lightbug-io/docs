@@ -10,9 +10,9 @@ import GenerateConsts from '../../../components/GenerateConsts.vue'
 
 Device service messages make use of a few common header fields:
 
-- [20: Method](./headers#_20-method): 1 (Set), 2 (Get), 3 (Subscribe)
-- [22: Response Message ID](./headers#_22-response-message-id): The message ID of the message being responded to.
-- [23: Response Status](./headers#_23-response-status): 1 (OK), 2 (NOT OK)
+- [3: Response Message ID](./../headers#_3-response-message-id): The message ID of the message being responded to.
+- [4: Response Status](./../headers#_4-response-status): 1 (OK), 2 (NOT OK)
+- [5: Method](./../headers#_5-method): 1 (Set), 2 (Get), 3 (Subscribe)
 
 There are then multiple message types, each which represents its own service.
 
