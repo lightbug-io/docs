@@ -91,9 +91,9 @@ Within each Data element (the header data, or payload data), the structure is as
 
 | Byte position | Description      | Type  | Example |
 | ------------- | ---------------- | ----- | ------- |
-| 1             | Number of fields (n) | uint8 | 2       |
-| 2 -> 2+n      | Field types | []uint8 | 1 2        |
-| 2+n+1 -> end  | Data | []bBytes | [1 8] [3 9 9 9]  |
+| 1 -> 2             | Number of fields (n) | uint16 | 2 0       |
+| 3 -> 3+n      | Field types | []uint8 | 1 2        |
+| 3+n+1 -> end  | Data | []bBytes | [1 8] [3 9 9 9]  |
 
 This data includes `2` data fields, the first of type `1`, with value byte array `[8]`, the second of type `2`, with value byte array `[9 9 9]`.
 
@@ -104,8 +104,6 @@ bBytes are a byte array that represents a length and then the data itself.
 For example, `[1 8]` would represent a byte array of length 1, with the value 8.
 
 Or `[3 9 9 9]` would represent a byte array of length 3, with the values 9, 9, 9.
-
-
 
 ## Examples
 
