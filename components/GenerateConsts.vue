@@ -13,20 +13,20 @@
                     <v-tab value="grouped">Grouped</v-tab>
                 </v-tabs>
                 <div v-if="goFormat === 'individual'">
-                    <highlightjs language="go" :code="computedGoConstantsIndividual" />
+                    <pre language="go" :code="computedGoConstantsIndividual" />
                 </div>
                 <div v-else>
-                    <highlightjs language="go" :code="computedGoConstantsGrouped" />
+                    <pre language="go" :code="computedGoConstantsGrouped" />
                 </div>
             </div>
             <div v-else-if="activeTab === 'cpp'">
-                <highlightjs language="cpp" :code="computedCppConstants" />
+                <pre language="cpp" :code="computedCppConstants" />
             </div>
             <div v-else-if="activeTab === 'ts'">
-                <highlightjs language="typescript" :code="computedTsConstants" />
+                <pre language="typescript" :code="computedTsConstants" />
             </div>
             <div v-else>
-                <highlightjs language="toit" :code="computedToitConstants" />
+                <pre language="toit" :code="computedToitConstants" />
             </div>
         </v-card-text>
         <v-card-title>Options</v-card-title>
@@ -47,13 +47,13 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch } from 'vue';
-import hljsVuePlugin from '@highlightjs/vue-plugin';
+// import hljsVuePlugin from '@highlightjs/vue-plugin';
 import jsyaml from 'js-yaml';
 
 export default defineComponent({
     name: 'GenerateConsts',
     components: {
-        highlightjs: hljsVuePlugin.component
+        // highlightjs: hljsVuePlugin.component
     },
     props: {
         // Prefix before constants
