@@ -84,6 +84,7 @@ So the full above example would be:
   - Field Count: The number of fields in the data.
   - Fields: List of field types in the data
   - Data: The data itself, making used of bBytes to represent length and values.
+- Checksum: A 16-bit CRC checksum of the message (XMODEM).
 
 #### Data
 
@@ -95,7 +96,9 @@ Within each Data element (the header data, or payload data), the structure is as
 | 3 -> 3+n      | Field types | []uint8 | 1 2        |
 | 3+n+1 -> end  | Data | []bBytes | [1 8] [3 9 9 9]  |
 
-This data includes `2` data fields, the first of type `1`, with value byte array `[8]`, the second of type `2`, with value byte array `[9 9 9]`.
+The Data should be in the order of the field types.
+
+The example data includes `2` data fields, the first of type `1`, with value byte array `[8]`, the second of type `2`, with value byte array `[9 9 9]`.
 
 #### bBytes
 
