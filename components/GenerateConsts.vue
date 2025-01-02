@@ -13,20 +13,20 @@
                     <v-tab value="grouped">Grouped</v-tab>
                 </v-tabs>
                 <div v-if="goFormat === 'individual'">
-                    <pre language="go" :code="computedGoConstantsIndividual" />
+                    <pre language="go" :code="computedGoConstantsIndividual">{{ computedGoConstantsIndividual }}</pre>
                 </div>
                 <div v-else>
-                    <pre language="go" :code="computedGoConstantsGrouped" />
+                    <pre language="go" :code="computedGoConstantsGrouped">{{ computedGoConstantsGrouped }}</pre>
                 </div>
             </div>
             <div v-else-if="activeTab === 'cpp'">
-                <pre language="cpp" :code="computedCppConstants" />
+                <pre language="cpp" :code="computedCppConstants">{{ computedCppConstants }}</pre>
             </div>
             <div v-else-if="activeTab === 'ts'">
-                <pre language="typescript" :code="computedTsConstants" />
+                <pre language="typescript" :code="computedTsConstants">{{ computedTsConstants }}</pre>
             </div>
             <div v-else>
-                <pre language="toit" :code="computedToitConstants" />
+                <pre language="toit" :code="computedToitConstants">{{ computedToitConstants }}</pre>
             </div>
         </v-card-text>
         <v-card-title>Options</v-card-title>
