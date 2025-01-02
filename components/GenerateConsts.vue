@@ -13,20 +13,44 @@
                     <v-tab value="grouped">Grouped</v-tab>
                 </v-tabs>
                 <div v-if="goFormat === 'individual'">
-                    <pre language="go" :code="computedGoConstantsIndividual">{{ computedGoConstantsIndividual }}</pre>
+                    <VCodeBlock
+                        :code="computedGoConstantsIndividual"
+                        highlightjs
+                        lang="go"
+                        theme="default"
+                    />
                 </div>
                 <div v-else>
-                    <pre language="go" :code="computedGoConstantsGrouped">{{ computedGoConstantsGrouped }}</pre>
+                    <VCodeBlock
+                        :code="computedGoConstantsGrouped"
+                        highlightjs
+                        lang="go"
+                        theme="default"
+                    />
                 </div>
             </div>
             <div v-else-if="activeTab === 'cpp'">
-                <pre language="cpp" :code="computedCppConstants">{{ computedCppConstants }}</pre>
+                <VCodeBlock
+                    :code="computedCppConstants"
+                    highlightjs
+                    lang="cpp"
+                    theme="default"
+                />
             </div>
             <div v-else-if="activeTab === 'ts'">
-                <pre language="typescript" :code="computedTsConstants">{{ computedTsConstants }}</pre>
+                <VCodeBlock
+                    :code="computedTsConstants"
+                    highlightjs
+                    lang="typescript"
+                    theme="default"
+                />
             </div>
             <div v-else>
-                <pre language="toit" :code="computedToitConstants">{{ computedToitConstants }}</pre>
+                <VCodeBlock
+                    :code="computedToitConstants"
+                    highlightjs
+                    theme="default"
+                />
             </div>
         </v-card-text>
         <v-card-title>Options</v-card-title>
@@ -47,14 +71,10 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch } from 'vue';
-// import hljsVuePlugin from '@highlightjs/vue-plugin';
 import jsyaml from 'js-yaml';
 
 export default defineComponent({
     name: 'GenerateConsts',
-    components: {
-        // highlightjs: hljsVuePlugin.component
-    },
     props: {
         // Prefix before constants
         prefix: {
