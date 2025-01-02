@@ -20,9 +20,9 @@ Send arbitrary data.
 
 | Field | Name       | Description                      | Type   | Example |
 | ----- | ---------- | -------------------------------- | ------ | ------- |
-| 1     | Search GPS | Search for GPS (0 = no, 1 = yes) | uint8  | 0       |
+| 1     | Search GPS | 0 = no gps fix required<br>1 = wait for GPS lock (or timeout) before send | uint8  | 0       |
 | 2     | Data       | Up to 200 bytes of data to send  | []byte | 0x03 0x00 0x01 0x02 |
-| 3     | Retries    | Number of retires                | uint8  | 1 |
+| 3     | Retries    | Number of retries [0-10]<br>Exponential backoff (10 = 25h)                | uint8  | 1 |
 <!-- Priority -->
 
 ## 31: GSM CFUN
@@ -39,7 +39,7 @@ TODO document...
 
 ### GET
 
-If you wanted to GET the IMEI from a device, the message sequence may look s follows.
+If you wanted to GET the IMEI from a device, the message sequence may look as follows.
 
 #### Request
 
@@ -66,12 +66,12 @@ Sending the payload field indicates that you want that field to exist in the res
 | |    |    |   | | | |   |---------------> Header field type 5 length 1 (uint8)
 | |    |    |   | | | |-------------------> Header field type 1 value 234 (Message ID 234)
 | |    |    |   | | |---------------------> Header field type 1 length 1 (uint8)
-| |    |    |   | |---------------> Header field type 5 (Method)
-| |    |    |   |-----------------> Header field type 1 (Message ID)
-| |    |    |---------------------> Header field count 2
-| |    |--------------------------> Message Type 32 (GSM IMEI)
-| |-------------------------------> Message Length 19
-|---------------------------------> Protocol Version 3
+| |    |    |   | |-----------------------> Header field type 5 (Method)
+| |    |    |   |-------------------------> Header field type 1 (Message ID)
+| |    |    |-----------------------------> Header field count 2
+| |    |----------------------------------> Message Type 32 (GSM IMEI)
+| |---------------------------------------> Message Length 19
+|-----------------------------------------> Protocol Version 3
 ```
 
 #### ACK
