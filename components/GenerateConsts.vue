@@ -1,6 +1,6 @@
 <template>
-    <v-card>
-        <v-tabs v-model="activeTab" bg-color="primary">
+    <v-card density="compact">
+        <v-tabs v-model="activeTab" bg-color="primary" density="compact">
             <v-tab value="go">Go</v-tab>
             <v-tab value="toit">Toit</v-tab>
             <v-tab value="cpp">C++</v-tab>
@@ -8,7 +8,7 @@
         </v-tabs>
         <v-card-text>
             <div v-if="activeTab === 'go'">
-                <v-tabs v-model="goFormat" bg-color="secondary">
+                <v-tabs v-model="goFormat" bg-color="secondary" density="compact">
                     <v-tab value="individual">Individual</v-tab>
                     <v-tab value="grouped">Grouped</v-tab>
                 </v-tabs>
@@ -59,11 +59,13 @@
                 v-model="prefix"
                 label="Prefix"
                 placeholder="Enter prefix"
+                density="compact" variant="underlined"
                 @input="prefix = prefix.toUpperCase()"
             />
             <v-checkbox
                 v-model="showComments"
                 label="Show Comments"
+                density="compact"
             />
         </v-card-text>
     </v-card>
@@ -259,13 +261,4 @@ export default defineComponent({
 </script>
 
 <style scoped>
-button {
-    margin-right: 10px;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-label {
-    display: block;
-    margin-bottom: 10px;
-}
 </style>

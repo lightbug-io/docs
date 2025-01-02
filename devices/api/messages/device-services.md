@@ -1,5 +1,6 @@
 <script setup>
 import GenerateConsts from '../../../components/GenerateConsts.vue'
+import FancyBytes from '../../../components/FancyBytes.vue'
 </script>
 
 # Device Services
@@ -31,7 +32,9 @@ TODO document...
 
 ## 32: GSM IMEI
 
-<!-- <GenerateConsts :prefix="'MH_'" :enumName="'MyEnum'" :dataPath="'messages/32/data'"/> -->
+Device IMEI.
+
+<!-- <GenerateConsts :prefix="'MD_GSM_IMEI_'" :enumName="'MyEnum'" :dataPath="'messages/32/data'"/> -->
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
@@ -78,9 +81,24 @@ Sending the payload field indicates that you want that field to exist in the res
 
 You can expect an ACK to your request, and then a response message with the IMEI.
 
-The ACK for this message would contain the same message ID (payload field 1) and the message ID of the message being ACKed (payload field 2).
+The ACK for this message would contain the same message ID (32) and the message ID of the message being ACKed (234).
 
-`3 17 0 5 0 0 0 2 0 1 2 1 32 1 234 176 65`
+<FancyBytes
+    byteString="3 17 0 5 0 0 0 2 0 1 2 1 32 1 234 176 65"
+    :byteDefinition="[
+        { pos: 0, len: 1, desc: 'Protocol Version', type: 'uint8', value: 3 },
+        { pos: 1, len: 2, desc: 'Message Length', type: 'uint16', value: 17 },
+        { pos: 3, len: 2, desc: 'Message Type', type: 'uint16', value: 5 },
+        { pos: 5, len: 2, desc: 'Header Field Count', type: 'uint16', value: 0 },
+        { pos: 7, len: 2, desc: 'Payload Field Count', type: 'uint16', value: 2 },
+        { pos: 9, len: 2, desc: 'Payload Fields', type: '[]uint8', value: '1, 2' },
+        { pos: 11, len: 1, desc: '1st Payload Field (1) length', type: 'uint8', value: 1 },
+        { pos: 12, len: 1, desc: '1st Payload Field (1) value (ACKed message type)', type: 'uint8', value: 32, bold: true },
+        { pos: 13, len: 1, desc: '2nd Payload Field (2) length', type: 'uint8', value: 1 },
+        { pos: 14, len: 1, desc: '2nd Payload Field (2) value (ACKed message ID)', type: 'uint8', value: 234, bold: true  },
+        { pos: 15, len: 2, desc: 'Checksum', type: 'uint16' },
+    ]"
+/>
 
 #### Response
 
@@ -91,12 +109,34 @@ The response headers would:
 
 And the response payload would include the IMEI.
 
-`3 42 0 32 0 3 0 1 3 4 1 22 1 234 1 1 1 0 1 20 56 57 52 53 55 51 56 55 51 48 48 48 48 50 54 52 51 57 54 54 159 188`
+<FancyBytes
+    byteString="3 42 0 32 0 3 0 1 3 4 1 22 1 234 1 1 1 0 1 20 56 57 52 53 55 51 56 55 51 48 48 48 48 50 54 52 51 57 54 54 159 188"
+    :byteDefinition="[
+        { pos: 0, len: 1, desc: 'Protocol Version', type: 'uint8', value: 3 },
+        { pos: 1, len: 2, desc: 'Message Length', type: 'uint16', value: 42 },
+        { pos: 3, len: 2, desc: 'Message Type', type: 'uint16', value: 32 },
+        { pos: 5, len: 2, desc: 'Header Field Count', type: 'uint16', value: 3 },
+        { pos: 7, len: 3, desc: 'Header Fields', type: '[]uint8', value: '1, 3, 4' },
+        { pos: 10, len: 1, desc: '1st Header field (1 Message ID) length', type: 'uint8', value: 1},
+        { pos: 11, len: 1, desc: '1st Header field (1 Message ID) value', type: 'uint8', value: 22},
+        { pos: 12, len: 1, desc: '2nd Header field (3 Response to Message ID) length', type: 'uint8', value: 1},
+        { pos: 13, len: 1, desc: '2nd Header field (3 Response to Message ID) value', type: 'uint8', value: 234},
+        { pos: 14, len: 1, desc: '3rd Header field (4 Message Status) length', type: 'uint8', value: 1},
+        { pos: 15, len: 1, desc: '3rd Header field (4 Message Status) value', type: 'uint8', value: 1},
+        { pos: 16, len: 2, desc: 'Payload Field Count', type: 'uint16', value: 1 },
+        { pos: 18, len: 1, desc: 'Payload Fields', type: '[]uint8', value: '1' },
+        { pos: 19, len: 1, desc: '1st Payload Field (1 IMEI) length', type: 'uint8', value: 20 },
+        { pos: 20, len: 20, desc: '1st Payload Field (1 IMEI) value', type: '[]uint8', value: '56 57 52 53 55 51 56 55 51 48 48 48 48 50 54 52 51 57 54 54', bold:true },
+        { pos: 40, len: 2, desc: 'Checksum', type: 'uint16' },
+    ]"
+/>
 
 If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
 
 
 ## 33: GSM ICCID
+
+Device ICCID.
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
