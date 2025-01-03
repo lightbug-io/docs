@@ -29,21 +29,21 @@
                 </div>
                 <br/>
                 <h5>Payload</h5>
-                <p>Adding payload data coming soon</p>
-                <!-- <h4>Payload</h4>
                 <div v-for="(data, key) in selectedMessageData" :key="key">
-                    <v-checkbox
+                    <v-checkbox-btn
                         v-model="selectedPayload"
                         :label="data.name"
                         :value="key"
+                        density="compact"
                     />
                     <v-text-field
                         v-if="selectedPayload.includes(key)"
                         v-model="payloadValues[key]"
                         :label="data.name"
                         :placeholder="data.description"
+                        density="compact"
                     />
-                </div> -->
+                </div>
             </div>
             <h5>Generated Message</h5>
             <v-text-field
@@ -131,10 +131,12 @@ export default defineComponent({
             // Header fields
             // First add a uint16 little endian for the number of headers
             b.push(...intTouint16LE(selectedHeaders.value.length));
+
             // Then push the header types
             selectedHeaders.value.forEach((headerIndex) => {
                 b.push(headerIndex);
             });
+
             // Then push the header values
             selectedHeaders.value.forEach((headerIndex) => {
                 let headerValue = headerValues.value[headerIndex] || '';
@@ -151,9 +153,30 @@ export default defineComponent({
                 }
             });
 
-            // We don't allow payload fields or data yet, so 4x blanks 0s
-            b.push(0);
-            b.push(0);
+            // Payload fields
+            // First add a uint16 little endian for the number of payloads
+            b.push(...intTouint16LE(selectedPayload.value.length));
+
+            // Then push the payload types
+            selectedPayload.value.forEach((payloadIndex) => {
+                b.push(payloadIndex);
+            });
+
+            // Then push the payload fields
+            selectedPayload.value.forEach((payloadIndex) => {
+                let payloadValue = payloadValues.value[payloadIndex] || '';
+                payloadValue = payloadValue.trim();
+                const payloadValueBytes = payloadValue.split(' ')
+                const payloadValueByteCount = payloadValue ? payloadValueBytes.length : 0;
+                // first push a uint8 of the length of the payload value
+                b.push(payloadValueByteCount);
+                if (payloadValueByteCount > 0) {
+                    // then push the raw bytes of the payload value, each one as a uint8
+                    payloadValueBytes.forEach((byte) => {
+                        b.push(parseInt(byte, 10));
+                    });
+                }
+            });
 
             // Then we insert the length at index 1 & 2, which is the length of b, +2 (for the checksum)
             const length = b.length + 2;
