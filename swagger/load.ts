@@ -31,7 +31,7 @@ const v1SummaryOverrides = {
     'get-users-id-getDevicesInZone': 'Devices in zone',
     'get-users-id-getDevicesByTag': 'Devices with tag',
 
-    // TODO notificatio triggers should probably render in swagger with better names
+    // TODO notification triggers should probably render in swagger with better names
     'get-devices-id-notificationTriggers': 'Get device triggers',
     'get-devices-id-notificationTriggers-fk': 'Get device trigger by id',
     'put-devices-id-notificationTriggers-fk': 'Update device trigger by id',
@@ -45,6 +45,9 @@ const v1SummaryOverrides = {
     'delete-users-id-geofences-fk': 'Delete user geofence by id',
     'post-users-id-geofences': 'Create user geofence',
     'delete-users-id-geofences': 'Delete all user geofences',
+
+    'get-devices-id-deactivate': 'Deactivate device',
+    'get-devices-id-activateOnResellerPlan': 'Activate device on reseller plan',
 }
 
 const v1DescriptionOverrides = {
@@ -52,6 +55,8 @@ const v1DescriptionOverrides = {
     'get-devices-id-points-fk': 'Get a specific point for device when you already know the device ID and point ID.',
     'get-users-id-getMqttCredentials': 'Retrieves a users MQTT Credentials if set, for legacy use in connecting to MQTT.',
     'get-users-id-getDeviceSummary': 'Lists all devices for a user, with a summary of state, including most resent points.',
+    'get-devices-id-deactivate': 'Deactivates a device.',
+    'get-devices-id-activateOnResellerPlan': 'Activates a device on a reseller plan.\n\nThis is a special endpoint for resellers to activate a device on a reseller plan.\n\nIf you want to activate a device on a modern plan, see the V2 API.',
 }
 
 const v1Deprecated = [
@@ -82,6 +87,10 @@ const v1ReTag = {
     'get-devices-id-setMetaItem': 'device-config',
     'get-devices-id-flightMode': 'device-config',
     'get-devices-id-getSafeZone': 'device-config',
+
+    // Split out device activation too
+    'get-devices-id-deactivate': 'device-activation',
+    'get-devices-id-activateOnResellerPlan': 'device-activation',
 
     'get-devices-id-messages': 'device-misc',
     'post-devices-id-messages': 'device-misc',
@@ -142,6 +151,11 @@ const V1ParamExamples = {
             '{"where":{"between":["2024-12-01T00:00:00.000Z","2024-12-01T23:59:59.999Z"]},"order":["timestamp DESC"]}',
         ],
     },
+    'get-devices-id-activateOnResellerPlan': {
+        'id': '56892',
+        'resellerPlanId': '10',
+        'expiry': [Date.now() + (365 * 24 * 60 * 60 * 1000)]
+    },
 }
 
 const V1BodyExamples = {
@@ -149,6 +163,23 @@ const V1BodyExamples = {
         'ids': '[1, 2, 3]',
         'tagEdits': '[{"tag":"test_1:foo","originalTagKey":"test_1"}]',
     }
+}
+
+const V1ParamDescriptions = {
+    'get-devices-id-points': {
+        'filter': 'Filter criteria for fetching device points.',
+    },
+    'get-devices-id-activateOnResellerPlan': {
+        'id': 'The ID of the device to activate.',
+        'resellerPlanId': 'The ID of the reseller plan, which must relate to your reseller account.',
+        'expiry': 'The expiry date for the activation in milliseconds since epoch. The device will be deactivated at this time.',
+    },
+}
+
+const V1ParamSchemaFormats = {
+    'get-devices-id-activateOnResellerPlan': {
+        'resellerPlanId': 'integer',
+    },
 }
 
 export function loadSpec(version: number): any {
@@ -184,18 +215,20 @@ export function loadSpec(version: number): any {
                         }
                     }
                 }
-                if (operationId in V1BodyExamples) {
-                    if (spec1.paths[path][method].requestBody) {
-                        for (const content of Object.keys(spec1.paths[path][method].requestBody.content)) {
-                            for (const prop of Object.keys(spec1.paths[path][method].requestBody.content[content].schema.properties)) {
-                                if (prop in V1BodyExamples[operationId]) {
-                                    spec1.paths[path][method].requestBody.content[content].schema.properties[prop].example = V1BodyExamples[operationId][prop]
-                                }
-                            }
+                if (operationId in V1ParamDescriptions) {
+                    for (const param of spec1.paths[path][method].parameters) {
+                        if (param.name in V1ParamDescriptions[operationId]) {
+                            param.description = V1ParamDescriptions[operationId][param.name]
                         }
                     }
                 }
-
+                if (operationId in V1ParamSchemaFormats) {
+                    for (const param of spec1.paths[path][method].parameters) {
+                        if (param.name in V1ParamSchemaFormats[operationId]) {
+                            param.schema.format = V1ParamSchemaFormats[operationId][param.name]
+                        }
+                    }
+                }
                 if (operationId in v1Deprecated) {
                     spec1.paths[path][method].deprecated = true
                     // Until this is actually rendered, also prefix the summary with "Deprecated"

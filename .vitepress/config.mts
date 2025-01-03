@@ -329,6 +329,13 @@ export default defineConfig({
                     '/apis/v1/get-users-id-getDevicesByTag',
                   ]
                 ),
+                reorder(
+                  collapse(sidebarSpec1.generateSidebarGroup({ tag: ["device-activation"], text: "Device Activation", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
+                  [
+                    '/apis/v1/get-devices-id-activateOnResellerPlan',
+                    '/apis/v1/get-devices-id-deactivate',
+                  ]
+                ),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["device-config"], text: "Device Configuration", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 reorder(
                   collapse(sidebarSpec1.generateSidebarGroup({ tag: ["points"], text: "Points", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
