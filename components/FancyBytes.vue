@@ -13,16 +13,37 @@
                         v-for="(byte, byteIndex) in group.bytes"
                         :key="byteIndex"
                         class="byte"
-                        :style="{ backgroundColor: getByteColor(group.start + byteIndex), fontWeight: isBoldByte(group.start + byteIndex) ? 'bold' : 'normal' }"
+                        :class="['byte-color-' + (index % 6)]"
+                        :style="{ fontWeight: isBoldByte(group.start + byteIndex) ? 'bold' : 'normal' }"
                     >
                         {{ byte }}<span v-if="byteIndex < group.bytes.length - 1" class="no-width">&nbsp;</span>
                     </span>
                     <span v-if="index < groupedByteArray.length - 1" class="no-width">&nbsp;</span>
                 </span>
             </div>
-            <div class="byte-description">
-                {{ hoveredByte !== null ? getByteDescription(hoveredByte) : 'Hover over a byte to see a description...' }}
-            </div>
+            <table class="byte-definitions">
+                <thead>
+                    <tr>
+                        <th title="Section of the message">Section</th>
+                        <th>Element</th>
+                        <th title="Bytes represented in a human understandable way">Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        v-for="(byteDef, index) in byteDefinition"
+                        :key="index"
+                        :style="{
+                            fontWeight: hoveredByte !== null && isByteInRange(hoveredByte, byteDef) ? 'bold' : 'normal',
+                            backgroundColor: getRowColor(byteDef.name, index)
+                        }"
+                    >
+                        <td>{{ byteDef.name }}</td>
+                        <td>{{ byteDef.desc }}</td>
+                        <td :style="{ fontWeight: byteDef.bold ? 'bold' : 'normal' }">{{ byteDef.value !== undefined ? byteDef.value : '' }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </template>
@@ -33,6 +54,7 @@ import { defineComponent, PropType, ref } from 'vue';
 interface ByteDefinition {
     pos: number;
     len: number;
+    name?: string;
     desc: string;
     type: string;
     value: string;
@@ -58,6 +80,8 @@ export default defineComponent({
     },
     setup() {
         const hoveredByte = ref<number | null>(null);
+        const lastName = ref<string | null>(null);
+        const lastColor = ref<string>('#fff');
 
         const setHoveredByte = (index: number) => {
             hoveredByte.value = index;
@@ -67,10 +91,21 @@ export default defineComponent({
             hoveredByte.value = null;
         };
 
+        const getRowColor = (name: string, index: number): string => {
+            if (index === 0) {
+                lastColor.value = '#fff';
+            } else if (name !== lastName.value) {
+                lastName.value = name;
+                lastColor.value = lastColor.value === ('#fff') ? ('#f2f2f2') : ('#fff');
+            }
+            return lastColor.value;
+        };
+
         return {
             hoveredByte,
             setHoveredByte,
-            clearHoveredByte
+            clearHoveredByte,
+            getRowColor
         };
     },
     computed: {
@@ -101,17 +136,12 @@ export default defineComponent({
             const byteDef = this.byteDefinition.find(def => index >= def.pos && index < def.pos + def.len);
             return byteDef ? `${byteDef.desc} (${byteDef.type})${byteDef.value !== undefined ? `: ${byteDef.value}` : ''}` : '';
         },
-        getGroupColor(index: number): string {
-            const colors = ['#f0f8ff', '#e6e6fa', '#f5f5dc', '#fafad2', '#ffe4e1', '#e0ffff'];
-            return colors[index % colors.length];
-        },
-        getByteColor(index: number): string {
-            const byteDef = this.byteDefinition.find(def => index >= def.pos && index < def.pos + def.len);
-            return byteDef ? this.getGroupColor(byteDef.pos) : '#d3d3d3'; // grey color for bytes not covered by byteDefinition
-        },
         isBoldByte(index: number): boolean {
             const byteDef = this.byteDefinition.find(def => index >= def.pos && index < def.pos + def.len);
             return byteDef ? !!byteDef.bold : false;
+        },
+        isByteInRange(index: number, byteDef: ByteDefinition): boolean {
+            return index >= byteDef.pos && index < byteDef.pos + byteDef.len;
         }
     }
 });
@@ -144,6 +174,59 @@ export default defineComponent({
     display: inline-block;
 }
 
+.dark .byte {
+    border: 1px solid #555;
+    color: white;
+}
+
+.byte-color-0 {
+    background-color: #f0f8ff;
+}
+
+.byte-color-1 {
+    background-color: #e6e6fa;
+}
+
+.byte-color-2 {
+    background-color: #f5f5dc;
+}
+
+.byte-color-3 {
+    background-color: #fafad2;
+}
+
+.byte-color-4 {
+    background-color: #ffe4e1;
+}
+
+.byte-color-5 {
+    background-color: #e0ffff;
+}
+
+.dark .byte-color-0 {
+    background-color: #2f4f4f;
+}
+
+.dark .byte-color-1 {
+    background-color: #556b2f;
+}
+
+.dark .byte-color-2 {
+    background-color: #8b4513;
+}
+
+.dark .byte-color-3 {
+    background-color: #483d8b;
+}
+
+.dark .byte-color-4 {
+    background-color: #2e8b57;
+}
+
+.dark .byte-color-5 {
+    background-color: #4682b4;
+}
+
 .no-width {
     display: inline-block;
     width: 0;
@@ -154,5 +237,39 @@ export default defineComponent({
     margin-top: 8px;
     font-style: italic;
     color: #555;
+}
+
+.byte-definitions {
+    margin-top: 8px;
+    font-style: italic;
+    color: #555;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.byte-definitions th,
+.byte-definitions td {
+    border: 1px solid #ddd;
+    padding: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.dark .byte-definitions th,
+.dark .byte-definitions td {
+    border: 1px solid #555;
+}
+
+.byte-definitions th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+.dark .byte-definitions th {
+    background-color: #444;
+}
+
+.byte-definition {
+    margin-bottom: 4px;
 }
 </style>

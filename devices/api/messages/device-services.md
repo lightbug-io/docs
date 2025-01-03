@@ -32,7 +32,9 @@ TODO document...
 
 ## 32: GSM IMEI
 
-Device IMEI.
+The GSM IMEI message can be used to get the IMEI of the device.
+
+It has a single field, the IMEI, which is a 15 byte ASCII string.
 
 <!-- <GenerateConsts :prefix="'MD_GSM_IMEI_'" :enumName="'MyEnum'" :dataPath="'messages/32/data'"/> -->
 
@@ -40,94 +42,52 @@ Device IMEI.
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
 | 1     | IMEI | 15 bytes ASCII data | []byte  | 51 53 48 49 50 51 52 53 49 50 51 52 53 54 48 | 350123451234560 |
 
-### GET
+### Usage
 
-If you wanted to GET the IMEI from a device, the message sequence may look as follows.
-
-#### Request
-
-An initial request, asking for the IMEI:
- - Message Type: 32
- - Header Field Type 1: A valid message ID
- - Header Field Type 5: 2 (GET)
- - Payload Field Type 1: 0 (no data)
-
-::: tip ℹ️ Info
-This explicitly requests the IMEI field to be included in the response. Omitting the payload field would have the same effect, as the default (when no fields are requested) is to include all fields.
-:::
-
-Sending the payload field indicates that you want that field to exist in the response.
-
-```
-3 19 0 32 0 2 0 1 5 1 234 1 2 1 0 1 0 21 145
-^ ^    ^    ^   ^ ^ ^ ^   ^ ^ ^   ^ ^ ^
-| |    |    |   | | | |   | | |   | | |---> CRC 16 Checksum
-| |    |    |   | | | |   | | |   | |-----> Payload field type 1 length (0 / no data)
-| |    |    |   | | | |   | | |   |-------> Payload field type 1 (IMEI)
-| |    |    |   | | | |   | | |-----------> Payload field count 1
-| |    |    |   | | | |   | |-------------> Header field type 5 value 2 (GET)
-| |    |    |   | | | |   |---------------> Header field type 5 length 1 (uint8)
-| |    |    |   | | | |-------------------> Header field type 1 value 234 (Message ID 234)
-| |    |    |   | | |---------------------> Header field type 1 length 1 (uint8)
-| |    |    |   | |-----------------------> Header field type 5 (Method)
-| |    |    |   |-------------------------> Header field type 1 (Message ID)
-| |    |    |-----------------------------> Header field count 2
-| |    |----------------------------------> Message Type 32 (GSM IMEI)
-| |---------------------------------------> Message Length 19
-|-----------------------------------------> Protocol Version 3
-```
-
-#### ACK
-
-You can expect an ACK to your request, and then a response message with the IMEI.
-
-The ACK for this message would contain the same message ID (32) and the message ID of the message being ACKed (234).
+If you wanted to GET the IMEI from a device, you would send a GET message with the IMEI field requested (length 0).
 
 <FancyBytes
-    byteString="3 17 0 5 0 0 0 2 0 1 2 1 32 1 234 176 65"
+    byteString="3 19 0 32 0 2 0 1 5 1 234 1 2 1 0 1 0 21 145"
     :byteDefinition="[
-        { pos: 0, len: 1, desc: 'Protocol Version', type: 'uint8', value: 3 },
-        { pos: 1, len: 2, desc: 'Message Length', type: 'uint16', value: 17 },
-        { pos: 3, len: 2, desc: 'Message Type', type: 'uint16', value: 5 },
-        { pos: 5, len: 2, desc: 'Header Field Count', type: 'uint16', value: 0 },
-        { pos: 7, len: 2, desc: 'Payload Field Count', type: 'uint16', value: 2 },
-        { pos: 9, len: 2, desc: 'Payload Fields', type: '[]uint8', value: '1, 2' },
-        { pos: 11, len: 1, desc: '1st Payload Field (1) length', type: 'uint8', value: 1 },
-        { pos: 12, len: 1, desc: '1st Payload Field (1) value (ACKed message type)', type: 'uint8', value: 32, bold: true },
-        { pos: 13, len: 1, desc: '2nd Payload Field (2) length', type: 'uint8', value: 1 },
-        { pos: 14, len: 1, desc: '2nd Payload Field (2) value (ACKed message ID)', type: 'uint8', value: 234, bold: true  },
-        { pos: 15, len: 2, desc: 'Checksum', type: 'uint16' },
+        { pos: 0, len: 1, name: 'Message Meta', desc: 'Protocol', type: 'uint8', value: 3 },
+        { pos: 1, len: 2, name: 'Message Meta', desc: 'Length', type: 'uint16', value: 19 },
+        { pos: 3, len: 2, name: 'Message Meta', desc: 'Type', type: 'uint16', value: 32, bold:1 },
+        { pos: 5, len: 2, name: 'Header Meta', desc: 'Header Field Count', type: 'uint16', value: 2 },
+        { pos: 7, len: 2, name: 'Header Meta', desc: 'Header Fields', type: '[]uint8', value: '1, 5' },
+        { pos: 9, len: 1, name: 'Header 1', desc: 'Message ID (1) length', type: 'uint8', value: 1},
+        { pos: 10, len: 1, name: 'Header 1', desc: 'Message ID (1) value', type: 'uint8', value: 234},
+        { pos: 11, len: 1, name: 'Header 2', desc: 'Method (5) length', type: 'uint8', value: 1},
+        { pos: 12, len: 1, name: 'Header 2', desc: 'Method (5) value', type: 'uint8', value: 'GET', bold:1},
+        { pos: 13, len: 2, name: 'Payload Meta', desc: 'Payload Field Count', type: 'uint16', value: 1},
+        { pos: 15, len: 1, name: 'Payload Meta', desc: 'Payload Fields', type: '[]uint8', value: '1', bold:1 },
+        { pos: 16, len: 1, name: 'Payload 1', desc: 'IMEI (1) length', type: 'uint8', value: 0, bold:1 },
+        { pos: 17, len: 2, name: 'Message Meta', desc: 'Checksum', type: 'uint16', value: '21 145' },
     ]"
 />
 
-#### Response
+You can expect an [ACK](generic#_5-ack) in response, with the message ID of the message being ACKed (234).
 
-The response headers would:
- - Include its own message ID for the receiver to ACK: 1 -> 22
- - Include the message ID it is responding to: 3 -> 234
- - Include the status of the message: 4 -> 1 (OK)
-
-And the response payload would include the IMEI.
+The device would then respond with a message of type 32, with the IMEI field filled in if known.
 
 <FancyBytes
     byteString="3 42 0 32 0 3 0 1 3 4 1 22 1 234 1 1 1 0 1 20 56 57 52 53 55 51 56 55 51 48 48 48 48 50 54 52 51 57 54 54 159 188"
     :byteDefinition="[
-        { pos: 0, len: 1, desc: 'Protocol Version', type: 'uint8', value: 3 },
-        { pos: 1, len: 2, desc: 'Message Length', type: 'uint16', value: 42 },
-        { pos: 3, len: 2, desc: 'Message Type', type: 'uint16', value: 32 },
-        { pos: 5, len: 2, desc: 'Header Field Count', type: 'uint16', value: 3 },
-        { pos: 7, len: 3, desc: 'Header Fields', type: '[]uint8', value: '1, 3, 4' },
-        { pos: 10, len: 1, desc: '1st Header field (1 Message ID) length', type: 'uint8', value: 1},
-        { pos: 11, len: 1, desc: '1st Header field (1 Message ID) value', type: 'uint8', value: 22},
-        { pos: 12, len: 1, desc: '2nd Header field (3 Response to Message ID) length', type: 'uint8', value: 1},
-        { pos: 13, len: 1, desc: '2nd Header field (3 Response to Message ID) value', type: 'uint8', value: 234},
-        { pos: 14, len: 1, desc: '3rd Header field (4 Message Status) length', type: 'uint8', value: 1},
-        { pos: 15, len: 1, desc: '3rd Header field (4 Message Status) value', type: 'uint8', value: 1},
-        { pos: 16, len: 2, desc: 'Payload Field Count', type: 'uint16', value: 1 },
-        { pos: 18, len: 1, desc: 'Payload Fields', type: '[]uint8', value: '1' },
-        { pos: 19, len: 1, desc: '1st Payload Field (1 IMEI) length', type: 'uint8', value: 20 },
-        { pos: 20, len: 20, desc: '1st Payload Field (1 IMEI) value', type: '[]uint8', value: '56 57 52 53 55 51 56 55 51 48 48 48 48 50 54 52 51 57 54 54', bold:true },
-        { pos: 40, len: 2, desc: 'Checksum', type: 'uint16' },
+        { pos: 0, len: 1, name: 'Message Meta', desc: 'Protocol', type: 'uint8', value: 3 },
+        { pos: 1, len: 2, name: 'Message Meta', desc: 'Length', type: 'uint16', value: 42 },
+        { pos: 3, len: 2, name: 'Message Meta', desc: 'Type', type: 'uint16', value: 32 },
+        { pos: 5, len: 2, name: 'Header Meta', desc: 'Field Count', type: 'uint16', value: 3 },
+        { pos: 7, len: 3, name: 'Header Meta', desc: 'Header Fields', type: '[]uint8', value: '1, 3, 4' },
+        { pos: 10, len: 1, name: 'Header 1', desc: 'Message ID (1) length', type: 'uint8', value: 1},
+        { pos: 11, len: 1, name: 'Header 1', desc: 'Message ID (1) value', type: 'uint8', value: 22},
+        { pos: 12, len: 1, name: 'Header 2', desc: 'Response to Message ID (3) length', type: 'uint8', value: 1},
+        { pos: 13, len: 1, name: 'Header 2', desc: 'Response to Message ID (3) value', type: 'uint8', value: 234},
+        { pos: 14, len: 1, name: 'Header 3', desc: 'Message Status (4) length', type: 'uint8', value: 1},
+        { pos: 15, len: 1, name: 'Header 3', desc: 'Message Status (4) value', type: 'uint8', value: 1},
+        { pos: 16, len: 2, name: 'Payload Meta', desc: 'Payload Field Count', type: 'uint16', value: 1 },
+        { pos: 18, len: 1, name: 'Payload Meta', desc: 'Payload Fields', type: '[]uint8', value: '1' },
+        { pos: 19, len: 1, name: 'Payload 1', desc: 'IMEI (1) length', type: 'uint8', value: 20 },
+        { pos: 20, len: 20, name: 'Payload 1', desc: 'IMEI (1) value', type: 'bytes', value: '89457387300002643966', bold:true },
+        { pos: 40, len: 2, name: 'Message Meta', desc: 'Checksum', type: 'uint16', value: '159 188' },
     ]"
 />
 
