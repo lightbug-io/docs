@@ -1,5 +1,5 @@
 <template>
-    <v-card class="full-width">
+    <v-card class="full-width" density="compact">
         <v-card-title>Protocol Message Generator</v-card-title>
         <v-card-text>
             <v-select
@@ -8,25 +8,27 @@
                 label="Message Type"
                 item-title="name"
                 item-value="id"
+                density="compact"
             />
             <div v-if="selectedMessage">
-                <h3> Adding data coming soon...</h3>
-                <v-divider class="my-4"></v-divider>
-                <!-- <h3>Headers</h3>
+                <h4>Headers</h4>
                 <div v-for="(header, key) in headers" :key="key">
-                    <v-checkbox
+                    <v-checkbox-btn
                         v-model="selectedHeaders"
                         :label="header.name"
                         :value="key"
+                        density="compact"
                     />
                     <v-text-field
                         v-if="selectedHeaders.includes(key)"
                         v-model="headerValues[key]"
                         :label="header.name"
                         :placeholder="header.description"
+                        density="compact"
                     />
-                </div> -->
-                <!-- <h3>Payload</h3>
+                </div>
+                <h4> Adding payload data coming soon...</h4>
+                <!-- <h4>Payload</h4>
                 <div v-for="(data, key) in selectedMessageData" :key="key">
                     <v-checkbox
                         v-model="selectedPayload"
@@ -41,18 +43,21 @@
                     />
                 </div> -->
             </div>
-            <h3>Generated Message</h3>
+            <h4>Generated Message</h4>
             <v-text-field
+                density="compact"
                 v-model="generatedInts"
                 label="Generated Ints"
                 readonly
             />
             <v-text-field
+                density="compact"
                 v-model="generatedHex"
                 label="Generated Hex"
                 readonly
             />
             <v-text-field
+                density="compact"
                 v-model="generatedLongHex"
                 label="Generated Long Hex"
                 readonly
@@ -107,18 +112,41 @@ export default defineComponent({
             let b: number[] = [];
             // Then the protocol version of 3
             b.push(3);
-            // Then the length, as uint16 little endiand which we don't know yet, so fill as 255 255
+            // Then the length, as uint16 little endian which we don't know yet, so fill as 255 255
             b.push(255);
             b.push(255);
             // Then the message type as uint16 little endian
             if (selectedMessage.value !== null) { // TODO detect and deal with this error better..
                 b.push(...intTouint16LE(selectedMessage.value));
             }
-            // We don't allow fields or data yet, so 4x blanks 0s
+
+            // Header fields
+            // First add a uint16 little endian for the number of headers
+            b.push(...intTouint16LE(selectedHeaders.value.length));
+            // Then push the header types
+            selectedHeaders.value.forEach((headerIndex) => {
+                b.push(headerIndex);
+            });
+            // Then push the header values
+            selectedHeaders.value.forEach((headerIndex) => {
+                let headerValue = headerValues.value[headerIndex] || '';
+                headerValue = headerValue.trim();
+                const headerValueBytes = headerValue.split(' ')
+                const headerValueByteCount = headerValue ? headerValueBytes.length : 0;
+                // first push a uint8 of the length of the header value
+                b.push(headerValueByteCount);
+                if (headerValueByteCount > 0) {
+                    // then push the raw bytes of the header value, each one as a uint8
+                    headerValueBytes.forEach((byte) => {
+                        b.push(parseInt(byte, 10));
+                    });
+                }
+            });
+
+            // We don't allow payload fields or data yet, so 4x blanks 0s
             b.push(0);
             b.push(0);
-            b.push(0);
-            b.push(0);
+
             // Then we insert the length at index 1 & 2, which is the length of b, +2 (for the checksum)
             const length = b.length + 2;
             b[1] = length & 0xff;
@@ -155,7 +183,7 @@ export default defineComponent({
             if (!generatedMessage.value) {
                 return "Please select valid message information";
             }
-            return generatedMessage.value.join(', ');
+            return generatedMessage.value.join(' ');
         });
 
         const intTouint16LE = (value: number) => {
