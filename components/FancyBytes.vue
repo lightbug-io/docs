@@ -13,7 +13,7 @@
                         v-for="(byte, byteIndex) in group.bytes"
                         :key="byteIndex"
                         class="byte"
-                        :class="['byte-color-' + (index % 6)]"
+                        :class="['color-' + (index % 6)]"
                         :style="{ fontWeight: isBoldByte(group.start + byteIndex) ? 'bold' : 'normal' }"
                     >
                         {{ byte }}<span v-if="byteIndex < group.bytes.length - 1" class="no-width">&nbsp;</span>
@@ -33,6 +33,8 @@
                     <tr
                         v-for="(byteDef, index) in byteDefinition"
                         :key="index"
+                        @mouseover="setHoveredByteRange(byteDef.pos, byteDef.len)"
+                        @mouseleave="clearHoveredByte"
                         :style="{
                             fontWeight: hoveredByte !== null && isByteInRange(hoveredByte, byteDef) ? 'bold' : 'normal',
                             backgroundColor: getRowColor(byteDef.name, index)
@@ -40,7 +42,7 @@
                     >
                         <td>{{ byteDef.name }}</td>
                         <td>{{ byteDef.desc }}</td>
-                        <td :style="{ fontWeight: byteDef.bold ? 'bold' : 'normal' }">{{ byteDef.value !== undefined ? byteDef.value : '' }}</td>
+                        <td :style="{ fontWeight: byteDef.bold || (hoveredByte !== null && isByteInRange(hoveredByte, byteDef)) ? 'bold' : 'normal' }">{{ byteDef.value !== undefined ? byteDef.value : '' }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -80,6 +82,7 @@ export default defineComponent({
     },
     setup() {
         const hoveredByte = ref<number | null>(null);
+        const hoveredByteRange = ref<{ start: number, end: number } | null>(null);
         const lastName = ref<string | null>(null);
         const lastColor = ref<string>('#fff');
 
@@ -87,8 +90,13 @@ export default defineComponent({
             hoveredByte.value = index;
         };
 
+        const setHoveredByteRange = (start: number, len: number) => {
+            hoveredByteRange.value = { start, end: start + len - 1 };
+        };
+
         const clearHoveredByte = () => {
             hoveredByte.value = null;
+            hoveredByteRange.value = null;
         };
 
         const getRowColor = (name: string, index: number): string => {
@@ -101,11 +109,17 @@ export default defineComponent({
             return lastColor.value;
         };
 
+        const isByteHighlighted = (index: number): boolean => {
+            return hoveredByteRange.value !== null && index >= hoveredByteRange.value.start && index <= hoveredByteRange.value.end;
+        };
+
         return {
             hoveredByte,
             setHoveredByte,
+            setHoveredByteRange,
             clearHoveredByte,
-            getRowColor
+            getRowColor,
+            isByteHighlighted
         };
     },
     computed: {
@@ -132,10 +146,6 @@ export default defineComponent({
         }
     },
     methods: {
-        getByteDescription(index: number): string {
-            const byteDef = this.byteDefinition.find(def => index >= def.pos && index < def.pos + def.len);
-            return byteDef ? `${byteDef.desc} (${byteDef.type})${byteDef.value !== undefined ? `: ${byteDef.value}` : ''}` : '';
-        },
         isBoldByte(index: number): boolean {
             const byteDef = this.byteDefinition.find(def => index >= def.pos && index < def.pos + def.len);
             return byteDef ? !!byteDef.bold : false;
@@ -179,51 +189,51 @@ export default defineComponent({
     color: white;
 }
 
-.byte-color-0 {
+.color-0 {
     background-color: #f0f8ff;
 }
 
-.byte-color-1 {
-    background-color: #e6e6fa;
+.color-1 {
+    background-color: #f5dbee;
 }
 
-.byte-color-2 {
+.color-2 {
     background-color: #f5f5dc;
 }
 
-.byte-color-3 {
+.color-3 {
     background-color: #fafad2;
 }
 
-.byte-color-4 {
+.color-4 {
     background-color: #ffe4e1;
 }
 
-.byte-color-5 {
+.color-5 {
     background-color: #e0ffff;
 }
 
-.dark .byte-color-0 {
+.dark .color-0 {
     background-color: #2f4f4f;
 }
 
-.dark .byte-color-1 {
+.dark .color-1 {
     background-color: #556b2f;
 }
 
-.dark .byte-color-2 {
+.dark .color-2 {
     background-color: #8b4513;
 }
 
-.dark .byte-color-3 {
+.dark .color-3 {
     background-color: #483d8b;
 }
 
-.dark .byte-color-4 {
+.dark .color-4 {
     background-color: #2e8b57;
 }
 
-.dark .byte-color-5 {
+.dark .color-5 {
     background-color: #4682b4;
 }
 
