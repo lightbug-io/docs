@@ -11,7 +11,7 @@
                 density="compact"
             />
             <div v-if="selectedMessage">
-                <h4>Headers</h4>
+                <h5>Headers</h5>
                 <div v-for="(header, key) in headers" :key="key">
                     <v-checkbox-btn
                         v-model="selectedHeaders"
@@ -27,7 +27,9 @@
                         density="compact"
                     />
                 </div>
-                <h4> Adding payload data coming soon...</h4>
+                <br/>
+                <h5>Payload</h5>
+                <p>Adding payload data coming soon</p>
                 <!-- <h4>Payload</h4>
                 <div v-for="(data, key) in selectedMessageData" :key="key">
                     <v-checkbox
@@ -43,7 +45,7 @@
                     />
                 </div> -->
             </div>
-            <h4>Generated Message</h4>
+            <h5>Generated Message</h5>
             <v-text-field
                 density="compact"
                 v-model="generatedInts"
@@ -62,6 +64,11 @@
                 label="Generated Long Hex"
                 readonly
             />
+            <v-checkbox
+                v-model="includePrefix"
+                label="Include Prefix Bytes"
+                density="compact"
+            />
         </v-card-text>
     </v-card>
 </template>
@@ -74,6 +81,7 @@ import crc16xmodem from 'crc/calculators/crc16xmodem';
 export default defineComponent({
     name: 'ProtocolGenerate',
     setup() {
+        const includePrefix = ref(true);
         const selectedMessage = ref(null);
         const selectedHeaders = ref([]);
         const selectedPayload = ref([]);
@@ -158,9 +166,11 @@ export default defineComponent({
             let csumNum = parseInt(csumHex, 16);
             b.push(...intTouint16LE(csumNum));
 
-            // Add the prefix to the start
-            b.unshift(0x42);
-            b.unshift(0x4c);
+            // Add the prefix to the start if includePrefix is true
+            if (includePrefix.value) {
+                b.unshift(0x42);
+                b.unshift(0x4c);
+            }
 
             return b;
         });
@@ -198,6 +208,7 @@ export default defineComponent({
         onMounted(loadProtocolData);
 
         return {
+            includePrefix,
             selectedMessage,
             selectedHeaders,
             selectedPayload,
