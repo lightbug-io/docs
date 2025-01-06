@@ -37,7 +37,7 @@
                         @mouseleave="clearHoveredByte"
                         :style="{
                             fontWeight: hoveredByte !== null && isByteInRange(hoveredByte, byteDef) ? 'bold' : 'normal',
-                            backgroundColor: getRowColor(byteDef.name, index)
+                            backgroundColor: getRowColor(index)
                         }"
                     >
                         <td>{{ byteDef.name }}</td>
@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref } from 'vue';
+import { defineComponent, PropType, ref, computed } from 'vue';
 
 interface ByteDefinition {
     pos: number;
@@ -80,11 +80,9 @@ export default defineComponent({
             required: true
         }
     },
-    setup() {
+    setup(props) {
         const hoveredByte = ref<number | null>(null);
         const hoveredByteRange = ref<{ start: number, end: number } | null>(null);
-        const lastName = ref<string | null>(null);
-        const lastColor = ref<string>('#fff');
 
         const setHoveredByte = (index: number) => {
             hoveredByte.value = index;
@@ -99,14 +97,26 @@ export default defineComponent({
             hoveredByteRange.value = null;
         };
 
-        const getRowColor = (name: string, index: number): string => {
-            if (index === 0) {
-                lastColor.value = '#fff';
-            } else if (name !== lastName.value) {
-                lastName.value = name;
-                lastColor.value = lastColor.value === ('#fff') ? ('#f2f2f2') : ('#fff');
-            }
-            return lastColor.value;
+        const rowColors = computed(() => {
+            const colors: string[] = [];
+            let lastColor = '#fff';
+            let lastName = '';
+
+            props.byteDefinition.forEach((byteDef, index) => {
+                if (index === 0) {
+                    lastColor = '#fff';
+                } else if (byteDef.name !== lastName) {
+                    lastName = byteDef.name;
+                    lastColor = lastColor === '#fff' ? '#f2f2f2' : '#fff';
+                }
+                colors.push(lastColor);
+            });
+
+            return colors;
+        });
+
+        const getRowColor = (index: number): string => {
+            return rowColors.value[index];
         };
 
         const isByteHighlighted = (index: number): boolean => {
