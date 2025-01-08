@@ -1,5 +1,33 @@
 <template>
     <div class="fancy-bytes-container">
+        <v-icon @click="toggleModal" class="cog-icon container-config">mdi-cog</v-icon>
+        <v-dialog v-model="isModalVisible" max-width="300px">
+            <v-card>
+                <v-card-title>Options</v-card-title>
+                <v-card-text>
+                    <h1>Display</h1>
+                    <v-radio-group v-model="byteDisplayType" row>
+                        <v-radio label="Ints (1 7 255)" value="ints"></v-radio>
+                        <v-radio label="Hex (01 07 FF)" value="hex"></v-radio>
+                        <v-radio label="Hex with 0x (0x01 0x07 0xFF)" value="hex0x"></v-radio>
+                    </v-radio-group>
+                    <h1>Copy & Paste</h1>
+                    <v-checkbox
+                        v-model="byteDisplaySpaces"
+                        label="Spaces (1 2 3)"
+                        density="compact"
+                    ></v-checkbox>
+                    <v-checkbox
+                        v-model="byteDisplayCommas"
+                        label="Commas (1, 2, 3)"
+                        density="compact"
+                    ></v-checkbox>
+                </v-card-text>
+                <v-card-actions>
+                    <v-btn text @click="toggleModal">Close</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
         <div class="fancy-bytes">
             <div class="byte-container">
                 <span
@@ -16,9 +44,10 @@
                         :class="['color-' + (index % 6)]"
                         :style="{ fontWeight: isBoldByte(group.start + byteIndex) ? 'bold' : 'normal' }"
                     >
-                        {{ byte }}<span v-if="byteIndex < group.bytes.length - 1" class="no-width">&nbsp;</span>
+                        {{ formatByte(byte) }}<span v-if="byteDisplaySpaces && byteIndex < group.bytes.length - 1" class="invisible-text">&nbsp;</span><span v-if="byteDisplayCommas && byteIndex < group.bytes.length - 1" class="invisible-text">,</span>
                     </span>
-                    <span v-if="index < groupedByteArray.length - 1" class="no-width">&nbsp;</span>
+                    <span v-if="byteDisplaySpaces && index < groupedByteArray.length - 1" class="invisible-text">&nbsp;</span>
+                    <span v-if="byteDisplayCommas && index < groupedByteArray.length - 1" class="invisible-text">,</span>
                 </span>
             </div>
             <table class="byte-definitions">
@@ -76,8 +105,6 @@ interface ByteGroup {
 export default defineComponent({
     name: 'FancyBytes',
     props: {
-        // The byte string to display, as a list of uint8s
-        // e.g. "1 2 3 255 0 0 255 24 1 3 3"
         byteString: {
             type: String,
             required: true
@@ -90,6 +117,10 @@ export default defineComponent({
     setup(props) {
         const hoveredByte = ref<number | null>(null);
         const hoveredByteRange = ref<{ start: number, end: number } | null>(null);
+        const byteDisplayType = ref<'ints' | 'hex' | 'hex0x'>('ints');
+        const byteDisplaySpaces = ref(true);
+        const byteDisplayCommas = ref(false);
+        const isModalVisible = ref(false);
 
         const setHoveredByte = (index: number) => {
             hoveredByte.value = index;
@@ -102,6 +133,10 @@ export default defineComponent({
         const clearHoveredByte = () => {
             hoveredByte.value = null;
             hoveredByteRange.value = null;
+        };
+
+        const toggleModal = () => {
+            isModalVisible.value = !isModalVisible.value;
         };
 
         const rowColors = computed(() => {
@@ -130,13 +165,29 @@ export default defineComponent({
             return hoveredByteRange.value !== null && index >= hoveredByteRange.value.start && index <= hoveredByteRange.value.end;
         };
 
+        const formatByte = (byte: string): string => {
+            if (byteDisplayType.value === 'hex') {
+                return parseInt(byte).toString(16).toUpperCase();
+            } else if (byteDisplayType.value === 'hex0x') {
+                return '0x' + parseInt(byte).toString(16).toUpperCase();
+            } else {
+                return byte;
+            }
+        };
+
         return {
             hoveredByte,
             setHoveredByte,
             setHoveredByteRange,
             clearHoveredByte,
             getRowColor,
-            isByteHighlighted
+            isByteHighlighted,
+            byteDisplayType,
+            byteDisplaySpaces,
+            byteDisplayCommas,
+            formatByte,
+            isModalVisible,
+            toggleModal
         };
     },
     computed: {
@@ -254,10 +305,11 @@ export default defineComponent({
     background-color: #4682b4;
 }
 
-.no-width {
+.invisible-text {
     display: inline-block;
     width: 0;
     height: 0;
+    color: transparent;
 }
 
 .byte-description {
@@ -298,5 +350,10 @@ export default defineComponent({
 
 .byte-definition {
     margin-bottom: 4px;
+}
+
+.container-config {
+    cursor: pointer;
+    float: right;
 }
 </style>

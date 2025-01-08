@@ -30,7 +30,8 @@ export default defineComponent({
                 .replace(/0x/g, '')
                 // Allow CSV lists, with or without spaces
                 .replace(/,/g, ' ')
-                .replace(/\s{2,}/g, ' ');
+                .replace(/\s{2,}/g, ' ')
+                .trim();
 
             if (byteString === '') {
                 return '';
