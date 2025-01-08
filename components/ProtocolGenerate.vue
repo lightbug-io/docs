@@ -93,84 +93,82 @@ export default defineComponent({
             }
         };
 
+        const convertToBytes = (value: string, type: string): number[] => {
+            switch (type) {
+                case 'uintn':
+                    // figure out the size, and convert to the smallest type of uint that the values fits in
+                    const num = parseInt(value, 10);
+                    if ( num <= 255 ) {
+                        return [num];
+                    } else if ( num <= 65535 ) {
+                        return intTouint16LE(num);
+                    } else if ( num <= 4294967295 ) {
+                        return intTouint32LE(num);
+                    } else {
+                        return intTouint64LE(num);
+                    }
+                case 'uint8':
+                    return [parseInt(value, 10)];
+                case 'uint16':
+                    return intTouint16LE(parseInt(value, 10));
+                case 'uint32':
+                    return intTouint32LE(parseInt(value, 10));
+                case 'uint64':
+                    return intTouint64LE(parseInt(value, 10));
+                case 'ascii':
+                    return value.split('').map(char => char.charCodeAt(0));
+                case '[]uint8':
+                    return value.split(' ').map(part => parseInt(part, 10));
+                default:
+                    return [];
+            }
+        };
+
         const generatedMessage = computed(() => {
             if (!selectedMessage.value) {
                 return null;
             }
-            // generate a list of bytes, that make up the message...
             let b: number[] = [];
-            // Then the protocol version of 3
             b.push(3);
-            // Then the length, as uint16 little endian which we don't know yet, so fill as 255 255
             b.push(255);
             b.push(255);
-            // Then the message type as uint16 little endian
-            if (selectedMessage.value !== null) { // TODO detect and deal with this error better..
+            if (selectedMessage.value !== null) {
                 b.push(...intTouint16LE(selectedMessage.value));
             }
 
-            // Header fields
-            // First add a uint16 little endian for the number of headers
             b.push(...intTouint16LE(selectedHeaders.value.length));
-
-            // Then push the header types
             selectedHeaders.value.forEach((headerIndex) => {
                 b.push(headerIndex);
             });
 
-            // Then push the header values
             selectedHeaders.value.forEach((headerIndex) => {
                 let headerValue = headerValues.value[headerIndex] || '';
-                headerValue = headerValue.trim();
-                const headerValueBytes = headerValue.split(' ')
-                const headerValueByteCount = headerValue ? headerValueBytes.length : 0;
-                // first push a uint8 of the length of the header value
-                b.push(headerValueByteCount);
-                if (headerValueByteCount > 0) {
-                    // then push the raw bytes of the header value, each one as a uint8
-                    headerValueBytes.forEach((byte) => {
-                        b.push(parseInt(byte, 10));
-                    });
-                }
+                const headerType = headers.value[headerIndex]?.type || 'undefined type';
+                const headerValueBytes = convertToBytes(headerValue, headerType);
+                b.push(headerValueBytes.length);
+                b.push(...headerValueBytes);
             });
 
-            // Payload fields
-            // First add a uint16 little endian for the number of payloads
             b.push(...intTouint16LE(selectedPayload.value.length));
-
-            // Then push the payload types
             selectedPayload.value.forEach((payloadIndex) => {
                 b.push(payloadIndex);
             });
 
-            // Then push the payload fields
             selectedPayload.value.forEach((payloadIndex) => {
                 let payloadValue = payloadValues.value[payloadIndex] || '';
-                payloadValue = payloadValue.trim();
-                const payloadValueBytes = payloadValue.split(' ')
-                const payloadValueByteCount = payloadValue ? payloadValueBytes.length : 0;
-                // first push a uint8 of the length of the payload value
-                b.push(payloadValueByteCount);
-                if (payloadValueByteCount > 0) {
-                    // then push the raw bytes of the payload value, each one as a uint8
-                    payloadValueBytes.forEach((byte) => {
-                        b.push(parseInt(byte, 10));
-                    });
-                }
+                const payloadType = selectedMessageData.value[payloadIndex]?.type || 'undefined type';
+                const payloadValueBytes = convertToBytes(payloadValue, payloadType);
+                b.push(payloadValueBytes.length);
+                b.push(...payloadValueBytes);
             });
 
-            // Then we insert the length at index 1 & 2, which is the length of b, +2 (for the checksum)
             const length = b.length + 2;
             b[1] = length & 0xff;
             b[2] = (length >> 8) & 0xff;
-            // Then we calculate the checksum
-            // This is CRC16 of the bytes
-            // Add the csum to the end s a uint16 little endian
             let csumHex = calculateChecksum(b);
             let csumNum = parseInt(csumHex, 16);
             b.push(...intTouint16LE(csumNum));
 
-            // Add the prefix to the start if includePrefix is true
             if (includePrefix.value) {
                 b.unshift(0x42);
                 b.unshift(0x4c);
@@ -202,6 +200,14 @@ export default defineComponent({
 
         const intTouint16LE = (value: number) => {
             return [value & 0xff, (value >> 8) & 0xff];
+        };
+
+        const intTouint32LE = (value: number) => {
+            return [value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff, (value >> 24) & 0xff];
+        };
+
+        const intTouint64LE = (value: number) => {
+            return [value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff, (value >> 24) & 0xff, (value >> 32) & 0xff, (value >> 40) & 0xff, (value >> 48) & 0xff, (value >> 56) & 0xff];
         };
 
         const calculateChecksum = (message: number[]) => {
