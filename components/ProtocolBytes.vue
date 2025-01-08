@@ -5,6 +5,7 @@
 import FancyBytes from './FancyBytes.vue';
 import { defineComponent, ref, PropType, computed, onMounted } from 'vue';
 import jsyaml from 'js-yaml';
+import crc16 from 'crc/crc16xmodem';
 
 interface ByteDefinition {
     pos: number;
@@ -102,6 +103,8 @@ export default defineComponent({
             if (byteArray.length <= msgStart) {
                 return byteDefinition;
             }
+            const protocolValue = parseInt(byteArray[msgStart], 10);
+            const protocolValueParsedString = protocolValue === 3 ? `${protocolValue}✅` : `${protocolValue}❌`;
             byteDefinition.push({
                 pos: msgStart,
                 len: 1,
@@ -109,10 +112,17 @@ export default defineComponent({
                 desc: 'Protocol',
                 type: 'uint8',
                 value: byteArray[msgStart],
-                valueParsed: typedBytesToString('uint8', byteArray.slice(msgStart, msgStart + 1)),
+                valueParsed: protocolValueParsedString,
                 bold: props.boldPositions.includes(msgStart)
             });
             // Then we should have 2 bytes which are uint16 little endian for the message length
+            const providedLengthString = typedBytesToString('uint16', byteArray.slice(msgStart + 1, msgStart + 3));
+            const expectedLength = byteArray.length - msgStart;
+            const isLengthValid = parseInt(providedLengthString) === expectedLength;
+            let lengthValueParsedString = ''
+            if (providedLengthString != '') {
+                lengthValueParsedString = isLengthValid ? providedLengthString + '✅' : providedLengthString + '❌ wanted ' + expectedLength;
+            }
             byteDefinition.push({
                 pos: msgStart + 1,
                 len: 2,
@@ -120,7 +130,7 @@ export default defineComponent({
                 desc: 'Length',
                 type: 'uint16',
                 value: byteArray.slice(msgStart + 1, msgStart + 3).join(' '),
-                valueParsed: typedBytesToString('uint16', byteArray.slice(msgStart + 1, msgStart + 3)),
+                valueParsed: lengthValueParsedString,
                 bold: props.boldPositions.includes(msgStart + 1)
             });
             // Then the message type as uint16 little endian
@@ -246,6 +256,14 @@ export default defineComponent({
                 payloadDataStart += payloadLength + 1;
             }
             // The last 2 bytes are the checksum
+            const providedCRCString = typedBytesToString('uint16', byteArray.slice(payloadDataStart, payloadDataStart + 2))
+            const expectedCRC = crc16(new Uint8Array(byteArray.slice(msgStart, payloadDataStart)));
+            const isValid = parseInt(providedCRCString) === expectedCRC;
+            let checksumValueParsedString = ''
+            if (providedCRCString != '') {
+                // TODO maybe add this as a warning elsewhere in the UI
+                checksumValueParsedString = isValid ? providedCRCString + '✅' : providedCRCString + '❌ wanted ' + expectedCRC;
+            }
             byteDefinition.push({
                 pos: payloadDataStart,
                 len: 2,
@@ -253,12 +271,11 @@ export default defineComponent({
                 desc: 'Checksum',
                 type: 'uint16',
                 value: byteArray.slice(payloadDataStart, payloadDataStart + 2).join(' '),
-                valueParsed: typedBytesToString('uint16', byteArray.slice(payloadDataStart, payloadDataStart + 2)),
+                valueParsed: checksumValueParsedString,
                 bold: props.boldPositions.includes(payloadDataStart)
             });
             return byteDefinition;
         };
-
         const computedByteDefinition = computed(() => computeByteDefinition(props.byteString));
 
         onMounted(loadProtocolData);

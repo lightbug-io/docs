@@ -102,7 +102,7 @@ export default defineComponent({
         });
         const selectedMessageData = computed(() => {
             if (!selectedMessage.value) return {};
-            return protocolData.value.messages[selectedMessage.value]?.data || {};
+            return protocolData.value.messages?.[selectedMessage.value]?.data || {};
         });
 
         const loadProtocolData = async () => {
