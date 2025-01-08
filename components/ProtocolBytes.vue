@@ -59,13 +59,13 @@ export default defineComponent({
         const typedBytesToString = (type: string, bytes: number[]): string => {
             switch (type) {
             case 'uint8':
-            return bytes[0].toString();
+            return bytes.length < 1 ? "" : bytes[0].toString();
             case 'uint16':
-            return uint16LEtoInt(bytes[0], bytes[1]).toString();
+            return bytes.length < 2 ? "" : uint16LEtoInt(bytes[0], bytes[1]).toString();
             case 'uint32':
-            return uint32LEtoInt(bytes[0], bytes[1], bytes[2], bytes[3]).toString();
+            return bytes.length < 4 ? "" : uint32LEtoInt(bytes[0], bytes[1], bytes[2], bytes[3]).toString();
             case 'uint64':
-            return uint64LEtoInt(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]).toString();
+            return bytes.length < 8 ? "" : uint64LEtoInt(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]).toString();
             case 'ascii':
             return String.fromCharCode(...bytes);
             case '[]uint8':

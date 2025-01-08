@@ -22,7 +22,7 @@
                     <v-text-field
                         v-if="selectedHeaders.includes(key)"
                         v-model="headerValues[key]"
-                        :label="header.name"
+                        :label="`${header.name} (${header.type})`"
                         :placeholder="header.description"
                         density="compact"
                     />
@@ -39,36 +39,13 @@
                     <v-text-field
                         v-if="selectedPayload.includes(key)"
                         v-model="payloadValues[key]"
-                        :label="data.name"
+                        :label="`${data.name} (${data.type})`"
                         :placeholder="data.description"
                         density="compact"
                     />
                 </div>
             </div>
-            <h5>Generated Message</h5>
-            <v-text-field
-                density="compact"
-                v-model="generatedInts"
-                label="Generated Ints"
-                readonly
-            />
-            <v-text-field
-                density="compact"
-                v-model="generatedHex"
-                label="Generated Hex"
-                readonly
-            />
-            <v-text-field
-                density="compact"
-                v-model="generatedLongHex"
-                label="Generated Long Hex"
-                readonly
-            />
-            <v-checkbox
-                v-model="includePrefix"
-                label="Include Prefix Bytes"
-                density="compact"
-            />
+            <ProtocolBytes :byteString="generatedInts" />
         </v-card-text>
     </v-card>
 </template>
@@ -77,9 +54,13 @@
 import { defineComponent, ref, computed, onMounted } from 'vue';
 import jsyaml from 'js-yaml';
 import crc16xmodem from 'crc/calculators/crc16xmodem';
+import ProtocolBytes from './ProtocolBytes.vue';
 
 export default defineComponent({
     name: 'ProtocolGenerate',
+    components: {
+        ProtocolBytes
+    },
     setup() {
         const includePrefix = ref(true);
         const selectedMessage = ref(null);
@@ -200,21 +181,21 @@ export default defineComponent({
 
         const generatedHex = computed(() => {
             if (!generatedMessage.value) {
-                return "Please select valid message information";
+                return "";
             }
             return generatedMessage.value.map((x) => x.toString(16).padStart(2, '0')).join(' ');
         });
 
         const generatedLongHex = computed(() => {
             if (!generatedMessage.value) {
-                return "Please select valid message information";
+                return "";
             }
             return generatedMessage.value.map((x) => '0x' + x.toString(16).padStart(2, '0')).join(' ');
         });
 
         const generatedInts = computed(() => {
             if (!generatedMessage.value) {
-                return "Please select valid message information";
+                return "";
             }
             return generatedMessage.value.join(' ');
         });
