@@ -239,6 +239,10 @@ export default defineConfig({
               text: 'Generate',
               link: '/devices/api/generate',
             },
+            {
+              text: 'Parse',
+              link: '/devices/api/parse',
+            },
           ]
         },
       ],

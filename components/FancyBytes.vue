@@ -26,8 +26,8 @@
                     <tr>
                         <th title="Section of the message">Section</th>
                         <th>Element</th>
-                        <th title="Type of data in the element">Type</th>
                         <th title="Bytes for this element">Bytes</th>
+                        <th title="Type of data in the element">Type</th>
                         <th title="Bytes parsed in a human readable way">Parsed</th>
                     </tr>
                 </thead>
@@ -76,6 +76,8 @@ interface ByteGroup {
 export default defineComponent({
     name: 'FancyBytes',
     props: {
+        // The byte string to display, as a list of uint8s
+        // e.g. "1 2 3 255 0 0 255 24 1 3 3"
         byteString: {
             type: String,
             required: true
@@ -139,7 +141,7 @@ export default defineComponent({
     },
     computed: {
         byteArray(): string[] {
-            return this.byteString.split(' ');
+            return this.byteString.trim() ? this.byteString.trim().split(' ') : [];
         },
         groupedByteArray(): ByteGroup[] {
             const groups: ByteGroup[] = [];

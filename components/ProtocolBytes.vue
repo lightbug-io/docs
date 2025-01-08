@@ -86,7 +86,7 @@ export default defineComponent({
             const byteDefinition: ByteDefinition[] = [];
             let msgStart = 0;
             // Check if the byte string has a prefix, of [ 76, 66 ], if so, the first 2 bytes are the prefix
-            if (byteArray[0] === '76' && byteArray[1] === '66') {
+            if (byteArray.length > 2 && byteArray[0] === '76' && byteArray[1] === '66') {
                 byteDefinition.push({
                     pos: 0,
                     len: 2,
@@ -99,7 +99,9 @@ export default defineComponent({
                 });
                 msgStart = 2;
             }
-            // The first message byte is the protocol version
+            if (byteArray.length <= msgStart) {
+                return byteDefinition;
+            }
             byteDefinition.push({
                 pos: msgStart,
                 len: 1,
