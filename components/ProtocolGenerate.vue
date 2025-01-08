@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue';
+import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import jsyaml from 'js-yaml';
 import crc16xmodem from 'crc/calculators/crc16xmodem';
 import ProtocolBytes from './ProtocolBytes.vue';
@@ -96,7 +96,6 @@ export default defineComponent({
         const convertToBytes = (value: string, type: string): number[] => {
             switch (type) {
                 case 'uintn':
-                    // figure out the size, and convert to the smallest type of uint that the values fits in
                     const num = parseInt(value, 10);
                     if ( num <= 255 ) {
                         return [num];
@@ -215,7 +214,67 @@ export default defineComponent({
             return crc.toString(16);
         };
 
-        onMounted(loadProtocolData);
+        const updateUrl = () => {
+            const url = new URL(window.location.href);
+            if (selectedMessage.value) {
+            url.searchParams.set('t', selectedMessage.value);
+            }
+            if (selectedHeaders.value.length > 0) {
+            url.searchParams.set('h', selectedHeaders.value.join(','));
+            }
+            if (selectedPayload.value.length > 0) {
+            url.searchParams.set('p', selectedPayload.value.join(','));
+            }
+            Object.keys(headerValues.value).forEach(key => {
+            if (headerValues.value[key]) {
+                url.searchParams.set(`h${key}`, headerValues.value[key]);
+            }
+            });
+            Object.keys(payloadValues.value).forEach(key => {
+            if (payloadValues.value[key]) {
+                url.searchParams.set(`p${key}`, payloadValues.value[key]);
+            }
+            });
+            window.history.replaceState({}, '', url.toString());
+        };
+
+        const loadFromUrl = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const t = urlParams.get('t');
+            if (t) {
+            selectedMessage.value = t;
+            }
+            const h = urlParams.get('h');
+            if (h) {
+            selectedHeaders.value = h.split(',');
+            }
+            const p = urlParams.get('p');
+            if (p) {
+            selectedPayload.value = p.split(',');
+            }
+            urlParams.forEach((value, key) => {
+            if (key.startsWith('h') && key !== 'h') {
+                const headerKey = key.slice(3, -1);
+                headerValues.value[headerKey] = value;
+            }
+            if (key.startsWith('p') && key !== 'p') {
+                const payloadKey = key.slice(3, -1);
+                payloadValues.value[payloadKey] = value;
+            }
+            });
+        };
+
+        watch(selectedMessage, () => {
+            selectedPayload.value = [];
+            payloadValues.value = {};
+        });
+
+        onMounted(() => {
+            loadProtocolData();
+            loadFromUrl();
+        });
+
+        watch([selectedMessage, selectedHeaders, selectedPayload, headerValues, payloadValues], updateUrl, { deep: true });
 
         return {
             includePrefix,
