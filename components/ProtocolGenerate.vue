@@ -19,13 +19,24 @@
                         :value="key"
                         density="compact"
                     />
-                    <v-text-field
-                        v-if="selectedHeaders.includes(key)"
-                        v-model="headerValues[key]"
-                        :label="`${header.name} (${header.type})`"
-                        :placeholder="header.description"
-                        density="compact"
-                    />
+                    <template v-if="selectedHeaders.includes(key)">
+                        <v-select
+                            v-if="header.values"
+                            v-model="headerValues[key]"
+                            :items="Object.entries(header.values).map(([key, value]) => ({ key, name: `${key}: ${value.name}` }))"
+                            :label="`${header.name} (${header.type})`"
+                            item-title="name"
+                            item-value="key"
+                            density="compact"
+                        />
+                        <v-text-field
+                            v-else
+                            v-model="headerValues[key]"
+                            :label="`${header.name} (${header.type})`"
+                            :placeholder="header.description"
+                            density="compact"
+                        />
+                    </template>
                 </div>
                 <br/>
                 <h5>Payload</h5>
@@ -36,13 +47,24 @@
                         :value="key"
                         density="compact"
                     />
-                    <v-text-field
-                        v-if="selectedPayload.includes(key)"
-                        v-model="payloadValues[key]"
-                        :label="`${data.name} (${data.type})`"
-                        :placeholder="data.description"
-                        density="compact"
-                    />
+                    <template v-if="selectedPayload.includes(key)">
+                        <v-select
+                            v-if="data.values"
+                            v-model="payloadValues[key]"
+                            :items="Object.entries(data.values).map(([key, value]) => ({ key, name: `${key}: ${value.name}` }))"
+                            :label="`${data.name} (${data.type})`"
+                            item-title="name"
+                            item-value="key"
+                            density="compact"
+                        />
+                        <v-text-field
+                            v-else
+                            v-model="payloadValues[key]"
+                            :label="`${data.name} (${data.type})`"
+                            :placeholder="data.description"
+                            density="compact"
+                        />
+                    </template>
                 </div>
             </div>
             <ProtocolBytes :byteString="generatedInts" />
@@ -217,23 +239,23 @@ export default defineComponent({
         const updateUrl = () => {
             const url = new URL(window.location.href);
             if (selectedMessage.value) {
-            url.searchParams.set('t', selectedMessage.value);
+                url.searchParams.set('t', selectedMessage.value);
             }
             if (selectedHeaders.value.length > 0) {
-            url.searchParams.set('h', selectedHeaders.value.join(','));
+                url.searchParams.set('h', selectedHeaders.value.join(','));
             }
             if (selectedPayload.value.length > 0) {
-            url.searchParams.set('p', selectedPayload.value.join(','));
+                url.searchParams.set('p', selectedPayload.value.join(','));
             }
             Object.keys(headerValues.value).forEach(key => {
-            if (headerValues.value[key]) {
-                url.searchParams.set(`h${key}`, headerValues.value[key]);
-            }
+                if (headerValues.value[key]) {
+                    url.searchParams.set(`h${key}`, headerValues.value[key]);
+                }
             });
             Object.keys(payloadValues.value).forEach(key => {
-            if (payloadValues.value[key]) {
-                url.searchParams.set(`p${key}`, payloadValues.value[key]);
-            }
+                if (payloadValues.value[key]) {
+                    url.searchParams.set(`p${key}`, payloadValues.value[key]);
+                }
             });
             window.history.replaceState({}, '', url.toString());
         };
@@ -242,25 +264,25 @@ export default defineComponent({
             const urlParams = new URLSearchParams(window.location.search);
             const t = urlParams.get('t');
             if (t) {
-            selectedMessage.value = t;
+                selectedMessage.value = t;
             }
             const h = urlParams.get('h');
             if (h) {
-            selectedHeaders.value = h.split(',');
+                selectedHeaders.value = h.split(',');
             }
             const p = urlParams.get('p');
             if (p) {
-            selectedPayload.value = p.split(',');
+                selectedPayload.value = p.split(',');
             }
             urlParams.forEach((value, key) => {
-            if (key.startsWith('h') && key !== 'h') {
-                const headerKey = key.slice(3, -1);
-                headerValues.value[headerKey] = value;
-            }
-            if (key.startsWith('p') && key !== 'p') {
-                const payloadKey = key.slice(3, -1);
-                payloadValues.value[payloadKey] = value;
-            }
+                if (key.startsWith('h') && key !== 'h') {
+                    const headerKey = key.slice(1);
+                    headerValues.value[headerKey] = value;
+                }
+                if (key.startsWith('p') && key !== 'p') {
+                    const payloadKey = key.slice(1);
+                    payloadValues.value[payloadKey] = value;
+                }
             });
         };
 
