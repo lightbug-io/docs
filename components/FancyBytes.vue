@@ -39,6 +39,7 @@
                             fontWeight: hoveredByte !== null && isByteInRange(hoveredByte, byteDef) ? 'bold' : 'normal',
                             backgroundColor: getRowColor(index)
                         }"
+                        :title="byteDef.valueHover || ''"
                     >
                         <td>{{ byteDef.name }}</td>
                         <td>{{ byteDef.desc }}</td>
@@ -60,6 +61,7 @@ interface ByteDefinition {
     desc: string;
     type: string;
     value: string;
+    valueHover?: string;
     bold?: boolean;
 }
 

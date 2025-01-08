@@ -133,7 +133,7 @@ messages:
       1:
         name: "IMEI"
         description: "IMEI"
-        type: "bytes"
+        type: "ascii"
   33:
     name: "GSM ICCID"
     description: "GSM ICCID information"
@@ -142,7 +142,7 @@ messages:
       1:
         name: "ICCID"
         description: "ICCID"
-        type: "bytes"
+        type: "ascii"
   34:
     name: "Device Info Status"
     description: "Device status information"
