@@ -2,6 +2,7 @@
     <v-text-field
         v-model="inputByteString"
         label="Enter Byte String"
+        @input="updateByteString"
     />
     <ProtocolBytes :byteString="processedByteString" />
 </template>
@@ -21,7 +22,8 @@ export default defineComponent({
             default: ''
         }
     },
-    setup(props) {
+    emits: ['update'],
+    setup(props, { emit }) {
         const inputByteString = ref(props.byteString);
 
         const processedByteString = computed(() => {
@@ -51,9 +53,13 @@ export default defineComponent({
             return byteString;
         });
 
+        const updateByteString = (newByteString: string) => {
+            emit('update', newByteString);
+        };
         return {
             inputByteString,
-            processedByteString
+            processedByteString,
+            updateByteString
         };
     }
 });
