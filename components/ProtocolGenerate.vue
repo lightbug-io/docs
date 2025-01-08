@@ -84,6 +84,8 @@ export default defineComponent({
         ProtocolBytes
     },
     setup() {
+        const urlLoaded = ref(false);
+        const shouldWatchForChanges = ref(false);
         const includePrefix = ref(true);
         const selectedMessage = ref(null);
         const selectedHeaders = ref([]);
@@ -238,61 +240,116 @@ export default defineComponent({
 
         const updateUrl = () => {
             const url = new URL(window.location.href);
-            if (selectedMessage.value) {
-                url.searchParams.set('t', selectedMessage.value);
-            }
-            if (selectedHeaders.value.length > 0) {
-                url.searchParams.set('h', selectedHeaders.value.join(','));
-            }
-            if (selectedPayload.value.length > 0) {
-                url.searchParams.set('p', selectedPayload.value.join(','));
-            }
-            Object.keys(headerValues.value).forEach(key => {
-                if (headerValues.value[key]) {
-                    url.searchParams.set(`h${key}`, headerValues.value[key]);
-                }
-            });
-            Object.keys(payloadValues.value).forEach(key => {
-                if (payloadValues.value[key]) {
-                    url.searchParams.set(`p${key}`, payloadValues.value[key]);
-                }
-            });
+            // write back the bytes into the bytes param
+            url.searchParams.set('bytes', generatedInts.value);
             window.history.replaceState({}, '', url.toString());
+        };
+
+        const parseBytesFromUrl = (byteString: string) => {
+            const byteArray = byteString.split(' ').map(byte => parseInt(byte, 10));
+            let index = 0;
+
+            if (byteArray[index] === 0x4c && byteArray[index + 1] === 0x42) {
+                index += 2; // Skip prefix
+            }
+
+            const protocolVersion = byteArray[index++];
+            const length = (byteArray[index + 1] << 8) | byteArray[index];
+            index += 2;
+
+            const messageType = (byteArray[index + 1] << 8) | byteArray[index];
+            index += 2;
+            selectedMessage.value = messageType.toString();
+
+            const numHeaders = (byteArray[index + 1] << 8) | byteArray[index];
+            index += 2;
+
+            const headers = [];
+            for (let i = 0; i < numHeaders; i++) {
+                headers.push(byteArray[index++]);
+            }
+            selectedHeaders.value = headers.map(header => header.toString());
+
+            headers.forEach(headerIndex => {
+                const headerLength = byteArray[index++];
+                const headerValueBytes = byteArray.slice(index, index + headerLength);
+                index += headerLength;
+                headerValues.value[headerIndex] = headerValueBytes.join(' ');
+            });
+
+            const numPayloads = (byteArray[index + 1] << 8) | byteArray[index];
+            index += 2;
+
+            const payloads = [];
+            for (let i = 0; i < numPayloads; i++) {
+                payloads.push(byteArray[index++]);
+            }
+            selectedPayload.value = payloads.map(payload => payload.toString());
+
+            payloads.forEach(payloadIndex => {
+                const payloadLength = byteArray[index++];
+                const payloadValueBytes = byteArray.slice(index, index + payloadLength);
+                index += payloadLength;
+                const payloadType = selectedMessageData.value[payloadIndex]?.type || 'undefined type';
+                payloadValues.value[payloadIndex] = convertBytesToValue(payloadValueBytes, payloadType);
+            });
+
+            // Skip checksum
+        };
+
+        const convertBytesToValue = (bytes: number[], type: string): string => {
+            switch (type) {
+                case 'uint8':
+                    return bytes[0].toString();
+                case 'uint16':
+                    return ((bytes[1] << 8) | bytes[0]).toString();
+                case 'uint32':
+                    return ((bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0]).toString();
+                case 'uint64':
+                    return ((bytes[7] << 56) | (bytes[6] << 48) | (bytes[5] << 40) | (bytes[4] << 32) | (bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0]).toString();
+                case 'ascii':
+                    return String.fromCharCode(...bytes);
+                case '[]uint8':
+                    return bytes.join(' ');
+                case 'uintn':
+                    // decide based on the length of the array
+                    switch (bytes.length) {
+                        case 1:
+                            return bytes[0].toString();
+                        case 2:
+                            return ((bytes[1] << 8) | bytes[0]).toString();
+                        case 4:
+                            return ((bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0]).toString();
+                        case 8:
+                            return ((bytes[7] << 56) | (bytes[6] << 48) | (bytes[5] << 40) | (bytes[4] << 32) | (bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0]).toString();
+                    }
+                default:
+                    return bytes.join(' ');
+            }
         };
 
         const loadFromUrl = () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const t = urlParams.get('t');
-            if (t) {
-                selectedMessage.value = t;
+            const bytes = urlParams.get('bytes');
+            if (bytes) {
+                parseBytesFromUrl(bytes);
             }
-            const h = urlParams.get('h');
-            if (h) {
-                selectedHeaders.value = h.split(',');
-            }
-            const p = urlParams.get('p');
-            if (p) {
-                selectedPayload.value = p.split(',');
-            }
-            urlParams.forEach((value, key) => {
-                if (key.startsWith('h') && key !== 'h') {
-                    const headerKey = key.slice(1);
-                    headerValues.value[headerKey] = value;
-                }
-                if (key.startsWith('p') && key !== 'p') {
-                    const payloadKey = key.slice(1);
-                    payloadValues.value[payloadKey] = value;
-                }
-            });
+            urlLoaded.value = true;
         };
 
         watch(selectedMessage, () => {
-            selectedPayload.value = [];
-            payloadValues.value = {};
+            if (urlLoaded.value) {
+                if (!shouldWatchForChanges.value) {
+                    shouldWatchForChanges.value = true;
+                    return; // ignore the first change
+                }
+                selectedPayload.value = [];
+                payloadValues.value = {};
+            }
         });
 
-        onMounted(() => {
-            loadProtocolData();
+        onMounted(async () => {
+            await loadProtocolData();
             loadFromUrl();
         });
 

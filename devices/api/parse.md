@@ -10,8 +10,9 @@ const urlParams = new URLSearchParams(window.location.search);
 const bytes = ref(urlParams.get('bytes') || '');
 
 const updateUrl = (newBytes) => {
+    const sanitizedBytes = newBytes.replace(/ {2,}/g, ' ');
     const url = new URL(window.location);
-    url.searchParams.set('bytes', newBytes);
+    url.searchParams.set('bytes', sanitizedBytes);
     window.history.replaceState({}, '', url);
 };
 
