@@ -67,7 +67,7 @@
                     </template>
                 </div>
             </div>
-            <ProtocolBytes :byteString="generatedInts" />
+            <ProtocolBytes :byteString="generatedInts" showValidation />
         </v-card-text>
     </v-card>
 </template>

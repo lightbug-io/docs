@@ -4,7 +4,7 @@
         label="Enter Byte String"
         @input="updateByteString"
     />
-    <ProtocolBytes :byteString="processedByteString" />
+    <ProtocolBytes :byteString="processedByteString" showValidation/>
 </template>
 
 <script lang="ts">

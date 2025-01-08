@@ -28,6 +28,10 @@ export default defineComponent({
         boldPositions: {
             type: Array as PropType<number[]>,
             default: () => []
+        },
+        showValidation: {
+            type: Boolean,
+            default: false
         }
     },
     components: {
@@ -103,8 +107,15 @@ export default defineComponent({
             if (byteArray.length <= msgStart) {
                 return byteDefinition;
             }
+            let protocolAsString = typedBytesToString('uint8', byteArray.slice(msgStart, msgStart + 1))
+            if (protocolAsString != '') {
+                if (protocolAsString === '3') {
+                    protocolAsString += '✅';
+                } else {
+                    protocolAsString += '❌';
+                }
+            }
             const protocolValue = parseInt(byteArray[msgStart], 10);
-            const protocolValueParsedString = protocolValue === 3 ? `${protocolValue}✅` : `${protocolValue}❌`;
             byteDefinition.push({
                 pos: msgStart,
                 len: 1,
@@ -112,7 +123,7 @@ export default defineComponent({
                 desc: 'Protocol',
                 type: 'uint8',
                 value: byteArray[msgStart],
-                valueParsed: protocolValueParsedString,
+                valueParsed: protocolAsString,
                 bold: props.boldPositions.includes(msgStart)
             });
             // Then we should have 2 bytes which are uint16 little endian for the message length
@@ -121,7 +132,7 @@ export default defineComponent({
             const isLengthValid = parseInt(providedLengthString) === expectedLength;
             let lengthValueParsedString = ''
             if (providedLengthString != '') {
-                lengthValueParsedString = isLengthValid ? providedLengthString + '✅' : providedLengthString + '❌ wanted ' + expectedLength;
+                lengthValueParsedString = props.showValidation ? (isLengthValid ? providedLengthString + '✅' : providedLengthString + '❌ wanted ' + expectedLength) : providedLengthString;
             }
             byteDefinition.push({
                 pos: msgStart + 1,
@@ -261,8 +272,7 @@ export default defineComponent({
             const isValid = parseInt(providedCRCString) === expectedCRC;
             let checksumValueParsedString = ''
             if (providedCRCString != '') {
-                // TODO maybe add this as a warning elsewhere in the UI
-                checksumValueParsedString = isValid ? providedCRCString + '✅' : providedCRCString + '❌ wanted ' + expectedCRC;
+                checksumValueParsedString = props.showValidation ? (isValid ? providedCRCString + '✅' : providedCRCString + '❌ wanted ' + expectedCRC) : providedCRCString;
             }
             byteDefinition.push({
                 pos: payloadDataStart,
