@@ -26,7 +26,9 @@
                     <tr>
                         <th title="Section of the message">Section</th>
                         <th>Element</th>
-                        <th title="Bytes represented in a human understandable way">Value</th>
+                        <th title="Type of data in the element">Type</th>
+                        <th title="Bytes for this element">Bytes</th>
+                        <th title="Bytes parsed in a human readable way">Parsed</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,11 +41,12 @@
                             fontWeight: hoveredByte !== null && isByteInRange(hoveredByte, byteDef) ? 'bold' : 'normal',
                             backgroundColor: getRowColor(index)
                         }"
-                        :title="byteDef.valueHover || ''"
                     >
                         <td>{{ byteDef.name }}</td>
                         <td>{{ byteDef.desc }}</td>
                         <td :style="{ fontWeight: byteDef.bold || (hoveredByte !== null && isByteInRange(hoveredByte, byteDef)) ? 'bold' : 'normal' }">{{ byteDef.value !== undefined ? byteDef.value : '' }}</td>
+                        <td>{{ byteDef.type }}</td>
+                        <td>{{ byteDef.valueParsed || '' }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -61,7 +64,7 @@ interface ByteDefinition {
     desc: string;
     type: string;
     value: string;
-    valueHover?: string;
+    valueParsed?: string;
     bold?: boolean;
 }
 

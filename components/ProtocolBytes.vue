@@ -13,7 +13,7 @@ interface ByteDefinition {
     desc: string;
     type: string;
     value: string;
-    valueHover?: string;
+    valueParsed?: string;
     bold?: boolean;
 }
 
@@ -48,17 +48,36 @@ export default defineComponent({
             return (byte2 << 8) | byte1;
         };
 
+        const uint32LEtoInt = (byte1, byte2, byte3, byte4): number => {
+            return (byte4 << 24) | (byte3 << 16) | (byte2 << 8) | byte1;
+        };
+
+        const uint64LEtoInt = (byte1, byte2, byte3, byte4, byte5, byte6, byte7, byte8): number => {
+            return (byte8 << 56) | (byte7 << 48) | (byte6 << 40) | (byte5 << 32) | (byte4 << 24) | (byte3 << 16) | (byte2 << 8) | byte1;
+        };
+
         const typedBytesToString = (type: string, bytes: number[]): string => {
-            if (type === 'uint8') {
-                // should only be a list of 1 byte
-                return bytes[0].toString();
-            } else if (type === 'uint16') {
-                // should be a list of 2 bytes
-                return uint16LEtoInt(bytes[0], bytes[1]).toString();
-            } else if (type === 'ascii') {
-                return String.fromCharCode(...bytes);
-            } else {
-                return bytes.join(' ');
+            switch (type) {
+            case 'uint8':
+            return bytes[0].toString();
+            case 'uint16':
+            return uint16LEtoInt(bytes[0], bytes[1]).toString();
+            case 'uint32':
+            return uint32LEtoInt(bytes[0], bytes[1], bytes[2], bytes[3]).toString();
+            case 'uint64':
+            return uint64LEtoInt(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]).toString();
+            case 'ascii':
+            return String.fromCharCode(...bytes);
+            case '[]uint8':
+            return bytes.map(byte => byte.toString()).join(' ');
+            case 'uintn':
+                // This can be any sized uint, so we need to calculate the size
+                const size = bytes.length;
+                return bytes.reduce((acc, byte, index) => {
+                    return acc + (byte << (8 * index));
+                }, 0).toString();
+            default:
+            return "<unknown type>";
             }
         }
 
@@ -73,8 +92,9 @@ export default defineComponent({
                     len: 2,
                     name: 'Prefix',
                     desc: 'Prefix',
-                    type: 'uint16',
+                    type: '[]uint8',
                     value: byteArray.slice(0, 2).join(' '),
+                    valueParsed: typedBytesToString('[]uint8', byteArray.slice(0, 2)),
                     bold: props.boldPositions.includes(0)
                 });
                 msgStart = 2;
@@ -87,6 +107,7 @@ export default defineComponent({
                 desc: 'Protocol',
                 type: 'uint8',
                 value: byteArray[msgStart],
+                valueParsed: typedBytesToString('uint8', byteArray.slice(msgStart, msgStart + 1)),
                 bold: props.boldPositions.includes(msgStart)
             });
             // Then we should have 2 bytes which are uint16 little endian for the message length
@@ -97,7 +118,7 @@ export default defineComponent({
                 desc: 'Length',
                 type: 'uint16',
                 value: byteArray.slice(msgStart + 1, msgStart + 3).join(' '),
-                valueHover: typedBytesToString('uint16', byteArray.slice(msgStart + 1, msgStart + 3)),
+                valueParsed: typedBytesToString('uint16', byteArray.slice(msgStart + 1, msgStart + 3)),
                 bold: props.boldPositions.includes(msgStart + 1)
             });
             // Then the message type as uint16 little endian
@@ -108,7 +129,7 @@ export default defineComponent({
                 desc: 'Type',
                 type: 'uint16',
                 value: byteArray.slice(msgStart + 3, msgStart + 5).join(' '),
-                valueHover: typedBytesToString('uint16', byteArray.slice(msgStart + 3, msgStart + 5)),
+                valueParsed: typedBytesToString('uint16', byteArray.slice(msgStart + 3, msgStart + 5)),
                 bold: props.boldPositions.includes(msgStart + 3)
             });
             const messageType = uint16LEtoInt(byteArray[msgStart + 3], byteArray[msgStart + 4]);
@@ -121,7 +142,7 @@ export default defineComponent({
                 desc: 'Header Field Count',
                 type: 'uint16',
                 value: byteArray.slice(msgStart + 5, msgStart + 7).join(' '),
-                valueHover: typedBytesToString('uint16', byteArray.slice(msgStart + 5, msgStart + 7)),
+                valueParsed: typedBytesToString('uint16', byteArray.slice(msgStart + 5, msgStart + 7)),
                 bold: props.boldPositions.includes(msgStart + 5)
             });
             // then we should have the header field types
@@ -133,8 +154,9 @@ export default defineComponent({
                 len: numHeaderFields,
                 name: 'Header Meta',
                 desc: 'Header Field Types',
-                type: 'uint8',
+                type: '[]uint8',
                 value: headerFieldTypes,
+                valueParsed: typedBytesToString('[]uint8', byteArray.slice(headerFieldStart, headerFieldStart + numHeaderFields)),
                 bold: props.boldPositions.includes(headerFieldStart)
             });
             const initialHeaderDataStart = headerFieldStart + numHeaderFields;
@@ -152,6 +174,7 @@ export default defineComponent({
                     desc: headerFieldName + '('+headerFieldType+')' + ' Length',
                     type: 'uint8',
                     value: byteArray[headerDataStart],
+                    valueParsed: typedBytesToString('uint8', byteArray.slice(headerDataStart, headerDataStart + 1)),
                     bold: props.boldPositions.includes(headerDataStart)
                 });
                 byteDefinition.push({
@@ -159,9 +182,9 @@ export default defineComponent({
                     len: headerLength,
                     name: 'Header ' + (i+1),
                     desc: headerFieldName + '('+headerFieldType+')' + ' Data',
-                    type: 'uint8',
+                    type: headerFieldValueType,
                     value: byteArray.slice(headerDataStart + 1, headerDataStart + 1 + headerLength).join(' '),
-                    valueHover: typedBytesToString(headerFieldValueType, byteArray.slice(headerDataStart + 1, headerDataStart + 1 + headerLength)),
+                    valueParsed: typedBytesToString(headerFieldValueType, byteArray.slice(headerDataStart + 1, headerDataStart + 1 + headerLength)),
                     bold: props.boldPositions.includes(headerDataStart + 1)
                 });
                 headerDataStart += headerLength + 1;
@@ -174,7 +197,7 @@ export default defineComponent({
                 desc: 'Payload Field Count',
                 type: 'uint16',
                 value: byteArray.slice(headerDataStart, headerDataStart + 2).join(' '),
-                valueHover: typedBytesToString('uint16', byteArray.slice(headerDataStart, headerDataStart + 2)),
+                valueParsed: typedBytesToString('uint16', byteArray.slice(headerDataStart, headerDataStart + 2)),
                 bold: props.boldPositions.includes(headerDataStart)
             });
             // then we should have the payload field types
@@ -186,8 +209,9 @@ export default defineComponent({
                 len: numPayloadFields,
                 name: 'Payload Meta',
                 desc: 'Payload Field Types',
-                type: 'uint8',
+                type: '[]uint8',
                 value: payloadFieldTypes,
+                valueParsed: typedBytesToString('[]uint8', byteArray.slice(payloadFieldStart, payloadFieldStart + numPayloadFields)),
                 bold: props.boldPositions.includes(payloadFieldStart)
             });
             // Then we should have the payload data, each payload has a length byte, then the raw bytes
@@ -204,6 +228,7 @@ export default defineComponent({
                     desc: payloadFieldName + '('+payloadFieldType+')' + ' Length',
                     type: 'uint8',
                     value: byteArray[payloadDataStart],
+                    valueParsed: typedBytesToString('uint8', byteArray.slice(payloadDataStart, payloadDataStart + 1)),
                     bold: props.boldPositions.includes(payloadDataStart)
                 });
                 byteDefinition.push({
@@ -211,9 +236,9 @@ export default defineComponent({
                     len: payloadLength,
                     name: payloadFieldName,
                     desc: payloadFieldName + '('+payloadFieldType+')' +' Data',
-                    type: 'uint8',
+                    type: payloadFieldValueType,
                     value: byteArray.slice(payloadDataStart + 1, payloadDataStart + 1 + payloadLength).join(' '),
-                    valueHover: typedBytesToString(payloadFieldValueType, byteArray.slice(payloadDataStart + 1, payloadDataStart + 1 + payloadLength)),
+                    valueParsed: typedBytesToString(payloadFieldValueType, byteArray.slice(payloadDataStart + 1, payloadDataStart + 1 + payloadLength)),
                     bold: props.boldPositions.includes(payloadDataStart + 1)
                 });
                 payloadDataStart += payloadLength + 1;
@@ -226,7 +251,7 @@ export default defineComponent({
                 desc: 'Checksum',
                 type: 'uint16',
                 value: byteArray.slice(payloadDataStart, payloadDataStart + 2).join(' '),
-                valueHover: typedBytesToString('uint16', byteArray.slice(payloadDataStart, payloadDataStart + 2)),
+                valueParsed: typedBytesToString('uint16', byteArray.slice(payloadDataStart, payloadDataStart + 2)),
                 bold: props.boldPositions.includes(payloadDataStart)
             });
             return byteDefinition;

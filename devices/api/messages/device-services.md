@@ -1,6 +1,5 @@
 <script setup>
 import GenerateConsts from '../../../components/GenerateConsts.vue'
-import FancyBytes from '../../../components/FancyBytes.vue'
 import ProtocolBytes from '../../../components/ProtocolBytes.vue'
 </script>
 
