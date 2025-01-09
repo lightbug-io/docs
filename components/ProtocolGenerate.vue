@@ -1,75 +1,70 @@
 <template>
-    <v-card class="full-width" density="compact">
-        <v-card-title>Protocol Message Generator</v-card-title>
-        <v-card-text>
-            <v-select
-                v-model="selectedMessage"
-                :items="messageOptions"
-                label="Message Type"
-                item-title="name"
-                item-value="id"
+    <v-select
+        v-model="selectedMessage"
+        :items="messageOptions"
+        label="Message Type"
+        item-title="name"
+        item-value="id"
+        density="compact"
+    />
+    <div v-if="selectedMessage">
+        <h5>Headers</h5>
+        <div v-for="(header, key) in headers" :key="key">
+            <v-checkbox-btn
+                v-model="selectedHeaders"
+                :label="header.name"
+                :value="key"
                 density="compact"
             />
-            <div v-if="selectedMessage">
-                <h5>Headers</h5>
-                <div v-for="(header, key) in headers" :key="key">
-                    <v-checkbox-btn
-                        v-model="selectedHeaders"
-                        :label="header.name"
-                        :value="key"
-                        density="compact"
-                    />
-                    <template v-if="selectedHeaders.includes(key)">
-                        <v-select
-                            v-if="header.values"
-                            v-model="headerValues[key]"
-                            :items="Object.entries(header.values).map(([key, value]) => ({ key, name: `${key}: ${value.name}` }))"
-                            :label="`${header.name} (${header.type})`"
-                            item-title="name"
-                            item-value="key"
-                            density="compact"
-                        />
-                        <v-text-field
-                            v-else
-                            v-model="headerValues[key]"
-                            :label="`${header.name} (${header.type})`"
-                            :placeholder="header.description"
-                            density="compact"
-                        />
-                    </template>
-                </div>
-                <br/>
-                <h5>Payload</h5>
-                <div v-for="(data, key) in selectedMessageData" :key="key">
-                    <v-checkbox-btn
-                        v-model="selectedPayload"
-                        :label="data.name"
-                        :value="key"
-                        density="compact"
-                    />
-                    <template v-if="selectedPayload.includes(key)">
-                        <v-select
-                            v-if="data.values"
-                            v-model="payloadValues[key]"
-                            :items="Object.entries(data.values).map(([key, value]) => ({ key, name: `${key}: ${value.name}` }))"
-                            :label="`${data.name} (${data.type})`"
-                            item-title="name"
-                            item-value="key"
-                            density="compact"
-                        />
-                        <v-text-field
-                            v-else
-                            v-model="payloadValues[key]"
-                            :label="`${data.name} (${data.type})`"
-                            :placeholder="data.description"
-                            density="compact"
-                        />
-                    </template>
-                </div>
-            </div>
-            <ProtocolBytes :byteString="generatedInts" showValidation :showGeneratorLink="false" />
-        </v-card-text>
-    </v-card>
+            <template v-if="selectedHeaders.includes(key)">
+                <v-select
+                    v-if="header.values"
+                    v-model="headerValues[key]"
+                    :items="Object.entries(header.values).map(([key, value]) => ({ key, name: `${key}: ${value.name}` }))"
+                    :label="`${header.name} (${header.type})`"
+                    item-title="name"
+                    item-value="key"
+                    density="compact"
+                />
+                <v-text-field
+                    v-else
+                    v-model="headerValues[key]"
+                    :label="`${header.name} (${header.type})`"
+                    :placeholder="header.description"
+                    density="compact"
+                />
+            </template>
+        </div>
+        <br/>
+        <h5>Payload</h5>
+        <div v-for="(data, key) in selectedMessageData" :key="key">
+            <v-checkbox-btn
+                v-model="selectedPayload"
+                :label="data.name"
+                :value="key"
+                density="compact"
+            />
+            <template v-if="selectedPayload.includes(key)">
+                <v-select
+                    v-if="data.values"
+                    v-model="payloadValues[key]"
+                    :items="Object.entries(data.values).map(([key, value]) => ({ key, name: `${key}: ${value.name}` }))"
+                    :label="`${data.name} (${data.type})`"
+                    item-title="name"
+                    item-value="key"
+                    density="compact"
+                />
+                <v-text-field
+                    v-else
+                    v-model="payloadValues[key]"
+                    :label="`${data.name} (${data.type})`"
+                    :placeholder="data.description"
+                    density="compact"
+                />
+            </template>
+        </div>
+    </div>
+    <ProtocolBytes :byteString="generatedInts" showValidation :showGeneratorLink="false" />
 </template>
 
 <script lang="ts">

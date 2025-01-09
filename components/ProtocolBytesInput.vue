@@ -3,6 +3,7 @@
         v-model="inputByteString"
         label="Enter Byte String"
         @input="updateByteString"
+        density="compact"
     />
     <ProtocolBytes :byteString="processedByteString" showValidation/>
 </template>
