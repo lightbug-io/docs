@@ -1,7 +1,7 @@
 <template>
     <div class="fancy-bytes-container">
-        <v-icon @click="toggleModal" class="cog-icon container-config">mdi-cog</v-icon>
-        <v-dialog v-model="isModalVisible" max-width="300px">
+        <v-icon @click="toggleCogModal" class="cog-icon container-config" title="Options for display">mdi-cog</v-icon>
+        <v-dialog v-model="isCogModalVisible" max-width="300px">
             <v-card>
                 <v-card-title>Options</v-card-title>
                 <v-card-text>
@@ -24,7 +24,7 @@
                     ></v-checkbox>
                 </v-card-text>
                 <v-card-actions>
-                    <v-btn text @click="toggleModal">Close</v-btn>
+                    <v-btn text @click="toggleCogModal">Close</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -120,7 +120,7 @@ export default defineComponent({
         const byteDisplayType = ref<'ints' | 'hex' | 'hex0x'>('ints');
         const byteDisplaySpaces = ref(true);
         const byteDisplayCommas = ref(false);
-        const isModalVisible = ref(false);
+        const isCogModalVisible = ref(false);
 
         const setHoveredByte = (index: number) => {
             hoveredByte.value = index;
@@ -135,8 +135,8 @@ export default defineComponent({
             hoveredByteRange.value = null;
         };
 
-        const toggleModal = () => {
-            isModalVisible.value = !isModalVisible.value;
+        const toggleCogModal = () => {
+            isCogModalVisible.value = !isCogModalVisible.value;
         };
 
         const rowColors = computed(() => {
@@ -186,8 +186,8 @@ export default defineComponent({
             byteDisplaySpaces,
             byteDisplayCommas,
             formatByte,
-            isModalVisible,
-            toggleModal
+            isCogModalVisible,
+            toggleCogModal
         };
     },
     computed: {

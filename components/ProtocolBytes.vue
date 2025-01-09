@@ -107,12 +107,14 @@ export default defineComponent({
             if (byteArray.length <= msgStart) {
                 return byteDefinition;
             }
-            let protocolAsString = typedBytesToString('uint8', byteArray.slice(msgStart, msgStart + 1))
+            let protocolAsString = typedBytesToString('uint8', byteArray.slice(msgStart, msgStart + 1));
             if (protocolAsString != '') {
-                if (protocolAsString === '3') {
-                    protocolAsString += '✅';
-                } else {
-                    protocolAsString += '❌';
+                if (props.showValidation) {
+                    if (protocolAsString === '3') {
+                        protocolAsString += '✅';
+                    } else {
+                        protocolAsString += '❌';
+                    }
                 }
             }
             const protocolValue = parseInt(byteArray[msgStart], 10);
