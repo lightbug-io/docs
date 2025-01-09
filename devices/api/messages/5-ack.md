@@ -8,11 +8,7 @@ import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue';
 </script>
 
-# Generic
-
-Message types that can be used in a variety of situations.
-
-## 5: ACK
+# 5: ACK
 
 <SplitColumnView>
 <template #left>
@@ -44,31 +40,6 @@ ACK message, acknowledging a message with type `32` and ID `234`
 <ProtocolBytes
     byteString="3 17 0 5 0 0 0 2 0 1 2 1 32 1 234 176 65"
     :boldPositions="[3,12,14]"
-    :allowCollapse="false"
-/>
-
-</template>
-</SplitColumnView>
-
-## 6: KeepAlive
-
-<SplitColumnView>
-<template #left>
-
-Used to keep a connection alive, and let the other side know that the connection is still active.
-
-### Payload
-
-Not required.
-
-</template>
-<template #right>
-
-### Example
-KeepAlive with no headers or payload
-<ProtocolBytes
-    byteString="76 66 3 11 0 6 0 0 0 0 0 10 118"
-    :boldPositions="[3]"
     :allowCollapse="false"
 />
 

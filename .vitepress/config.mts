@@ -223,15 +223,30 @@ export default defineConfig({
             },
             {
               text: 'Messages',
-              // link: '/devices/api/messages',
+              link: '/devices/api/messages/',
               items: [
                 {
                   text: 'Generic',
-                  link: '/devices/api/messages/generic',
+                  collapsed: true,
+                  items: [
+                    { text: '5: ACK', link: '/devices/api/messages/5-ack' },
+                    { text: '6: Keepalive', link: '/devices/api/messages/6-keepalive' },
+                  ]
                 },
                 {
                   text: 'Device Services',
+                  collapsed: true,
                   link: '/devices/api/messages/device-services',
+                  items: [
+                    { text: '30: Transmit Now', link: '/devices/api/messages/30-device-transmit-now' },
+                    { text: '31: GSM CFUN', link: '/devices/api/messages/31-device-gsm-cfun' },
+                    { text: '32: GSM IMEI', link: '/devices/api/messages/32-device-gsm-imei' },
+                    { text: '33: GSM ICCID', link: '/devices/api/messages/33-device-gsm-iccid' },
+                    { text: '34: Status', link: '/devices/api/messages/34-device-status' },
+                    { text: '35: ID', link: '/devices/api/messages/35-device-id' },
+                    { text: '36: Time', link: '/devices/api/messages/36-device-time' },
+                    { text: '37: Last Position', link: '/devices/api/messages/37-device-last-position' },
+                  ]
                 },
               ]
             },
