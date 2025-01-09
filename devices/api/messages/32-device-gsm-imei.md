@@ -24,8 +24,6 @@ byteString="3 19 0 32 0 2 0 1 5 1 234 1 2 1 0 1 0 21 145"
 :allowCollapse="false"
 />
 
-You can expect an [ACK](generic#_5-ack) in response, with the message ID of the message being ACKed (234).
-
 The device would then respond with a message of type 32, with the IMEI field filled in if known.
 
 <ProtocolBytes

@@ -24,8 +24,21 @@ const handleInputEvent = (event) => {
     }
 };
 
+const parseBytes = (input) => {
+    return input.split(/[\s,]+/).map(byte => {
+        if (byte.startsWith('0x')) {
+            return parseInt(byte, 16);
+        } else if (/^[0-9a-fA-F]+$/.test(byte)) {
+            return parseInt(byte, 16);
+        } else {
+            return parseInt(byte, 10);
+        }
+    }).filter(byte => !isNaN(byte)).join(' ');
+};
+
 watch(bytes, (newBytes) => {
-    updateUrl(newBytes);
+    const parsedBytes = parseBytes(newBytes);
+    updateUrl(parsedBytes);
 });
 </script>
 

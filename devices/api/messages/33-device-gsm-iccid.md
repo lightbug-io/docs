@@ -1,7 +1,35 @@
+<script setup>
+import ProtocolBytes from '../../../components/ProtocolBytes.vue';
+</script>
+
 # 33: GSM ICCID
 
-Device ICCID.
+The device GSM ICCID message can be used to get the ICCID of the device.
+
+It has a single field, the ICCID, which can contain up to 22 bytes of ASCII data.
+
+<!-- <GenerateConsts :prefix="'MD_GSM_ICCID_'" :enumName="'MyEnum'" :dataPath="'messages/33/data'"/> -->
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
 | 1     | ICCID | up to 22 bytes ASCII data | []byte  | 56 57 52 53 55 51 56 55 51 48 48 48 48 50 54 52 51 57 54 54  | 89457387300002643966 |
+
+### Usage
+
+If you wanted to GET the ICCID from a device, you would send a GET message with the ICCID field requested (length 0).
+
+<ProtocolBytes
+byteString="3 19 0 33 0 2 0 1 5 1 234 1 2 1 0 1 0 116 234"
+:boldPositions="[3,12,15,16]"
+:allowCollapse="false"
+/>
+
+The device would then respond with a message of type 33, with the ICCID field filled in if known.
+
+<ProtocolBytes
+byteString="3 42 0 33 0 3 0 3 4 1 1 149 1 1 1 163 1 0 1 20 56 57 52 53 55 51 48 48 48 48 48 48 50 50 50 54 49 53 51 52 148 9"
+:boldPositions="[20]"
+:allowCollapse="false"
+/>
+
+If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
