@@ -1,7 +1,7 @@
 <template>
     <div class="fancy-bytes-container">
         <v-icon @click="toggleCogModal" class="cog-icon container-config" title="Options for display">mdi-cog</v-icon>
-        <v-icon @click="navigateToGenerate" class="cog-icon container-config" title="Edit in Generator">mdi-pencil</v-icon>
+        <v-icon v-if="showGeneratorLink" @click="navigateToGenerate" class="cog-icon container-config" title="Edit in Generator">mdi-pencil</v-icon>
         <v-dialog v-model="isCogModalVisible" max-width="300px">
             <v-card>
                 <v-card-title>Options</v-card-title>
@@ -113,6 +113,10 @@ export default defineComponent({
         byteDefinition: {
             type: Array as PropType<ByteDefinition[]>,
             required: true
+        },
+        showGeneratorLink: {
+            type: Boolean,
+            default: true
         }
     },
     setup(props) {
