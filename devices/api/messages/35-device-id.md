@@ -38,9 +38,13 @@ byteString="3 19 0 35 0 2 0 1 5 1 234 1 2 1 0 1 0 182 28"
 :allowCollapse="false"
 />
 
-The device would then respond with a message of type 35, with the IC field filled in if known.
+The device would then respond with a message of type 35, with the ID field filled in if known.
 
-<!-- TODO document example response -->
+<ProtocolBytes
+byteString="3 26 0 35 0 3 0 3 4 1 1 121 1 1 1 6 1 0 1 4 240 209 132 0 179 158"
+:boldPositions="[3,20]"
+:allowCollapse="false"
+/>
 
 </template>
 </SplitColumnView>
