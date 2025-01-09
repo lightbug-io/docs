@@ -1,5 +1,5 @@
 <template>
-    <div class="fancy-bytes-container">
+    <div class="fancy-bytes-container" >
         <v-icon @click="toggleCogModal" class="cog-icon container-config" title="Options for display">mdi-cog</v-icon>
         <v-icon v-if="showGeneratorLink" @click="navigateToGenerate" class="cog-icon container-config" title="Edit in Generator">mdi-pencil</v-icon>
         <v-dialog v-model="isCogModalVisible" max-width="300px">
@@ -51,35 +51,44 @@
                     <span v-if="byteDisplayCommas && index < groupedByteArray.length - 1" class="invisible-text">,</span>
                 </span>
             </div>
-            <table class="byte-definitions">
-                <thead>
-                    <tr>
-                        <th title="Section of the message">Section</th>
-                        <th>Element</th>
-                        <th title="Bytes for this element">Bytes</th>
-                        <th title="Type of data in the element">Type</th>
-                        <th title="Bytes parsed in a human readable way">Parsed</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="(byteDef, index) in byteDefinition"
-                        :key="index"
-                        @mouseover="setHoveredByteRange(byteDef.pos, byteDef.len)"
-                        @mouseleave="clearHoveredByte"
-                        :style="{
-                            fontWeight: hoveredByte !== null && isByteInRange(hoveredByte, byteDef) ? 'bold' : 'normal',
-                            backgroundColor: getRowColor(index)
-                        }"
-                    >
-                        <td>{{ byteDef.name }}</td>
-                        <td>{{ byteDef.desc }}</td>
-                        <td :style="{ fontWeight: byteDef.bold || (hoveredByte !== null && isByteInRange(hoveredByte, byteDef)) ? 'bold' : 'normal' }">{{ byteDef.value !== undefined ? byteDef.value : '' }}</td>
-                        <td>{{ byteDef.type }}</td>
-                        <td>{{ byteDef.valueParsed || '' }}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <span v-if="allowCollapse" @click="toggleTable" class="expand-icon" title="Toggle Table">
+                <v-icon right>
+                    {{ isTableVisible ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+                </v-icon>
+                <small v-if="!isTableVisible">Expand details</small>
+                <small v-if="isTableVisible">Collapse details</small>
+            </span>
+            <v-expand-transition>
+                <table v-show="isTableVisible" class="byte-definitions">
+                    <thead>
+                        <tr>
+                            <th title="Section of the message">Section</th>
+                            <th>Element</th>
+                            <th title="Bytes for this element">Bytes</th>
+                            <th title="Type of data in the element">Type</th>
+                            <th title="Bytes parsed in a human readable way">Parsed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="(byteDef, index) in byteDefinition"
+                            :key="index"
+                            @mouseover="setHoveredByteRange(byteDef.pos, byteDef.len)"
+                            @mouseleave="clearHoveredByte"
+                            :style="{
+                                fontWeight: hoveredByte !== null && isByteInRange(hoveredByte, byteDef) ? 'bold' : 'normal',
+                                backgroundColor: getRowColor(index)
+                            }"
+                        >
+                            <td>{{ byteDef.name }}</td>
+                            <td>{{ byteDef.desc }}</td>
+                            <td :style="{ fontWeight: byteDef.bold || (hoveredByte !== null && isByteInRange(hoveredByte, byteDef)) ? 'bold' : 'normal' }">{{ byteDef.value !== undefined ? byteDef.value : '' }}</td>
+                            <td>{{ byteDef.type }}</td>
+                            <td>{{ byteDef.valueParsed || '' }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </v-expand-transition>
         </div>
     </div>
 </template>
@@ -117,6 +126,14 @@ export default defineComponent({
         showGeneratorLink: {
             type: Boolean,
             default: true
+        },
+        defaultCollapsed: {
+            type: Boolean,
+            default: false
+        },
+        allowCollapse: {
+            type: Boolean,
+            default: true
         }
     },
     setup(props) {
@@ -126,6 +143,7 @@ export default defineComponent({
         const byteDisplaySpaces = ref(true);
         const byteDisplayCommas = ref(false);
         const isCogModalVisible = ref(false);
+        const isTableVisible = ref(!props.defaultCollapsed);
 
         const setHoveredByte = (index: number) => {
             hoveredByte.value = index;
@@ -142,6 +160,10 @@ export default defineComponent({
 
         const toggleCogModal = () => {
             isCogModalVisible.value = !isCogModalVisible.value;
+        };
+
+        const toggleTable = () => {
+            isTableVisible.value = !isTableVisible.value;
         };
 
         const navigateToGenerate = () => {
@@ -200,7 +222,9 @@ export default defineComponent({
             formatByte,
             isCogModalVisible,
             toggleCogModal,
-            navigateToGenerate
+            navigateToGenerate,
+            isTableVisible,
+            toggleTable
         };
     },
     computed: {
@@ -243,6 +267,7 @@ export default defineComponent({
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 10px;
+    margin-top: 5px;
 }
 
 .fancy-bytes {
@@ -368,5 +393,11 @@ export default defineComponent({
 .container-config {
     cursor: pointer;
     float: right;
+}
+
+.expand-icon {
+    cursor: pointer;
+    float: right;
+    margin-top: 10px;
 }
 </style>

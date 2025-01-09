@@ -49,6 +49,7 @@ If you wanted to GET the IMEI from a device, you would send a GET message with t
 <ProtocolBytes
 byteString="3 19 0 32 0 2 0 1 5 1 234 1 2 1 0 1 0 21 145"
 :boldPositions="[3,12,15,16]"
+:allowCollapse="false"
 />
 
 You can expect an [ACK](generic#_5-ack) in response, with the message ID of the message being ACKed (234).
@@ -58,6 +59,7 @@ The device would then respond with a message of type 32, with the IMEI field fil
 <ProtocolBytes
 byteString="3 42 0 32 0 3 0 1 3 4 1 22 1 234 1 1 1 0 1 20 56 57 52 53 55 51 56 55 51 48 48 48 48 50 54 52 51 57 54 54 159 188"
 :boldPositions="[20]"
+:allowCollapse="false"
 />
 
 If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.

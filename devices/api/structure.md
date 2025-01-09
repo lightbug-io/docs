@@ -1,6 +1,10 @@
 ---
-outline: deep
+outline: [2,3]
 ---
+
+<script setup>
+import ProtocolBytes from '../../components/ProtocolBytes.vue';
+</script>
 
 # Structure
 
@@ -12,29 +16,22 @@ In a byte stream, a message takes the follow structure:
 
 ```
 <prefix> <message
-    <version> <length> <type> <header data> <payload data> <checksum>
+    <version uint8> <length uint16> <type uint16> <header data> <payload data> <checksum uint16>
 >
 ```
 
 The header data, and payload data, are made up of the same structure:
 
 ```
-<field count> <fields> <data (as bBytes)>
+<field count uint16> <fields []uint8> <data (as bBytes)>
 ```
 
 As an example empty message including prefix (with no additional header or payload data):
 
-```
-76 66 3 11 0 1 0 0 0 0 0 75 190
-^     ^ ^    ^   ^   ^   ^
-|     | |    |   |   |    checksum 2 bytes
-|     | |    |   |   payload data (0 fields)
-|     | |    |   header data (0 fields)
-|     | |    message type 1
-|     | message length 11
-|     protocol version 3
-prefix (LB)
-```
+<ProtocolBytes
+    byteString="76 66 3 11 0 1 0 0 0 0 0 75 190"
+    :allowCollapse="false"
+></ProtocolBytes>
 
 ## Prefix
 
@@ -69,13 +66,12 @@ The general structure of a message is as follows:
 
 So the full above example would be:
 
-| Format | Message |
-| ------ | --- |
-| uint8s  | 3 11 0 1 0 0 0 0 0 75 190 |
-| Hex | `03 0b 00 01 00 00 00 00 00 4b be` |
-| Bytes    | `0x03 0x0b 0x00 0x01 0x00 0x00 0x00 0x00 0x00 0x4b 0xbe` |
+<ProtocolBytes
+    byteString="3 11 0 1 0 0 0 0 0 75 190"
+    :allowCollapse="false"
+></ProtocolBytes>
 
-### Components
+## Components
 
 - Protocol Version: The version of the protocol. Always 3.
 - Message Length: The length of the message, including the version, header, data, and checksum.
@@ -86,7 +82,7 @@ So the full above example would be:
   - Data: The data itself, making used of bBytes to represent length and values.
 - Checksum: A 16-bit CRC checksum of the message (XMODEM).
 
-#### Data
+### Data
 
 Within each Data element (the header data, or payload data), the structure is as follows:
 
@@ -110,10 +106,37 @@ Or `[3 9 9 9]` would represent a byte array of length 3, with the values 9, 9, 9
 
 ## Examples
 
-| Description                          | Example |
-| ---------------------------------- | -- |
-| Type 3, header empty, data empty | 3 11 0 1 0 0 0 0 0 75 190 |
-| .. as above, with LB prefix bytes |  76 66 3 11 0 1 0 0 0 0 0 75 190 |
-| Type 6, header (1:1), data empty | 3 14 0 6 0 1 0 1 1 1 0 0 217 95 |
-| Type 6, header (1:9), data empty | 3 14 0 6 0 1 0 1 1 9 0 0 120 246 |
-| Type 10009, header empty, data (10:hello) | 3 18 0 25 39 0 0 1 0 10 5 104 101 108 108 111 118 77 |
+#### Type 3, header empty, data empty
+
+<ProtocolBytes
+    byteString="3 11 0 1 0 0 0 0 0 75 190"
+    :defaultCollapsed="true"
+></ProtocolBytes>
+
+#### .. as above, with LB prefix bytes:
+
+<ProtocolBytes
+    byteString="76 66 3 11 0 1 0 0 0 0 0 75 190"
+    :defaultCollapsed="true"
+></ProtocolBytes>
+
+#### Type 6, header (1:1), data empty
+
+<ProtocolBytes
+    byteString="3 14 0 6 0 1 0 1 1 1 0 0 217 95"
+    :defaultCollapsed="true"
+></ProtocolBytes>
+
+#### Type 6, header (1:9), data empty
+
+<ProtocolBytes
+    byteString="3 14 0 6 0 1 0 1 1 9 0 0 120 246"
+    :defaultCollapsed="true"
+></ProtocolBytes>
+
+#### Type 10009, header empty, data (10:hello):
+
+<ProtocolBytes
+    byteString="3 18 0 25 39 0 0 1 0 10 5 104 101 108 108 111 118 77"
+    :defaultCollapsed="true"
+></ProtocolBytes>

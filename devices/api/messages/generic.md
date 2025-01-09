@@ -44,7 +44,8 @@ ACK message, acknowledging a message with type `32` and ID `234`
 <ProtocolBytes
     byteString="3 17 0 5 0 0 0 2 0 1 2 1 32 1 234 176 65"
     :boldPositions="[3,12,14]"
-></ProtocolBytes>
+    :allowCollapse="false"
+/>
 
 </template>
 </SplitColumnView>
@@ -68,7 +69,8 @@ KeepAlive with no headers or payload
 <ProtocolBytes
     byteString="76 66 3 11 0 6 0 0 0 0 0 10 118"
     :boldPositions="[3]"
-></ProtocolBytes>
+    :allowCollapse="false"
+/>
 
 </template>
 </SplitColumnView>
