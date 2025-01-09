@@ -146,6 +146,19 @@ messages:
     name: "Device Status"
     description: "Device status information"
     group: "ondevice"
+    data:
+      1:
+        name: "Battery"
+        description: "Battery level"
+        type: "uint8"
+      2:
+        name: "Signal Strength"
+        description: "Signal strength"
+        type: "uint8"
+      3:
+        name: "Device Mode"
+        description: "Device mode"
+        type: "uint8"
   35:
     name: "Device ID"
     description: "Device ID information"

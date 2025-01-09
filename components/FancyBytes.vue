@@ -1,7 +1,9 @@
 <template>
     <div class="fancy-bytes-container" >
-        <v-icon @click="toggleCogModal" class="cog-icon container-config" title="Options for display">mdi-cog</v-icon>
-        <v-icon v-if="showGeneratorLink" @click="navigateToGenerate" class="cog-icon container-config" title="Edit in Generator" @click.ctrl="navigateToGenerateNewTab">mdi-pencil</v-icon>        <v-dialog v-model="isCogModalVisible" max-width="300px">
+        <v-icon @click="toggleCogModal" class="container-config" title="Options for display">mdi-cog</v-icon>
+        <v-icon v-if="showGeneratorLink" @click="navigateToGenerate" class="container-config" title="Edit in Generator" @click.ctrl="navigateToGenerateNewTab">mdi-pencil</v-icon>
+        <v-icon @click="copyToClipboard" class="container-config" title="Copy to Clipboard">mdi-content-copy</v-icon>
+        <v-dialog v-model="isCogModalVisible" max-width="300px">
             <v-card>
                 <v-card-title>Options</v-card-title>
                 <v-card-text>
@@ -13,12 +15,12 @@
                     </v-radio-group>
                     <h1>Copy & Paste</h1>
                     <v-checkbox
-                        v-model="byteDisplaySpaces"
+                        v-model="byteCopySpaces"
                         label="Spaces (1 2 3)"
                         density="compact"
                     ></v-checkbox>
                     <v-checkbox
-                        v-model="byteDisplayCommas"
+                        v-model="byteCopyCommas"
                         label="Commas (1, 2, 3)"
                         density="compact"
                     ></v-checkbox>
@@ -39,7 +41,7 @@
                     @mouseleave="clearHoveredByte"
                     :style="{ fontWeight: isBoldByte(index) ? 'bold' : 'normal' }"
                 >
-                    {{ formatByte(byte) }}<span v-if="byteDisplaySpaces && index < byteArray.length - 1" class="invisible-text">&nbsp;</span><span v-if="byteDisplayCommas && index < byteArray.length - 1" class="invisible-text">,</span>
+                    {{ formatByte(byte) }}
                 </span>
             </div>
             <span v-if="allowCollapse" @click="toggleTable" class="expand-icon" title="Toggle Table">
@@ -131,8 +133,8 @@ export default defineComponent({
         const hoveredByte = ref<number | null>(null);
         const hoveredByteRange = ref<{ start: number, end: number } | null>(null);
         const byteDisplayType = ref<'ints' | 'hex' | 'hex0x'>('ints');
-        const byteDisplaySpaces = ref(true);
-        const byteDisplayCommas = ref(false);
+        const byteCopySpaces = ref(true);
+        const byteCopyCommas = ref(false);
         const isCogModalVisible = ref(false);
         const isTableVisible = ref(!props.defaultCollapsed);
 
@@ -155,6 +157,20 @@ export default defineComponent({
 
         const toggleTable = () => {
             isTableVisible.value = !isTableVisible.value;
+        };
+        const copyToClipboard = () => {
+            let text = props.byteString;
+            if (byteCopyCommas.value) {
+                text = text.replace(/ /g, ', ');
+            }
+            if (byteCopySpaces.value) {
+                text = text.replace(/ /g, ' ');
+            } else {
+                text = text.replace(/ /g, '');
+            }
+            navigator.clipboard.writeText(text).then(() => {
+            console.log('Copied to clipboard:', text);
+            });
         };
 
         const navigateToGenerate = (event) => {
@@ -219,11 +235,12 @@ export default defineComponent({
             getRowColor,
             isByteHighlighted,
             byteDisplayType,
-            byteDisplaySpaces,
-            byteDisplayCommas,
+            byteCopySpaces,
+            byteCopyCommas,
             formatByte,
             isCogModalVisible,
             toggleCogModal,
+            copyToClipboard,
             navigateToGenerate,
             navigateToGenerateNewTab,
             isTableVisible,

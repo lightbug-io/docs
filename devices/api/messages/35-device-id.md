@@ -14,7 +14,7 @@ import GenerateConsts from '../../../components/GenerateConsts.vue'
 <SplitColumnView>
 <template #left>
 
-Used to get the ID of the device.
+Used to [GET](./device-services#get) the ID of the device.
 
 ### Payload
 
@@ -22,7 +22,7 @@ It has a single field, the ID, which is a uint.
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
-| 1     | ID | | uintn  | xxx  | xxx |
+| 1     | ID | | uintn  | 240 209 132 0  | 8704496 |
 
 If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
 

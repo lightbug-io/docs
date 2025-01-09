@@ -14,7 +14,7 @@ import GenerateConsts from '../../../components/GenerateConsts.vue'
 <SplitColumnView>
 <template #left>
 
-Used to get the IMEI of the device.
+Used to [GET](./device-services#get) the IMEI of the device.
 
 ### Payload
 

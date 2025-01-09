@@ -14,7 +14,7 @@ import GenerateConsts from '../../../components/GenerateConsts.vue'
 <SplitColumnView>
 <template #left>
 
-Used to get the ICCID of the device.
+Used to [GET](./device-services#get) the ICCID of the device.
 
 ### Payload
 
