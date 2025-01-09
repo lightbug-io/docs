@@ -6,6 +6,7 @@ outline: false
 <script setup>
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue';
+import GenerateConsts from '../../../components/GenerateConsts.vue'
 </script>
 
 # 5: ACK
@@ -45,3 +46,9 @@ ACK message, acknowledging a message with type `32` and ID `234`
 
 </template>
 </SplitColumnView>
+
+## Code
+
+For convenience, the following constants can be used to reference the payload fields.
+
+<GenerateConsts :prefix="'MD_ACK_'" :enumName="'MyEnum'" :dataPath="'messages/5/data'"/>

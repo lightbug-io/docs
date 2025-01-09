@@ -1,5 +1,6 @@
 <script setup>
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
+import GenerateConsts from '../../../components/GenerateConsts.vue'
 </script>
 
 # 33: GSM ICCID
@@ -33,3 +34,9 @@ byteString="3 42 0 33 0 3 0 3 4 1 1 149 1 1 1 163 1 0 1 20 56 57 52 53 55 51 48 
 />
 
 If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
+
+## Code
+
+For convenience, the following constants can be used to reference the payload fields.
+
+<GenerateConsts :prefix="'MD_DEVICE_GSM_ICCID_'" :enumName="'MyEnum'" :dataPath="'messages/33/data'"/>

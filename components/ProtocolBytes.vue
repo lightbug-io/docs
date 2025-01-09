@@ -76,13 +76,17 @@ export default defineComponent({
             case '[]uint8':
             return bytes.map(byte => byte.toString()).join(' ');
             case 'uintn':
-                // This can be any sized uint, so we need to calculate the size
-                const size = bytes.length;
-                return bytes.reduce((acc, byte, index) => {
-                    return acc + (byte << (8 * index));
-                }, 0).toString();
+            // This can be any sized uint, so we need to calculate the size
+            const size = bytes.length;
+            return bytes.reduce((acc, byte, index) => {
+                return acc + (byte << (8 * index));
+            }, 0).toString();
             default:
-            return "<unknown type>";
+            const uintnValue = bytes.reduce((acc, byte, index) => {
+                return acc + (byte << (8 * index));
+            }, 0).toString();
+            const asciiValue = String.fromCharCode(...bytes);
+            return `unknown type (uintn: ${uintnValue}, ascii: ${asciiValue})`;
             }
         }
 
@@ -244,13 +248,13 @@ export default defineComponent({
             for (let i = 0; i < numPayloadFields; i++) {
                 const payloadLength = parseInt(byteArray[payloadDataStart], 10);
                 const payloadFieldType = parseInt(byteArray[payloadFieldStart + i]);
-                const payloadFieldName = messageData[payloadFieldType]?.name || 'Payload ' + payloadFieldType;
+                const payloadFieldName = messageData[payloadFieldType]?.name || 'Payload ' + (i + 1);
                 const payloadFieldValueType = messageData[payloadFieldType]?.type || 'undefined';
                 byteDefinition.push({
                     pos: payloadDataStart,
                     len: 1,
                     name: payloadFieldName,
-                    desc: payloadFieldName + '('+payloadFieldType+')' + ' Length',
+                    desc: payloadFieldName + ' ('+payloadFieldType+')' + ' Length',
                     type: 'uint8',
                     value: byteArray[payloadDataStart],
                     valueParsed: typedBytesToString('uint8', byteArray.slice(payloadDataStart, payloadDataStart + 1)),
@@ -260,7 +264,7 @@ export default defineComponent({
                     pos: payloadDataStart + 1,
                     len: payloadLength,
                     name: payloadFieldName,
-                    desc: payloadFieldName + '('+payloadFieldType+')' +' Data',
+                    desc: payloadFieldName + ' ('+payloadFieldType+')' +' Data',
                     type: payloadFieldValueType,
                     value: byteArray.slice(payloadDataStart + 1, payloadDataStart + 1 + payloadLength).join(' '),
                     valueParsed: typedBytesToString(payloadFieldValueType, byteArray.slice(payloadDataStart + 1, payloadDataStart + 1 + payloadLength)),

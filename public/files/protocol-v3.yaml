@@ -78,12 +78,10 @@ messages:
         name: "ACKed Type"
         description: "Type of previous message being ACKed"
         type: "uint16"
-        typeExplain: "V3 Protocol specifies that message types are uint16"
       2:
         name: "ACKed ID"
-        description: "ID of previous message being ACKed (if provided in the original message header)"
+        description: "ID of previous message being ACKed, if provided in the original message header"
         type: "uintn"
-        typeExplain: "Message ID is variable length"
   6:
     name: "General Keep Alive"
     description: "General keep alive message"
@@ -152,6 +150,11 @@ messages:
     name: "Device Info ID"
     description: "Device ID information"
     group: "ondevice"
+    data:
+      1:
+        name: "ID"
+        description: "ID"
+        type: "uintn"
   36:
     name: "Device Info Time"
     description: "Device time information"
