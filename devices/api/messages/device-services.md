@@ -5,42 +5,28 @@ import ProtocolBytes from '../../../components/ProtocolBytes.vue'
 
 # Device Services
 
-Device service messages make use of a few common header fields:
+Device service messages make use of a few common header fields, and you van expect to see these in most messages.
 
 - [3: Response Message ID](./../headers#_3-response-message-id): The message ID of the message being responded to.
 - [4: Response Status](./../headers#_4-response-status): 1 (OK), 2 (NOT OK)
 - [5: Method](./../headers#_5-method): 1 (Set), 2 (Get), 3 (Subscribe)
 
-There are then multiple message types, each which represents its own service.
+## Methods
 
-## 30: Transmit Now
+### SET
 
-[Transmit Now](./30-device-transmit-now.md)
+Used to change data.
 
-## 31: GSM CFUN
+Specify the fields that you want to change, and the new values.
 
-[GSM CFUN](./31-device-gsm-cfun.md)
+### GET
 
-## 32: GSM IMEI
+Used to ask for data.
 
-[GSM IMEI](./32-device-gsm-imei.md)
+When no payload fields are specified, then all fields are requested.
 
-## 33: GSM ICCID
+When a subset of fields are specified, only they should be returned. This can be done with a length of 0 for the field data.
 
-[GSM ICCID](./33-device-gsm-iccid.md)
+### SUBSCRIBE
 
-## 34: Device Info: Status
-
-[Device Info: Status](./34-device-status.md)
-
-## 35: Device Info: ID
-
-[Device Info: ID](./35-device-id.md)
-
-## 36: Device Info: Time
-
-[Device Info: Time](./36-device-time.md)
-
-## 37: Device Info: Last Position
-
-[Device Info: Last Position](./37-device-last-position.md)
+Used to ask for regular updates of data.
