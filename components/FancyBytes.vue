@@ -1,8 +1,7 @@
 <template>
     <div class="fancy-bytes-container" >
         <v-icon @click="toggleCogModal" class="cog-icon container-config" title="Options for display">mdi-cog</v-icon>
-        <v-icon v-if="showGeneratorLink" @click="navigateToGenerate" class="cog-icon container-config" title="Edit in Generator">mdi-pencil</v-icon>
-        <v-dialog v-model="isCogModalVisible" max-width="300px">
+        <v-icon v-if="showGeneratorLink" @click="navigateToGenerate" class="cog-icon container-config" title="Edit in Generator" @click.ctrl="navigateToGenerateNewTab">mdi-pencil</v-icon>        <v-dialog v-model="isCogModalVisible" max-width="300px">
             <v-card>
                 <v-card-title>Options</v-card-title>
                 <v-card-text>
@@ -32,23 +31,15 @@
         <div class="fancy-bytes">
             <div class="byte-container">
                 <span
-                    v-for="(group, index) in groupedByteArray"
+                    v-for="(byte, index) in byteArray"
                     :key="index"
-                    class="byte-group"
-                    @mouseover="setHoveredByte(group.start)"
+                    class="byte"
+                    :class="['color-' + (Math.floor(index / 6) % 6)]"
+                    @mouseover="setHoveredByte(index)"
                     @mouseleave="clearHoveredByte"
+                    :style="{ fontWeight: isBoldByte(index) ? 'bold' : 'normal' }"
                 >
-                    <span
-                        v-for="(byte, byteIndex) in group.bytes"
-                        :key="byteIndex"
-                        class="byte"
-                        :class="['color-' + (index % 6)]"
-                        :style="{ fontWeight: isBoldByte(group.start + byteIndex) ? 'bold' : 'normal' }"
-                    >
-                        {{ formatByte(byte) }}<span v-if="byteDisplaySpaces && byteIndex < group.bytes.length - 1" class="invisible-text">&nbsp;</span><span v-if="byteDisplayCommas && byteIndex < group.bytes.length - 1" class="invisible-text">,</span>
-                    </span>
-                    <span v-if="byteDisplaySpaces && index < groupedByteArray.length - 1" class="invisible-text">&nbsp;</span>
-                    <span v-if="byteDisplayCommas && index < groupedByteArray.length - 1" class="invisible-text">,</span>
+                    {{ formatByte(byte) }}<span v-if="byteDisplaySpaces && index < byteArray.length - 1" class="invisible-text">&nbsp;</span><span v-if="byteDisplayCommas && index < byteArray.length - 1" class="invisible-text">,</span>
                 </span>
             </div>
             <span v-if="allowCollapse" @click="toggleTable" class="expand-icon" title="Toggle Table">
@@ -166,11 +157,22 @@ export default defineComponent({
             isTableVisible.value = !isTableVisible.value;
         };
 
-        const navigateToGenerate = () => {
+        const navigateToGenerate = (event) => {
             const url = new URL(window.location.href);
             url.pathname = '/devices/api/generate';
             url.searchParams.set('bytes', props.byteString);
-            window.location.href = url.toString();
+            if (event.ctrlKey || event.metaKey) {
+                window.open(url.toString(), '_blank');
+            } else {
+                window.location.href = url.toString();
+            }
+        };
+
+        const navigateToGenerateNewTab = () => {
+            const url = new URL(window.location.href);
+            url.pathname = '/devices/api/generate';
+            url.searchParams.set('bytes', props.byteString);
+            window.open(url.toString(), '_blank');
         };
 
         const rowColors = computed(() => {
@@ -223,6 +225,7 @@ export default defineComponent({
             isCogModalVisible,
             toggleCogModal,
             navigateToGenerate,
+            navigateToGenerateNewTab,
             isTableVisible,
             toggleTable
         };
@@ -357,7 +360,7 @@ export default defineComponent({
 }
 
 .byte-definitions {
-    margin-top: 8px;
+    margin-top: 4px;
     font-style: italic;
     color: #555;
     width: 100%;
