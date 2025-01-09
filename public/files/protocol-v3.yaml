@@ -143,11 +143,11 @@ messages:
         description: "ICCID"
         type: "ascii"
   34:
-    name: "Device Info Status"
+    name: "Device Status"
     description: "Device status information"
     group: "ondevice"
   35:
-    name: "Device Info ID"
+    name: "Device ID"
     description: "Device ID information"
     group: "ondevice"
     data:
@@ -156,7 +156,7 @@ messages:
         description: "ID"
         type: "uintn"
   36:
-    name: "Device Info Time"
+    name: "Device Time"
     description: "Device time information"
     group: "ondevice"
     data:

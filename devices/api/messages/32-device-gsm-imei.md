@@ -1,22 +1,35 @@
+---
+aside: false
+outline: false
+---
+
 <script setup>
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
+import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 </script>
 
 # 32: GSM IMEI
 
-The GSM IMEI message can be used to get the IMEI of the device.
+<SplitColumnView>
+<template #left>
+
+Used to get the IMEI of the device.
+
+### Payload
 
 It has a single field, the IMEI, which is a 15 byte ASCII string.
-
-<!-- <GenerateConsts :prefix="'MD_GSM_IMEI_'" :enumName="'MyEnum'" :dataPath="'messages/32/data'"/> -->
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
 | 1     | IMEI | 15 bytes ASCII data | []byte  | 51 53 48 49 50 51 52 53 49 50 51 52 53 54 48 | 350123451234560 |
 
-### Usage
+If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
 
+</template>
+<template #right>
+
+### Example
 If you wanted to GET the IMEI from a device, you would send a GET message with the IMEI field requested (length 0).
 
 <ProtocolBytes
@@ -33,10 +46,11 @@ byteString="3 42 0 32 0 3 0 1 3 4 1 22 1 234 1 1 1 0 1 20 56 57 52 53 55 51 56 5
 :allowCollapse="false"
 />
 
-If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
+</template>
+</SplitColumnView>
 
 ## Code
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_GSM_IMEI_'" :enumName="'MyEnum'" :dataPath="'messages/32/data'"/>
+<GenerateConsts :prefix="'MD_DEVICE_GSM_IMEI_'" :enumName="'MD_DEVICE_GSM_IMEI'" :dataPath="'messages/32/data'"/>

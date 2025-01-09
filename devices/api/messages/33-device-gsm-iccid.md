@@ -1,22 +1,35 @@
+---
+aside: false
+outline: false
+---
+
 <script setup>
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
+import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 </script>
 
 # 33: GSM ICCID
 
-The device GSM ICCID message can be used to get the ICCID of the device.
+<SplitColumnView>
+<template #left>
+
+Used to get the ICCID of the device.
+
+### Payload
 
 It has a single field, the ICCID, which can contain up to 22 bytes of ASCII data.
-
-<!-- <GenerateConsts :prefix="'MD_GSM_ICCID_'" :enumName="'MyEnum'" :dataPath="'messages/33/data'"/> -->
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
 | 1     | ICCID | up to 22 bytes ASCII data | []byte  | 56 57 52 53 55 51 56 55 51 48 48 48 48 50 54 52 51 57 54 54  | 89457387300002643966 |
 
-### Usage
+If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
 
+</template>
+<template #right>
+
+### Example
 If you wanted to GET the ICCID from a device, you would send a GET message with the ICCID field requested (length 0).
 
 <ProtocolBytes
@@ -33,10 +46,11 @@ byteString="3 42 0 33 0 3 0 3 4 1 1 149 1 1 1 163 1 0 1 20 56 57 52 53 55 51 48 
 :allowCollapse="false"
 />
 
-If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
+</template>
+</SplitColumnView>
 
 ## Code
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_GSM_ICCID_'" :enumName="'MyEnum'" :dataPath="'messages/33/data'"/>
+<GenerateConsts :prefix="'MD_DEVICE_GSM_ICCID_'" :enumName="'MD_DEVICE_GSM_ICCID'" :dataPath="'messages/33/data'"/>

@@ -62,6 +62,9 @@ export default defineComponent({
         };
 
         const typedBytesToString = (type: string, bytes: number[]): string => {
+            if (bytes.length === 0) {
+                return '';
+            }
             switch (type) {
             case 'uint8':
             return bytes.length < 1 ? "" : bytes[0].toString();

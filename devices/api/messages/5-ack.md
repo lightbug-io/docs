@@ -51,4 +51,4 @@ ACK message, acknowledging a message with type `32` and ID `234`
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_ACK_'" :enumName="'MyEnum'" :dataPath="'messages/5/data'"/>
+<GenerateConsts :prefix="'MD_ACK_'" :enumName="'MD_ACK'" :dataPath="'messages/5/data'"/>

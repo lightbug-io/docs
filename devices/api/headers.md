@@ -10,7 +10,7 @@ import GenerateConsts from '../../components/GenerateConsts.vue'
 
 These header field types are reserved across all message types.
 
-<GenerateConsts :prefix="'MH_'" :enumName="'MyEnum'" :dataPath="'header'"/>
+<GenerateConsts :prefix="'MH_'" :enumName="'MH'" :dataPath="'header'"/>
 
 ## 1: Message ID
 

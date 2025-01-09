@@ -1,5 +1,5 @@
 <template>
-    <GenerateConsts :prefix="'MH_'" :enumName="'MyEnum'" :dataPath="'header'"/>
+    <GenerateConsts :prefix="'MH_'" :dataPath="'header'"/>
 </template>
 
 <script lang="ts">

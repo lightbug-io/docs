@@ -174,6 +174,10 @@ export default defineComponent({
 
             selectedPayload.value.forEach((payloadIndex) => {
                 let payloadValue = payloadValues.value[payloadIndex] || '';
+                if (payloadValue === '') {
+                    b.push(0);// a zero value still needs a length of 0
+                    return;
+                }
                 const payloadType = selectedMessageData.value[payloadIndex]?.type || 'undefined type';
                 const payloadValueBytes = convertToBytes(payloadValue, payloadType);
                 b.push(payloadValueBytes.length);

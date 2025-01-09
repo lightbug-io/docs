@@ -117,7 +117,7 @@ export default defineComponent({
         };
 
         const getMaxLengthPlusOne = (lines: string[]) => {
-            return Math.max(...lines.map(line => line.length)) +1;
+            return Math.max(...lines.map(line => line.length)) + 1;
         };
 
         const computedGoConstantsIndividual = computed(() => {
@@ -162,7 +162,7 @@ export default defineComponent({
         });
 
         const computedCppConstants = computed(() => {
-            let cppConstants = 'enum LB_MESSAGE_HEADERS : uint8_t {\n';
+            let cppConstants = `enum ${props.enumName} : uint8_t {\n`;
             const lines = [];
             const headerKeys = Object.keys(constants.value);
             headerKeys.forEach((key) => {
