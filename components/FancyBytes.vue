@@ -1,6 +1,7 @@
 <template>
     <div class="fancy-bytes-container">
         <v-icon @click="toggleCogModal" class="cog-icon container-config" title="Options for display">mdi-cog</v-icon>
+        <v-icon @click="navigateToGenerate" class="cog-icon container-config" title="Edit in Generator">mdi-pencil</v-icon>
         <v-dialog v-model="isCogModalVisible" max-width="300px">
             <v-card>
                 <v-card-title>Options</v-card-title>
@@ -139,6 +140,13 @@ export default defineComponent({
             isCogModalVisible.value = !isCogModalVisible.value;
         };
 
+        const navigateToGenerate = () => {
+            const url = new URL(window.location.href);
+            url.pathname = '/devices/api/generate';
+            url.searchParams.set('bytes', props.byteString);
+            window.location.href = url.toString();
+        };
+
         const rowColors = computed(() => {
             const colors: string[] = [];
             let lastColor = '#fff';
@@ -187,7 +195,8 @@ export default defineComponent({
             byteDisplayCommas,
             formatByte,
             isCogModalVisible,
-            toggleCogModal
+            toggleCogModal,
+            navigateToGenerate
         };
     },
     computed: {
