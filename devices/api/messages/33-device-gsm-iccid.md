@@ -41,7 +41,7 @@ byteString="3 19 0 33 0 2 0 1 5 1 234 1 2 1 0 1 0 116 234"
 The device would then respond with a message of type 33, with the ICCID field filled in if known.
 
 <ProtocolBytes
-byteString="3 42 0 33 0 3 0 3 4 1 1 149 1 1 1 163 1 0 1 20 56 57 52 53 55 51 48 48 48 48 48 48 50 50 50 54 49 53 51 52 148 9"
+byteString="3 42 0 33 0 3 0 3 4 1 1 234 1 1 1 163 1 0 1 20 56 57 52 53 55 51 48 48 48 48 48 48 50 50 50 54 49 53 51 52 92 210"
 :boldPositions="[20]"
 :allowCollapse="false"
 />

@@ -42,8 +42,8 @@ byteString="3 17 0 34 0 2 0 5 1 1 2 1 51 0 0 206 243"
 The device would then respond with a message of type 34, with the fields filled in.
 
 <ProtocolBytes
-byteString="3 35 0 34 0 3 0 3 4 1 4 51 0 0 0 1 1 4 12 5 0 0 3 0 1 2 3 1 47 1 100 1 0 149 60"
-:boldPositions="[3,28,30,32]"
+byteString="76 66 3 29 0 34 0 3 0 3 4 1 1 51 1 1 1 12 3 0 1 2 3 1 47 1 100 1 0 196 29"
+:boldPositions="[3,24,26,28]"
 :allowCollapse="false"
 />
 
