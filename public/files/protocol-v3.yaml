@@ -191,7 +191,7 @@ messages:
         type: "uint8"
       5:
         name: "Weekday"
-        description: "Weekday"
+        description: "Weekday (1 monday etc)"
         type: "uint8"
       6:
         name: "Hour"
