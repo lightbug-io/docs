@@ -33,15 +33,20 @@
         <div class="fancy-bytes">
             <div class="byte-container">
                 <span
-                    v-for="(byte, index) in byteArray"
-                    :key="index"
-                    class="byte"
-                    :class="['color-' + (Math.floor(index / 6) % 6)]"
-                    @mouseover="setHoveredByte(index)"
-                    @mouseleave="clearHoveredByte"
-                    :style="{ fontWeight: isBoldByte(index) ? 'bold' : 'normal' }"
+                    v-for="(byteDef, defIndex) in byteDefinitionWithBytes"
+                    :key="defIndex"
                 >
-                    {{ formatByte(byte) }}
+                    <span
+                        v-for="(byte, byteIndex) in byteDef.bytes"
+                        :key="byteIndex"
+                        class="byte"
+                        :class="getByteColorClass(defIndex)"
+                        @mouseover="setHoveredByte(byteDef.pos + byteIndex)"
+                        @mouseleave="clearHoveredByte"
+                        :style="{ fontWeight: isBoldByte(byteDef.pos + byteIndex) ? 'bold' : 'normal' }"
+                    >
+                        {{ formatByte(byte) }}
+                    </span>
                 </span>
             </div>
             <span v-if="allowCollapse" @click="toggleTable" class="expand-icon" title="Toggle Table">
@@ -98,6 +103,7 @@ interface ByteDefinition {
     value: string;
     valueParsed?: string;
     bold?: boolean;
+    bytes?: string[];
 }
 
 interface ByteGroup {
@@ -227,6 +233,11 @@ export default defineComponent({
             }
         };
 
+        const getByteColorClass = (index: number): string => {
+            const colors = ['color-0', 'color-1', 'color-2', 'color-3', 'color-4', 'color-5'];
+            return colors[index % colors.length];
+        };
+
         return {
             hoveredByte,
             setHoveredByte,
@@ -244,30 +255,19 @@ export default defineComponent({
             navigateToGenerate,
             navigateToGenerateNewTab,
             isTableVisible,
-            toggleTable
+            toggleTable,
+            getByteColorClass
         };
     },
     computed: {
         byteArray(): string[] {
             return this.byteString.trim() ? this.byteString.trim().split(' ') : [];
         },
-        groupedByteArray(): ByteGroup[] {
-            const groups: ByteGroup[] = [];
-            let currentIndex = 0;
-
-            while (currentIndex < this.byteArray.length) {
-                const byteDef = this.byteDefinition.find(def => currentIndex >= def.pos && currentIndex < def.pos + def.len);
-                if (byteDef) {
-                    const bytes = this.byteArray.slice(byteDef.pos, byteDef.pos + byteDef.len);
-                    groups.push({ start: byteDef.pos, bytes });
-                    currentIndex = byteDef.pos + byteDef.len;
-                } else {
-                    groups.push({ start: currentIndex, bytes: [this.byteArray[currentIndex]] });
-                    currentIndex++;
-                }
-            }
-
-            return groups;
+        byteDefinitionWithBytes(): ByteDefinition[] {
+            return this.byteDefinition.map(def => ({
+                ...def,
+                bytes: this.byteArray.slice(def.pos, def.pos + def.len)
+            }));
         }
     },
     methods: {
