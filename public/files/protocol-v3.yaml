@@ -213,19 +213,43 @@ messages:
       1:
         name: "alt"
         description: "Altitude"
-        type: "uint32"
+        type: "uintn" # TODO update type
       2:
         name: "lat"
         description: "Latitude"
-        type: "uint32"
+        type: "uintn" # TODO update type
       3:
         name: "lng"
         description: "Longitude"
-        type: "uint32"
+        type: "uintn" # TODO update type
       4:
         name: "speed"
         description: "Speed"
-        type: "uint32"
+        type: "uintn" # TODO update type
+      # TODO add last position type, rtk, gps, etc
+  39:
+    name: "RTK"
+    description: "RTK information"
+    group: "ondevice"
+    data:
+      1:
+        name: "enabled"
+        description: "Is RTK enabled?"
+        type: "uint8"
+        values:
+          1:
+            name: "Enabled"
+          2:
+            name: "Disabled"
+      2:
+        name: "Request"
+        description: "Request regular updates of RTK data?"
+        type: "uint8"
+        values:
+          1:
+            name: "Yes"
+          2:
+            name: "No"
   1004:
     name: "LORA V4 Forwarding"
     description: "Forwarding LORA V4 message"

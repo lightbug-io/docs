@@ -246,6 +246,7 @@ export default defineConfig({
                     { text: '35: ID', link: '/devices/api/messages/35-device-id' },
                     { text: '36: Time', link: '/devices/api/messages/36-device-time' },
                     { text: '37: Last Position', link: '/devices/api/messages/37-device-last-position' },
+                    { text: '39: RTK', link: '/devices/api/messages/39-device-rtk' },
                   ]
                 },
               ]
