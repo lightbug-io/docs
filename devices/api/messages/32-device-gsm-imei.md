@@ -53,4 +53,4 @@ byteString="3 42 0 32 0 3 0 1 3 4 1 22 1 234 1 1 1 0 1 20 56 57 52 53 55 51 56 5
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_GSM_IMEI_'" :enumName="'MD_DEVICE_GSM_IMEI'" :dataPath="'messages/32/data'"/>
+<GenerateConsts :prefix="'MD_DEVICE_IMEI_'" :enumName="'MD_DEVICE_GSM_IMEI'" :dataPath="'messages/32/data'"/>
