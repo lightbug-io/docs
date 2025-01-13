@@ -126,6 +126,11 @@ messages:
         name: "GSM ONOFF"
         description: ""
         type: "uint8"
+        values:
+          1:
+            name: "ON"
+          2:
+            name: "OFF"
   32:
     name: "GSM IMEI"
     description: "GSM IMEI information"
