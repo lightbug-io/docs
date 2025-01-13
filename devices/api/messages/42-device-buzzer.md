@@ -14,14 +14,13 @@ import GenerateConsts from '../../../components/GenerateConsts.vue'
 <SplitColumnView>
 <template #left>
 
-Used to interact with the device RTK service.
+Control the devices buzzer
 
 ### Payload
 
+
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
-| 1     | Enable | Enable or disable the service | uint8  |  1 |  1|
-| 2     | Request | Request regular updates of data | uint8  |  1 | 1|
 
 If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
 
@@ -43,4 +42,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_RTK_'" :enumName="'MD_DEVICE_RTK'" :dataPath="'messages/39/data'"/>
+<GenerateConsts :prefix="'MD_DEVICE_BUZZER_'" :enumName="'MD_DEVICE_BUZZER'" :dataPath="'messages/42/data'"/>

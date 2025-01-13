@@ -22,14 +22,14 @@ Initially the best available time will be provided. Moving forward we will be ab
 
 | Field | Name     | Description       | Type | Example |
 | ----- | -------- | ----------------- | ---- | ---- |
-| 1     | Unix     | Unix Time         | uint32 | 1734014057 |
-| 2     | Year     | Year              | uint16 | 2024 |
-| 3     | Month    | Month             | uint8 | 12 |
-| 4     | Day      | Day               | uint8 | 31 |
-| 5     | Weekday  | Day of the Week   | | |
-| 6     | Hour     | Hour              | uint8 | 24 |
-| 7     | Minute   | Minute            | uint8 | 59 |
-| 8     | Second   | Second            | uint8 | 59 |
+| 1     | Unix     | Unix Time         | uint32 | 2878397041 |
+| 2     | Year     | Year              | TBD | TBD |
+| 3     | Month    | Months since January - [0, 11]             | uint8 | 1 |
+| 4     | Day      | Day of the month - [1, 31]               | uint8 | 10 |
+| 5     | Weekday  | Days since Sunday - [0, 6]  | | 248 |
+| 6     | Hour     | Hours since midnight - [0, 23]              | uint8 | 12 |
+| 7     | Minute   | Minutes after the hour - [0, 59]            | uint8 | 15 |
+| 8     | Second   | Seconds after the minute - [0, 60]            | uint8 | 45 |
 
 If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
 

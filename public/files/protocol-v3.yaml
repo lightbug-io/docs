@@ -252,6 +252,31 @@ messages:
             name: "Yes"
           2:
             name: "No"
+  42:
+    name: "Buzzer Control"
+    description: "Control the buzzer"
+    group: "ondevice"
+    data:
+      1:
+        name: "Duration"
+        description: "Duration of buzzer in millisecond"
+        type: "uint16"
+      2:
+        name: "Sound Type"
+        description: "TBA"
+        type: "uint8"
+      3:
+        name: "Intensity"
+        description: "Intensity of buzzer"
+        type: "uint8"
+      4:
+        name: "Run Count"
+        description: "Number of times to run the buzzer"
+        type: "uint8"
+      5:
+        name: "Frequency"
+        description: "Frequency of buzzer. (if frequency is sent, only duration and frequency parameters will be inside the message)"
+        type: "float"
   1004:
     name: "LORA V4 Forwarding"
     description: "Forwarding LORA V4 message"

@@ -44,6 +44,7 @@ The status of the response.
 - 1: Set, Request a change, using the data provided.
 - 2: Get, Request the current value or values.
 - 3: Subscribe, Request to be notified of changes to the value or values.
+- 4: Do, Perform an action, using the data provided.
 
 ## 10: Forwarded For
 ## 11: Forwarded RSSI
