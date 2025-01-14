@@ -3,6 +3,7 @@
         <v-icon @click="toggleCogModal" class="container-config" title="Options for display">mdi-cog</v-icon>
         <v-icon v-if="showGeneratorLink" @click="navigateToGenerate" class="container-config" title="Edit in Generator" @click.ctrl="navigateToGenerateNewTab">mdi-pencil</v-icon>
         <v-icon @click="copyToClipboard" class="container-config" title="Copy to Clipboard">mdi-content-copy</v-icon>
+        <v-icon @click="sendBytes" :class="{ 'highlight-success': isSendSuccess }" class="container-config" title="Send Bytes">mdi-file-send</v-icon>
         <v-dialog v-model="isCogModalVisible" max-width="300px">
             <v-card>
                 <v-card-title>Options</v-card-title>
@@ -24,6 +25,12 @@
                         label="Commas (1, 2, 3)"
                         density="compact"
                     ></v-checkbox>
+                    <h1>Send Byte Address</h1>
+                    <v-text-field
+                        v-model="sendAddress"
+                        label="HTTP/HTTPS Address"
+                        density="compact"
+                    ></v-text-field>
                 </v-card-text>
                 <v-card-actions>
                     <v-btn text @click="toggleCogModal">Close</v-btn>
@@ -141,8 +148,10 @@ export default defineComponent({
         const byteDisplayType = ref<'ints' | 'hex' | 'hex0x'>(localStorage.getItem('byteDisplayType') as 'ints' | 'hex' | 'hex0x' || 'ints');
         const byteCopySpaces = ref(localStorage.getItem('byteCopySpaces') === 'true');
         const byteCopyCommas = ref(localStorage.getItem('byteCopyCommas') === 'true');
+        const sendAddress = ref(localStorage.getItem('sendAddress') || '');
         const isCogModalVisible = ref(false);
         const isTableVisible = ref(!props.defaultCollapsed);
+        const isSendSuccess = ref(false);
 
         watch(byteDisplayType, (newValue) => {
             localStorage.setItem('byteDisplayType', newValue);
@@ -156,6 +165,10 @@ export default defineComponent({
             localStorage.setItem('byteCopyCommas', newValue.toString());
         });
 
+        watch(sendAddress, (newValue) => {
+            localStorage.setItem('sendAddress', newValue);
+        });
+
         const handleStorageChange = (event: StorageEvent) => {
             if (event.key === 'byteDisplayType') {
                 byteDisplayType.value = event.newValue as 'ints' | 'hex' | 'hex0x';
@@ -163,6 +176,8 @@ export default defineComponent({
                 byteCopySpaces.value = event.newValue === 'true';
             } else if (event.key === 'byteCopyCommas') {
                 byteCopyCommas.value = event.newValue === 'true';
+            } else if (event.key === 'sendAddress') {
+                sendAddress.value = event.newValue || '';
             }
         };
 
@@ -194,6 +209,7 @@ export default defineComponent({
         const toggleTable = () => {
             isTableVisible.value = !isTableVisible.value;
         };
+
         const copyToClipboard = () => {
             let text = props.byteString;
             if (byteCopyCommas.value) {
@@ -205,8 +221,31 @@ export default defineComponent({
                 text = text.replace(/ /g, '');
             }
             navigator.clipboard.writeText(text).then(() => {
-            console.log('Copied to clipboard:', text);
+                console.log('Copied to clipboard:', text);
             });
+        };
+
+        const sendBytes = async () => {
+            if (!sendAddress.value) {
+                alert('Please configure the HTTP/HTTPS address in the options.');
+                return;
+            }
+            try {
+                const response = await fetch(sendAddress.value, {
+                    method: 'POST',
+                    body: props.byteString
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                isSendSuccess.value = true;
+                setTimeout(() => {
+                    isSendSuccess.value = false;
+                }, 250);
+            } catch (error) {
+                console.error('Error sending bytes:', error);
+                alert('Error sending bytes');
+            }
         };
 
         const navigateToGenerate = (event) => {
@@ -278,10 +317,13 @@ export default defineComponent({
             byteDisplayType,
             byteCopySpaces,
             byteCopyCommas,
+            sendAddress,
             formatByte,
             isCogModalVisible,
             toggleCogModal,
             copyToClipboard,
+            sendBytes,
+            isSendSuccess,
             navigateToGenerate,
             navigateToGenerateNewTab,
             isTableVisible,
@@ -449,5 +491,9 @@ export default defineComponent({
     cursor: pointer;
     float: right;
     margin-top: 10px;
+}
+
+.highlight-success {
+    color: rgb(25, 233, 25) !important;
 }
 </style>
