@@ -62,39 +62,56 @@ export default defineComponent({
             return ((byte8 << 56) | (byte7 << 48) | (byte6 << 40) | (byte5 << 32) | (byte4 << 24) | (byte3 << 16) | (byte2 << 8) | byte1) >>> 0;
         };
 
-        const typedBytesToString = (type: string, bytes: number[]): string => {
+        const typedBytesToString = (type: string, bytes: number[], fieldType?: number): string => {
             if (bytes.length === 0) {
                 return '';
             }
+            let result = '';
             switch (type) {
-            case 'uint8':
-            return bytes.length < 1 ? "" : bytes[0].toString();
-            case 'uint16':
-            return bytes.length < 2 ? "" : uint16LEtoUInt(bytes[0], bytes[1]).toString();
-            case 'uint32':
-            return bytes.length < 4 ? "" : uint32LEtoUInt(bytes[0], bytes[1], bytes[2], bytes[3]).toString();
-            case 'uint64':
-            return bytes.length < 8 ? "" : uint64LEtoUInt(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]).toString();
-            case 'float32':
-            return bytes.length < 4 ? "" : Float32Utils.bytesLEToFloat32(bytes).toString();
-            case 'ascii':
-            return String.fromCharCode(...bytes);
-            case '[]uint8':
-            return bytes.map(byte => byte.toString()).join(' ');
-            case 'uintn':
-            // This can be any sized uint, so we need to calculate the size
-            const size = bytes.length;
-            return bytes.reduce((acc, byte, index) => {
-                return acc + (byte << (8 * index));
-            }, 0).toString();
-            default:
-            const uintnValue = bytes.reduce((acc, byte, index) => {
-                return acc + (byte << (8 * index));
-            }, 0).toString();
-            const asciiValue = String.fromCharCode(...bytes);
-            return `unknown type (uintn: ${uintnValue}, ascii: ${asciiValue})`;
+                case 'uint8':
+                    result = bytes.length < 1 ? "" : bytes[0].toString();
+                    break;
+                case 'uint16':
+                    result = bytes.length < 2 ? "" : uint16LEtoUInt(bytes[0], bytes[1]).toString();
+                    break;
+                case 'uint32':
+                    result = bytes.length < 4 ? "" : uint32LEtoUInt(bytes[0], bytes[1], bytes[2], bytes[3]).toString();
+                    break;
+                case 'uint64':
+                    result = bytes.length < 8 ? "" : uint64LEtoUInt(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]).toString();
+                    break;
+                case 'float32':
+                    result = bytes.length < 4 ? "" : Float32Utils.bytesLEToFloat32(bytes).toString();
+                    break;
+                case 'ascii':
+                    result = String.fromCharCode(...bytes);
+                    break;
+                case '[]uint8':
+                    result = bytes.map(byte => byte.toString()).join(' ');
+                    break;
+                case 'uintn':
+                    const size = bytes.length;
+                    result = bytes.reduce((acc, byte, index) => {
+                        return acc + (byte << (8 * index));
+                    }, 0).toString();
+                    break;
+                default:
+                    const uintnValue = bytes.reduce((acc, byte, index) => {
+                        return acc + (byte << (8 * index));
+                    }, 0).toString();
+                    const asciiValue = String.fromCharCode(...bytes);
+                    result = `unknown type (uintn: ${uintnValue}, ascii: ${asciiValue})`;
             }
-        }
+
+            if (fieldType !== undefined) {
+                const fieldValues = protocolData.value?.header?.[fieldType]?.values || protocolData.value?.messages?.[fieldType]?.values;
+                if (fieldValues && fieldValues[result]) {
+                    result += ` (${fieldValues[result].name})`;
+                }
+            }
+
+            return result;
+        };
 
         const computeByteDefinition = (byteString: string): ByteDefinition[] => {
             const byteArray = byteString.split(' ')
@@ -219,7 +236,7 @@ export default defineComponent({
                     desc: headerFieldName + '('+headerFieldType+')' + ' Data',
                     type: headerFieldValueType,
                     value: byteArray.slice(headerDataStart + 1, headerDataStart + 1 + headerLength).join(' '),
-                    valueParsed: typedBytesToString(headerFieldValueType, byteArray.slice(headerDataStart + 1, headerDataStart + 1 + headerLength)),
+                    valueParsed: typedBytesToString(headerFieldValueType, byteArray.slice(headerDataStart + 1, headerDataStart + 1 + headerLength), headerFieldType),
                     bold: props.boldPositions.includes(headerDataStart + 1)
                 });
                 headerDataStart += headerLength + 1;
@@ -273,7 +290,7 @@ export default defineComponent({
                     desc: payloadFieldName + ' ('+payloadFieldType+')' +' Data',
                     type: payloadFieldValueType,
                     value: byteArray.slice(payloadDataStart + 1, payloadDataStart + 1 + payloadLength).join(' '),
-                    valueParsed: typedBytesToString(payloadFieldValueType, byteArray.slice(payloadDataStart + 1, payloadDataStart + 1 + payloadLength)),
+                    valueParsed: typedBytesToString(payloadFieldValueType, byteArray.slice(payloadDataStart + 1, payloadDataStart + 1 + payloadLength), payloadFieldType),
                     bold: props.boldPositions.includes(payloadDataStart + 1)
                 });
                 payloadDataStart += payloadLength + 1;
