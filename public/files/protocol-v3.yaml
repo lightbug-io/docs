@@ -234,6 +234,9 @@ messages:
         description: "Speed"
         type: "uintn" # TODO update type
       # TODO add last position type, rtk, gps, etc
+  38:
+    name: "Link Control"
+    description: "Control a link to the web to send and receive messages"
   39:
     name: "RTK"
     description: "RTK information"
@@ -257,6 +260,22 @@ messages:
             name: "Yes"
           2:
             name: "No"
+  40:
+    name: "Haptics Control"
+    description: "Control the haptics"
+    group: "ondevice"
+    data:
+      1:
+        name: "Pattern"
+        description: "Pattern of haptics [1-3]"
+        type: "uint8"
+      2:
+        name: "Intensity"
+        description: "Intensity of haptics [0-2], 0 = low, 1 = medium, 2 = high"
+        type: "uint8"
+  41:
+    name: "Temperature"
+    description: "Temperature information"
   42:
     name: "Buzzer Control"
     description: "Control the buzzer"
@@ -282,6 +301,15 @@ messages:
         name: "Frequency"
         description: "Frequency of buzzer of KHz.(if frequency is sent, only duration and frequency parameters will be inside the message)"
         type: "float"
+  43:
+    name: "Battery Status"
+    description: "Battery status information"
+  44:
+    name: "Pressure"
+    description: "Pressure information"
+  45:
+    name: "Alarm"
+    description: "Alarm"
   1004:
     name: "LORA V4 Forwarding"
     description: "Forwarding LORA V4 message"
