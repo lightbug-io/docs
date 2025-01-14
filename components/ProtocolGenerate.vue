@@ -12,7 +12,7 @@
         <div v-for="(header, key) in headers" :key="key">
             <v-checkbox-btn
                 v-model="selectedHeaders"
-                :label="header.name"
+                :label="`${key}: ${header.name}`"
                 :value="key"
                 density="compact"
             />
@@ -35,12 +35,40 @@
                 />
             </template>
         </div>
+        <div v-for="(customHeader, index) in customHeaders" :key="index">
+            <v-checkbox-btn
+                v-model="customHeader.enabled"
+                :label="`Custom Header ${index + 1}`"
+                density="compact"
+            />
+            <template v-if="customHeader.enabled">
+                <v-text-field
+                    v-model="customHeader.id"
+                    label="Header Type ID (uint8)"
+                    density="compact"
+                />
+                <v-select
+                    v-model="customHeader.type"
+                    :items="typeOptions"
+                    label="Header Type"
+                    density="compact"
+                />
+                <v-text-field
+                    v-model="customHeader.value"
+                    :label="`Header Value (${customHeader.type})`"
+                    density="compact"
+                />
+            </template>
+        </div>
+        <small v-if="customHeaders.length === 0 || customHeaders[customHeaders.length - 1].enabled">
+            <a href="javascript:void(0);" @click.prevent="addCustomHeaderField">Add Custom Header</a>
+        </small>
         <br/>
         <h5>Payload</h5>
         <div v-for="(data, key) in selectedMessageData" :key="key">
             <v-checkbox-btn
                 v-model="selectedPayload"
-                :label="data.name"
+                :label="`${key}: ${data.name}`"
                 :value="key"
                 density="compact"
             />
@@ -63,6 +91,36 @@
                 />
             </template>
         </div>
+        <div v-for="(customPayload, index) in customPayloads" :key="index">
+            <v-checkbox-btn
+                v-model="customPayload.enabled"
+                :label="`Custom Payload ${index + 1}`"
+                density="compact"
+            />
+            <template v-if="customPayload.enabled">
+                <v-text-field
+                    v-model="customPayload.id"
+                    label="Payload Type ID (uint8)"
+                    density="compact"
+                />
+                <v-select
+                    v-model="customPayload.type"
+                    :items="typeOptions"
+                    item-title="name"
+                    item-value="key"
+                    label="Payload Type"
+                    density="compact"
+                />
+                <v-text-field
+                    v-model="customPayload.value"
+                    :label="`Payload Value (${customPayload.type})`"
+                    density="compact"
+                />
+            </template>
+        </div>
+        <small v-if="customPayloads.length === 0 || customPayloads[customPayloads.length - 1].enabled">
+            <a href="javascript:void(0);" @click.prevent="addCustomPayloadField">Add Custom Payload</a>
+        </small>
     </div>
     <ProtocolBytes :byteString="generatedInts" showValidation :showGeneratorLink="false" />
 </template>
@@ -88,6 +146,8 @@ export default defineComponent({
         const selectedPayload = ref([]);
         const headerValues = ref({});
         const payloadValues = ref({});
+        const customHeaders = ref([]);
+        const customPayloads = ref([]);
         const protocolData = ref<any>({});
         const headers = computed(() => protocolData.value.header || {});
         const messageOptions = computed(() => {
@@ -102,6 +162,16 @@ export default defineComponent({
             if (!selectedMessage.value) return {};
             return protocolData.value.messages?.[selectedMessage.value]?.data || {};
         });
+        const typeOptions = [
+            { key: 'uint8', name: 'uint8' },
+            { key: 'uint16', name: 'uint16' },
+            { key: 'uint32', name: 'uint32' },
+            { key: 'uint64', name: 'uint64' },
+            { key: 'ascii', name: 'ascii' },
+            { key: '[]uint8', name: '[]uint8' },
+            { key: 'float32', name: 'float32' },
+            { key: 'uintn', name: 'uintn' }
+        ];
 
         const loadProtocolData = async () => {
             try {
@@ -157,9 +227,16 @@ export default defineComponent({
                 b.push(...intTouint16LE(selectedMessage.value));
             }
 
-            b.push(...intTouint16LE(selectedHeaders.value.length));
+            b.push(...intTouint16LE(selectedHeaders.value.length + customHeaders.value.filter(header => header.enabled).length));
             selectedHeaders.value.forEach((headerIndex) => {
                 b.push(headerIndex);
+            });
+
+            customHeaders.value.forEach(customHeader => {
+                if (customHeader.enabled) {
+                    const customHeaderIdNum = parseInt(customHeader.id, 10);
+                    b.push(customHeaderIdNum);
+                }
             });
 
             selectedHeaders.value.forEach((headerIndex) => {
@@ -170,9 +247,24 @@ export default defineComponent({
                 b.push(...headerValueBytes);
             });
 
-            b.push(...intTouint16LE(selectedPayload.value.length));
+            customHeaders.value.forEach(customHeader => {
+                if (customHeader.enabled) {
+                    const customHeaderValueBytes = convertToBytes(customHeader.value, customHeader.type);
+                    b.push(customHeaderValueBytes.length);
+                    b.push(...customHeaderValueBytes);
+                }
+            });
+
+            b.push(...intTouint16LE(selectedPayload.value.length + customPayloads.value.filter(payload => payload.enabled).length));
             selectedPayload.value.forEach((payloadIndex) => {
                 b.push(payloadIndex);
+            });
+
+            customPayloads.value.forEach(customPayload => {
+                if (customPayload.enabled) {
+                    const customPayloadIdNum = parseInt(customPayload.id, 10);
+                    b.push(customPayloadIdNum);
+                }
             });
 
             selectedPayload.value.forEach((payloadIndex) => {
@@ -185,6 +277,14 @@ export default defineComponent({
                 const payloadValueBytes = convertToBytes(payloadValue, payloadType);
                 b.push(payloadValueBytes.length);
                 b.push(...payloadValueBytes);
+            });
+
+            customPayloads.value.forEach(customPayload => {
+                if (customPayload.enabled) {
+                    const customPayloadValueBytes = convertToBytes(customPayload.value, customPayload.type);
+                    b.push(customPayloadValueBytes.length);
+                    b.push(...customPayloadValueBytes);
+                }
             });
 
             const length = b.length + 2;
@@ -341,6 +441,14 @@ export default defineComponent({
             urlLoaded.value = true;
         };
 
+        const addCustomHeaderField = () => {
+            customHeaders.value.push({ enabled: true, id: '', type: '', value: '' });
+        };
+
+        const addCustomPayloadField = () => {
+            customPayloads.value.push({ enabled: true, id: '', type: '', value: '' });
+        };
+
         watch(selectedMessage, () => {
             if (urlLoaded.value) {
                 if (!shouldWatchForChanges.value) {
@@ -366,12 +474,17 @@ export default defineComponent({
             selectedPayload,
             headerValues,
             payloadValues,
+            customHeaders,
+            customPayloads,
+            addCustomHeaderField,
+            addCustomPayloadField,
             generatedHex,
             generatedLongHex,
             generatedInts,
             headers,
             messageOptions,
             selectedMessageData,
+            typeOptions
         };
     },
 });
