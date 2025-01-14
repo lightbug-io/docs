@@ -92,7 +92,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, ref, computed } from 'vue';
+import { defineComponent, PropType, ref, computed, watch, onMounted, onUnmounted } from 'vue';
 
 interface ByteDefinition {
     pos: number;
@@ -138,11 +138,41 @@ export default defineComponent({
     setup(props) {
         const hoveredByte = ref<number | null>(null);
         const hoveredByteRange = ref<{ start: number, end: number } | null>(null);
-        const byteDisplayType = ref<'ints' | 'hex' | 'hex0x'>('ints');
-        const byteCopySpaces = ref(true);
-        const byteCopyCommas = ref(false);
+        const byteDisplayType = ref<'ints' | 'hex' | 'hex0x'>(localStorage.getItem('byteDisplayType') as 'ints' | 'hex' | 'hex0x' || 'ints');
+        const byteCopySpaces = ref(localStorage.getItem('byteCopySpaces') === 'true');
+        const byteCopyCommas = ref(localStorage.getItem('byteCopyCommas') === 'true');
         const isCogModalVisible = ref(false);
         const isTableVisible = ref(!props.defaultCollapsed);
+
+        watch(byteDisplayType, (newValue) => {
+            localStorage.setItem('byteDisplayType', newValue);
+        });
+
+        watch(byteCopySpaces, (newValue) => {
+            localStorage.setItem('byteCopySpaces', newValue.toString());
+        });
+
+        watch(byteCopyCommas, (newValue) => {
+            localStorage.setItem('byteCopyCommas', newValue.toString());
+        });
+
+        const handleStorageChange = (event: StorageEvent) => {
+            if (event.key === 'byteDisplayType') {
+                byteDisplayType.value = event.newValue as 'ints' | 'hex' | 'hex0x';
+            } else if (event.key === 'byteCopySpaces') {
+                byteCopySpaces.value = event.newValue === 'true';
+            } else if (event.key === 'byteCopyCommas') {
+                byteCopyCommas.value = event.newValue === 'true';
+            }
+        };
+
+        onMounted(() => {
+            window.addEventListener('storage', handleStorageChange);
+        });
+
+        onUnmounted(() => {
+            window.removeEventListener('storage', handleStorageChange);
+        });
 
         const setHoveredByte = (index: number) => {
             hoveredByte.value = index;
