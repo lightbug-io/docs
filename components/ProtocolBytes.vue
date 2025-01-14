@@ -62,7 +62,7 @@ export default defineComponent({
             return ((byte8 << 56) | (byte7 << 48) | (byte6 << 40) | (byte5 << 32) | (byte4 << 24) | (byte3 << 16) | (byte2 << 8) | byte1) >>> 0;
         };
 
-        const typedBytesToString = (type: string, bytes: number[], fieldType?: number): string => {
+        const typedBytesToString = (type: string, bytes: number[], fieldType?: number, isMessageType?: any): string => {
             if (bytes.length === 0) {
                 return '';
             }
@@ -107,6 +107,14 @@ export default defineComponent({
                 const fieldValues = protocolData.value?.header?.[fieldType]?.values || protocolData.value?.messages?.[fieldType]?.values;
                 if (fieldValues && fieldValues[result]) {
                     result += ` (${fieldValues[result].name})`;
+                }
+            }
+
+            // Add message type names in some specific cases
+            if (isMessageType !== undefined && isMessageType && type === 'uint16') {
+                const messageName = protocolData.value?.messages?.[result]?.name;
+                if (messageName) {
+                    result += ` (${messageName})`;
                 }
             }
 
@@ -181,7 +189,7 @@ export default defineComponent({
                 desc: 'Type',
                 type: 'uint16',
                 value: byteArray.slice(msgStart + 3, msgStart + 5).join(' '),
-                valueParsed: typedBytesToString('uint16', byteArray.slice(msgStart + 3, msgStart + 5)),
+                valueParsed: typedBytesToString('uint16', byteArray.slice(msgStart + 3, msgStart + 5),null,1),
                 bold: props.boldPositions.includes(msgStart + 3)
             });
             const messageType = uint16LEtoUInt(byteArray[msgStart + 3], byteArray[msgStart + 4]);
@@ -283,6 +291,12 @@ export default defineComponent({
                     valueParsed: typedBytesToString('uint8', byteArray.slice(payloadDataStart, payloadDataStart + 1)),
                     bold: props.boldPositions.includes(payloadDataStart)
                 });
+                let isDataValueAckedTypeId = false;
+                // is msg type is 5, and payload field is 1, then we know it is the isDataValueAckedTypeId
+                if (messageType === 5 && payloadFieldType === 1) {
+                    isDataValueAckedTypeId = true;
+                }
+
                 byteDefinition.push({
                     pos: payloadDataStart + 1,
                     len: payloadLength,
@@ -290,7 +304,7 @@ export default defineComponent({
                     desc: payloadFieldName + ' ('+payloadFieldType+')' +' Data',
                     type: payloadFieldValueType,
                     value: byteArray.slice(payloadDataStart + 1, payloadDataStart + 1 + payloadLength).join(' '),
-                    valueParsed: typedBytesToString(payloadFieldValueType, byteArray.slice(payloadDataStart + 1, payloadDataStart + 1 + payloadLength), payloadFieldType),
+                    valueParsed: typedBytesToString(payloadFieldValueType, byteArray.slice(payloadDataStart + 1, payloadDataStart + 1 + payloadLength), payloadFieldType, isDataValueAckedTypeId),
                     bold: props.boldPositions.includes(payloadDataStart + 1)
                 });
                 payloadDataStart += payloadLength + 1;
