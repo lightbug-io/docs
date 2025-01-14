@@ -300,7 +300,7 @@ messages:
       5:
         name: "Frequency"
         description: "Frequency of buzzer of KHz.(if frequency is sent, only duration and frequency parameters will be inside the message)"
-        type: "float"
+        type: "float32"
   43:
     name: "Battery Status"
     description: "Battery status information"

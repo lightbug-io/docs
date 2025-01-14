@@ -72,6 +72,7 @@ import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import jsyaml from 'js-yaml';
 import crc16xmodem from 'crc/calculators/crc16xmodem';
 import ProtocolBytes from './ProtocolBytes.vue';
+import Float32Utils from './../utils/Float32Utils';
 
 export default defineComponent({
     name: 'ProtocolGenerate',
@@ -137,6 +138,8 @@ export default defineComponent({
                     return value.split('').map(char => char.charCodeAt(0));
                 case '[]uint8':
                     return value.split(' ').map(part => parseInt(part, 10));
+                case 'float32':
+                    return Float32Utils.float32ToBytesLE(parseFloat(value));
                 default:
                     return [];
             }
@@ -306,6 +309,8 @@ export default defineComponent({
                     return ((bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0]).toString();
                 case 'uint64':
                     return ((bytes[7] << 56) | (bytes[6] << 48) | (bytes[5] << 40) | (bytes[4] << 32) | (bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0]).toString();
+                case 'float32':
+                    return Float32Utils.bytesLEToFloat32(bytes).toString();
                 case 'ascii':
                     return String.fromCharCode(...bytes);
                 case '[]uint8':

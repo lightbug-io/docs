@@ -6,6 +6,7 @@ import FancyBytes from './FancyBytes.vue';
 import { defineComponent, ref, PropType, computed, onMounted } from 'vue';
 import jsyaml from 'js-yaml';
 import crc16 from 'crc/crc16xmodem';
+import Float32Utils from '../utils/Float32Utils';
 
 interface ByteDefinition {
     pos: number;
@@ -74,6 +75,8 @@ export default defineComponent({
             return bytes.length < 4 ? "" : uint32LEtoUInt(bytes[0], bytes[1], bytes[2], bytes[3]).toString();
             case 'uint64':
             return bytes.length < 8 ? "" : uint64LEtoUInt(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]).toString();
+            case 'float32':
+            return bytes.length < 4 ? "" : Float32Utils.bytesLEToFloat32(bytes).toString();
             case 'ascii':
             return String.fromCharCode(...bytes);
             case '[]uint8':
