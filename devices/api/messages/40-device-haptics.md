@@ -9,12 +9,12 @@ import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 </script>
 
-# 42: Buzzer
+# 40: Haptics
 
 <SplitColumnView>
 <template #left>
 
-Control the devices buzzer
+Control the device haptics
 
 ### Payload
 
@@ -42,4 +42,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_BUZZER_'" :enumName="'MD_DEVICE_BUZZER'" :dataPath="'messages/42/data'"/>
+<GenerateConsts :prefix="'MD_DEVICE_HAPTICS_'" :enumName="'MD_DEVICE_HAPTICS'" :dataPath="'messages/40/data'"/>

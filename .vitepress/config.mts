@@ -247,7 +247,10 @@ export default defineConfig({
                     { text: '36: Time', link: '/devices/api/messages/36-device-time' },
                     { text: '37: Last Position', link: '/devices/api/messages/37-device-last-position' },
                     { text: '39: RTK', link: '/devices/api/messages/39-device-rtk' },
+                    { text: '40: Haptics', link: '/devices/api/messages/40-device-haptics' },
+                    { text: '41: Temperature', link: '/devices/api/messages/41-device-temperature' },
                     { text: '42: Buzzer', link: '/devices/api/messages/42-device-buzzer' },
+                    { text: '44: Pressure', link: '/devices/api/messages/44-device-pressure' },
                   ]
                 },
               ]
