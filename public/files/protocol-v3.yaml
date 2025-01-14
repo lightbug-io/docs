@@ -120,7 +120,7 @@ messages:
         type: "uint8"
       2:
         name: "Duration"
-        description: "max 259200, 4 bytes values"
+        description: "in seconds"
         type: "uint32"
       3:
         name: "GSM ONOFF"
@@ -283,7 +283,7 @@ messages:
     data:
       1:
         name: "Duration"
-        description: "Duration of buzzer in millisecond"
+        description: "Duration of buzzer in milliseconds"
         type: "uint16"
       2:
         name: "Sound Type"
