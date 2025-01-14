@@ -1,12 +1,21 @@
 <template>
-    <v-select
-        v-model="selectedMessage"
-        :items="messageOptions"
-        label="Message Type"
-        item-title="name"
-        item-value="id"
-        density="compact"
-    />
+    <div style="display: flex; align-items: center;">
+        <v-select
+            v-model="selectedMessage"
+            :items="messageOptionsWithCustom"
+            label="Message Type"
+            item-title="name"
+            item-value="id"
+            density="compact"
+        />
+        <v-text-field
+            v-if="selectedMessage === 'custom'"
+            v-model="customMessageType"
+            label="Custom Message Type (uint8)"
+            density="compact"
+            style="margin-left: 10px;"
+        />
+    </div>
     <div v-if="selectedMessage">
         <h5>Headers</h5>
         <div v-for="(header, key) in headers" :key="key">
@@ -156,6 +165,7 @@ export default defineComponent({
         const shouldWatchForChanges = ref(false);
         const includePrefix = ref(true);
         const selectedMessage = ref(null);
+        const customMessageType = ref('');
         const selectedHeaders = ref([]);
         const selectedPayload = ref([]);
         const headerValues = ref({});
@@ -172,8 +182,11 @@ export default defineComponent({
                 };
             });
         });
+        const messageOptionsWithCustom = computed(() => {
+            return [...messageOptions.value, { id: 'custom', name: 'Custom' }];
+        });
         const selectedMessageData = computed(() => {
-            if (!selectedMessage.value) return {};
+            if (!selectedMessage.value || selectedMessage.value === 'custom') return {};
             return protocolData.value.messages?.[selectedMessage.value]?.data || {};
         });
         const typeOptions = [
@@ -238,7 +251,8 @@ export default defineComponent({
             b.push(255);
             b.push(255);
             if (selectedMessage.value !== null) {
-                b.push(...intTouint16LE(selectedMessage.value));
+                const messageType = selectedMessage.value === 'custom' ? parseInt(customMessageType.value, 10) : selectedMessage.value;
+                b.push(...intTouint16LE(messageType));
             }
 
             b.push(...intTouint16LE(selectedHeaders.value.length + customHeaders.value.filter(header => header.enabled).length));
@@ -499,6 +513,7 @@ export default defineComponent({
         return {
             includePrefix,
             selectedMessage,
+            customMessageType,
             selectedHeaders,
             selectedPayload,
             headerValues,
@@ -514,6 +529,7 @@ export default defineComponent({
             generatedInts,
             headers,
             messageOptions,
+            messageOptionsWithCustom,
             selectedMessageData,
             typeOptions
         };
