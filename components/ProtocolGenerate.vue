@@ -42,26 +42,34 @@
                 density="compact"
             />
             <template v-if="customHeader.enabled">
-                <v-text-field
-                    v-model="customHeader.id"
-                    label="Header Type ID (uint8)"
-                    density="compact"
-                />
-                <v-select
-                    v-model="customHeader.type"
-                    :items="typeOptions"
-                    label="Header Type"
-                    density="compact"
-                />
-                <v-text-field
-                    v-model="customHeader.value"
-                    :label="`Header Value (${customHeader.type})`"
-                    density="compact"
-                />
+                <div style="display: flex; align-items: center;">
+                    <v-text-field
+                        v-model="customHeader.id"
+                        label="Header Type ID (uint8)"
+                        density="compact"
+                        style="margin-right: 10px;"
+                    />
+                    <v-select
+                        v-model="customHeader.type"
+                        :items="typeOptions"
+                        item-title="name"
+                        item-value="key"
+                        label="Header Type"
+                        density="compact"
+                        style="margin-right: 10px;"
+                    />
+                    <v-text-field
+                        v-model="customHeader.value"
+                        :label="`Header Value (${customHeader.type})`"
+                        density="compact"
+                    />
+                </div>
             </template>
         </div>
-        <small v-if="customHeaders.length === 0 || customHeaders[customHeaders.length - 1].enabled">
-            <a href="javascript:void(0);" @click.prevent="addCustomHeaderField">Add Custom Header</a>
+        <small>
+            Custom headers:
+            <a href="javascript:void(0);" @click.prevent="addCustomHeaderField">Add</a> /
+            <a href="javascript:void(0);" @click.prevent="removeCustomHeaderField">Remove</a>
         </small>
         <br/>
         <h5>Payload</h5>
@@ -98,28 +106,34 @@
                 density="compact"
             />
             <template v-if="customPayload.enabled">
-                <v-text-field
-                    v-model="customPayload.id"
-                    label="Payload Type ID (uint8)"
-                    density="compact"
-                />
-                <v-select
-                    v-model="customPayload.type"
-                    :items="typeOptions"
-                    item-title="name"
-                    item-value="key"
-                    label="Payload Type"
-                    density="compact"
-                />
-                <v-text-field
-                    v-model="customPayload.value"
-                    :label="`Payload Value (${customPayload.type})`"
-                    density="compact"
-                />
+                <div style="display: flex; align-items: center;">
+                    <v-text-field
+                        v-model="customPayload.id"
+                        label="Payload Type ID (uint8)"
+                        density="compact"
+                        style="margin-right: 10px;"
+                    />
+                    <v-select
+                        v-model="customPayload.type"
+                        :items="typeOptions"
+                        item-title="name"
+                        item-value="key"
+                        label="Payload Type"
+                        density="compact"
+                        style="margin-right: 10px;"
+                    />
+                    <v-text-field
+                        v-model="customPayload.value"
+                        :label="`Payload Value (${customPayload.type})`"
+                        density="compact"
+                    />
+                </div>
             </template>
         </div>
-        <small v-if="customPayloads.length === 0 || customPayloads[customPayloads.length - 1].enabled">
-            <a href="javascript:void(0);" @click.prevent="addCustomPayloadField">Add Custom Payload</a>
+        <small>
+            Custom payloads:
+            <a href="javascript:void(0);" @click.prevent="addCustomPayloadField">Add</a> /
+            <a href="javascript:void(0);" @click.prevent="removeCustomPayloadField">Remove</a>
         </small>
     </div>
     <ProtocolBytes :byteString="generatedInts" showValidation :showGeneratorLink="false" />
@@ -445,8 +459,23 @@ export default defineComponent({
             customHeaders.value.push({ enabled: true, id: '', type: '', value: '' });
         };
 
+        const removeCustomHeaderField = () => {
+            if (customHeaders.value.length > 0) {
+            const removedHeader = customHeaders.value.pop();
+            if (removedHeader && removedHeader.id) {
+                delete headerValues.value[removedHeader.id];
+            }
+            }
+        };
+
         const addCustomPayloadField = () => {
             customPayloads.value.push({ enabled: true, id: '', type: '', value: '' });
+        };
+
+        const removeCustomPayloadField = () => {
+            if (customPayloads.value.length > 0) {
+                customPayloads.value.pop();
+            }
         };
 
         watch(selectedMessage, () => {
@@ -477,7 +506,9 @@ export default defineComponent({
             customHeaders,
             customPayloads,
             addCustomHeaderField,
+            removeCustomHeaderField,
             addCustomPayloadField,
+            removeCustomPayloadField,
             generatedHex,
             generatedLongHex,
             generatedInts,

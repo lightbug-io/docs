@@ -96,11 +96,7 @@ export default defineComponent({
                     }, 0).toString();
                     break;
                 default:
-                    const uintnValue = bytes.reduce((acc, byte, index) => {
-                        return acc + (byte << (8 * index));
-                    }, 0).toString();
-                    const asciiValue = String.fromCharCode(...bytes);
-                    result = `unknown type (uintn: ${uintnValue}, ascii: ${asciiValue})`;
+                    result = bytes.map(byte => byte.toString()).join(' ');
             }
 
             if (fieldType !== undefined) {
