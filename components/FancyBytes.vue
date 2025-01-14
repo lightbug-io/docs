@@ -227,24 +227,40 @@ export default defineComponent({
 
         const sendBytes = async () => {
             if (!sendAddress.value) {
-                alert('Please configure the HTTP/HTTPS address in the options.');
-                return;
+            alert('Please configure the HTTP/HTTPS address in the options.');
+            return;
             }
+
+            const addresses = sendAddress.value.split(/[,;]\s*/).filter(addr => addr);
+            if (addresses.length === 0) {
+            alert('Please configure at least one valid HTTP/HTTPS address in the options.');
+            return;
+            }
+
+            let allSuccess = true;
+
+            for (const address of addresses) {
             try {
-                const response = await fetch(sendAddress.value, {
-                    method: 'POST',
-                    body: props.byteString
+                const response = await fetch(address, {
+                method: 'POST',
+                body: props.byteString
                 });
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                throw new Error('Network response was not ok');
                 }
-                isSendSuccess.value = true;
-                setTimeout(() => {
-                    isSendSuccess.value = false;
-                }, 250);
             } catch (error) {
-                console.error('Error sending bytes:', error);
-                alert('Error sending bytes');
+                console.error('Error sending bytes to', address, ':', error);
+                allSuccess = false;
+            }
+            }
+
+            isSendSuccess.value = allSuccess;
+            if (allSuccess) {
+            setTimeout(() => {
+                isSendSuccess.value = false;
+            }, 250);
+            } else {
+            alert('Error sending bytes to one or more addresses');
             }
         };
 
