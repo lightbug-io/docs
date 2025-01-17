@@ -24,11 +24,11 @@ Messages relating to specific on device services.
 | ---- | ---- | ----------- |
 | [30: Transmit Now](./30-device-transmit-now) | Transmit Now | Send arbitrary data. |
 | [31: GSM CFUN](./31-device-gsm-cfun) | GSM CFUN | TODO document... |
-| [32: GSM IMEI](./32-devie-gsm-imei) | GSM IMEI | The GSM IMEI message can be used to get the IMEI of the device. |
+| [32: GSM IMEI](./32-device-gsm-imei) | GSM IMEI | The GSM IMEI message can be used to get the IMEI of the device. |
 | [33: GSM ICCID](./33-device-gsm-iccid) | GSM ICCID | Device ICCID. |
 | [34: Status](./34-device-status) | Device Info: Status | TODO document... |
 | [35: ID](./35-device-id) | Device Info: ID | TODO document... |
 | [36: Time](./36-device-time) | Interact with device time. |
 | [37: Last Position](./37-device-last-position) | TODO document... |
-| [39: RTK](./37-device-rtk) | TODO document... |
-| [39: RTK](./37-device-buzzer) | TODO document... |
+| [39: RTK](./39-device-rtk) | TODO document... |
+| [39: RTK](./42-device-buzzer) | TODO document... |
