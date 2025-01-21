@@ -331,6 +331,7 @@ export default defineComponent({
             hoveredByte,
             setHoveredByte,
             setHoveredByteRange,
+            getByteColorClass,
             clearHoveredByte,
             getRowColor,
             isByteHighlighted,
@@ -347,8 +348,7 @@ export default defineComponent({
             navigateToGenerate,
             navigateToGenerateNewTab,
             isTableVisible,
-            toggleTable,
-            getByteColorClass
+            toggleTable
         };
     },
     computed: {
