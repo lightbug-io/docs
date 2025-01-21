@@ -145,28 +145,32 @@ export default defineComponent({
     setup(props) {
         const hoveredByte = ref<number | null>(null);
         const hoveredByteRange = ref<{ start: number, end: number } | null>(null);
-        const byteDisplayType = ref<'ints' | 'hex' | 'hex0x'>(localStorage.getItem('byteDisplayType') as 'ints' | 'hex' | 'hex0x' || 'ints');
-        const byteCopySpaces = ref(localStorage.getItem('byteCopySpaces') === 'true');
-        const byteCopyCommas = ref(localStorage.getItem('byteCopyCommas') === 'true');
-        const sendAddress = ref(localStorage.getItem('sendAddress') || '');
+        // const byteDisplayType = ref<'ints' | 'hex' | 'hex0x'>(localStorage.getItem('byteDisplayType') as 'ints' | 'hex' | 'hex0x' || 'ints');
+        // const byteCopySpaces = ref(localStorage.getItem('byteCopySpaces') === 'true');
+        // const byteCopyCommas = ref(localStorage.getItem('byteCopyCommas') === 'true');
+        // const sendAddress = ref(localStorage.getItem('sendAddress') || '');
+        const byteDisplayType = ref<'ints' | 'hex' | 'hex0x'>('ints');
+        const byteCopySpaces = ref(true);
+        const byteCopyCommas = ref(false);
+        const sendAddress = ref('');
         const isCogModalVisible = ref(false);
         const isTableVisible = ref(!props.defaultCollapsed);
         const isSendSuccess = ref(false);
 
         watch(byteDisplayType, (newValue) => {
-            localStorage.setItem('byteDisplayType', newValue);
+            // localStorage.setItem('byteDisplayType', newValue);
         });
 
         watch(byteCopySpaces, (newValue) => {
-            localStorage.setItem('byteCopySpaces', newValue.toString());
+            // localStorage.setItem('byteCopySpaces', newValue.toString());
         });
 
         watch(byteCopyCommas, (newValue) => {
-            localStorage.setItem('byteCopyCommas', newValue.toString());
+            // localStorage.setItem('byteCopyCommas', newValue.toString());
         });
 
         watch(sendAddress, (newValue) => {
-            localStorage.setItem('sendAddress', newValue);
+            // localStorage.setItem('sendAddress', newValue);
         });
 
         const handleStorageChange = (event: StorageEvent) => {
