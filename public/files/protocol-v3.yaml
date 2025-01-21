@@ -313,35 +313,165 @@ messages:
   1004:
     name: "LORA V4 Forwarding"
     description: "Forwarding LORA V4 message"
-  10000:
-    name: "UX Command Start"
-    description: "Start UX command"
-    group: "ondevice-ux"
+  # 10000:
+  #   name: "UX Command Start"
+  #   description: "Start UX command"
+  #   group: "ondevice-ux"
   10009:
     name: "UX Text Page"
     description: "UX text page"
     group: "ondevice-ux"
+    data:
+      3:
+        name: "Page ID"
+        type: "uintn"
+      4:
+        name: "Page Title"
+        type: "ascii"
+      5:
+        name: "Status bar"
+        description: "Show the status bar"
+        type: "uint8"
+      100:
+        name: "Line 1"
+        type: "ascii"
+      101:
+        name: "Line 2"
+        type: "ascii"
+      102:
+        name: "Line 3"
+        type: "ascii"
+      103:
+        name: "Line 4"
+        type: "ascii"
+      104:
+        name: "Line 5"
+        type: "ascii"
   10010:
     name: "UX Update Menu"
     description: "Update UX menu"
     group: "ondevice-ux"
+    data:
+      2:
+        name: "Item count"
+        type: "uint8"
+      3:
+        name: "Page ID"
+        type: "uintn"
+      4:
+        name: "Page Title"
+        type: "ascii"
+      5:
+        name: "Initial item selection"
+        description: "An optional item to show as initially selected"
+        type: "uint8"
+      100:
+        name: "Item 1"
+        type: "ascii"
+      101:
+        name: "Item 2"
+        type: "ascii"
+      102:
+        name: "Item 3"
+        type: "ascii"
+      103:
+        name: "Item 4"
+        type: "ascii"
+      104:
+        name: "Item 5"
+        type: "ascii"
+      105:
+        name: "Item 6"
+        type: "ascii"
+      106:
+        name: "Item 7"
+        type: "ascii"
+      107:
+        name: "Item 8"
+        type: "ascii"
+      108:
+        name: "Item 9"
+        type: "ascii"
+      109:
+        name: "Item 10"
+        type: "ascii"
+      110:
+        name: "Item 11"
+        type: "ascii"
+      111:
+        name: "Item 12"
+        type: "ascii"
+      112:
+        name: "Item 13"
+        type: "ascii"
+      113:
+        name: "Item 14"
+        type: "ascii"
+      114:
+        name: "Item 15"
+        type: "ascii"
+      115:
+        name: "Item 16"
+        type: "ascii"
+      116:
+        name: "Item 17"
+        type: "ascii"
+      117:
+        name: "Item 18"
+        type: "ascii"
+      118:
+        name: "Item 19"
+        type: "ascii"
+      119:
+        name: "Item 20"
+        type: "ascii"
   10011:
     name: "UX Draw Bitmap"
     description: "Draw bitmap in UX"
     group: "ondevice-ux"
-  10012:
-    name: "UX Menu Select"
-    description: "Select UX menu item"
-    group: "ondevice-ux"
+    data:
+      3:
+        name: "Page ID"
+        type: "uintn"
+      21:
+        name: "Bitmap at X"
+        type: "uintn"
+      22:
+        name: "Bitmap at Y"
+        type: "uintn"
+      23:
+        name: "Bitmap width"
+        type: "uintn"
+      24:
+        name: "Bitmap height"
+        type: "uintn"
+      25:
+        name: "Bitmap data"
+        type: "bytes"
+      26:
+        name: "Bitmap overlay"
+        description: "Set if the previous page should NOT be cleared before drawing the bitmap"
+        type: "uint8"
   10013:
     name: "UX Button Press"
     description: "Press UX button"
     group: "ondevice-ux"
+    data:
+      3:
+        name: "Page ID"
+        type: "uintn"
+      4:
+        name: "Button ID"
+        type: "uintn"
+      5:
+        name: "Selection ID"
+        description: "Can be used if the button relates to something being selected on the page, such as in a menu"
+        type: "uintn"
   10014:
     name: "UX Full Refresh"
     description: "Full refresh of UX"
     group: "ondevice-ux"
-  11000:
-    name: "UX Command End"
-    description: "End UX command"
-    group: "ondevice-ux"
+  # 11000:
+  #   name: "UX Command End"
+  #   description: "End UX command"
+  #   group: "ondevice-ux"
