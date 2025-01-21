@@ -88,6 +88,38 @@ messages:
     name: "General Keep Alive"
     description: "General keep alive message"
     group: "general"
+  10:
+    name: "Livelink Start"
+    group: "livelink"
+  11:
+    name: "Livelink Open"
+    group: "livelink"
+  12:
+    name: "Livelink Close"
+    group: "livelink"
+  13:
+    name: "Livelink Heartbeat"
+    group: "livelink"
+    data:
+      4:
+        name: "GSM Signal"
+        description: "First byte is CSQ, Byte 2 and 3 are uint16 LE network info"
+        type: "bytes"
+      5:
+        name: "Firmware version"
+        type: "uint16"
+      6:
+        name: "Battery Percent"
+        type: "uint8"
+  14:
+    name: "Livelink Config Update"
+    group: "livelink"
+  15:
+    name: "Livelink Position Data"
+    group: "livelink"
+  16:
+    name: "Livelink Device Status"
+    group: "livelink"
   30:
     name: "Transmit Now"
     description: "Transmit data immediately"
