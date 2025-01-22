@@ -30,6 +30,266 @@
         ],
         "type": "object"
       },
+      "Device": {
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "batteryPct": {
+            "type": "integer"
+          },
+          "batteryType": {
+            "type": "string"
+          },
+          "batteryVoltage": {
+            "type": "number"
+          },
+          "btMacAddress": {
+            "description": "Bluetooth MAC Address",
+            "type": "string"
+          },
+          "btPasskey": {
+            "type": "integer"
+          },
+          "color": {
+            "type": "string"
+          },
+          "config": {
+            "$ref": "#/components/schemas/DeviceConfig"
+          },
+          "currentMode": {
+            "description": "Indicates last known device state. 0 = awake, 1 = sleep, 6 = flight mode",
+            "type": "integer"
+          },
+          "expires": {
+            "type": "string"
+          },
+          "firstSeen": {
+            "type": "string"
+          },
+          "iccid": {
+            "description": "Integrated Circuit Card Identification Number",
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "imei": {
+            "type": "string"
+          },
+          "imsi": {
+            "description": "International Mobile Subscriber Identity (A unique number associated with every GSM mobile phone subscriber, which is maintained on a SIM)"
+          },
+          "knownDevices": {
+            "description": "(optional) Bluetooth MAC addresses of other devices known to this device",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "lastConnection": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.DeviceMeta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "onoWhitelistId": {
+            "type": "integer"
+          },
+          "ownerId": {
+            "description": "ID of the user which owns this device",
+            "type": "integer"
+          },
+          "reseller": {
+            "$ref": "#/components/schemas/Reseller"
+          },
+          "resellerId": {
+            "type": "integer"
+          },
+          "resellerPlan": {
+            "$ref": "#/components/schemas/ResellerPlan"
+          },
+          "resellerPlanId": {
+            "type": "integer"
+          },
+          "serial": {
+            "type": "string"
+          },
+          "siloId": {},
+          "stripeSubscription": {},
+          "subscription": {
+            "$ref": "#/components/schemas/Subscription"
+          },
+          "subscriptionType": {},
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "type": {
+            "type": "string"
+          },
+          "users": {
+            "description": "(optional) User IDs associated with this device",
+            "items": {
+              "$ref": "#/components/schemas/UserStub"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "uwbId": {
+            "description": "UWB Address as 32bit number (ID based on the silicon inside the device)"
+          }
+        },
+        "type": "object"
+      },
+      "DeviceConfig": {
+        "description": "(optional) Configuration",
+        "properties": {
+          "alertAction": {
+            "description": "What to do when the button is pressed or the unit is dropped. Options are:\n'available' (stay registered on the mobile network),\n'nothing' (one transmission) and\n'lockOn' (keep transmitting at 'interval' until instructed otherwise",
+            "type": "string"
+          },
+          "behavior": {
+            "description": "Char Bitfield with various flags. Advanced use only.",
+            "type": "integer"
+          },
+          "command": {
+            "description": "Internal use. Sends command to device on next connection",
+            "type": "integer"
+          },
+          "currentFW": {
+            "description": "Current firmware version",
+            "type": "integer"
+          },
+          "debounce": {
+            "description": "Movement sensitivity on a scale of 1 to 10, with 1 being the most sensitive.\nIt is correlated to the number of consecutive milliseconds the acceleration needs to exceed the movementSensitivity threshold",
+            "type": "integer"
+          },
+          "flashTryCount": {
+            "description": "Internal use. Set to 0 when changing otaFW",
+            "type": "integer"
+          },
+          "forceFw": {
+            "description": "Internal use only\nUsed with otaFW. Set to true to force the unit to upgrade on next connection (rather than waiting for a sleep connection)",
+            "type": "boolean"
+          },
+          "fwChannel": {
+            "description": "The firmware channel to use for OTA updates. If null, the unit will use the default channel.",
+            "type": "string"
+          },
+          "gpsCheckInterval": {
+            "description": "If a safe-zone is used, how often to check the wifi & gps to see if its still inside it (only applies when motion is detected)",
+            "type": "integer"
+          },
+          "gpsStabilize": {
+            "description": "How long to let the GPS stabilise in seconds once a lock is achieved before sending the position.\nHigher values may increase accuracy.",
+            "type": "integer"
+          },
+          "gpsTimeout": {
+            "description": "How long to let the GPS searches for a lock in seconds before giving up. Max 255s.",
+            "type": "integer"
+          },
+          "homeWifiNetwork": {
+            "description": "WiFi network name to use as a Safe-zone. When this network is visible, stay asleep",
+            "type": "string"
+          },
+          "interval": {
+            "description": "The wake mode interval in seconds. The unit will connect to the server this often when awake.",
+            "type": "integer"
+          },
+          "modeControl": {
+            "description": "Char Bitfield with various flags. Advanced use only.",
+            "type": "integer"
+          },
+          "modeControl2": {
+            "description": "Char Bitfield with various flags. Advanced use only. FW >= 69.",
+            "type": "integer"
+          },
+          "modified": {
+            "description": "Non null dates indicate the configuration will be pushed to the device when it next connects"
+          },
+          "movementSensitivity": {
+            "description": "A secondary debounce value. Typically this value is lower or equal to debounce, representing increased\nsensitivity to movement once the device is already moving.",
+            "type": "integer"
+          },
+          "movementSensitivityOld": {
+            "description": "Deprecated. See debounce.\nmovementSensitivity threshold in terms of units of gravity. We used to adjust it, but a better way of doing it was the ammount of times over that threshold (that what debounce is)\nShould always be 1, which means... debounce when already moving",
+            "type": "integer"
+          },
+          "otaFW": {
+            "description": "Pending Firmware version. If non null, the unit will be told to upgrade to this version when it next transmits in sleep mode.",
+            "type": "integer"
+          },
+          "packing": {
+            "description": "The number of GPS points to send with each transmission.\nA packing setting of 3 with an 'interval' of 60s will result in points recorded approximately every 20s, but they will only be sent together.",
+            "type": "integer"
+          },
+          "reasonsToWake": {
+            "$ref": "#/components/schemas/DeviceConfigReasonsToWake"
+          },
+          "receivedAt": {
+            "description": "The last time the settings were sent to the device",
+            "type": "string"
+          },
+          "reset": {
+            "description": "Non NULL values cause unit to restart on next connection\n0 = Normal reboot\n1 = Clear settings cache and restart\n2 = Clear cache and bluetooth connection data, then restart",
+            "type": "integer"
+          },
+          "sleepInterval": {
+            "description": "Sleep mode interval in seconds. The unit will try to connect this often to the server when asleep",
+            "type": "integer"
+          },
+          "stopTimeout": {
+            "description": "The total amount of time in seconds the unit has to be stationary for before deeming the journey over and switching to sleep mode",
+            "type": "integer"
+          },
+          "timed": {
+            "description": "Timed update settings. Must be array of objects matching [{hh: number, mm: number, day: number, action: number}, ...] format",
+            "type": "string"
+          },
+          "tolerancePercentage": {
+            "description": "Power budget in mAh per location update. Default 10, do not set lower than 5.",
+            "type": "integer"
+          },
+          "transmitTimeout": {
+            "description": "When the unit first wakes up from sleep, how long to wait before trying to transmit in multiples of 30 seconds.\n0 = instant, 1 = 30s, 2 = 60s...\nUseful to avoid detection or draining battery inside shielded buildings.",
+            "type": "integer"
+          },
+          "updateAvailibility": {
+            "description": "The update availability.",
+            "type": "integer"
+          },
+          "wakeAction": {
+            "description": "Internal Use Only.\nWhat to do when the unit wakes up (ie is moved and not in a safe-zone).\nOptions are 'available' (lost and found), and 'normal' (tracking)",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DeviceConfigReasonsToWake": {
+        "properties": {
+          "bluetooth": {
+            "type": "boolean"
+          },
+          "drop": {
+            "type": "boolean"
+          },
+          "geofence": {
+            "type": "boolean"
+          },
+          "move": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "LoginRequest": {
         "properties": {
           "password": {
@@ -98,6 +358,9 @@
           },
           "id": {
             "type": "integer"
+          },
+          "needsPayment": {
+            "type": "boolean"
           },
           "orderId": {
             "type": "integer"
@@ -218,6 +481,31 @@
         },
         "type": "object"
       },
+      "PutPlanInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/renewOnto"
+          }
+        ],
+        "properties": {
+          "planId": {
+            "description": "Plan ID to be assigned to the device if available",
+            "type": "integer"
+          },
+          "renewOnto": {
+            "description": "Plan ID that the device should automatically renew onto in future billing cycles",
+            "type": "integer"
+          },
+          "renewUntil": {
+            "description": "Optional date, at which the device will deactivate and plans will not be renewed",
+            "type": "string"
+          }
+        },
+        "required": [
+          "planId"
+        ],
+        "type": "object"
+      },
       "RefreshTokenRequest": {
         "properties": {
           "accessToken": {
@@ -273,6 +561,128 @@
         ],
         "type": "object"
       },
+      "Reseller": {
+        "description": "(optional) Reseller",
+        "properties": {
+          "billingTerm": {
+            "type": "integer"
+          },
+          "created": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "plans": {
+            "items": {
+              "$ref": "#/components/schemas/ResellerPlan"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "stripeAccountId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "integer"
+          },
+          "xeroContactId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ResellerPlan": {
+        "description": "(optional) Reseller Plan",
+        "properties": {
+          "archived": {
+            "type": "integer"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "features": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "onoWhitelistId": {
+            "type": "integer"
+          },
+          "resellerId": {
+            "type": "integer"
+          },
+          "sleepLimit": {
+            "type": "integer"
+          },
+          "term": {
+            "type": "integer"
+          },
+          "wakeLimit": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "Subscription": {
+        "description": "(optional) Current subscription",
+        "properties": {
+          "_stripeSubscriptionId": {
+            "description": "(legacy) Stripe Subscription ID for per device subscriptions",
+            "type": "string"
+          },
+          "created": {
+            "type": "string"
+          },
+          "deviceId": {
+            "type": "integer"
+          },
+          "expires": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          },
+          "planId": {
+            "type": "integer"
+          },
+          "renewOnto": {
+            "type": "integer"
+          },
+          "userId": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "UserStub": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "hasBillingInfo": {
+            "description": "Does the user have billing info stored for automatic billing?",
+            "type": "boolean"
+          },
+          "id": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "UsersClaimDeviceRequest": {
         "properties": {
           "serial": {
@@ -308,6 +718,18 @@
           }
         },
         "type": "object"
+      },
+      "lightbug_io_gingin_internal_api_presentation.DeviceMeta": {
+        "additionalProperties": {},
+        "type": "object"
+      },
+      "renewOnto": {
+        "properties": {
+          "renewOnto": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -327,6 +749,326 @@
     "url": ""
   },
   "paths": {
+    "/devices/{id}/plan": {
+      "delete": {
+        "description": "Removes the active plan from the device, recording the date it was removed, so that partial plan usage can be deducted during billing.\nA removed plan can not be re added to a device, and a new plan has to be used.\nIf you are on legacy reseller billing, this endpoint will not work. Instead see /api/devices/{id}/activateOnResellerPlan and /api/devices/{id}/deactivate routes",
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes a device plan",
+        "tags": [
+          "devices"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Device"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets a device plan",
+        "tags": [
+          "devices"
+        ]
+      },
+      "put": {
+        "description": "Sets the plan that the device is currently using, and optionally the plan that it should renew onto\nFor user devices, the user must have already purchased the target plan, and it should be available in their plan pool\nFor reseller devices, an \"unpaid\" plan will be used, and billed on the next cycle.\nIf you are on legacy reseller billing, this endpoint will not work. Instead see /api/devices/{id}/activateOnResellerPlan and /api/devices/{id}/deactivate routes",
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/renewOnto"
+                  }
+                ],
+                "properties": {
+                  "planId": {
+                    "description": "Plan ID to be assigned to the device if available",
+                    "type": "integer"
+                  },
+                  "renewOnto": {
+                    "description": "Plan ID that the device should automatically renew onto in future billing cycles",
+                    "type": "integer"
+                  },
+                  "renewUntil": {
+                    "description": "Optional date, at which the device will deactivate and plans will not be renewed",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "planId"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "description": "Request",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Subscription"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Subscription"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Sets a device plan",
+        "tags": [
+          "devices"
+        ]
+      }
+    },
     "/devices/{id}/tags": {
       "get": {
         "parameters": [
