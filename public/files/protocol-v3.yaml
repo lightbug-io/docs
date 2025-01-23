@@ -356,6 +356,10 @@ messages:
   #   name: "UX Command Start"
   #   description: "Start UX command"
   #   group: "ondevice-ux"
+  10008:
+    name: "UX Preset Page"
+    description: "Display a predefined Lightbug page"
+    group: "ondevice-ux"
   10009:
     name: "UX Text Page"
     description: "Display or change a text page"
