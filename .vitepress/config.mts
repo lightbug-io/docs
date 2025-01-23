@@ -1,16 +1,44 @@
-import { defineConfig } from 'vitepress'
-import { useSidebar } from 'vitepress-openapi'
-import { loadSpec } from '../swagger/load'
-import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
-import { pagefindPlugin } from 'vitepress-plugin-pagefind'
+import path from 'path';
+import fs from 'fs';
+import yaml from 'js-yaml';
+import { defineConfig } from 'vitepress';
+import { useSidebar } from 'vitepress-openapi';
+import { loadSpec } from '../swagger/load';
+import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
+import { pagefindPlugin } from 'vitepress-plugin-pagefind';
 
-const sidebarSpec1 = useSidebar({ spec: loadSpec(1) })
-const sidebarSpec2 = useSidebar({ spec: loadSpec(2) })
+// Load protocol messages from YAML file
+const protocolYamlPath = path.resolve(__dirname, '../public/files/protocol-v3.yaml');
+const protocolYaml = fs.readFileSync(protocolYamlPath, 'utf8');
+const protocolData = yaml.load(protocolYaml);
+
+// Generate menu items for protocol messages grouped by their respective groups
+const protocolMessages = protocolData.messages;
+const protocolGroups = protocolData.groups;
+const protocolMenuItems = Object.keys(protocolGroups)
+  .filter(groupKey => !protocolGroups[groupKey].hidden)
+  .map(groupKey => {
+    const group = protocolGroups[groupKey];
+    const items = Object.keys(protocolMessages)
+      .filter(key => protocolMessages[key].group === groupKey)
+      .map(key => ({
+        text: `${key}: ${protocolMessages[key].name}`,
+        link: `/devices/api/messages/${key}-${protocolMessages[key].name.toLowerCase().replace(/ /g, '-')}`
+      }));
+    return {
+      text: group.name || groupKey,
+      collapsed: true,
+      items: items
+    };
+  });
+
+const sidebarSpec1 = useSidebar({ spec: loadSpec(1) });
+const sidebarSpec2 = useSidebar({ spec: loadSpec(2) });
 
 // Function to make a sidebar group be collapsed
 function collapse(group) {
-  group.collapsed = true
-  return group
+  group.collapsed = true;
+  return group;
 }
 
 function reorder(group: { items: { link: string }[] }, orderedLinks: string[]) {
@@ -224,48 +252,7 @@ export default defineConfig({
             {
               text: 'Messages',
               link: '/devices/api/messages/',
-              items: [
-                {
-                  text: 'Generic',
-                  collapsed: true,
-                  items: [
-                    { text: '5: ACK', link: '/devices/api/messages/5-ack' },
-                    { text: '6: Keepalive', link: '/devices/api/messages/6-keepalive' },
-                  ]
-                },
-                {
-                  text: 'Device Services',
-                  collapsed: true,
-                  link: '/devices/api/messages/device-services',
-                  items: [
-                    { text: '30: Transmit Now', link: '/devices/api/messages/30-device-transmit-now' },
-                    { text: '31: GSM CFUN', link: '/devices/api/messages/31-device-gsm-cfun' },
-                    { text: '32: GSM IMEI', link: '/devices/api/messages/32-device-gsm-imei' },
-                    { text: '33: GSM ICCID', link: '/devices/api/messages/33-device-gsm-iccid' },
-                    { text: '34: Status', link: '/devices/api/messages/34-device-status' },
-                    { text: '35: ID', link: '/devices/api/messages/35-device-id' },
-                    { text: '36: Time', link: '/devices/api/messages/36-device-time' },
-                    { text: '37: Last Position', link: '/devices/api/messages/37-device-last-position' },
-                    { text: '39: RTK', link: '/devices/api/messages/39-device-rtk' },
-                    { text: '40: Haptics', link: '/devices/api/messages/40-device-haptics' },
-                    { text: '41: Temperature', link: '/devices/api/messages/41-device-temperature' },
-                    { text: '42: Buzzer', link: '/devices/api/messages/42-device-buzzer' },
-                    { text: '44: Pressure', link: '/devices/api/messages/44-device-pressure' },
-                  ]
-                },
-                {
-                  text: 'Device UX',
-                  collapsed: true,
-                  // link: '/devices/api/messages/device-ux',
-                  items: [
-                    { text: '10009: Text Page', link: '/devices/api/messages/10009-ux-text-page' },
-                    { text: '10010: Menu Page', link: '/devices/api/messages/10010-ux-menu-page' },
-                    { text: '10011: Bitmap', link: '/devices/api/messages/10011-ux-bitmap' },
-                    { text: '10013: Button Press', link: '/devices/api/messages/10013-ux-button-press' },
-                    { text: '10014: Screen Refresh', link: '/devices/api/messages/10014-ux-screen-refresh' },
-                  ]
-                },
-              ]
+              items: protocolMenuItems,
             },
             {
               text: 'Generate',

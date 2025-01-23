@@ -4,14 +4,21 @@ limits:
   MAX_HEADER_FILED_LEN: 20 # As currently defined in Firmware
 groups:
   general:
+    name: General
     description: "General messages"
   bootserver:
+    hidden: true
+    name: Bootserver
     description: "Device to Boot server communication"
   livelink:
+    hidden: true
+    name: LiveLink
     description: "Device to LiveLink server communication"
   ondevice:
+    name: Device Services
     description: "On device communication (between CPUs)"
   ondevice-ux:
+    name: Device UX
     description: "On device communication (between CPUs), specifically for user interface and interactions"
 header:
   1:
@@ -72,7 +79,7 @@ header:
         name: "LORA Base Station"
 messages:
   5:
-    name: "General ACK"
+    name: "ACK"
     description: "General ACK message"
     group: "general"
     data:
@@ -85,7 +92,7 @@ messages:
         description: "ID of previous message being ACKed, if provided in the original message header"
         type: "uintn"
   6:
-    name: "General Keep Alive"
+    name: "Keep Alive"
     description: "General keep alive message"
     group: "general"
   10:
@@ -351,7 +358,7 @@ messages:
   #   group: "ondevice-ux"
   10009:
     name: "UX Text Page"
-    description: "UX text page"
+    description: "Display or change a text page"
     group: "ondevice-ux"
     data:
       3:
@@ -380,8 +387,8 @@ messages:
         name: "Line 5"
         type: "ascii"
   10010:
-    name: "UX Update Menu"
-    description: "Update UX menu"
+    name: "UX Menu Page"
+    description: "Display or change a menu page"
     group: "ondevice-ux"
     data:
       2:
