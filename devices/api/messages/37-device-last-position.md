@@ -11,12 +11,19 @@ import GenerateConsts from '../../../components/GenerateConsts.vue'
 
 # 37: Last Position
 
+::: danger Not yet documented
+:::
+
 <SplitColumnView>
 <template #left>
 
 Used to interact with the devices last position.
 
 ### Payload
+
+::: danger Payload values will change soon
+:::
+
 
 It has a single field, the ID, which is a uint.
 

@@ -5,7 +5,7 @@ import ProtocolBytes from '../../../components/ProtocolBytes.vue'
 
 # Device Services
 
-Device service messages make use of a few common header fields, and you van expect to see these in most messages.
+Device service messages make use of a few common header fields, and you can expect to see these in most messages.
 
 - [3: Response Message ID](./../headers#_3-response-message-id): The message ID of the message being responded to.
 - [4: Response Status](./../headers#_4-response-status): 1 (OK), 2 (NOT OK)

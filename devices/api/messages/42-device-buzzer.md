@@ -11,6 +11,9 @@ import GenerateConsts from '../../../components/GenerateConsts.vue'
 
 # 42: Buzzer
 
+::: danger Not yet documented
+:::
+
 <SplitColumnView>
 <template #left>
 

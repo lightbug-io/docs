@@ -37,6 +37,10 @@ If the request could not be fulfilled, the response status would be 2 (NOT OK), 
 <template #right>
 
 ### Example
+
+::: danger Not yet documented
+:::
+
 If you wanted to GET all elements of time from a device, you would send a GET message with no payload fields.
 
 <ProtocolBytes

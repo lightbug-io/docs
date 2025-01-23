@@ -1,3 +1,4 @@
 # 31: GSM CFUN
 
-TODO document...
+::: danger Not yet documented
+:::

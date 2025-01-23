@@ -11,6 +11,9 @@ import GenerateConsts from '../../../components/GenerateConsts.vue'
 
 # 40: Haptics
 
+::: danger Not yet documented
+:::
+
 <SplitColumnView>
 <template #left>
 

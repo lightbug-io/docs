@@ -253,6 +253,18 @@ export default defineConfig({
                     { text: '44: Pressure', link: '/devices/api/messages/44-device-pressure' },
                   ]
                 },
+                {
+                  text: 'Device UX',
+                  collapsed: true,
+                  // link: '/devices/api/messages/device-ux',
+                  items: [
+                    { text: '10009: Text Page', link: '/devices/api/messages/10009-ux-text-page' },
+                    { text: '10010: Menu Page', link: '/devices/api/messages/10010-ux-menu-page' },
+                    { text: '10011: Bitmap', link: '/devices/api/messages/10011-ux-bitmap' },
+                    { text: '10013: Button Press', link: '/devices/api/messages/10013-ux-button-press' },
+                    { text: '10014: Screen Refresh', link: '/devices/api/messages/10014-ux-screen-refresh' },
+                  ]
+                },
               ]
             },
             {
