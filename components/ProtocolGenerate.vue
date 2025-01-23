@@ -145,7 +145,14 @@
             <a href="javascript:void(0);" @click.prevent="removeCustomPayloadField">Remove</a>
         </small>
     </div>
+    <h5>Bytes</h5>
     <ProtocolBytes :byteString="generatedInts" showValidation :showGeneratorLink="false" />
+    <h5>Extras</h5>
+    <v-checkbox
+            v-model="includePrefix"
+            label="Include LB Prefix / Sync bytes"
+            density="compact"
+        />
 </template>
 
 <script lang="ts">
@@ -163,7 +170,7 @@ export default defineComponent({
     setup() {
         const urlLoaded = ref(false);
         const shouldWatchForChanges = ref(false);
-        const includePrefix = ref(true);
+        const includePrefix = ref(false);
         const selectedMessage = ref(null);
         const customMessageType = ref('');
         const selectedHeaders = ref([]);
