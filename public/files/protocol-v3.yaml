@@ -280,7 +280,23 @@ messages:
       # TODO add last position type, rtk, gps, etc
   38:
     name: "Link Control"
-    description: "Control a link to the web to send and receive messages"
+    description: "Control a link to the internet to send and receive messages"
+    data:
+      1:
+        name: "Link Address"
+        description: "IP Address of the link"
+        type: "ascii"
+      2:
+        name: "Link Port"
+        type: "uint16"
+      3:
+        name: "Link Enable"
+        type: "uint8"
+        values:
+          1:
+            name: "Enable"
+          2:
+            name: "Disable"
   39:
     name: "RTK"
     description: "RTK information"
