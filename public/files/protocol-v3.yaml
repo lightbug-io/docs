@@ -157,13 +157,18 @@ messages:
         name: "Mode"
         description: "0 or 1"
         type: "uint8"
+        values:
+          0:
+            name: "Lock OFF Mode"
+          1:
+            name: "Normal Mode"
       2:
-        name: "Duration"
-        description: "in seconds"
+        name: "Mode Duration"
+        description: "in seconds. Max 259200. Only to be used with SET and Lock OFF Mode"
         type: "uint32"
       3:
         name: "GSM ONOFF"
-        description: ""
+        description: "Currently only GET able. See Mode for altering behavior."
         type: "uint8"
         values:
           1:
