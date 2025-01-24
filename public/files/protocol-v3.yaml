@@ -363,7 +363,34 @@ messages:
     description: "Pressure information"
   45:
     name: "Alarm"
-    description: "Alarm"
+    description: "Trigger an alarm, using buzzer, haptics, and strobe"
+    data:
+      1:
+        name: "Legacy alarm action"
+        description: "4 bytes of encoded data relating to legacy alarm formats. Can not be used with other options."
+        type: "uint32"
+      2:
+        name: "Duration"
+        description: "Duration of alarm in seconds. Max 127s"
+        type: "uint8"
+      3:
+        name: "Buzzer Pattern"
+        type: "uint8"
+      4:
+        name: "Buzzer Intensity"
+        type: "uint8"
+      5:
+        name: "Haptics Pattern"
+        type: "uint8"
+      6:
+        name: "Haptics Intensity"
+        type: "uint8"
+      7:
+        name: "Strobe Pattern"
+        type: "uint8"
+      8:
+        name: "Strobe Intensity"
+        type: "uint8"
   1004:
     name: "LORA V4 Forwarding"
     description: "Forwarding LORA V4 message"
