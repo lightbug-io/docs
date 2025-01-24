@@ -315,6 +315,11 @@ messages:
   41:
     name: "Temperature"
     description: "Temperature information"
+    data:
+      1:
+        name: "Temperature"
+        description: "Temperature in Celsius"
+        type: "float32"
   42:
     name: "Buzzer Control"
     description: "Control the buzzer"
@@ -343,6 +348,16 @@ messages:
   43:
     name: "Battery Status"
     description: "Battery status information"
+    group: "ondevice"
+    data:
+      1:
+        name: "Voltage"
+        description: "Current battery voltage"
+        type: "float32"
+      2:
+        name: "Percent"
+        description: "Current battery percent"
+        type: "uint8"
   44:
     name: "Pressure"
     description: "Pressure information"
