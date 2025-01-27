@@ -16,9 +16,10 @@ hero:
     - theme: alt
       text: Web APIs
       link: /apis
-    - theme: alt
-      text: Device APIs
-      link: /devices/api
+    # Hide from the home page, until release
+    # - theme: alt
+    #   text: Device APIs
+    #   link: /devices/api
 features:
   - title: Easy Integration
     details: Jump start your project with devices that just work. Use as much or as little of the Lightbug stack as you need.
