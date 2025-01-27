@@ -8,7 +8,7 @@ We have continually iterated on our devices over the years, and have a number of
 
 Not to mention our many custom devices that have been designed and manufactured for specific projects or clients.
 
-If you have questions about a device thatis not currently listed as a core device, please [contact us](https://support.lightbug.cloud/).
+If you have questions about a device thatis not currently listed as a core device, please [contact us](https://lightbug.io/contact/).
 
 ## Timeline
 

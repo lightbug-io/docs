@@ -27,4 +27,4 @@ For now, [see page 37 of the legacy user manual](https://lightbug.io/user_manual
 
 ## Advanced
 
-If you have questions about this mode, please [contact us](https://support.lightbug.cloud/).
+If you have questions about this mode, please [contact us](https://lightbug.io/contact/).

@@ -134,8 +134,8 @@ export default defineConfig({
         text: 'Company',
         items: [
           { text: 'About', link: 'https://lightbug.io/about/' },
-          { text: 'Support', link: 'https://support.lightbug.cloud/' },
           { text: 'Shop', link: 'https://lightbug.io/shop/' },
+          { text: 'Contact', link: 'https://lightbug.io/contact/' },
         ]
       }
     ],
