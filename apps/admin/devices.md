@@ -51,7 +51,7 @@ You can toggle `Info` and `Status` from this list using the buttons.
 
 #### Latest Points
 
-Shows some of the most recent [points](/basics/points.html) for the device.
+Shows some of the most recent [points](/terminology/points.html) for the device.
 
 ![](https://i.imgur.com/K7Js6XF.png)
 

@@ -32,6 +32,21 @@ const protocolMenuItems = Object.keys(protocolGroups)
     };
   });
 
+// Ability to generate other collections of side bar entries
+const sidebarItemsFromDir = (dir) => {
+  const files = fs.readdirSync(dir)
+  return files
+    .filter(file => file !== 'index.md')
+    .map(file => {
+      const name = file.replace('.md', '')
+      const displayName = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
+      return {
+        text: displayName,
+        link: `${dir}/${name}`
+      }
+    })
+}
+
 const sidebarSpec1 = useSidebar({ spec: loadSpec(1) });
 const sidebarSpec2 = useSidebar({ spec: loadSpec(2) });
 
@@ -101,7 +116,6 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
       {
         text: 'Hardware',
         items: [
@@ -127,10 +141,6 @@ export default defineConfig({
       { text: 'On Premise', link: '/onprem/' },
       { text: 'Guides', link: '/guides/' },
       {
-        text: 'Terminology',
-        link: '/basics/index.html',
-      },
-      {
         text: 'Company',
         items: [
           { text: 'About', link: 'https://lightbug.io/about/' },
@@ -140,25 +150,40 @@ export default defineConfig({
       }
     ],
     sidebar: {
-      '/basics': [
+      '/terminology': [
         {
-          text: 'Basics',
-          link: '/basics/',
+          text: 'FAQ',
+          link: '/faq/',
+        },
+        {
+          text: 'Terminology',
+          link: '/terminology/',
           items: [
             {
               text: 'General',
               items: [
-                { text: 'IoT', link: '/basics/iot' },
-                { text: 'Positioning', link: '/basics/positioning' },
-                { text: 'Observability', link: '/basics/observability' },
+                { text: 'IoT', link: '/terminology/iot' },
+                { text: 'Positioning', link: '/terminology/positioning' },
+                { text: 'Observability', link: '/terminology/observability' },
               ]
             },
-            { text: 'Devices', link: '/basics/devices' },
-            { text: 'Points', link: '/basics/points' },
-            { text: 'Readings', link: '/basics/readings' },
-            { text: 'Billing', link: '/basics/billing' },
+            { text: 'Devices', link: '/terminology/devices' },
+            { text: 'Points', link: '/terminology/points' },
+            { text: 'Readings', link: '/terminology/readings' },
+            { text: 'Billing', link: '/terminology/billing' },
           ],
         },
+      ],
+      '/faq': [
+        {
+          text: 'FAQ',
+          link: '/faq/',
+          items: sidebarItemsFromDir(path.resolve(__dirname, '../faq')),
+        },
+        {
+          text: 'Terminology',
+          link: '/terminology/',
+        }
       ],
       '/devices': [
         {

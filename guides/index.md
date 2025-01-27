@@ -4,14 +4,18 @@ layout: home
 hero:
   name: "Lightbug"
   text: "Guides"
-  tagline: Easy how to guides for all Lightbug products and platforms
+  tagline: Easy introductions for everything Lightbug
+  actions:
+    - theme: brand
+      text: Frequently Asked Questions
+      link: /faq
+    - theme: alt
+      text: Terminology
+      link: /terminology
 features:
   - title: Adding your first device
     details: Get started with a Cloud account, add your first device, setup a plan, and start tracking.
     link: /guides/adding-your-first-device
-  - title: Troubleshooting
-    details: Having problems with your device? Check out our troubleshooting guide.
-    link: /guides/troubleshooting
 ---
 
 
