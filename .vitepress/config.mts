@@ -178,7 +178,7 @@ export default defineConfig({
         {
           text: 'FAQ',
           link: '/faq/',
-          items: sidebarItemsFromDir(path.resolve(__dirname, '../faq')),
+          items: sidebarItemsFromDir('faq'),
         },
         {
           text: 'Terminology',
