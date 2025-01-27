@@ -76,6 +76,13 @@ export default defineConfig({
     config: (md) => {
       md.use(tabsMarkdownPlugin)
     },
+    container: {
+      tipLabel: '⚡ Tip',
+      warningLabel: '⚠️ Warning',
+      dangerLabel: '⚠️ Danger',
+      infoLabel: 'ℹ️ Information',
+      detailsLabel: 'Details'
+    }
   },
   head: [
     [

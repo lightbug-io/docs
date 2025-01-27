@@ -36,7 +36,7 @@ To set various geofencing alerts, you will need to go to the Geofence Editor Sec
 
 ![](https://i.imgur.com/JO9EzeN.png)
 
-::: tip ℹ️ Info
+::: info
 A Geofence (sometimes called a GPS safe-zone) is a virtual border around a specific area.
 You can set up alerts for when your device enters/leaves this specific area.
 :::

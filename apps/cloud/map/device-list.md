@@ -19,7 +19,7 @@ The List will expand, and you will see all the devices on your account that have
 <v-img src="https://i.imgur.com/Ei8Nqvk.png" style="max-height:400px"/>
 :::
 
-::: warning ⚠️ Warning
+::: warning
 If your last location update was 2 days ago, the information here (including battery status) is from 2 days ago.
 :::
 

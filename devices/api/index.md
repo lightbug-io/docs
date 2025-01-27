@@ -6,14 +6,13 @@ outline: deep
 import ProtocolBytes from '../../components/ProtocolBytes.vue';
 </script>
 
+::: info
+The Device API is a current work in progress, and is not yet accessible on production devices.
+:::
+
 # Device API
 
-The Lightbug communication protocol, also called the V3 protocol, is a byte oriented protocol used in a variety of settings around device communication.
-
-::: warning ⚠️ Warning
-This is work in progress documentation.
-The protocol is finalized, but the documentation is still being written, and message values may change.
-:::
+The device API makes use of the Lightbug communication protocol, also known as the V3 protocol, which is a byte oriented protocol used for device communication.
 
 The protocol builds on top of existing Lightbug Protocols, and is designed to be:
  - Efficient to read, build
@@ -36,6 +35,6 @@ An example prefixed and minimal message might look as follows:
     :allowCollapse="false"
 ></ProtocolBytes>
 
-::: tip ℹ️ Info
+::: info
 All integers are in [little-endian](https://en.wikipedia.org/wiki/Endianness) format eg. (uint16 `1` is represented as `0x01 0x00`).
 :::

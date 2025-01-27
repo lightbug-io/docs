@@ -1,6 +1,6 @@
 # Sharing
 
-::: warning ⚠️ Warning
+::: warning
 Sharing only supports usage with a single device at a time, so make sure to select the device you want to share with, otherwise you'll see an error.
 :::
 

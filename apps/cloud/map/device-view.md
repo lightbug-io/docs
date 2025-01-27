@@ -44,7 +44,7 @@ The time range selector allows you to choose a custom time range, or one of the 
 
 When clicking `DONE` you will be taken back to the map view with the new time range applied.
 
-::: warning ⚠️ Warning
+::: warning
 The time range selector can only be used to show at most 90 days of data at once.
 :::
 

@@ -73,7 +73,7 @@ The second screen allows you to add your first device.
 
 Enter the serial number of your device into the input field, and click `REGISTER`.
 
-::: tip ℹ️ Info
+::: info
 Hint: If you have Bluetooth enabled while using the Lightbug App, it will automatically detect the device serial number and fill it in for you.
 :::
 

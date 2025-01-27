@@ -8,7 +8,7 @@ import ProtocolBytes from '../../components/ProtocolBytes.vue';
 
 # Structure
 
-::: tip ℹ️ Info
+::: info
 All integers are in [little-endian](https://en.wikipedia.org/wiki/Endianness) format eg. (uint16 `1` is represented as `0x01 0x00`).
 :::
 

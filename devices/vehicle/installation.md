@@ -4,7 +4,7 @@ The Vehicle Tracker is a simple device to install.
 
 It is designed to be installed by anyone with basic knowledge of vehicle maintenance.
 
-::: warning ⚠️ Warning
+::: warning
 Images in this guide are for illustrative purposes only and currently features our older VT2 device.
 If you purchase a vehicle tracker today, you will receive the VT3 device.
 :::
@@ -74,7 +74,7 @@ export default {
 
 Every vehicle has a fuse box. Here are a few steps on how to find the fuse box inside the car.
 
-::: tip ℹ️ Info
+::: info
 Fuses are very important because without them several electronic devices, such as the electric windows, the power locks, the lights and radio would not work.
 :::
 
@@ -117,7 +117,7 @@ It may be hidden, but will be clearly marked.
 
 Remove the cover and you will note that the fuses are smaller in this fuse box, compared to the one under the hood.
 
-::: tip ℹ️ Info
+::: info
 Occasionally this fuse box is located in the boot of the vehicle.
 :::
 
@@ -149,7 +149,7 @@ If the tester shows current only when the vehicle is turned on, it is an “igni
 
 ![](https://i.imgur.com/D3d4c4K.png)
 
-::: tip ℹ️ Info
+::: info
 Always try to use fuses with a low current - eg 5A, 7.5A, 10A, & 15A.
 :::
 
@@ -191,7 +191,7 @@ This can be done by removing a screw, placing the wire and screwing it back in.
 
 The vehicle tracker can now be connected via the 3 pin connector.
 
-::: warning ⚠️ Warning
+::: warning
 Ensure the plug is correctly oriented and aligned with the socket before pushing it in.
 :::
 
@@ -216,11 +216,11 @@ Fold and tie all the connecting cables neatly, using cable ties and insulation t
 
 Locate a suitable place for mounting the tracker.
 
-::: tip ℹ️ Info
+::: info
 Always keep in mind that the device works optimally when mounted in such a way that it has clear visibility of the sky, without metal obstructions.
 :::
 
-::: warning ⚠️ Warning
+::: warning
 Please be aware that some vehicles do have metal in the windscreen, this can obstruct the tracker.
 :::
 
