@@ -55,4 +55,4 @@ In reality, there are many variables that affect battery life, such as:
 - Make sure you have Wi-Fi and GPS Safe Zones set up where applicable
 - Motion sensitivity: maybe your tracker is sending more location updates than it should because the motion sensitivity is too high. This usually occurs when the tracker is stationary but still sending location updates. Reduce the motion sensitivity via your flexible configurations page.
 
-You can always [contact our support team](https://support.lightbug.cloud/) for help with this.
+You can always [contact our support team](https://lightbug.io/contact/) for help with this.

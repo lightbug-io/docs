@@ -42,7 +42,7 @@ Or by devices that plug into power, such as the [Vehicle Tracker](/devices/vehic
 
 Many other sensor readings are available, and will continue to be documented here.
 
-If you need help understanding a reading type that is not listed here, please [contact us](https://support.lightbug.cloud/).
+If you need help understanding a reading type that is not listed here, please [contact us](https://lightbug.io/contact/).
 
 - humidity
 - temp_hw
