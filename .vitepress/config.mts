@@ -1,16 +1,68 @@
-import { defineConfig } from 'vitepress'
-import { useSidebar } from 'vitepress-openapi'
-import { loadSpec } from '../swagger/load'
-import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
-import { pagefindPlugin } from 'vitepress-plugin-pagefind'
+import path from 'path';
+import fs from 'fs';
+import yaml from 'js-yaml';
+import { defineConfig } from 'vitepress';
+import { useSidebar } from 'vitepress-openapi';
+import { loadSpec } from '../swagger/load';
+import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
+import { pagefindPlugin } from 'vitepress-plugin-pagefind';
 
-const sidebarSpec1 = useSidebar({ spec: loadSpec(1) })
-const sidebarSpec2 = useSidebar({ spec: loadSpec(2) })
+// Load protocol messages from YAML file
+const protocolYamlPath = path.resolve(__dirname, '../public/files/protocol-v3.yaml');
+const protocolYaml = fs.readFileSync(protocolYamlPath, 'utf8');
+const protocolData = yaml.load(protocolYaml);
+
+// Generate menu items for protocol messages grouped by their respective groups
+const protocolMessages = protocolData.messages;
+const protocolGroups = protocolData.groups;
+const protocolMenuItems = Object.keys(protocolGroups)
+  .filter(groupKey => !protocolGroups[groupKey].hidden)
+  .map(groupKey => {
+    const group = protocolGroups[groupKey];
+    const items: { text: string; link: string }[] = [];
+    if (group.overview) {
+      items.push({
+        text: 'Overview',
+        link: `/devices/api/messages/overview-${groupKey}`
+      });
+    }
+    items.push(
+      ...Object.keys(protocolMessages)
+        .filter(key => protocolMessages[key].group === groupKey)
+        .map(key => ({
+          text: `${key}: ${protocolMessages[key].name}`,
+          link: `/devices/api/messages/${key}-${protocolMessages[key].name.toLowerCase().replace(/ /g, '-')}`
+        }))
+    );
+    return {
+      text: group.name || groupKey,
+      collapsed: true,
+      items: items
+    };
+  });
+
+// Ability to generate other collections of side bar entries
+const sidebarItemsFromDir = (dir) => {
+  const files = fs.readdirSync(dir)
+  return files
+    .filter(file => file !== 'index.md')
+    .map(file => {
+      const name = file.replace('.md', '')
+      const displayName = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
+      return {
+        text: displayName,
+        link: `${dir}/${name}`
+      }
+    })
+}
+
+const sidebarSpec1 = useSidebar({ spec: loadSpec(1) });
+const sidebarSpec2 = useSidebar({ spec: loadSpec(2) });
 
 // Function to make a sidebar group be collapsed
 function collapse(group) {
-  group.collapsed = true
-  return group
+  group.collapsed = true;
+  return group;
 }
 
 function reorder(group: { items: { link: string }[] }, orderedLinks: string[]) {
@@ -40,12 +92,21 @@ export default defineConfig({
     ssr: {
       noExternal: ["vuetify"]
     },
-    plugins: [pagefindPlugin()],
+    plugins: [
+      pagefindPlugin(),
+    ],
   },
   markdown: {
     config: (md) => {
       md.use(tabsMarkdownPlugin)
     },
+    container: {
+      tipLabel: '⚡ Tip',
+      warningLabel: '⚠️ Warning',
+      dangerLabel: '⚠️ Danger',
+      infoLabel: 'ℹ️ Information',
+      detailsLabel: 'Details'
+    }
   },
   head: [
     [
@@ -64,25 +125,26 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
       {
-        text: 'Basics',
-        link: '/basics/index.html',
-      },
-      { text: 'Devices', link: '/devices/' },
-      {
-        text: 'APIs',
+        text: 'Hardware',
         items: [
-          { text: 'Overview', link: '/apis/' },
-          { text: 'Version 2', link: '/apis/v2/' },
-          { text: 'Version 1', link: '/apis/v1/' },
+          { text: 'Devices', link: '/devices/' },
+          { text: 'APIs', link: '/devices/api/' },
         ],
       },
       {
-        text: 'Apps',
+        text: 'Cloud',
         items: [
-          { text: 'Cloud', link: '/apps/cloud/' },
-          { text: 'Admin', link: '/apps/admin/' },
+          { text: 'Cloud App', link: '/apps/cloud/' },
+          { text: 'Admin App', link: '/apps/admin/' },
+          { text: 'Web APIs', link: '/apis/' },
+        ],
+      },
+      {
+        text : 'APIs',
+        items: [
+          { text: 'Cloud', link: '/apis/' },
+          { text: 'Device', link: '/devices/api/' },
         ]
       },
       { text: 'On Premise', link: '/onprem/' },
@@ -97,25 +159,40 @@ export default defineConfig({
       }
     ],
     sidebar: {
-      '/basics': [
+      '/terminology': [
         {
-          text: 'Basics',
-          link: '/basics/',
+          text: 'FAQ',
+          link: '/faq/',
+        },
+        {
+          text: 'Terminology',
+          link: '/terminology/',
           items: [
             {
               text: 'General',
               items: [
-                { text: 'IoT', link: '/basics/iot' },
-                { text: 'Positioning', link: '/basics/positioning' },
-                { text: 'Observability', link: '/basics/observability' },
+                { text: 'IoT', link: '/terminology/iot' },
+                { text: 'Positioning', link: '/terminology/positioning' },
+                { text: 'Observability', link: '/terminology/observability' },
               ]
             },
-            { text: 'Devices', link: '/basics/devices' },
-            { text: 'Points', link: '/basics/points' },
-            { text: 'Readings', link: '/basics/readings' },
-            { text: 'Billing', link: '/basics/billing' },
+            { text: 'Devices', link: '/terminology/devices' },
+            { text: 'Points', link: '/terminology/points' },
+            { text: 'Readings', link: '/terminology/readings' },
+            { text: 'Billing', link: '/terminology/billing' },
           ],
         },
+      ],
+      '/faq': [
+        {
+          text: 'FAQ',
+          link: '/faq/',
+          items: sidebarItemsFromDir('faq'),
+        },
+        {
+          text: 'Terminology',
+          link: '/terminology/',
+        }
       ],
       '/devices': [
         {
@@ -156,6 +233,10 @@ export default defineConfig({
               link: '/devices/custom',
             },
             {
+              text: 'Peripherals',
+              link: '/devices/peripherals',
+            },
+            {
               text: 'Legacy',
               link: '/devices/legacy',
               collapsed: true,
@@ -164,7 +245,66 @@ export default defineConfig({
               ]
             }
           ]
-        }
+        },
+        {
+          text: 'API',
+          link : '/devices/api/',
+        },
+      ],
+      '/devices/api/': [
+        {
+          text: 'Devices',
+          link : '/devices',
+        },
+        {
+          text: 'API',
+          link : '/devices/api/',
+          items: [
+            {
+              text: 'Overview',
+              link: '/devices/api/',
+            },
+            {
+              text: 'Glossary',
+              link: '/devices/api/glossary',
+            },
+            {
+              text: 'Structure',
+              link: '/devices/api/structure',
+              items: [
+                {
+                  text: 'Prefix',
+                  link: '/devices/api/structure#prefix',
+                },
+                {
+                  text: 'Message',
+                  link: '/devices/api/structure#message',
+                },
+                {
+                  text: 'Examples',
+                  link: '/devices/api/structure#examples',
+                },
+              ]
+            },
+            {
+              text: 'Headers',
+              link: '/devices/api/headers',
+            },
+            {
+              text: 'Messages',
+              link: '/devices/api/messages/',
+              items: protocolMenuItems,
+            },
+            {
+              text: 'Generate',
+              link: '/devices/api/generate',
+            },
+            {
+              text: 'Parse',
+              link: '/devices/api/parse',
+            },
+          ]
+        },
       ],
       '/apis': [
         {

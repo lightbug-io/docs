@@ -10,6 +10,8 @@ const { go } = useRouter()
 
 const redirects = Object.entries({
   '/silos': '/onprem',
+  '/terminology': '/terminology',
+  '/guides/troubleshooting': '/faq/troubleshooting',
 })
 
 watch(

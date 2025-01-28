@@ -12,7 +12,7 @@ The version 1 API uses a number of terms that may not be familiar to all users.
 
 ## Points
 
-General information about points can be found [in the basics section](/basics/points.html).
+General information about points can be found [in the basics section](/terminology/points.html).
 
 ### sendReason
 

@@ -2,7 +2,7 @@
 
 The invoice audit page allows you to see the number of devices activated and deactivaed on your account in a given month.
 
-::: warning ⚠️ Warning
+::: warning
 This is primarily for reseller plans and reseller billing.
 :::
 

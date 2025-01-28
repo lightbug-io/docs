@@ -8,7 +8,7 @@ Customise how you would like to receive notifications for your account.
 
 Receive notifications on your mobile device via the Lightbug app.
 
-::: tip ℹ️ Info
+::: info
 If you have installed the app on multiple devices with the same account login, all your devices will receive the notifications.
 :::
 
@@ -32,7 +32,7 @@ Receive notifications via API push (webhooks).
 
 When enabled, you can set up the URL where you would like to receive the notifications.
 
-::: warning ⚠️ Warning
+::: warning
 You should configure your endpoint to receive messages before configuring the API push notifications.
 API push notifications require confirmation, which is sent shortly after enabling and configuring the feature.
 If you miss this POSTed JSON, please alter your endpoint URL or contact us.

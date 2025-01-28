@@ -48,7 +48,7 @@ Will send updates based on the `update rate` set in device configuration, by def
 
 <!-- TODO link update rate to the device setting -->
 
-::: warning ⚠️ Warning
+::: warning
 If your device battery level is critical, wake mode may be disabled.
 Generally this is 20% or less.
 :::

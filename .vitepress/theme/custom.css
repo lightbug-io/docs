@@ -1,6 +1,6 @@
 :root {
     --vp-layout-max-width: 1640px;
-    --vp-sidebar-width: 19rem;
+    --vp-sidebar-width: 272px;
     --vp-c-brand-1: #fc7c3d;
     --vp-c-brand-2: #e37039;
     --vp-c-brand-3: #e37039;
@@ -14,4 +14,9 @@
     font-size: 0.7rem;
     font-weight: 450;
     line-height: normal;
+}
+
+/* Remove large padding from the top level sidebar items https://i.imgur.com/xpcHPPb.png */
+.VPSidebarItem.level-0 {
+    padding-bottom: 10px !important;
 }
