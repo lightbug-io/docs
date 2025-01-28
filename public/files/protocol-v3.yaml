@@ -14,9 +14,10 @@ groups:
     hidden: true
     name: LiveLink
     description: "Device to LiveLink server communication"
-  ondevice:
+  device-services:
     name: Device Services
     description: "On device communication (between CPUs)"
+    overview: true
   ondevice-ux:
     name: Device UX
     description: "On device communication (between CPUs), specifically for user interface and interactions"
@@ -130,7 +131,7 @@ messages:
   30:
     name: "Transmit Now"
     description: "Transmit data immediately"
-    group: "ondevice"
+    group: "device-services"
     data:
       1:
         name: "Search GPS"
@@ -151,7 +152,7 @@ messages:
   31:
     name: "GSM CFUN"
     description: "GSM functionality control"
-    group: "ondevice"
+    group: "device-services"
     data:
       1:
         name: "Mode"
@@ -178,7 +179,7 @@ messages:
   32:
     name: "GSM IMEI"
     description: "GSM IMEI information"
-    group: "ondevice"
+    group: "device-services"
     data:
       1:
         name: "IMEI"
@@ -187,7 +188,7 @@ messages:
   33:
     name: "GSM ICCID"
     description: "GSM ICCID information"
-    group: "ondevice"
+    group: "device-services"
     data:
       1:
         name: "ICCID"
@@ -196,7 +197,7 @@ messages:
   34:
     name: "Device Status"
     description: "Device status information"
-    group: "ondevice"
+    group: "device-services"
     data:
       1:
         name: "Battery"
@@ -213,7 +214,7 @@ messages:
   35:
     name: "Device ID"
     description: "Device ID information"
-    group: "ondevice"
+    group: "device-services"
     data:
       1:
         name: "ID"
@@ -222,7 +223,7 @@ messages:
   36:
     name: "Device Time"
     description: "Device time information"
-    group: "ondevice"
+    group: "device-services"
     data:
       1:
         name: "Unix Time"
@@ -259,7 +260,7 @@ messages:
   37:
     name: "Last Position"
     description: "Last known position"
-    group: "ondevice"
+    group: "device-services"
     data:
       1:
         name: "alt"
@@ -300,7 +301,7 @@ messages:
   39:
     name: "RTK"
     description: "RTK information"
-    group: "ondevice"
+    group: "device-services"
     data:
       1:
         name: "enabled"
@@ -323,7 +324,7 @@ messages:
   40:
     name: "Haptics Control"
     description: "Control the haptics"
-    group: "ondevice"
+    group: "device-services"
     data:
       1:
         name: "Pattern"
@@ -344,7 +345,7 @@ messages:
   42:
     name: "Buzzer Control"
     description: "Control the buzzer"
-    group: "ondevice"
+    group: "device-services"
     data:
       1:
         name: "Duration"
@@ -369,7 +370,7 @@ messages:
   43:
     name: "Battery Status"
     description: "Battery status information"
-    group: "ondevice"
+    group: "device-services"
     data:
       1:
         name: "Voltage"

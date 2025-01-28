@@ -1,5 +1,11 @@
 # Messages
 
+::: danger ⚠️ Not yet public
+The Device API currently in development and is not yet accessible on production devices.
+
+These pages can be seen as a view of what is to come later this year.
+:::
+
 There are a few different groupings of messages that can be used within the devices API.
 
 | Group | Description |

@@ -19,12 +19,21 @@ const protocolMenuItems = Object.keys(protocolGroups)
   .filter(groupKey => !protocolGroups[groupKey].hidden)
   .map(groupKey => {
     const group = protocolGroups[groupKey];
-    const items = Object.keys(protocolMessages)
-      .filter(key => protocolMessages[key].group === groupKey)
-      .map(key => ({
-        text: `${key}: ${protocolMessages[key].name}`,
-        link: `/devices/api/messages/${key}-${protocolMessages[key].name.toLowerCase().replace(/ /g, '-')}`
-      }));
+    const items: { text: string; link: string }[] = [];
+    if (group.overview) {
+      items.push({
+        text: 'Overview',
+        link: `/devices/api/messages/overview-${groupKey}`
+      });
+    }
+    items.push(
+      ...Object.keys(protocolMessages)
+        .filter(key => protocolMessages[key].group === groupKey)
+        .map(key => ({
+          text: `${key}: ${protocolMessages[key].name}`,
+          link: `/devices/api/messages/${key}-${protocolMessages[key].name.toLowerCase().replace(/ /g, '-')}`
+        }))
+    );
     return {
       text: group.name || groupKey,
       collapsed: true,
