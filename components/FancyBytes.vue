@@ -3,7 +3,7 @@
         <v-icon @click="toggleCogModal" class="container-config" title="Options for display">mdi-cog</v-icon>
         <v-icon v-if="showGeneratorLink" @click="navigateToGenerate" class="container-config" title="Edit in Generator" @click.ctrl="navigateToGenerateNewTab">mdi-pencil</v-icon>
         <v-icon @click="copyToClipboard" class="container-config" title="Copy to Clipboard">mdi-content-copy</v-icon>
-        <v-icon @click="sendBytes" :class="{ 'highlight-success': isSendSuccess }" class="container-config" title="Send Bytes">mdi-file-send</v-icon>
+        <v-icon v-if="protocol == 'http'" @click="sendBytes" :class="{ 'highlight-success': isSendSuccess }" class="container-config" title="Send Bytes">mdi-file-send</v-icon>
         <v-dialog v-model="isCogModalVisible" max-width="300px">
             <v-card>
                 <v-card-title>Options</v-card-title>
@@ -141,6 +141,14 @@ export default defineComponent({
             type: Boolean,
             default: true
         }
+    },
+    data() {
+        return {
+            protocol: '',
+        };
+    },
+    created() {
+        this.protocol = window.location.protocol === 'https:' ? 'https' : 'http';
     },
     setup(props) {
         const hoveredByte = ref<number | null>(null);
