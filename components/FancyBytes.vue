@@ -8,13 +8,13 @@
             <v-card>
                 <v-card-title>Options</v-card-title>
                 <v-card-text>
-                    <h1>Display</h1>
+                    <h1>Format</h1>
                     <v-radio-group v-model="byteDisplayType" row>
                         <v-radio label="Ints (1 7 255)" value="ints"></v-radio>
                         <v-radio label="Hex (01 07 FF)" value="hex"></v-radio>
                         <v-radio label="Hex with 0x (0x01 0x07 0xFF)" value="hex0x"></v-radio>
                     </v-radio-group>
-                    <h1>Copy & Paste</h1>
+                    <h1>Separators</h1>
                     <v-checkbox
                         v-model="byteCopySpaces"
                         label="Spaces (1 2 3)"
@@ -224,13 +224,19 @@ export default defineComponent({
 
         const copyToClipboard = () => {
             let text = props.byteString;
-            if (byteCopyCommas.value) {
-                text = text.replace(/ /g, ', ');
-            }
-            if (byteCopySpaces.value) {
-                text = text.replace(/ /g, ' ');
+            if (byteDisplayType.value === 'hex') {
+                text = text.split(' ').map(byte => parseInt(byte).toString(16).toUpperCase()).join(byteCopySpaces.value ? ' ' : '');
+            } else if (byteDisplayType.value === 'hex0x') {
+                text = text.split(' ').map(byte => '0x' + parseInt(byte).toString(16).toUpperCase()).join(byteCopySpaces.value ? ' ' : '');
             } else {
-                text = text.replace(/ /g, '');
+                if (byteCopyCommas.value) {
+                    text = text.replace(/ /g, ', ');
+                }
+                if (byteCopySpaces.value) {
+                    text = text.replace(/ /g, ' ');
+                } else {
+                    text = text.replace(/ /g, '');
+                }
             }
             navigator.clipboard.writeText(text).then(() => {
                 console.log('Copied to clipboard:', text);
