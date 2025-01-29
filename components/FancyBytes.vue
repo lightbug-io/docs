@@ -25,8 +25,9 @@
                         label="Commas (1, 2, 3)"
                         density="compact"
                     ></v-checkbox>
-                    <h1>Send Byte Address</h1>
+                    <h1 v-if="protocol == 'http'">Send Byte Address</h1>
                     <v-text-field
+                        v-if="protocol == 'http'"
                         v-model="sendAddress"
                         label="HTTP/HTTPS Address"
                         density="compact"
