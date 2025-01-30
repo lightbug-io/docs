@@ -15,15 +15,18 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 10009: Text Page
+# 10008: Preset Page
 
-::: danger Not yet documented
-:::
+Displays a preset page that is hardcoded in the device.
 
 <SplitColumnView>
 <template #left>
 
 ### Payload
+
+Currently there is only a single home page programmed per device.
+
+In the future a payload field will be included to decide what page is shows, defaulting to the home page. Additional fields may be used to configure the preset pages.
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
@@ -34,16 +37,16 @@ These pages can be seen as a view of what is to come later this year.
 ### Example
 
 <ProtocolBytes
-byteString="0"
-:boldPositions="[3,12,15,16]"
+byteString="3 14 0 24 39 1 0 1 1 126 0 0 25 55"
+:boldPositions="[3]"
 :allowCollapse="false"
 />
 
 </template>
 </SplitColumnView>
 
-## Code
+<!-- ## Code
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_UX_TEXT_PAGE_'" :enumName="'MD_DEVICE_UX_TEXT_PAGE'" :dataPath="'messages/10009/data'"/>
+<GenerateConsts :prefix="'MD_DEVICE_PRESET_PAGE_'" :enumName="'MD_DEVICE_PRESET_PAGE'" :dataPath="'messages/10008/data'"/> -->

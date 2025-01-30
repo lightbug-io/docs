@@ -423,15 +423,15 @@ messages:
     name: "LORA V4 Forwarding"
     description: "Forwarding LORA V4 message"
   # 10000:
-  #   name: "UX Command Start"
+  #   name: "Command Start"
   #   description: "Start UX command"
   #   group: "device-ux"
   10008:
-    name: "UX Preset Page"
+    name: "Preset Page"
     description: "Display a predefined Lightbug page"
     group: "device-ux"
   10009:
-    name: "UX Text Page"
+    name: "Text Page"
     description: "Display or change a text page"
     group: "device-ux"
     data:
@@ -461,7 +461,7 @@ messages:
         name: "Line 5"
         type: "ascii"
   10010:
-    name: "UX Menu Page"
+    name: "Menu Page"
     description: "Display or change a menu page"
     group: "device-ux"
     data:
@@ -539,7 +539,7 @@ messages:
         name: "Item 20"
         type: "ascii"
   10011:
-    name: "UX Draw Bitmap"
+    name: "Draw Bitmap"
     description: "Draw bitmap in UX"
     group: "device-ux"
     data:
@@ -566,7 +566,7 @@ messages:
         description: "Set if the previous page should NOT be cleared before drawing the bitmap"
         type: "uint8"
   10013:
-    name: "UX Button Press"
+    name: "Button Press"
     description: "Press UX button"
     group: "device-ux"
     data:
@@ -581,10 +581,10 @@ messages:
         description: "Can be used if the button relates to something being selected on the page, such as in a menu"
         type: "uintn"
   10014:
-    name: "UX Full Refresh"
+    name: "Full Refresh"
     description: "Full refresh of UX"
     group: "device-ux"
   # 11000:
-  #   name: "UX Command End"
+  #   name: "Command End"
   #   description: "End UX command"
   #   group: "device-ux"
