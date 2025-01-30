@@ -15,10 +15,11 @@ groups:
     description: "Device communication over a 'live link'. This could for example be cellular, UART, I2C etc."
   device-services:
     name: Device Services
-    description: "On device communication (between CPUs)"
     overview: true
-  ondevice-ux:
+    description: "On device communication (between CPUs)"
+  device-ux:
     name: Device UX
+    overview: true
     description: "On device communication (between CPUs), specifically for user interface and interactions"
 header:
   1:
@@ -424,15 +425,15 @@ messages:
   # 10000:
   #   name: "UX Command Start"
   #   description: "Start UX command"
-  #   group: "ondevice-ux"
+  #   group: "device-ux"
   10008:
     name: "UX Preset Page"
     description: "Display a predefined Lightbug page"
-    group: "ondevice-ux"
+    group: "device-ux"
   10009:
     name: "UX Text Page"
     description: "Display or change a text page"
-    group: "ondevice-ux"
+    group: "device-ux"
     data:
       3:
         name: "Page ID"
@@ -462,7 +463,7 @@ messages:
   10010:
     name: "UX Menu Page"
     description: "Display or change a menu page"
-    group: "ondevice-ux"
+    group: "device-ux"
     data:
       2:
         name: "Item count"
@@ -540,7 +541,7 @@ messages:
   10011:
     name: "UX Draw Bitmap"
     description: "Draw bitmap in UX"
-    group: "ondevice-ux"
+    group: "device-ux"
     data:
       3:
         name: "Page ID"
@@ -567,7 +568,7 @@ messages:
   10013:
     name: "UX Button Press"
     description: "Press UX button"
-    group: "ondevice-ux"
+    group: "device-ux"
     data:
       3:
         name: "Page ID"
@@ -582,8 +583,8 @@ messages:
   10014:
     name: "UX Full Refresh"
     description: "Full refresh of UX"
-    group: "ondevice-ux"
+    group: "device-ux"
   # 11000:
   #   name: "UX Command End"
   #   description: "End UX command"
-  #   group: "ondevice-ux"
+  #   group: "device-ux"
