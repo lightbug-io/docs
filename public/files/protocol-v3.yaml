@@ -11,9 +11,8 @@ groups:
     name: Bootserver
     description: "Device to Boot server communication"
   livelink:
-    hidden: true
     name: LiveLink
-    description: "Device to LiveLink server communication"
+    description: "Device communication over a 'live link'. This could for example be cellular, UART, I2C etc."
   device-services:
     name: Device Services
     description: "On device communication (between CPUs)"
@@ -97,16 +96,19 @@ messages:
     description: "General keep alive message"
     group: "general"
   10:
-    name: "Livelink Start"
+    name: "Start"
+    hidden: true
     group: "livelink"
   11:
-    name: "Livelink Open"
+    name: "Open"
+    hidden: true
     group: "livelink"
   12:
-    name: "Livelink Close"
+    name: "Close"
+    hidden: true
     group: "livelink"
   13:
-    name: "Livelink Heartbeat"
+    name: "Heartbeat"
     group: "livelink"
     data:
       4:
@@ -117,16 +119,19 @@ messages:
         name: "Firmware version"
         type: "uint16"
       6:
-        name: "Battery Percent"
+        name: "Battery percent"
         type: "uint8"
   14:
     name: "Livelink Config Update"
+    hidden: true
     group: "livelink"
   15:
     name: "Livelink Position Data"
+    hidden: true
     group: "livelink"
   16:
     name: "Livelink Device Status"
+    hidden: true
     group: "livelink"
   30:
     name: "Transmit Now"

@@ -28,7 +28,7 @@ const protocolMenuItems = Object.keys(protocolGroups)
     }
     items.push(
       ...Object.keys(protocolMessages)
-        .filter(key => protocolMessages[key].group === groupKey)
+        .filter(key => (protocolMessages[key].group === groupKey) && !protocolMessages[key].hidden)
         .map(key => ({
           text: `${key}: ${protocolMessages[key].name}`,
           link: `/devices/api/messages/${key}-${protocolMessages[key].name.toLowerCase().replace(/ /g, '-')}`
