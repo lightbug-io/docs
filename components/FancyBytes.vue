@@ -14,6 +14,11 @@
                         <v-radio label="Hex (01 07 FF)" value="hex"></v-radio>
                         <v-radio label="Hex with 0x (0x01 0x07 0xFF)" value="hex0x"></v-radio>
                     </v-radio-group>
+                    <v-checkbox
+                        v-model="byteUpperCase"
+                        label="Uppercase"
+                        density="compact"
+                    ></v-checkbox>
                     <h1>Separators</h1>
                     <v-checkbox
                         v-model="byteCopySpaces"
@@ -158,10 +163,12 @@ export default defineComponent({
         // const byteCopySpaces = ref(localStorage.getItem('byteCopySpaces') === 'true');
         // const byteCopyCommas = ref(localStorage.getItem('byteCopyCommas') === 'true');
         // const sendAddress = ref(localStorage.getItem('sendAddress') || '');
+        // const byteUpperCase = ref(localStorage.getItem('byteUpperCase') === 'true');
         const byteDisplayType = ref<'ints' | 'hex' | 'hex0x'>('ints');
         const byteCopySpaces = ref(true);
         const byteCopyCommas = ref(false);
         const sendAddress = ref('');
+        const byteUpperCase = ref(true);
         const isCogModalVisible = ref(false);
         const isTableVisible = ref(!props.defaultCollapsed);
         const isSendSuccess = ref(false);
@@ -182,6 +189,10 @@ export default defineComponent({
             // localStorage.setItem('sendAddress', newValue);
         });
 
+        watch(byteUpperCase, (newValue) => {
+            // localStorage.setItem('byteUpperCase', newValue.toString());
+        });
+
         const handleStorageChange = (event: StorageEvent) => {
             if (event.key === 'byteDisplayType') {
                 byteDisplayType.value = event.newValue as 'ints' | 'hex' | 'hex0x';
@@ -191,6 +202,8 @@ export default defineComponent({
                 byteCopyCommas.value = event.newValue === 'true';
             } else if (event.key === 'sendAddress') {
                 sendAddress.value = event.newValue || '';
+            } else if (event.key === 'byteUpperCase') {
+                byteUpperCase.value = event.newValue === 'true';
             }
         };
 
@@ -224,18 +237,12 @@ export default defineComponent({
         };
 
         const copyToClipboard = () => {
-            let text = props.byteString;
-            if (byteDisplayType.value === 'hex') {
-                text = text.split(' ').map(byte => parseInt(byte).toString(16).toUpperCase()).join(byteCopySpaces.value ? ' ' : '');
-            } else if (byteDisplayType.value === 'hex0x') {
-                text = text.split(' ').map(byte => '0x' + parseInt(byte).toString(16).toUpperCase()).join(byteCopySpaces.value ? ' ' : '');
-            } else {
+            let text = props.byteString.split(' ').map(byte => formatByte(byte)).join(byteCopySpaces.value ? ' ' : '');
+            if (byteDisplayType.value === 'ints') {
                 if (byteCopyCommas.value) {
                     text = text.replace(/ /g, ', ');
                 }
-                if (byteCopySpaces.value) {
-                    text = text.replace(/ /g, ' ');
-                } else {
+                if (!byteCopySpaces.value) {
                     text = text.replace(/ /g, '');
                 }
             }
@@ -328,13 +335,15 @@ export default defineComponent({
         };
 
         const formatByte = (byte: string): string => {
+            let formattedByte = '';
             if (byteDisplayType.value === 'hex') {
-                return parseInt(byte).toString(16).toUpperCase();
+                formattedByte = parseInt(byte).toString(16).padStart(2, '0');
             } else if (byteDisplayType.value === 'hex0x') {
-                return '0x' + parseInt(byte).toString(16).toUpperCase();
+                formattedByte = '0x' + parseInt(byte).toString(16).padStart(2, '0');
             } else {
-                return byte;
+                formattedByte = byte;
             }
+            return byteUpperCase.value ? formattedByte.toUpperCase() : formattedByte.toLowerCase();
         };
 
         const getByteColorClass = (index: number): string => {
@@ -363,7 +372,8 @@ export default defineComponent({
             navigateToGenerate,
             navigateToGenerateNewTab,
             isTableVisible,
-            toggleTable
+            toggleTable,
+            byteUpperCase
         };
     },
     computed: {
