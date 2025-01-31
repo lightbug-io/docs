@@ -19,6 +19,10 @@ Device UX messages revolving around screen updates make use of a common payload 
 
 - 3: Page ID: An ID for the page being interacted with or updated.
 
+## Screen
+
+The screen on devices that accept screen updates is currently a 122x250 pixel monochrome eink display.
+
 ## Page IDs
 
 The Page ID should be provided when updating screens if the screen should be redrawn (ie, you are actually displaying a new page)
