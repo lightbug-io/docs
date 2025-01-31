@@ -80,6 +80,9 @@ export default defineComponent({
                 case 'uint64':
                     result = bytes.length < 8 ? "" : uint64LEtoUInt(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]).toString();
                     break;
+                case 'int32':
+                    result = bytes.length < 4 ? "" : new Int32Array(new Uint8Array(bytes).buffer)[0].toString();
+                    break;
                 case 'float32':
                     result = bytes.length < 4 ? "" : Float32Utils.bytesLEToFloat32(bytes).toString();
                     break;
