@@ -92,10 +92,6 @@ messages:
         name: "ACKed ID"
         description: "ID of previous message being ACKed, if provided in the original message header"
         type: "uintn"
-  6:
-    name: "Keep Alive"
-    description: "General keep alive message"
-    group: "general"
   10:
     name: "Start"
     hidden: true
@@ -110,7 +106,7 @@ messages:
     group: "livelink"
   13:
     name: "Heartbeat"
-    group: "livelink"
+    group: "general"
     data:
       4:
         name: "GSM Signal"

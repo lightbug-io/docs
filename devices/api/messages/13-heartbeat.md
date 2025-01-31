@@ -22,6 +22,10 @@ These pages can be seen as a view of what is to come later this year.
 
 Sent from a device over an open connection to let the receiver know that the connection is still active.
 
+Can also be used to check if a connection is still active, as the message would be ACKed.
+
+Devices currently default to sending a heartbeat every 15 seconds.
+
 ## Payload
 
 | Field | Name               | Description                         | Type |
@@ -50,4 +54,4 @@ Heartbeat message for device ID `9439544` with `100` % battery, on firmware vers
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_LIVELINK_'" :enumName="'MD_LIVELINK'" :dataPath="'messages/13/data'"/>
+<GenerateConsts :prefix="'MD_HEARTBEAT_'" :enumName="'MD_HEARTBEAT'" :dataPath="'messages/13/data'"/>
