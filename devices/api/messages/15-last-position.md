@@ -15,7 +15,7 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 37: Last Position
+# 15: Last Position
 
 ::: danger Not yet documented
 :::
@@ -31,14 +31,8 @@ Used to interact with the devices last position.
 :::
 
 
-It has a single field, the ID, which is a uint.
-
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
-| 1     | Altitude |  | uintn  |   |  |
-| 2     | Lat |  | uintn  |   | |
-| 3     | Lon |  | uintn  |   | |
-| 4     | Speed |  | uintn  |   | |
 
 If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
 
@@ -60,4 +54,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_LASTPOS_'" :enumName="'MD_DEVICE_LASTPOS'" :dataPath="'messages/37/data'"/>
+<!-- <GenerateConsts :prefix="'MD_DEVICE_LASTPOS_'" :enumName="'MD_DEVICE_LASTPOS'" :dataPath="'messages/37/data'"/> -->

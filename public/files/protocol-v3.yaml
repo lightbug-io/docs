@@ -130,6 +130,61 @@ messages:
     name: "Livelink Position Data"
     hidden: true
     group: "livelink"
+    data:
+      1:
+        name: "Timestamp"
+        type: "uint64"
+      2:
+        name: "Latitude E7"
+        type: "int32"
+      3:
+        name: "Longitude E7"
+        type: "int32"
+      4:
+        name: "Altitude E3"
+        type: "int32"
+      5:
+        name: "Accuracy cm"
+        type: "uint16"
+      6:
+        name: "Course Over Ground E2"
+        type: "uint16"
+      7:
+        name: "Speed E2"
+        type: "uint16"
+      8:
+        name: "Number of Satellites"
+        type: "uint8"
+      9:
+        name: "Average CN0"
+        type: "uint8"
+      10:
+        name: "Position Type"
+        type: "uint8"
+        values:
+          0:
+            name: "invalid"
+          1:
+            name: "fixed"
+          2:
+            name: "RESERVED"
+          3:
+            name: "standalone"
+          4:
+            name: "rtkFloat"
+          5:
+            name: "rtkFix"
+          6:
+            name: "surveying"
+      11:
+        name: "Position Source"
+        type: "uint8"
+        values:
+          0:
+            name: "GPS"
+          1:
+            # DOESN'T MEANT RTK CORRECTED DATA, just coming from the rtk module
+            name: "RTK"
   16:
     name: "Livelink Device Status"
     hidden: true
@@ -263,28 +318,6 @@ messages:
         name: "Second"
         description: "Second"
         type: "uint8"
-  37:
-    name: "Last Position"
-    description: "Last known position"
-    group: "device-services"
-    data:
-      1:
-        name: "alt"
-        description: "Altitude"
-        type: "uintn" # TODO update type
-      2:
-        name: "lat"
-        description: "Latitude"
-        type: "uintn" # TODO update type
-      3:
-        name: "lng"
-        description: "Longitude"
-        type: "uintn" # TODO update type
-      4:
-        name: "speed"
-        description: "Speed"
-        type: "uintn" # TODO update type
-      # TODO add last position type, rtk, gps, etc
   38:
     name: "Link Control"
     description: "Control a link to the internet to send and receive messages"
@@ -437,9 +470,11 @@ messages:
     data:
       3:
         name: "Page ID"
+        description: "ID of page to display or update"
         type: "uintn"
       4:
         name: "Page Title"
+        description: "Title of the page"
         type: "ascii"
       5:
         name: "Status bar"
