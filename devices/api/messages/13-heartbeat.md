@@ -26,7 +26,7 @@ Sent from a device over an open connection to let the receiver know that the con
 
 | Field | Name               | Description                         | Type |
 | ----- | ------------------ | ----------------------------------- | ---- |
-| 4     | GSM Signal | First byte is CSQ, Byte 2 and 3 are uint16 LE network info | bytes |
+| 4     | GSM Signal | First byte is CSQ [0-31], 99 for unknown. Recommended to x4 to get a percentage. Byte 2 and 3 are uint16 LE network info. | bytes |
 | 5     | Firmware version   | Current Firmware version of the device | uint16 |
 | 6     | Battery percent   |  | uint8 |
 

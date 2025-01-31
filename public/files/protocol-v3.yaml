@@ -114,7 +114,7 @@ messages:
     data:
       4:
         name: "GSM Signal"
-        description: "First byte is CSQ, Byte 2 and 3 are uint16 LE network info"
+        description: "First byte is CSQ [0-31], 99 for unknown. Recommended to x4 to get a percentage. Byte 2 and 3 are uint16 LE network info."
         type: "bytes"
       5:
         name: "Firmware version"
