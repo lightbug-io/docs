@@ -13,7 +13,7 @@ import ProtocolBytes from './ProtocolBytes.vue';
 import { defineComponent, ref, computed } from 'vue';
 
 export default defineComponent({
-    name: 'ProtocolHeaders',
+    name: 'ProtocolBytesInput',
     components: {
         ProtocolBytes
     },

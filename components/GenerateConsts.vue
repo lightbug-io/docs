@@ -175,14 +175,14 @@ export default defineComponent({
                 const description = constants.value[key].description || '';
                 let line = `    ${prefix.value}${name} = ${key}`;
                 if (showComments.value) {
+                    line += ',';
                     line = alignComment(line, description, maxLength);
+                } else if (index < headerKeys.length - 1) {
+                    line += ',';
                 }
-                cppConstants += `${line}`;
-                if (index < headerKeys.length - 1) {
-                    cppConstants += ',\n';
-                }
+                cppConstants += `${line}\n`;
             });
-            cppConstants += '\n}';
+            cppConstants += '}';
             return cppConstants;
         });
 
