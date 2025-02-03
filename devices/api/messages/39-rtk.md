@@ -52,4 +52,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_RTK_'" :enumName="'MD_DEVICE_RTK'" :dataPath="'messages/39/data'"/>
+<GenerateConsts :messageId="39"/>

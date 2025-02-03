@@ -56,11 +56,16 @@
         <v-card-title>Options</v-card-title>
         <v-card-text>
             <v-text-field
-                v-model="prefix"
-                label="Prefix"
-                placeholder="Enter prefix"
+                v-model="messageName"
+                :label="messageNameLabel"
                 density="compact" variant="underlined"
-                @input="prefix = prefix.toUpperCase()"
+                @input="messageName = messageName.toUpperCase()"
+            />
+            <v-text-field
+                v-model="dataName"
+                label="Data Name"
+                density="compact" variant="underlined"
+                @input="dataName = dataName.toUpperCase()"
             />
             <v-checkbox
                 v-model="showComments"
@@ -78,19 +83,15 @@ import jsyaml from 'js-yaml';
 export default defineComponent({
     name: 'GenerateConsts',
     props: {
-        // Prefix before constants
-        prefix: {
-            type: String,
-            default: 'MH_'
+        // ID of the message
+        messageId: {
+            type: Number,
+            required: true
         },
-        // Name of any ENUMS that are generated
-        enumName: {
+        // Label for the message name text field
+        messageNameLabel: {
             type: String,
-            default: 'MyEnum'
-        },
-        // Path within the protocol YAML file that we want to use for constants
-        dataPath: {
-            type: String
+            default: 'Message Name'
         }
     },
     setup(props) {
@@ -98,17 +99,14 @@ export default defineComponent({
         const goFormat = ref('individual');
         const showComments = ref(true);
         const constants = ref<any>({});
-        const prefix = ref(props.prefix);
+        const message = ref<any>({});
+        const dataName = ref('');
+        const messageName = ref('');
 
-        // Watch for changes in the local prefix and update constants
-        watch(prefix, () => {
-            // Trigger re-computation of constants
-            constants.value = { ...constants.value };
-        });
-
-        // Watch for changes in the props.prefix and update local prefix
-        watch(() => props.prefix, (newPrefix) => {
-            prefix.value = newPrefix;
+        // Watch for changes in the message name and update message info
+        watch(messageName, () => {
+            // Trigger re-computation of message info
+            message.value = { ...message.value };
         });
 
         const alignComment = (line: string, comment: string, maxLength: number) => {
@@ -123,15 +121,18 @@ export default defineComponent({
         const computedGoConstantsIndividual = computed(() => {
             let goConstants = '';
             const lines = [];
+            lines.push(`const ${messageName.value} = ${props.messageId}`);
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`const ${prefix.value}${name} = ${key}`);
+                lines.push(`const ${dataName.value}_${name} = ${key}`);
             }
             const maxLength = getMaxLengthPlusOne(lines);
+            let line = `const ${messageName.value} = ${props.messageId}`;
+            goConstants += `${line}\n`;
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                let line = `const ${prefix.value}${name} = ${key}`;
+                line = `const ${dataName.value}_${name} = ${key}`;
                 if (showComments.value) {
                     line = alignComment(line, description, maxLength);
                 }
@@ -143,15 +144,18 @@ export default defineComponent({
         const computedGoConstantsGrouped = computed(() => {
             let goConstants = 'const (\n';
             const lines = [];
+            lines.push(`    ${messageName.value} = ${props.messageId}`);
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`    ${prefix.value}${name} = ${key}`);
+                lines.push(`    ${dataName.value}_${name} = ${key}`);
             }
             const maxLength = getMaxLengthPlusOne(lines);
+            let line = `    ${messageName.value} = ${props.messageId}`;
+            goConstants += `${line}\n`;
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                let line = `    ${prefix.value}${name} = ${key}`;
+                line = `    ${dataName.value}_${name} = ${key}`;
                 if (showComments.value) {
                     line = alignComment(line, description, maxLength);
                 }
@@ -162,42 +166,54 @@ export default defineComponent({
         });
 
         const computedCppConstants = computed(() => {
-            let cppConstants = `enum ${props.enumName} : uint8_t {\n`;
+            let cppConstants = `enum ${messageName.value} : uint8_t {\n`;
             const lines = [];
+
+            // TODO at some point fix comment indenting..
+
+            // Generate a group for the message type
+            lines.push(`    ${messageName.value} = ${props.messageId}`);
+            let line = `    ${messageName.value} = ${props.messageId},`;
+            const messageDescription = message.value.description || '';
+            if (showComments.value && messageDescription) {
+                line = alignComment(line, messageDescription, getMaxLengthPlusOne(lines));
+            }
+            cppConstants += `${line}\n`;
+            cppConstants += '};\n\n';
+
+            // Generate a separate enum for the data group
+            cppConstants += `enum ${dataName.value} : uint8_t {\n`;
             const headerKeys = Object.keys(constants.value);
-            headerKeys.forEach((key) => {
-                const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`    ${prefix.value}${name} = ${key}`);
-            });
-            const maxLength = getMaxLengthPlusOne(lines);
             headerKeys.forEach((key, index) => {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                let line = `    ${prefix.value}${name} = ${key}`;
+                line = `    ${dataName.value}_${name} = ${key},`;
+                lines.push(line);
                 if (showComments.value) {
-                    line += ',';
-                    line = alignComment(line, description, maxLength);
-                } else if (index < headerKeys.length - 1) {
-                    line += ',';
+                    line = alignComment(line, description, getMaxLengthPlusOne(lines));
                 }
                 cppConstants += `${line}\n`;
             });
-            cppConstants += '}';
+            cppConstants += '};';
+
             return cppConstants;
         });
 
         const computedTsConstants = computed(() => {
             let tsConstants = '';
             const lines = [];
+            lines.push(`export const ${messageName.value} = ${props.messageId};`);
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`export const ${prefix.value}${name} = ${key};`);
+                lines.push(`export const ${dataName.value}_${name} = ${key};`);
             }
             const maxLength = getMaxLengthPlusOne(lines);
+            let line = `export const ${messageName.value} = ${props.messageId};`;
+            tsConstants += `${line}\n`;
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                let line = `export const ${prefix.value}${name} = ${key};`;
+                line = `export const ${dataName.value}_${name} = ${key};`;
                 if (showComments.value) {
                     line = alignComment(line, description, maxLength);
                 }
@@ -209,15 +225,18 @@ export default defineComponent({
         const computedToitConstants = computed(() => {
             let toitConstants = '';
             const lines = [];
+            lines.push(`${messageName.value} /int ::= ${props.messageId}`);
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`${prefix.value}${name} /int ::= ${key}`);
+                lines.push(`${dataName.value}_${name} /int ::= ${key}`);
             }
             const maxLength = getMaxLengthPlusOne(lines);
+            let line = `${messageName.value} /int ::= ${props.messageId}`;
+            toitConstants += `${line}\n`;
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                let line = `${prefix.value}${name} /int ::= ${key}`;
+                line = `${dataName.value}_${name} /int ::= ${key}`;
                 if (showComments.value) {
                     line = alignComment(line, description, maxLength);
                 }
@@ -231,8 +250,9 @@ export default defineComponent({
                 const response = await fetch('/files/protocol-v3.yaml');
                 const yamlData = await response.text();
                 let parsedData = jsyaml.load(yamlData);
-                // Get the data from the path within the parsed data, where every string between a / is a new key
-                props.dataPath.split('/').forEach((key) => {
+                // Get the data from the path within the parsed data
+                const dataPath = `messages/${props.messageId}/data`;
+                dataPath.split('/').forEach((key) => {
                     parsedData = parsedData[key]
                 })
                 constants.value = parsedData
@@ -241,13 +261,35 @@ export default defineComponent({
             }
         };
 
-        onMounted(loadConstants);
+        const loadMessage = async () => {
+            try {
+                const response = await fetch('/files/protocol-v3.yaml');
+                const yamlData = await response.text();
+                let parsedData = jsyaml.load(yamlData);
+                // Get the message from the path within the parsed data
+                const messagePath = `messages/${props.messageId}`;
+                messagePath.split('/').forEach((key) => {
+                    parsedData = parsedData[key]
+                })
+                message.value = parsedData;
+                messageName.value = `MT_${message.value.name.toUpperCase().replace(/ /g, '_')}`;
+                dataName.value = `MD_${message.value.name.toUpperCase().replace(/ /g, '_')}`;
+            } catch (error) {
+                console.error('Error loading YAML file:', error);
+            }
+        };
+
+        onMounted(() => {
+            loadConstants();
+            loadMessage();
+        });
 
         return {
             activeTab,
             goFormat,
             showComments,
-            prefix,
+            dataName,
+            messageName,
             computedGoConstantsIndividual,
             computedGoConstantsGrouped,
             computedCppConstants,

@@ -49,4 +49,4 @@ Heartbeat message for device ID `9439544` with `100` % battery, on firmware vers
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_HEARTBEAT_'" :enumName="'MD_HEARTBEAT'" :dataPath="'messages/13/data'"/>
+<GenerateConsts :messageId="13"/>

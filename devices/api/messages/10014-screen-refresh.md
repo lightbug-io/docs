@@ -47,4 +47,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_UX_SCREEN_REFRESH_'" :enumName="'MD_DEVICE_UX_SCREEN_REFRESH'" :dataPath="'messages/10014/data'"/>
+<GenerateConsts :messageId="10014"/>

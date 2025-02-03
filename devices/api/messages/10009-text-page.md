@@ -69,4 +69,4 @@ Only a partial redraw will be performed in order to add the new line, and the ex
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_TEXT_PAGE_'" :enumName="'MD_DEVICE_TEXT_PAGE'" :dataPath="'messages/10009/data'"/>
+<GenerateConsts :messageId="10009"/>

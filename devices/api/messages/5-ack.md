@@ -84,4 +84,4 @@ In the case that a message ID is not known, the field can be omitted.
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_ACK_'" :enumName="'MD_ACK'" :dataPath="'messages/5/data'"/>
+<GenerateConsts :messageId="5"/>

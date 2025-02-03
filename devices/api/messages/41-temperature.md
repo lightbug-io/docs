@@ -49,4 +49,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_TEMPERATURE_'" :enumName="'MD_DEVICE_TEMPERATURE'" :dataPath="'messages/41/data'"/>
+<GenerateConsts :messageId="41"/>

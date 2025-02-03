@@ -45,8 +45,6 @@ byteString="3 14 0 24 39 1 0 1 1 126 0 0 25 55"
 </template>
 </SplitColumnView>
 
-<!-- ## Code
+## Code
 
-For convenience, the following constants can be used to reference the payload fields.
-
-<GenerateConsts :prefix="'MD_DEVICE_PRESET_PAGE_'" :enumName="'MD_DEVICE_PRESET_PAGE'" :dataPath="'messages/10008/data'"/> -->
+<GenerateConsts :messageId="10008"/>

@@ -103,6 +103,7 @@ messages:
     group: "livelink"
   13:
     name: "Heartbeat"
+    description: "A message to keep the connection alive"
     group: "general"
     data:
       4:
