@@ -66,7 +66,7 @@ ACK message, acknowledging a message with type `32` and ID `234`
 <ProtocolBytes
     byteString="3 18 0 5 0 0 0 2 0 1 2 2 32 0 1 234 14 66"
     :boldPositions="[3,12,15]"
-    :allowCollapse="false"
+    :allowCollapse="true" defaultCollapsed="true"
 />
 
 
@@ -77,7 +77,7 @@ In the case that a message ID is not known, the field can be omitted.
 <ProtocolBytes
     byteString="3 15 0 5 0 0 0 1 0 1 2 32 0 164 69"
     :boldPositions="[3,11]"
-    :allowCollapse="false"
+    :allowCollapse="true" defaultCollapsed="true"
 />
 
 ## Code

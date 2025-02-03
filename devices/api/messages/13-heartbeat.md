@@ -7,6 +7,7 @@ outline: false
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
+import PayloadTable from '../../../components/PayloadTable.vue'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -26,29 +27,23 @@ Can also be used to check if a connection is still active, as the message would 
 
 Devices currently default to sending a heartbeat every 15 seconds.
 
-## Payload
-
-| Field | Name               | Description                         | Type |
-| ----- | ------------------ | ----------------------------------- | ---- |
-| 4     | GSM Signal | First byte is CSQ [0-31], 99 for unknown. Recommended to x4 to get a percentage. Byte 2 and 3 are uint16 LE network info. | bytes |
-| 5     | Firmware version   | Current Firmware version of the device | uint16 |
-| 6     | Battery percent   |  | uint8 |
-
 </template>
 <template #right>
 
-### Example
+<PayloadTable :messageId="13" headerText="Payload" headerMarginTop="0px" />
+
+</template>
+</SplitColumnView>
+
+## Examples
 
 Heartbeat message for device ID `9439544` with `100` % battery, on firmware version `143`.
 
 <ProtocolBytes
     byteString="3 39 0 13 0 2 0 1 2 4 61 0 0 0 8 56 9 144 0 0 0 0 0 3 0 6 5 4 1 100 2 143 0 3 99 0 0 238 87"
     :boldPositions="[3]"
-    :allowCollapse="false"
+    :allowCollapse="true" defaultCollapsed="true"
 />
-
-</template>
-</SplitColumnView>
 
 ## Code
 

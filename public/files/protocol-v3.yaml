@@ -111,6 +111,7 @@ messages:
         type: "bytes"
       5:
         name: "Firmware version"
+        description: "Current Firmware version of the device"
         type: "uint16"
       6:
         name: "Battery percent"
