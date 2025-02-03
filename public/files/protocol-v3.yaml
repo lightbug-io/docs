@@ -10,17 +10,14 @@ groups:
     hidden: true
     name: Bootserver
     description: "Device to Boot server communication"
-  livelink:
-    name: LiveLink
-    description: "Device communication over a 'live link'. This could for example be cellular, UART, I2C etc."
   device-services:
     name: Device Services
     overview: true
-    description: "On device communication (between CPUs)"
+    description: "Messages intended to control the device"
   device-ux:
     name: Device UX
     overview: true
-    description: "On device communication (between CPUs), specifically for user interface and interactions"
+    description: "Messages intended to control the device, specifically for user interface and interactions"
 header:
   1:
     name: "Message ID"
