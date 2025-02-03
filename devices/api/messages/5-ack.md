@@ -23,9 +23,29 @@ These pages can be seen as a view of what is to come later this year.
 
 Used to acknowledge a previously sent message.
 
+```mermaid
+flowchart LR
+    A[Sender] -->|Message| B(Receiver)
+    B -->|ACK| A
+```
+
 The [Response Message ID](./../headers#_3-response-message-id) field in the header can be used in place of an ACK if an immediate response is being sent.
 
+
+```mermaid
+flowchart LR
+    A[Sender] -->|Message| B(Receiver)
+    B -->|Response| A
+```
+
 If a sender does not receive an ACK or response, it may resend the message.
+
+
+```mermaid
+flowchart LR
+    A[Sender] -->|Message| B(Receiver)
+    A[Sender] -->|Message repeat| B(Receiver)
+```
 
 ACKs should not themselves be ACKed.
 

@@ -6,6 +6,8 @@ import { useSidebar } from 'vitepress-openapi';
 import { loadSpec } from '../swagger/load';
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 import { pagefindPlugin } from 'vitepress-plugin-pagefind';
+import { withMermaid } from "vitepress-plugin-mermaid";
+
 
 // Load protocol messages from YAML file
 const protocolYamlPath = path.resolve(__dirname, '../public/files/protocol-v3.yaml');
@@ -80,7 +82,7 @@ function reorder(group: { items: { link: string }[] }, orderedLinks: string[]) {
 }
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig({
+export default withMermaid(defineConfig({
   title: "Lightbug Documentation",
   description: "home for everything Lightbug",
   lang: 'en-GB',
@@ -107,6 +109,9 @@ export default defineConfig({
       infoLabel: 'ℹ️ Information',
       detailsLabel: 'Details'
     }
+  },
+  mermaid:{
+    //mermaidConfig !theme here works for light mode since dark theme is forced in dark mode
   },
   head: [
     [
@@ -578,4 +583,4 @@ export default defineConfig({
       provider: 'local'
     }
   }
-})
+}));
