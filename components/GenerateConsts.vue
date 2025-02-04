@@ -55,7 +55,9 @@
         </v-card-text>
         <v-card-title>Options</v-card-title>
         <v-card-text>
+            <!-- TODO, only count the first value of messageName, not user changed bits... -->
             <v-text-field
+                v-if="messageName"
                 v-model="messageName"
                 :label="messageNameLabel"
                 density="compact" variant="underlined"
@@ -86,12 +88,27 @@ export default defineComponent({
         // ID of the message
         messageId: {
             type: Number,
-            required: true
+            required: false
         },
         // Label for the message name text field
         messageNameLabel: {
             type: String,
             default: 'Message Name'
+        },
+        // Optional path for data
+        dataPath: {
+            type: String,
+            required: false
+        },
+        // Optional prefix for constants
+        prefix: {
+            type: String,
+            default: ''
+        },
+        // Optional data name
+        dataName: {
+            type: String,
+            required: false
         }
     },
     setup(props) {
@@ -100,7 +117,7 @@ export default defineComponent({
         const showComments = ref(true);
         const constants = ref<any>({});
         const message = ref<any>({});
-        const dataName = ref('');
+        const dataName = ref(props.dataName || '');
         const messageName = ref('');
 
         // Watch for changes in the message name and update message info
@@ -118,21 +135,29 @@ export default defineComponent({
             return Math.max(...lines.map(line => line.length)) + 1;
         };
 
+        const formatConstantName = (base: string, name: string) => {
+            return `${base}_${name}`.replace(/^_+/, '');
+        };
+
         const computedGoConstantsIndividual = computed(() => {
             let goConstants = '';
             const lines = [];
-            lines.push(`const ${messageName.value} = ${props.messageId}`);
+            if (props.messageId) {
+                lines.push(`const ${messageName.value} = ${props.messageId}`);
+            }
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`const ${dataName.value}_${name} = ${key}`);
+                lines.push(`const ${formatConstantName(dataName.value, name)} = ${key}`);
             }
             const maxLength = getMaxLengthPlusOne(lines);
-            let line = `const ${messageName.value} = ${props.messageId}`;
-            goConstants += `${line}\n`;
+            if (props.messageId) {
+                let line = `const ${messageName.value} = ${props.messageId}`;
+                goConstants += `${line}\n`;
+            }
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                line = `const ${dataName.value}_${name} = ${key}`;
+                let line = `const ${formatConstantName(dataName.value, name)} = ${key}`;
                 if (showComments.value) {
                     line = alignComment(line, description, maxLength);
                 }
@@ -144,18 +169,22 @@ export default defineComponent({
         const computedGoConstantsGrouped = computed(() => {
             let goConstants = 'const (\n';
             const lines = [];
-            lines.push(`    ${messageName.value} = ${props.messageId}`);
+            if (props.messageId) {
+                lines.push(`    ${messageName.value} = ${props.messageId}`);
+            }
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`    ${dataName.value}_${name} = ${key}`);
+                lines.push(`    ${formatConstantName(dataName.value, name)} = ${key}`);
             }
             const maxLength = getMaxLengthPlusOne(lines);
-            let line = `    ${messageName.value} = ${props.messageId}`;
-            goConstants += `${line}\n`;
+            if (props.messageId) {
+                let line = `    ${messageName.value} = ${props.messageId}`;
+                goConstants += `${line}\n`;
+            }
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                line = `    ${dataName.value}_${name} = ${key}`;
+                let line = `    ${formatConstantName(dataName.value, name)} = ${key}`;
                 if (showComments.value) {
                     line = alignComment(line, description, maxLength);
                 }
@@ -166,20 +195,23 @@ export default defineComponent({
         });
 
         const computedCppConstants = computed(() => {
-            let cppConstants = `enum ${messageName.value} : uint8_t {\n`;
+            let cppConstants = ``
             const lines = [];
 
             // TODO at some point fix comment indenting..
 
             // Generate a group for the message type
-            lines.push(`    ${messageName.value} = ${props.messageId}`);
-            let line = `    ${messageName.value} = ${props.messageId},`;
-            const messageDescription = message.value.description || '';
-            if (showComments.value && messageDescription) {
-                line = alignComment(line, messageDescription, getMaxLengthPlusOne(lines));
+            if (props.messageId) {
+                cppConstants += `enum ${messageName.value} : uint8_t {\n`;
+                lines.push(`    ${messageName.value} = ${props.messageId}`);
+                let line = `    ${messageName.value} = ${props.messageId},`;
+                const messageDescription = message.value.description || '';
+                if (showComments.value && messageDescription) {
+                    line = alignComment(line, messageDescription, getMaxLengthPlusOne(lines));
+                }
+                cppConstants += `${line}\n`;
+                cppConstants += '};\n\n';
             }
-            cppConstants += `${line}\n`;
-            cppConstants += '};\n\n';
 
             // Generate a separate enum for the data group
             cppConstants += `enum ${dataName.value} : uint8_t {\n`;
@@ -187,7 +219,7 @@ export default defineComponent({
             headerKeys.forEach((key, index) => {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                line = `    ${dataName.value}_${name} = ${key},`;
+                let line = `    ${formatConstantName(dataName.value, name)} = ${key},`;
                 lines.push(line);
                 if (showComments.value) {
                     line = alignComment(line, description, getMaxLengthPlusOne(lines));
@@ -202,18 +234,22 @@ export default defineComponent({
         const computedTsConstants = computed(() => {
             let tsConstants = '';
             const lines = [];
-            lines.push(`export const ${messageName.value} = ${props.messageId};`);
+            if (props.messageId) {
+                lines.push(`export const ${messageName.value} = ${props.messageId};`);
+            }
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`export const ${dataName.value}_${name} = ${key};`);
+                lines.push(`export const ${formatConstantName(dataName.value, name)} = ${key};`);
             }
             const maxLength = getMaxLengthPlusOne(lines);
-            let line = `export const ${messageName.value} = ${props.messageId};`;
-            tsConstants += `${line}\n`;
+            if (props.messageId) {
+                let line = `export const ${messageName.value} = ${props.messageId};`;
+                tsConstants += `${line}\n`;
+            }
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                line = `export const ${dataName.value}_${name} = ${key};`;
+                let line = `export const ${formatConstantName(dataName.value, name)} = ${key};`;
                 if (showComments.value) {
                     line = alignComment(line, description, maxLength);
                 }
@@ -224,19 +260,22 @@ export default defineComponent({
 
         const computedToitConstants = computed(() => {
             let toitConstants = '';
-            const lines = [];
-            lines.push(`${messageName.value} /int ::= ${props.messageId}`);
+            const lines = []; // Collect lines first, so we know how long they get
+            if (props.messageId){
+                lines.push(`${messageName.value} /int ::= ${props.messageId}`);
+            }
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`${dataName.value}_${name} /int ::= ${key}`);
+                lines.push(`${formatConstantName(dataName.value, name)} /int ::= ${key}`);
             }
             const maxLength = getMaxLengthPlusOne(lines);
-            let line = `${messageName.value} /int ::= ${props.messageId}`;
-            toitConstants += `${line}\n`;
+            if (props.messageId){
+                toitConstants += `${messageName.value} /int ::= ${props.messageId}\n`;
+            }
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                line = `${dataName.value}_${name} /int ::= ${key}`;
+                let line = `${formatConstantName(dataName.value, name)} /int ::= ${key}`;
                 if (showComments.value) {
                     line = alignComment(line, description, maxLength);
                 }
@@ -251,17 +290,26 @@ export default defineComponent({
                 const yamlData = await response.text();
                 let parsedData = jsyaml.load(yamlData);
                 // Get the data from the path within the parsed data
-                const dataPath = `messages/${props.messageId}/data`;
+                const dataPath = props.dataPath || `messages/${props.messageId}/data`;
                 dataPath.split('/').forEach((key) => {
                     parsedData = parsedData[key]
-                })
-                constants.value = parsedData
+                });
+                // Apply prefix to constants
+                const prefixedConstants = {};
+                for (const key in parsedData) {
+                    prefixedConstants[`${key}`] = {
+                        name: `${props.prefix}${parsedData[key].name}`,
+                        description: parsedData[key].description
+                    };
+                }
+                constants.value = prefixedConstants;
             } catch (error) {
                 console.error('Error loading YAML file:', error);
             }
         };
 
         const loadMessage = async () => {
+            if (!props.messageId) return;
             try {
                 const response = await fetch('/files/protocol-v3.yaml');
                 const yamlData = await response.text();
@@ -273,7 +321,9 @@ export default defineComponent({
                 })
                 message.value = parsedData;
                 messageName.value = `MT_${message.value.name.toUpperCase().replace(/ /g, '_')}`;
-                dataName.value = `MD_${message.value.name.toUpperCase().replace(/ /g, '_')}`;
+                if (!props.dataName) {
+                    dataName.value = `MD_${message.value.name.toUpperCase().replace(/ /g, '_')}`;
+                }
             } catch (error) {
                 console.error('Error loading YAML file:', error);
             }
@@ -281,7 +331,9 @@ export default defineComponent({
 
         onMounted(() => {
             loadConstants();
-            loadMessage();
+            if (props.messageId) {
+                loadMessage();
+            }
         });
 
         return {

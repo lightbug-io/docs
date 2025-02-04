@@ -16,8 +16,7 @@ These pages can be seen as a view of what is to come later this year.
 
 These header field types are reserved across all message types.
 
-<!-- TODO, generate this again, with the updated component :O -->
-<!-- <GenerateConsts :prefix="'MH_'" :enumName="'MH'" :dataPath="'header'"/> -->
+<GenerateConsts :dataName="'MH'" :dataPath="'header'"/>
 
 ## 1: Message ID
 
