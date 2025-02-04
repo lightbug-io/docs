@@ -309,7 +309,7 @@ export default defineComponent({
             let csConstants = '';
             if (props.messageId) {
                 csConstants += `public static class ${messageGroupName.value} {\n`;
-                csConstants += `    public const int ${messageName.value} = ${props.messageId};\n`;
+                csConstants += `    public const int ${message.value.name.toUpperCase().replace(/ /g, '_')} = ${props.messageId};\n`;
                 csConstants += '}\n\n';
             }
             csConstants += `public static class ${dataName.value} {\n`;
