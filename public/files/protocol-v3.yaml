@@ -333,28 +333,27 @@ messages:
           2:
             name: "Disable"
   39:
-    name: "RTK"
-    description: "RTK information"
+    name: "GPS Control"
+    description: "Control the GPS of the device"
     group: "device-services"
     data:
       1:
-        name: "enabled"
-        description: "Is RTK enabled?"
+        name: "GPS Enable"
         type: "uint8"
         values:
+          0:
+            name: "Disabled"
           1:
             name: "Enabled"
-          2:
-            name: "Disabled"
       2:
-        name: "Request"
-        description: "Request regular updates of RTK data?"
+        name: "RTK Enable Correction"
+        description: "Request correction data to be applied to the GPS"
         type: "uint8"
         values:
+          0:
+            name: "Disabled"
           1:
-            name: "Yes"
-          2:
-            name: "No"
+            name: "Enabled"
   40:
     name: "Haptics Control"
     description: "Control the haptics"

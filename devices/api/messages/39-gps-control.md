@@ -7,6 +7,7 @@ outline: false
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
+import PayloadTable from '../../../components/PayloadTable.vue'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -15,24 +16,20 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 39: RTK
+# 39: GPS Control
 
 <SplitColumnView>
 <template #left>
 
-Used to interact with the device RTK service.
-
-### Payload
-
-| Field | Name       | Description                      | Type   | Example | Actual |
-| ----- | ---------- | -------------------------------- | ------ | ------- | - |
-| 1     | Enable | Enable or disable the service | uint8  |  1 |  1|
-| 2     | Request | Request regular updates of data | uint8  |  1 | 1|
-
-If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
+Used to interact with the device GPS service.
 
 </template>
 <template #right>
+
+<PayloadTable :messageId="39" headerText="Payload" headerMarginTop="0px" />
+
+</template>
+</SplitColumnView>
 
 ### Example
 
@@ -44,9 +41,6 @@ byteString="0"
 :boldPositions="[3,12,15,16]"
 :allowCollapse="false"
 />
-
-</template>
-</SplitColumnView>
 
 ## Code
 
