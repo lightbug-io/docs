@@ -61,7 +61,7 @@ header:
         description: "Perform an action."
   10:
     name: "Forwarded For"
-    description: "ID of the client sending the original message that is being forwarded"
+    description: "ID of the client sending the original message that is being forwarded. For LORA this is a device ID. For Main CPU, this is a link or module ID."
   11:
     name: "Forwarded RSSI"
     description: "RSSI of forwarded message"
@@ -69,12 +69,27 @@ header:
     name: "Forwarded SNR"
     description: "SNR  of forwarded message"
   13:
-    name: "Forwarded Type"
-    description: "Type  of forwarded message"
+    name: "Forwarding Type"
+    description: "Type of forwarded or forwarding message"
     type: "uintn"
     values:
       1:
-        name: "LORA Base Station"
+        name: "LORA Base Station" # Forwarded via a LORA base station
+      2:
+        name: "Main CPU" # Forwarded via the main CPU
+  14:
+    name: "Forward to"
+    description: "ID of the client to forward the message to. For LORA this is (not yet implemented). For Main CPU, this is a link or module ID."
+    type: "uintn"
+  15:
+    name: "Forward and use"
+    description: "Should the message be forwarded and also used by the current client?"
+    type: "uint8"
+    values:
+      0:
+        name: "No (default)"
+      1:
+        name: "Yes"
 messages:
   5:
     name: "ACK"
@@ -103,7 +118,7 @@ messages:
     group: "livelink"
   13:
     name: "Heartbeat"
-    description: "A message to keep the connection alive"
+    description: "A message to keep the connection alive. Arbitrary fields can be added in fields 200+"
     group: "general"
     data:
       4:
@@ -313,25 +328,6 @@ messages:
         name: "Second"
         description: "Second"
         type: "uint8"
-  38:
-    name: "Link Control"
-    description: "Control a link to the internet to send and receive messages"
-    data:
-      1:
-        name: "Link Address"
-        description: "IP Address of the link"
-        type: "ascii"
-      2:
-        name: "Link Port"
-        type: "uint16"
-      3:
-        name: "Link Enable"
-        type: "uint8"
-        values:
-          1:
-            name: "Enable"
-          2:
-            name: "Disable"
   39:
     name: "GPS Control"
     description: "Control the GPS of the device"
@@ -445,6 +441,51 @@ messages:
         type: "uint8"
       8:
         name: "Strobe Intensity"
+        type: "uint8"
+  50:
+    name: "Link Control"
+    description: "Control a link to the internet to send and receive messages"
+    data:
+      # TODO add an options to give the link an ID, (or receive an ID from STM)
+      1:
+        name: "Link Address"
+        description: "IP Address of the link"
+        type: "ascii"
+      2:
+        name: "Link Port"
+        type: "uint16"
+      3:
+        name: "Link Enable"
+        type: "uint8"
+        values:
+          1:
+            name: "Enable"
+          2:
+            name: "Disable"
+      10:
+        name: "Link ID"
+        description: "ID of the link, for use with future commands, such as sending data"
+        type: "uint8"
+  51:
+    name: "Link Data"
+    description: "GET, SET or SUBSCRIBE to arbitrary data over a link."
+    data:
+      1:
+        name: "Identifier"
+        description: "Identifier for the data, so it could be uniquely identified"
+        type: "bytes"
+      2:
+        name: "Data"
+        description: "Data to send over the link, can be up to 200 bytes"
+        type: "bytes"
+      3:
+        name: "Checksum"
+        description: "Checksum of the data. Can be used to verify the data integrity, or on GET on change etc."
+        type: "bytes"
+      # TODO Or do we want to use address and port every time?
+      10:
+        name: "Link ID"
+        description: "ID of the link, for use with future commands, such as sending data"
         type: "uint8"
   1004:
     name: "LORA V4 Forwarding"
