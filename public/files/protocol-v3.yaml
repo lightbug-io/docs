@@ -59,6 +59,10 @@ header:
       4:
         name: "DO"
         description: "Perform an action."
+  6:
+    name: "Subscription interval"
+    description: "Interval in ms. To be used with the SUBSCRIBE method"
+    type: "uintn"
   10:
     name: "Forwarded For"
     description: "ID of the client sending the original message that is being forwarded. For LORA this is a device ID. For Main CPU, this is a link or module ID."
@@ -366,6 +370,7 @@ messages:
   41:
     name: "Temperature"
     description: "Temperature information"
+    group: "device-services"
     data:
       1:
         name: "Temperature"
@@ -412,9 +417,11 @@ messages:
   44:
     name: "Pressure"
     description: "Pressure information"
+    group: "device-services"
   45:
     name: "Alarm"
     description: "Trigger an alarm, using buzzer, haptics, and strobe"
+    group: "device-services"
     data:
       1:
         name: "Legacy alarm action"
@@ -445,6 +452,7 @@ messages:
   50:
     name: "Link Control"
     description: "Control a link to the internet to send and receive messages"
+    group: "device-services"
     data:
       # TODO add an options to give the link an ID, (or receive an ID from STM)
       1:
@@ -469,6 +477,7 @@ messages:
   51:
     name: "Link Data"
     description: "GET, SET or SUBSCRIBE to arbitrary data over a link."
+    group: "device-services"
     data:
       1:
         name: "Identifier"

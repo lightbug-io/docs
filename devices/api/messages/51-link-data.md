@@ -21,12 +21,12 @@ These pages can be seen as a view of what is to come later this year.
 <SplitColumnView>
 <template #left>
 
-Used to control a remote device link.
+Used to send data over a link.
 
 </template>
 <template #right>
 
-<PayloadTable :messageId="50" headerText="Payload" headerMarginTop="0px" />
+<PayloadTable :messageId="51" headerText="Payload" headerMarginTop="0px" />
 
 </template>
 </SplitColumnView>
@@ -39,4 +39,4 @@ TODO
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="50"/>
+<GenerateConsts :messageId="51"/>

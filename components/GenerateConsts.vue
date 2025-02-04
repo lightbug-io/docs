@@ -3,8 +3,9 @@
         <v-tabs v-model="activeTab" bg-color="primary" density="compact">
             <v-tab value="go">Go</v-tab>
             <v-tab value="toit">Toit</v-tab>
-            <v-tab value="cpp">C++</v-tab>
             <v-tab value="ts">TypeScript</v-tab>
+            <v-tab value="cpp">C++</v-tab>
+            <v-tab value="cs">C#</v-tab>
         </v-tabs>
         <v-card-text>
             <div v-if="activeTab === 'go'">
@@ -45,6 +46,14 @@
                     theme="default"
                 />
             </div>
+            <div v-else-if="activeTab === 'cs'">
+                <VCodeBlock
+                    :code="computedCsConstants"
+                    highlightjs
+                    lang="csharp"
+                    theme="default"
+                />
+            </div>
             <div v-else>
                 <VCodeBlock
                     :code="computedToitConstants"
@@ -56,6 +65,13 @@
         <v-card-title>Options</v-card-title>
         <v-card-text>
             <!-- TODO, only count the first value of messageName, not user changed bits... -->
+            <v-text-field
+                v-if="activeTab === 'cpp' || activeTab === 'cs'"
+                v-model="messageGroupName"
+                label="Message Group Name"
+                density="compact" variant="underlined"
+                @input="messageGroupName = messageGroupName.toUpperCase()"
+            />
             <v-text-field
                 v-if="messageName"
                 v-model="messageName"
@@ -119,9 +135,14 @@ export default defineComponent({
         const message = ref<any>({});
         const dataName = ref(props.dataName || '');
         const messageName = ref('');
+        const messageGroupName = ref('');
 
         // Watch for changes in the message name and update message info
         watch(messageName, () => {
+            // Trigger re-computation of message info
+            message.value = { ...message.value };
+        });
+        watch(messageGroupName, () => {
             // Trigger re-computation of message info
             message.value = { ...message.value };
         });
@@ -202,7 +223,7 @@ export default defineComponent({
 
             // Generate a group for the message type
             if (props.messageId) {
-                cppConstants += `enum ${messageName.value} : uint8_t {\n`;
+                cppConstants += `enum ${messageGroupName.value} : uint8_t {\n`;
                 lines.push(`    ${messageName.value} = ${props.messageId}`);
                 let line = `    ${messageName.value} = ${props.messageId},`;
                 const messageDescription = message.value.description || '';
@@ -284,6 +305,27 @@ export default defineComponent({
             return toitConstants;
         });
 
+        const computedCsConstants = computed(() => {
+            let csConstants = '';
+            if (props.messageId) {
+                csConstants += `public static class ${messageGroupName.value} {\n`;
+                csConstants += `    public const int ${messageName.value} = ${props.messageId};\n`;
+                csConstants += '}\n\n';
+            }
+            csConstants += `public static class ${dataName.value} {\n`;
+            for (const key in constants.value) {
+                const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
+                const description = constants.value[key].description || '';
+                let line = `    public const int ${name} = ${key};`;
+                if (showComments.value) {
+                    line = alignComment(line, description, getMaxLengthPlusOne([line]));
+                }
+                csConstants += `${line}\n`;
+            }
+            csConstants += '}';
+            return csConstants;
+        });
+
         const loadConstants = async () => {
             try {
                 const response = await fetch('/files/protocol-v3.yaml');
@@ -321,6 +363,7 @@ export default defineComponent({
                 })
                 message.value = parsedData;
                 messageName.value = `MT_${message.value.name.toUpperCase().replace(/ /g, '_')}`;
+                messageGroupName.value = `MT`
                 if (!props.dataName) {
                     dataName.value = `MD_${message.value.name.toUpperCase().replace(/ /g, '_')}`;
                 }
@@ -341,12 +384,14 @@ export default defineComponent({
             goFormat,
             showComments,
             dataName,
+            messageGroupName,
             messageName,
             computedGoConstantsIndividual,
             computedGoConstantsGrouped,
             computedCppConstants,
             computedTsConstants,
             computedToitConstants,
+            computedCsConstants,
             setActiveTab: (tab: string) => activeTab.value = tab,
             setGoFormat: (format: string) => goFormat.value = format,
         };
