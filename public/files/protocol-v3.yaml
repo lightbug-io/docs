@@ -14,6 +14,9 @@ groups:
     name: Device Services
     overview: true
     description: "Messages intended to control the device"
+  livelink:
+    name: LiveLink
+    description: "Messages related to livelink (probably all of them)"
   device-ux:
     name: Device UX
     overview: true
@@ -32,16 +35,37 @@ header:
     description: "ID of the message that is being responded to"
     type: "uintn"
   4:
-    name: "Message Status"
+    name: "Message Status" # Response code
     description: "Status of the message. If omitted, assume OK?"
     type: "uintn"
     values:
-      1:
+      0:
         name: "OK"
         description: "Everything appears to be OK"
+      1:
+        name: "Generic Error"
       2:
-        name: "NOT_OK"
-        description: "Something went wrong while processing the message"
+        name: "Missing Payload Parameter"
+      3:
+        name: "Method Not Supported"
+        description: "e.g., SETting GPS position"
+      4:
+        name: "Invalid Payload Parameter"
+        description: "Unsupported values requested (e.g., requesting the GPS data at 100hz)"
+      5:
+        name: "Invalid State"
+        description: "e.g., requesting GPS data stream before turning GPS on"
+      6:
+        name: "No Data"
+        description: "e.g., requesting GPS or time data when not yet available"
+      7:
+        name: "Not Supported"
+        description: "If the receiver does not support the requested action but otherwise the message is valid"
+      8:
+        # Currently only used ofr tx now
+        name: "Failed Will Retry"
+      9:
+        name: "Failed Permanently"
   5:
     name: "Message Method"
     description: "Request a service to be perform an action"
@@ -63,9 +87,22 @@ header:
     name: "Subscription interval"
     description: "Interval in ms. To be used with the SUBSCRIBE method"
     type: "uintn"
+  9:
+    name: "Forward For Type"
+    description: "FOR FUTURE USE: Type of client that the message is being forwarded for."
+    values:
+      1:
+        name: "Device"
+        description: "Message is being forwarded for a device. LORA forwarding default."
+      2:
+        name: "Module"
+        description: "Message is being forwarded for a module. Default when receiving a message over a link."
+      3:
+        name: "Link"
+        description: "Message is being forwarded for a link. Default when receiving a message from a module"
   10:
     name: "Forwarded For"
-    description: "ID of the client sending the original message that is being forwarded. For LORA this is a device ID. For Main CPU, this is a link or module ID."
+    description: "ID of the client sending the original message that is being forwarded. Forward for type alters the meaning of this field"
   11:
     name: "Forwarded RSSI"
     description: "RSSI of forwarded message"
@@ -73,31 +110,36 @@ header:
     name: "Forwarded SNR"
     description: "SNR  of forwarded message"
   13:
-    name: "Forwarding Type"
-    description: "Type of forwarded or forwarding message"
+    name: "Forwarding To Type"
+    description: "FOR FUTURE USE: Type of client to forward the message to."
     type: "uintn"
     values:
       1:
-        name: "LORA Base Station" # Forwarded via a LORA base station
+        name: "Device"
+        description: "Message should be forwarded to a device. Lightbug device IDs."
       2:
-        name: "Main CPU" # Forwarded via the main CPU
+        name: "Module"
+        description: "Message should be forwarded to a module. IDs 1=STM, 2=ESP. Default for messages received from a link."
+      3:
+        name: "Link"
+        description: "Message should be forwarded to a link. The only valid link ID is 1. Default for messages received from a module."
   14:
-    name: "Forward to"
-    description: "ID of the client to forward the message to. For LORA this is (not yet implemented). For Main CPU, this is a link or module ID."
+    name: "Forward To"
+    description: "ID of the client to forward the message to. Forwarding to type alters the meaning of this field"
     type: "uintn"
-  15:
-    name: "Forward and use"
-    description: "Should the message be forwarded and also used by the current client?"
-    type: "uint8"
-    values:
-      0:
-        name: "No (default)"
-      1:
-        name: "Yes"
+  # 15:
+  #   name: "Forward and use"
+  #   description: "Should the message be forwarded and also used by the current client?"
+  #   type: "uint8"
+  #   values:
+  #     0:
+  #       name: "No (default)"
+  #     1:
+  #       name: "Yes"
 messages:
   5:
     name: "ACK"
-    description: "General ACK message"
+    description: ""
     group: "general"
     data:
       1:
@@ -108,17 +150,13 @@ messages:
         name: "ACKed ID"
         description: "ID of previous message being ACKed, if provided in the original message header"
         type: "uintn"
-  10:
-    name: "Start"
-    hidden: true
-    group: "livelink"
   11:
     name: "Open"
-    hidden: true
+    description: "Explicit indicator for the start of a connection"
     group: "livelink"
   12:
     name: "Close"
-    hidden: true
+    description: "Explicit indicator for a connection about to close. Can be used to differentiate between deliberate and accidental disconnections."
     group: "livelink"
   13:
     name: "Heartbeat"
@@ -127,7 +165,7 @@ messages:
     data:
       4:
         name: "GSM Signal"
-        description: "First byte is CSQ [0-31], 99 for unknown. Recommended to x4 to get a percentage. Byte 2 and 3 are uint16 LE network info."
+        description: "First byte is CSQ [0-31]. Recommended to x4 to get a percentage. Byte 2 and 3 are uint16 LE network info."
         type: "bytes"
       5:
         name: "Firmware version"
@@ -137,40 +175,92 @@ messages:
         name: "Battery percent"
         type: "uint8"
   14:
-    name: "Livelink Config Update"
-    hidden: true
+    name: "Config"
     group: "livelink"
+    data:
+      7:
+        name: "Key"
+        type: "uint16"
+      # 8:
+      #   name: "Type"
+      #   description: ""
+      #   type: "uint16"
+      #   values:
+      #     0:
+      #       name: "unknown"
+      #     1:
+      #       name: "float"
+      #     2:
+      #       name: "byte"
+      #     3:
+      #       name: "long (4 byte)"
+      #     4:
+      #       name: "blob / bytes"
+      9:
+        name: "Payload"
+        description: "Payload for the config"
+        type: "bytes"
+        values:
+          # 1:
+          #   name: "BaseSettings"
+          # 2:
+          #   name: "HomeWifi"
+          # 3:
+          #   name: "CurrentUsageUah"
+          # 4:
+          #   name: "KnownMacs"
+          # 5:
+          #   name: "TimedSettings"
+          # 6:
+          #   name: "UnixAlarms"
+          # 7:
+          #   name: "GsmSettings"
+          # 8:
+          #   name: "LastKnownPos"
+          # 9:
+          #   name: "LastErrorCode"
+          19:
+            name: "RtkMinUsableSatDb (byte)"
+          20:
+            name: "RtkMinElevation (byte)"
   15:
-    name: "Livelink Position Data"
-    hidden: true
+    name: "Last Position"
     group: "livelink"
     data:
       1:
         name: "Timestamp"
+        description: "Unix timestamp in ms"
         type: "uint64"
       2:
-        name: "Latitude E7"
+        name: "Latitude"
+        description: "Fixed point representation of Latitude. Divide by 1e7 to get the value in degrees."
         type: "int32"
       3:
-        name: "Longitude E7"
+        name: "Longitude"
+        description: "Fixed point representation of Longitude. Divide by 1e7 to get the value in degrees."
         type: "int32"
       4:
-        name: "Altitude E3"
+        name: "Altitude"
+        description: "Altitude in mm. Divide by 1e3 to get the value in meters."
         type: "int32"
       5:
-        name: "Accuracy cm"
+        name: "Accuracy"
+        description: "Accuracy in cm. Divide by 1e2 to get the value in meters."
         type: "uint16"
       6:
-        name: "Course Over Ground E2"
+        name: "Course Over Ground"
+        description: "Course over ground. Divide by 1e2 to get the value in degrees."
         type: "uint16"
       7:
-        name: "Speed E2"
+        name: "Speed"
+        description: "Divide by 1e2 to get the value in km/h."
         type: "uint16"
       8:
         name: "Number of Satellites"
         type: "uint8"
       9:
         name: "Average CN0"
+        description: "Carrier to noise density. Higher is better."
         type: "uint8"
       10:
         name: "Position Type"
@@ -197,7 +287,7 @@ messages:
           0:
             name: "GPS"
           1:
-            # DOESN'T MEANT RTK CORRECTED DATA, just coming from the rtk module
+            # DOESN'T MEAN RTK CORRECTED DATA, just coming from an RTK module
             name: "RTK"
   16:
     name: "Livelink Device Status"
@@ -251,24 +341,25 @@ messages:
             name: "ON"
           2:
             name: "OFF"
-  32:
-    name: "GSM IMEI"
-    description: "GSM IMEI information"
-    group: "device-services"
-    data:
-      1:
-        name: "IMEI"
-        description: "IMEI"
-        type: "ascii"
-  33:
-    name: "GSM ICCID"
-    description: "GSM ICCID information"
-    group: "device-services"
-    data:
-      1:
-        name: "ICCID"
-        description: "ICCID"
-        type: "ascii"
+  # Dropped in favour of new IDs message
+  # 32:
+  #   name: "GSM IMEI"
+  #   description: "GSM IMEI information"
+  #   group: "device-services"
+  #   data:
+  #     1:
+  #       name: "IMEI"
+  #       description: "IMEI"
+  #       type: "ascii"
+  # 33:
+  #   name: "GSM ICCID"
+  #   description: "GSM ICCID information"
+  #   group: "device-services"
+  #   data:
+  #     1:
+  #       name: "ICCID"
+  #       description: "ICCID"
+  #       type: "ascii"
   34:
     name: "Device Status"
     description: "Device status information"
@@ -286,8 +377,21 @@ messages:
         name: "Device Mode"
         description: "Device mode"
         type: "uint8"
+      4:
+        name: "Network Type"
+        description: "Network type"
+        type: "uint8"
+      5:
+        name: "Network MNC"
+        type: "uint16"
+      6:
+        name: "Network MCC"
+        type: "uint16"
+      7:
+        name: "Firmware Version"
+        type: "uint32"
   35:
-    name: "Device ID"
+    name: "Device IDs"
     description: "Device ID information"
     group: "device-services"
     data:
@@ -295,6 +399,14 @@ messages:
         name: "ID"
         description: "ID"
         type: "uintn"
+      2:
+        name: "IMEI"
+        description: "IMEI"
+        type: "ascii"
+      3:
+        name: "ICCID"
+        description: "ICCID"
+        type: "ascii"
   36:
     name: "Device Time"
     description: "Device time information"
@@ -354,6 +466,19 @@ messages:
             name: "Disabled"
           1:
             name: "Enabled"
+      3:
+        name: "Start Mode"
+        description: "If only start mode is set, and the module is already enabled, it will reboot the module into that state."
+        type : "uint8"
+        values:
+          1:
+            name: "Normal"
+          2:
+            name: "Cold"
+          3:
+            name: "Warm"
+          4:
+            name: "Hot"
   40:
     name: "Haptics Control"
     description: "Control the haptics"
@@ -420,7 +545,7 @@ messages:
     group: "device-services"
   45:
     name: "Alarm"
-    description: "Trigger an alarm, using buzzer, haptics, and strobe"
+    description: "Trigger an alarm, using buzzer, haptics, strobe and optional prompt"
     group: "device-services"
     data:
       1:
@@ -449,12 +574,27 @@ messages:
       8:
         name: "Strobe Intensity"
         type: "uint8"
+      9:
+        name: "Prompt message"
+        type: "ascii"
+      10:
+        name: "Prompt timeout"
+        description: "Timeout for the prompt in seconds"
+        type: "uint8"
+      11:
+        name: "Prompt button 1 text"
+        type: "ascii"
+      12:
+        name: "Prompt button 2 text"
+        type: "ascii"
+      13:
+        name: "Prompt button 3 text"
+        type: "ascii"
   50:
     name: "Link Control"
     description: "Control a link to the internet to send and receive messages"
     group: "device-services"
     data:
-      # TODO add an options to give the link an ID, (or receive an ID from STM)
       1:
         name: "Link Address"
         description: "IP Address of the link"
@@ -470,10 +610,6 @@ messages:
             name: "Enable"
           2:
             name: "Disable"
-      10:
-        name: "Link ID"
-        description: "ID of the link, for use with future commands, such as sending data"
-        type: "uint8"
   51:
     name: "Link Data"
     description: "GET, SET or SUBSCRIBE to arbitrary data over a link."
@@ -491,11 +627,6 @@ messages:
         name: "Checksum"
         description: "Checksum of the data. Can be used to verify the data integrity, or on GET on change etc."
         type: "bytes"
-      # TODO Or do we want to use address and port every time?
-      10:
-        name: "Link ID"
-        description: "ID of the link, for use with future commands, such as sending data"
-        type: "uint8"
   1004:
     name: "LORA V4 Forwarding"
     description: "Forwarding LORA V4 message"
