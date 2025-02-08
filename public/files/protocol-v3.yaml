@@ -24,7 +24,7 @@ groups:
 header:
   1:
     name: "Message ID"
-    description: "ID that can be used by receiver to ACK, and client to track for various responses, or re-sends"
+    description: "ID that can be used by receiver to ACK, and client to track for various responses, or re-sends. Max uint32 4,294,967,295."
     type: "uintn"
   2:
     name: "Client ID"
@@ -87,6 +87,20 @@ header:
     name: "Subscription interval"
     description: "Interval in ms. To be used with the SUBSCRIBE method"
     type: "uintn"
+  # Not yet used, but a placeholder for more advanced forwarding
+  # 8:
+  #   name: "Client Type"
+  #   description: "FOR FUTURE USE: Type of client sending the message. Relates to the Client ID."
+  #   values:
+  #     1:
+  #       name: "Device"
+  #       description: "Message is from a device."
+  #     2:
+  #       name: "Module"
+  #       description: "Message is from a module."
+  #     3:
+  #       name: "Link"
+  #       description: "Message is from a link."
   9:
     name: "Forward For Type"
     description: "FOR FUTURE USE: Type of client that the message is being forwarded for."
@@ -127,15 +141,6 @@ header:
     name: "Forward To"
     description: "ID of the client to forward the message to. Forwarding to type alters the meaning of this field"
     type: "uintn"
-  # 15:
-  #   name: "Forward and use"
-  #   description: "Should the message be forwarded and also used by the current client?"
-  #   type: "uint8"
-  #   values:
-  #     0:
-  #       name: "No (default)"
-  #     1:
-  #       name: "Yes"
 messages:
   5:
     name: "ACK"
