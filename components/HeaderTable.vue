@@ -11,7 +11,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(field, index) in payloadFields" :key="index">
+        <tr v-for="(field, index) in fields" :key="index">
           <td>{{ index }}</td>
           <td>{{ field.name }}</td>
           <td>{{ field.description }}</td>
@@ -27,15 +27,15 @@ import { defineComponent, ref, onMounted, PropType } from 'vue';
 import jsyaml from 'js-yaml';
 
 export default defineComponent({
-  name: 'PayloadTable',
+  name: 'HeaderTable',
   props: {
-    messageId: {
-      type: Number,
-      required: true
+    headerIds: {
+      type: Array as PropType<number[]>,
+      default: () => []
     },
     headerText: {
       type: String,
-      default: 'Payload'
+      default: ''
     },
     headerMarginTop: {
       type: String,
@@ -43,14 +43,17 @@ export default defineComponent({
     }
   },
   setup(props) {
-    const payloadFields = ref<any[]>([]);
+    const fields = ref<any>({});
 
     const loadProtocolData = async () => {
       try {
         const response = await fetch('/files/protocol-v3.yaml');
         const yamlData = await response.text();
         const protocolData = jsyaml.load(yamlData);
-        payloadFields.value = protocolData.messages[props.messageId]?.data || [];
+        fields.value = {};
+        (props.headerIds as number[]).forEach((headerId: number) => {
+          fields.value[headerId] = protocolData.header[headerId] || [];
+        });
       } catch (error) {
         console.error('Error loading YAML file:', error);
       }
@@ -59,7 +62,7 @@ export default defineComponent({
     onMounted(loadProtocolData);
 
     return {
-      payloadFields
+      fields
     };
   }
 });

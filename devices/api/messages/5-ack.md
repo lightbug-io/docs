@@ -8,6 +8,7 @@ import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
+import HeaderTable from '../../../components/HeaderTable.vue'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -31,6 +32,8 @@ flowchart LR
 
 The [Response Message ID](./../headers#_3-response-message-id) field in the header can be used in place of an ACK if an immediate response is being sent.
 
+In such cases the response will not have an ACK message type, instead it will have the message type of the response (often the same as the request).
+
 
 ```mermaid
 flowchart LR
@@ -52,7 +55,17 @@ ACKs should not themselves be ACKed.
 </template>
 <template #right>
 
-<PayloadTable :messageId="5" headerText="Payload" headerMarginTop="0px" />
+<h3>Header</h3>
+
+If the message being ACKed has a message ID, it should be included in the `Response to message ID` header field.
+
+<HeaderTable :headerIds="[3]" headerMarginTop="0px" />
+
+<h3>Payload</h3>
+
+If a message is sent with no ID, then you may simply receive an ACK with the previous message type in the payload.
+
+<PayloadTable :messageId="5" headerText="" headerMarginTop="0px" />
 
 </template>
 </SplitColumnView>

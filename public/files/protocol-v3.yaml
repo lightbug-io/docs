@@ -151,10 +151,6 @@ messages:
         name: "ACKed Type"
         description: "Type of previous message being ACKed"
         type: "uint16"
-      2:
-        name: "ACKed ID"
-        description: "ID of previous message being ACKed, if provided in the original message header"
-        type: "uintn"
   11:
     name: "Open"
     description: "Explicit indicator for the start of a connection"
