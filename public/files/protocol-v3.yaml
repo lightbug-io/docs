@@ -185,7 +185,7 @@ messages:
     data:
       7:
         name: "Key"
-        type: "uint16"
+        type: "uintn"
       # 8:
       #   name: "Type"
       #   description: ""
