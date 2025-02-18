@@ -44,7 +44,7 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run docs:build
+        run: npm run build
         env:
           PUBLIC_GOOGLE_ANALYTICS: ${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
 
