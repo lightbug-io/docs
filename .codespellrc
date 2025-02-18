@@ -1,3 +1,3 @@
 [codespell]
-skip = package-lock.json,*.svg,public/swagger/*
+skip = package-lock.json,*.svg,*.png,public/swagger/*,node_modules
 ignore-words-list = nin,uintn

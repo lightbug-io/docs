@@ -15,10 +15,10 @@
     "vitepress-plugin-tabs": "^0.5.0"
   },
   "scripts": {
-    "docs:dev": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress dev",
-    "docs:dev-public": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress dev --host",
-    "docs:build": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress build",
-    "docs:preview": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress preview",
+    "dev": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress dev",
+    "dev-public": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress dev --host",
+    "build": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress build",
+    "preview": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress preview",
     "test": "jest"
   },
   "dependencies": {

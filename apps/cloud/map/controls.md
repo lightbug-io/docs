@@ -57,7 +57,7 @@ Devices are always shown on the map, but you can choose how they are displayed, 
 | Clustered                                     | Not Clustered                                     |
 | --------------------------------------------- | ------------------------------------------------- |
 | ![Clustered](https://i.imgur.com/N7tKJIC.png) | ![Not Clustered](https://i.imgur.com/oo3aNqQ.png) |
-| Clusters show the number of devices within an area | Each device is shown indvidually on the map, [optionally with the name](/apps/cloud/account/preferences) |
+| Clusters show the number of devices within an area | Each device is shown individually on the map, [optionally with the name](/apps/cloud/account/preferences) |
 
 Clicking on a cluster will zoom in to show the individual devices, or smaller clusters.
 
