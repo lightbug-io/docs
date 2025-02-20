@@ -24,7 +24,7 @@ Designed for use where a power source is available.
 | Sim                   | Integrated roaming sim                                                         |
 | GSM                   | 4G LTE CAT-1 Global Operation (850/900/1800/1900MHz integ. antenna), 2G GPRS Fallback |
 | Bluetooth             | 5.0                                                                            |
-| Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS) 18mm Patch antenna, WiFi & GSM                         |
+| Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS) 18mm Patch antenna & GSM                         |
 | Sensors               | Temperature, Orientation, Accelerometer, External Bluetooth, Voltage, Ignition |
 | Memory                | up to 1000 locations update when they can't be transmitted                     |
 | IP rating             | IP66 Waterproof & Shockproof                                                   |
