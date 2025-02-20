@@ -339,8 +339,14 @@ export default withMermaid(defineConfig({
                   addedOperations: new Set(),
                 })),
                 collapse(sidebarSpec2.generateSidebarGroup({
-                  tag: ["users"],
-                  text: "Users",
+                  tag: ["personalAccessTokens"],
+                  text: "Access Tokens",
+                  linkPrefix: '/apis/v2/',
+                  addedOperations: new Set(),
+                })),
+                collapse(sidebarSpec2.generateSidebarGroup({
+                  tag: ["plans"],
+                  text: "Plans",
                   linkPrefix: '/apis/v2/',
                   addedOperations: new Set(),
                 })),

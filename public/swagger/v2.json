@@ -30,6 +30,54 @@
         ],
         "type": "object"
       },
+      "CreatePersonalAccessTokenRequest": {
+        "properties": {
+          "description": {
+            "description": "Description of the token",
+            "type": "string"
+          },
+          "ttl": {
+            "description": "TTL of the token in seconds\nDefault to 1 months\nMax 1 year",
+            "maximum": 31536000,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "description"
+        ],
+        "type": "object"
+      },
+      "CreatePersonalAccessTokenResponse": {
+        "properties": {
+          "created": {
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of the token",
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "token": {
+            "description": "The token itself",
+            "type": "string"
+          },
+          "ttl": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "created",
+          "description",
+          "token",
+          "ttl"
+        ],
+        "type": "object"
+      },
+      "DeletePersonalAccessTokenResponse": {
+        "type": "object"
+      },
       "Device": {
         "properties": {
           "active": {
@@ -92,7 +140,7 @@
             "type": "string"
           },
           "meta": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.DeviceMeta"
+            "$ref": "#/components/schemas/internal_api_presentation.DeviceMeta"
           },
           "name": {
             "type": "string"
@@ -220,7 +268,7 @@
             "type": "integer"
           },
           "movementSensitivityOld": {
-            "description": "Deprecated. See debounce.\nmovementSensitivity threshold in terms of units of gravity. We used to adjust it, but a better way of doing it was the amount of times over that threshold (that what debounce is)\nShould always be 1, which means... debounce when already moving",
+            "description": "Deprecated. See debounce.\nmovementSensitivity threshold in terms of units of gravity. We used to adjust it, but a better way of doing it was the ammount of times over that threshold (that what debounce is)\nShould always be 1, which means... debounce when already moving",
             "type": "integer"
           },
           "otaFW": {
@@ -286,6 +334,27 @@
           },
           "move": {
             "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "ListPersonalAccessTokenResponse": {
+        "properties": {
+          "limit": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "tokens": {
+            "items": {
+              "$ref": "#/components/schemas/PersonalAccessTokenResponse"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "total": {
+            "type": "integer"
           }
         },
         "type": "object"
@@ -401,6 +470,26 @@
           },
           "totalPages": {
             "description": "Total pages of elements given limit and filters",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PersonalAccessTokenResponse": {
+        "properties": {
+          "created": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "ttl": {
             "type": "integer"
           }
         },
@@ -719,7 +808,7 @@
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.DeviceMeta": {
+      "internal_api_presentation.DeviceMeta": {
         "additionalProperties": {},
         "type": "object"
       },
@@ -934,7 +1023,7 @@
         ]
       },
       "put": {
-        "description": "Sets the plan that the device is currently using, and optionally the plan that it should renew onto\nFor user devices, the user must have already purchased the target plan, and it should be available in their plan pool\nFor reseller devices, an \"unpaid\" plan will be used, and billed on the next cycle.\nIf you are on legacy reseller billing, this endpoint will not work. Instead see /api/devices/{id}/activateOnResellerPlan and /api/devices/{id}/deactivate routes",
+        "description": "Sets the plan that the device is currently using, and optionally the plan that it should renew onto\nFor user devices, the user must have already purchased or been allocated the target plan, and it should be available in their plan pool\nFor reseller devices, an \"unpaid\" plan will be used, and billed on the next cycle.\nIf you are on legacy reseller billing, this endpoint will not work. Instead see /api/devices/{id}/activateOnResellerPlan and /api/devices/{id}/deactivate routes",
         "parameters": [
           {
             "description": "Device ID",
@@ -1556,7 +1645,7 @@
         ],
         "summary": "Purchases plans",
         "tags": [
-          "users"
+          "plans"
         ]
       }
     },
@@ -1640,7 +1729,7 @@
         ],
         "summary": "Claims a device",
         "tags": [
-          "users"
+          "plans"
         ]
       }
     },
@@ -1806,8 +1895,276 @@
         ]
       }
     },
+    "/users/personalAccessTokens": {
+      "get": {
+        "description": "List personal access tokens of the user",
+        "parameters": [
+          {
+            "description": "Limit for pagination, default 10, max 100",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListPersonalAccessTokenResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "List personal access tokens",
+        "tags": [
+          "personalAccessTokens"
+        ]
+      },
+      "post": {
+        "description": "Mint a new personal access token for the user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePersonalAccessTokenRequest"
+              }
+            }
+          },
+          "description": "Create Token",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePersonalAccessTokenResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Create a new personal access token",
+        "tags": [
+          "personalAccessTokens"
+        ]
+      }
+    },
+    "/users/personalAccessTokens/{id}": {
+      "delete": {
+        "description": "Delete a personal access token by ID",
+        "parameters": [
+          {
+            "description": "Token ID (Unix timestamp)",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletePersonalAccessTokenResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Delete a personal access token",
+        "tags": [
+          "personalAccessTokens"
+        ]
+      }
+    },
     "/users/plans": {
       "get": {
+        "description": "Gets plans that are available for a user (already purchased or allocated)",
         "parameters": [
           {
             "description": "Filter by plans that have already been consumed by devices or not",
@@ -1906,7 +2263,7 @@
             "ApiKeyAuth": []
           }
         ],
-        "summary": "Gets plans that are available for a user (already purchased)",
+        "summary": "Purchased plans",
         "tags": [
           "plans"
         ]
@@ -1914,7 +2271,7 @@
     },
     "/users/plansSummary": {
       "get": {
-        "description": "Gets a summary of plans for a user (already purchased)\nThis can list unused, and used plans with the `consumed` query parameter",
+        "description": "Gets a summary of plans for a user (already purchased or allocated)\nThis can list unused, and used plans with the `consumed` query parameter",
         "parameters": [
           {
             "description": "Filter by plans that have already been consumed by devices or not",
@@ -1994,7 +2351,7 @@
         ],
         "summary": "Summary of plans",
         "tags": [
-          "users"
+          "plans"
         ]
       }
     },
@@ -2091,10 +2448,10 @@
   "openapi": "3.1.0",
   "servers": [
     {
-      "url": "http://localhost:8080/v2"
+      "url": "https://api.lightbug.cloud/v2"
     },
     {
-      "url": "https://api.lightbug.cloud:8080/v2"
+      "url": "http://localhost:8080/v2"
     }
   ]
 }
