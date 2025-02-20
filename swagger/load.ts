@@ -187,6 +187,30 @@ const V1ParamSchemaFormats = {
 
 export function loadSpec(version: number): any {
     if (version === 1) {
+        // Add auth modes to v1
+        // "securitySchemes": {
+        //     "ApiKeyAuth": {
+        //       "in": "header",
+        //       "name": "Authorization",
+        //       "type": "apiKey"
+        //     }
+        //   }
+        (spec1.components as any).securitySchemes = {
+            ApiKeyAuth: {
+                in: 'header',
+                name: 'Authorization',
+                type: 'apiKey'
+            }
+        }
+        // And add the security to the endpoints (everything except things with "login" in them)
+        for (const path of Object.keys(spec1.paths)) {
+            for (const method of Object.keys(spec1.paths[path])) {
+                if (!path.includes('login')) {
+                    spec1.paths[path][method].security = [{ ApiKeyAuth: [] }]
+                }
+            }
+        }
+
         spec1.paths = normalizePaths(spec1.paths)
 
         // override stuff
