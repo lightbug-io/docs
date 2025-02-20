@@ -308,6 +308,10 @@ export function loadSpec(version: number): any {
         return spec1
     }
     if (version === 2) {
+        // Remove any servers that include "localhost"
+        if (spec2.servers) {
+            spec2.servers = spec2.servers.filter((server: any) => !server.url.includes('localhost'))
+        }
         spec2.paths = normalizePaths(spec2.paths)
         return spec2
     }
