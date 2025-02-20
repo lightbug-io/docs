@@ -2889,6 +2889,67 @@
         "deprecated": false
       }
     },
+    "/devices/{id}/setNtripSettings": {
+      "get": {
+        "tags": [
+          "device"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "device id",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "integer"
+            }
+          },
+          {
+            "name": "settings",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "JSON"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request was successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "text/javascript": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
     "/users/{id}/geofences/{fk}": {
       "get": {
         "tags": [
