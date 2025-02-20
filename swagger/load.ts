@@ -48,6 +48,8 @@ const v1SummaryOverrides = {
 
     'get-devices-id-deactivate': 'Deactivate device',
     'get-devices-id-activateOnResellerPlan': 'Activate device on reseller plan',
+
+    'get-devices-id-setNtripSettings': 'Set the NTRIP settings for a device.',
 }
 
 const v1DescriptionOverrides = {
@@ -109,6 +111,7 @@ const v1ReTag = {
     'get-devices-id-queueRtkCmd-RebootRtk': 'rtk',
     'get-devices-id-queueRtkCmd-SetPointBufferSize': 'rtk',
     'get-devices-id-updateRtkBaseStatus': 'rtk',
+    'get-devices-id-setNtripSettings': 'rtk',
 
     'get-devices-id': 'device',
     'get-users-id-devices': 'device',
