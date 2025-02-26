@@ -47,11 +47,14 @@
                 <v-text-field v-model.number="box.pixels" label="Pixels" type="number" density="compact" readonly></v-text-field>
             </div>
             <v-textarea v-model="box.cArrayOutput" label="C array" outlined density="compact" readonly></v-textarea>
+            <v-text-field v-model="box.msgBytes" label="Message Bytes" density="compact" readonly></v-text-field>
         </div>
     </div>
 </template>
 
 <script>
+import crc16 from 'crc/crc16xmodem';
+
 export default {
     data() {
         return {
@@ -281,20 +284,22 @@ export default {
                 while (startRow < gridHeight) {
                     const endRow = Math.min(startRow + maxRowsPerBox - 1, gridHeight - 1);
                     const cArray = packBinaryGrid(startRow, endRow);
-                    this.exportBoxes.push({
+                    let box = {
                         exportPositionX: gridX,
                         exportPositionY: gridY + startRow,
                         exportSizeX: gridWidth,
                         exportSizeY: endRow - startRow + 1,
                         bytes: cArray.length,
                         pixels: (endRow - startRow + 1) * gridWidth,
-                        cArrayOutput: cArray.join(',')
-                    });
+                        cArrayOutput: cArray.join(','),
+                    }
+                    box.msgBytes = this.screenBoxToMsgBytes(box);
+                    this.exportBoxes.push(box);
                     startRow = endRow + 1;
                 }
             } else {
                 const cArray = packBinaryGrid(0, gridHeight - 1);
-                this.exportBoxes.push({
+                let box = {
                     exportPositionX: gridX,
                     exportPositionY: gridY,
                     exportSizeX: gridWidth,
@@ -302,8 +307,61 @@ export default {
                     bytes: cArray.length,
                     pixels: gridWidth * gridHeight,
                     cArrayOutput: cArray.join(',')
-                });
+                };
+                if (box.bytes <= 255) {
+                    box.msgBytes = this.screenBoxToMsgBytes(box);
+                } else {
+                    box.msgBytes = "Too many bytes to fit in a message";
+                }
+                this.exportBoxes.push(box);
             }
+        },
+        screenBoxToMsgBytes(box) {
+            const intTouint16LE = (num) => {
+                return [num & 0xff, (num >> 8) & 0xff];
+            };
+            let b = [];
+            b.push(3);
+            // placeholder for length
+            b.push(255);
+            b.push(255);
+            // msg type
+            b.push(...intTouint16LE(10011));
+            // no header fields
+            b.push(0);
+            b.push(0);
+            // add data
+            let data = new Map();
+            let pageId = Math.floor(Math.random() * 245) + 10;
+            data.set(3, [pageId]);
+            data.set(21, [box.exportPositionX]);
+            data.set(22, [box.exportPositionY]);
+            data.set(23, [box.exportSizeX]);
+            data.set(24, [box.exportSizeY]);
+            data.set(25, box.cArrayOutput.split(',').map(byte => parseInt(byte, 16)));
+            console.log(data);
+            b.push(...intTouint16LE(data.size));
+            for (let [key, value] of data) {
+                b.push(key);
+            }
+            for (let [key, value] of data) {
+                b.push(value.length);
+                b.push(...value);
+            }
+            // backfill len
+            const length = b.length + 2;
+            b[1] = length & 0xff;
+            b[2] = (length >> 8) & 0xff;
+            const calculateChecksum = (message) => {
+                let crc = crc16(new Int8Array(message));
+                return crc.toString(16);
+            };
+            let csumHex = calculateChecksum(b);
+            let csumNum = parseInt(csumHex, 16);
+            b.push(...intTouint16LE(csumNum));
+            let s = b.toString();
+            console.log(s);
+            return s
         }
     }
 };
