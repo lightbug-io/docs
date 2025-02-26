@@ -203,6 +203,7 @@ export default defineComponent({
             { key: 'uint64', name: 'uint64' },
             { key: 'ascii', name: 'ascii' },
             { key: '[]uint8', name: '[]uint8' },
+            { key: 'bytes', name: 'bytes' },
             { key: 'float32', name: 'float32' },
             { key: 'uintn', name: 'uintn' },
             { key: 'int32', name: 'int32' }
@@ -247,6 +248,23 @@ export default defineComponent({
                     return Float32Utils.float32ToBytesLE(parseFloat(value));
                 case 'int32':
                     return int32ToBytesLE(parseInt(value, 10));
+                case 'bytes':
+                    // Replace , with space
+                    value = value.replace(/,/g, ' ');
+                    // Replace "  " with " "
+                    value = value.replace(/  /g, ' ');
+                    // Replace commas with spaces
+                    value = value.replace(/,/g, ' ');
+                    let valContainsLetters = value.match(/[a-z]/i);
+                    // Split by space and parse as hex if needed
+                    let split = value.split(' ').map(part => {
+                        if (part.startsWith('0x') || valContainsLetters) {
+                            return parseInt(part, 16);
+                        } else {
+                            return parseInt(part, 10);
+                        }
+                    });
+                    return split;
                 default:
                     return [];
             }
