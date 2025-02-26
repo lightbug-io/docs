@@ -9,7 +9,7 @@ These pages can be seen as a view of what is to come later this year.
 :::
 
 <script setup>
-import ProtocolBytesInput from '../../components/ProtocolBytesInput.vue';
+import ProtocolBytesInput from '../../../components/ProtocolBytesInput.vue';
 import { ref, watch } from 'vue';
 
 const urlParams = new URLSearchParams(window.location.search);

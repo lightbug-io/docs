@@ -303,12 +303,21 @@ export default withMermaid(defineConfig({
               items: protocolMenuItems,
             },
             {
-              text: 'Generate',
-              link: '/devices/api/generate',
-            },
-            {
-              text: 'Parse',
-              link: '/devices/api/parse',
+              text: 'Tools',
+              items: [
+                {
+                  text: 'Generate',
+                  link: '/devices/api/tools/generate',
+                },
+                {
+                  text: 'Parse',
+                  link: '/devices/api/tools/parse',
+                },
+                {
+                  text: 'Screen',
+                  link: '/devices/api/tools/screen',
+                },
+              ]
             },
           ]
         },
