@@ -279,9 +279,47 @@ messages:
             # DOESN'T MEAN RTK CORRECTED DATA, just coming from an RTK module
             name: "RTK"
   16:
-    name: "Livelink Device Status"
+    name: "Status"
     hidden: true
     group: "livelink"
+    data:
+      1:
+        name: "Battery percent"
+        type: "uint8"
+      2:
+        name: "Signal strength"
+        description: "Signal strength percent"
+        type: "uint8"
+      3:
+        name: "Mode"
+        type: "uint8"
+        values:
+          0:
+            name: "Sleep"
+          1:
+            name: "Awake"
+      4:
+        name: "Network type"
+        type: "uint8"
+        values:
+          0:
+            name: "No network"
+          2:
+            name: "GSM (2G)"
+          3:
+            name: "WCDMA (3G)"
+          4:
+            name: "LTE (4G)"
+      5:
+        name: "Network MNC"
+        type: "uint8"
+      6:
+        name: "Network MCC"
+        type: "uint8"
+      7:
+        name: "Firmware version"
+        type: "uint16"
+        description: "Current Firmware version of the device"
   30:
     name: "Transmit Now"
     description: "Transmit data immediately"
