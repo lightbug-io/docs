@@ -495,6 +495,12 @@ messages:
     name: "Pressure"
     description: "Pressure information"
     group: "device-services"
+    data:
+      1:
+        name: "Pressure"
+        # 1000 is a normal atmosphere
+        description: "Pressure in Milibar"
+        type: "float32"
   45:
     name: "Alarm"
     description: "Trigger an alarm, using buzzer, haptics, strobe and optional prompt"
