@@ -106,10 +106,26 @@ export default {
         this.ctx.fillStyle = "#FFF";
         this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        canvas.addEventListener("mousedown", () => (this.isDrawing = true));
-        canvas.addEventListener("mouseup", () => (this.isDrawing = false));
+        const startDrawing = () => (this.isDrawing = true);
+        const stopDrawing = () => (this.isDrawing = false);
+
+        canvas.addEventListener("mousedown", startDrawing);
+        canvas.addEventListener("mouseup", stopDrawing);
         canvas.addEventListener("mousemove", this.handleMouseMove);
         canvas.addEventListener("click", this.fillPixel);
+        canvas.addEventListener("touchstart", (event) => {
+            event.preventDefault();
+            startDrawing();
+        });
+        canvas.addEventListener("touchend", (event) => {
+            event.preventDefault();
+            stopDrawing();
+        });
+        canvas.addEventListener("touchmove", (event) => {
+            event.preventDefault();
+            const touch = event.touches[0];
+            this.handleMouseMove({ clientX: touch.clientX, clientY: touch.clientY });
+        });
     },
     methods: {
         getMousePos(event) {
