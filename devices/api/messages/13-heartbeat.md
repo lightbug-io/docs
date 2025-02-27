@@ -35,15 +35,16 @@ Devices currently default to sending a heartbeat every 15 seconds.
 </template>
 </SplitColumnView>
 
-## Examples
+<!-- ## Examples
 
 Heartbeat message for device ID `9439544` with `100` % battery, on firmware version `143`.
 
+TODO update to an example without fields..
 <ProtocolBytes
     byteString="3 39 0 13 0 2 0 1 2 4 61 0 0 0 8 56 9 144 0 0 0 0 0 3 0 6 5 4 1 100 2 143 0 3 99 0 0 238 87"
     :boldPositions="[3]"
     :allowCollapse="true" defaultCollapsed="true"
-/>
+/> -->
 
 ## Code
 

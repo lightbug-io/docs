@@ -163,18 +163,6 @@ messages:
     name: "Heartbeat"
     description: "A message to keep the connection alive. Arbitrary fields can be added in fields 200+"
     group: "general"
-    data:
-      4:
-        name: "GSM Signal"
-        description: "First byte is CSQ [0-31]. Recommended to x4 to get a percentage. Byte 2 and 3 are uint16 LE network info."
-        type: "bytes"
-      5:
-        name: "Firmware version"
-        description: "Current Firmware version of the device"
-        type: "uint16"
-      6:
-        name: "Battery percent"
-        type: "uint8"
   14:
     name: "Config"
     group: "livelink"
