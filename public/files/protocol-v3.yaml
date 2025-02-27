@@ -278,48 +278,6 @@ messages:
           1:
             # DOESN'T MEAN RTK CORRECTED DATA, just coming from an RTK module
             name: "RTK"
-  16:
-    name: "Status"
-    hidden: true
-    group: "livelink"
-    data:
-      1:
-        name: "Battery percent"
-        type: "uint8"
-      2:
-        name: "Signal strength"
-        description: "Signal strength percent"
-        type: "uint8"
-      3:
-        name: "Mode"
-        type: "uint8"
-        values:
-          0:
-            name: "Sleep"
-          1:
-            name: "Awake"
-      4:
-        name: "Network type"
-        type: "uint8"
-        values:
-          0:
-            name: "No network"
-          2:
-            name: "GSM (2G)"
-          3:
-            name: "WCDMA (3G)"
-          4:
-            name: "LTE (4G)"
-      5:
-        name: "Network MNC"
-        type: "uint8"
-      6:
-        name: "Network MCC"
-        type: "uint8"
-      7:
-        name: "Firmware version"
-        type: "uint16"
-        description: "Current Firmware version of the device"
   30:
     name: "Transmit Now"
     description: "Transmit data immediately"
@@ -341,25 +299,6 @@ messages:
         name: "Priority"
         description: "0 - 1"
         type: "uint8"
-  # Dropped in favour of new IDs message
-  # 32:
-  #   name: "GSM IMEI"
-  #   description: "GSM IMEI information"
-  #   group: "device-services"
-  #   data:
-  #     1:
-  #       name: "IMEI"
-  #       description: "IMEI"
-  #       type: "ascii"
-  # 33:
-  #   name: "GSM ICCID"
-  #   description: "GSM ICCID information"
-  #   group: "device-services"
-  #   data:
-  #     1:
-  #       name: "ICCID"
-  #       description: "ICCID"
-  #       type: "ascii"
   34:
     name: "Device Status"
     description: "Device status information"
@@ -377,10 +316,23 @@ messages:
         name: "Device Mode"
         description: "Device mode"
         type: "uint8"
+        values:
+          0:
+            name: "Sleep"
+          1:
+            name: "Awake"
       4:
-        name: "Network Type"
-        description: "Network type"
+        name: "Network type"
         type: "uint8"
+        values:
+          0:
+            name: "No network"
+          2:
+            name: "GSM (2G)"
+          3:
+            name: "WCDMA (3G)"
+          4:
+            name: "LTE (4G)"
       5:
         name: "Network MNC"
         type: "uint16"
