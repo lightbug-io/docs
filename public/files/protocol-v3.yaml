@@ -455,7 +455,7 @@ messages:
         type: "float32"
   42:
     name: "Buzzer Control"
-    description: "Control the buzzer"
+    description: "Control the buzzer. Either pass duration and frequency, Or all fields without frequency."
     group: "device-services"
     data:
       1:
@@ -464,11 +464,28 @@ messages:
         type: "uint16"
       2:
         name: "Sound Type"
-        description: "TBA"
+        description: "A predefined sound type"
         type: "uint8"
+        values:
+          0:
+            name: "Solid"
+          1:
+            name: "Siren"
+          2:
+            name: "Beep Beep"
+          3:
+            name: "Ambulance"
+          4:
+            name: "FireTruck"
+          5:
+            name: "Positive1"
+          6:
+            name: "SlowBeep"
+          7:
+            name: "Alarm"
       3:
         name: "Intensity"
-        description: "Intensity of buzzer"
+        description: "Intensity of buzzer. [0-2]. Work as speed control for buzzer types."
         type: "uint8"
       4:
         name: "Run Count"
