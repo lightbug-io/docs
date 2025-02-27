@@ -568,23 +568,6 @@ messages:
             name: "Enable"
           2:
             name: "Disable"
-  51:
-    name: "Link Data"
-    description: "GET, SET or SUBSCRIBE to arbitrary data over a link."
-    group: "device-services"
-    data:
-      1:
-        name: "Identifier"
-        description: "Identifier for the data, so it could be uniquely identified"
-        type: "bytes"
-      2:
-        name: "Data"
-        description: "Data to send over the link, can be up to 200 bytes"
-        type: "bytes"
-      3:
-        name: "Checksum"
-        description: "Checksum of the data. Can be used to verify the data integrity, or on GET on change etc."
-        type: "bytes"
   1004:
     name: "LORA V4 Forwarding"
     description: "Forwarding LORA V4 message"
