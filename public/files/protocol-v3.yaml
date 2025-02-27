@@ -341,33 +341,6 @@ messages:
         name: "Priority"
         description: "0 - 1"
         type: "uint8"
-  31:
-    name: "GSM CFUN"
-    description: "GSM functionality control"
-    group: "device-services"
-    data:
-      1:
-        name: "Mode"
-        description: "0 or 1"
-        type: "uint8"
-        values:
-          0:
-            name: "Lock OFF Mode"
-          1:
-            name: "Normal Mode"
-      2:
-        name: "Mode Duration"
-        description: "in seconds. Max 259200. Only to be used with SET and Lock OFF Mode"
-        type: "uint32"
-      3:
-        name: "GSM ONOFF"
-        description: "Currently only GET able. See Mode for altering behavior."
-        type: "uint8"
-        values:
-          1:
-            name: "ON"
-          2:
-            name: "OFF"
   # Dropped in favour of new IDs message
   # 32:
   #   name: "GSM IMEI"
