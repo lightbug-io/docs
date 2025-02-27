@@ -571,10 +571,7 @@ messages:
   1004:
     name: "LORA V4 Forwarding"
     description: "Forwarding LORA V4 message"
-  # 10000:
-  #   name: "Command Start"
-  #   description: "Start UX command"
-  #   group: "device-ux"
+  # 10000 is the start of UX command space
   10008:
     name: "Preset Page"
     description: "Display a predefined Lightbug page"
@@ -716,6 +713,10 @@ messages:
         name: "Bitmap overlay"
         description: "Set if the previous page should NOT be cleared before drawing the bitmap"
         type: "uint8"
+      27:
+        name: "Don't draw"
+        description: "Set if the bitmap should not (yet) be drawn, but the data should be cached for later use"
+        type: "uint8"
   10013:
     name: "Button Press"
     description: "Press UX button"
@@ -731,11 +732,8 @@ messages:
         name: "Selection ID"
         description: "Can be used if the button relates to something being selected on the page, such as in a menu"
         type: "uintn"
-  10014:
-    name: "Full Refresh"
-    description: "Full refresh of UX"
-    group: "device-ux"
-  # 11000:
-  #   name: "Command End"
-  #   description: "End UX command"
+  # 10014:
+  #   name: "Full Refresh"
+  #   description: "Full refresh of UX"
   #   group: "device-ux"
+  # 11000 is the end of the UX command space
