@@ -83,6 +83,9 @@ header:
       4:
         name: "DO"
         description: "Perform an action."
+      5:
+        name: "UNSUBSCRIBE"
+        description: "Unsubscribe from some previously subscribed to data"
   6:
     name: "Subscription interval"
     description: "Interval in ms. To be used with the SUBSCRIBE method"
