@@ -40,7 +40,7 @@ If you miss this POSTed JSON, please alter your endpoint URL or contact us.
 
 ### Confirmation
 
-Once you have enabled the API push notifications, you will receive a confirmation message to the URL you have set up.
+Once you have enabled the API push notifications, and an event has triggered that would cause a notification, you will receive a confirmation message to the URL you have set up.
 
 The message will be in JSON format and will contain the following:
 
