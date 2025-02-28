@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="controls-import">
-            <h4>Import</h4>
+            <h4>Import C array</h4>
             <span>Import your own C array here onto the canvas below.</span>
             <v-textarea v-model="cArrayInput" label="C array" placeholder="Paste C array here" outlined density="compact"></v-textarea>
             <div style="display: flex; gap: 10px;">
@@ -9,10 +9,14 @@
                 <v-text-field v-model.number="importHeight" label="Height" type="number" density="compact"></v-text-field>
             </div>
             <span>Presets:&nbsp;</span>
+            <input type="file" @change="importBitmap" accept=".bmp" style="display: none;" ref="fileInput">
+            <v-btn @click="triggerFileInput" density="compact" title="Import a correctly oriented and sized 250x122 pixel BMP">Import BMP</v-btn>&nbsp;
             <v-btn @click="loadPreset('lightbug2020')" density="compact">Lightbug 20x20</v-btn>&nbsp;
             <v-btn @click="loadPreset('lightbug3030')" density="compact">Lightbug 30x30</v-btn>&nbsp;
             <v-btn @click="loadPreset('lightbug4040')" density="compact">Lightbug 40x40</v-btn>
-            <hr>
+            <div>
+
+            </div>
         </div>
         <div class="controls-import">
             <div style="display: flex; gap: 10px;">
@@ -34,8 +38,11 @@
         <h4>Export</h4>
         <p>Takes the rendering in the canvas above, and outputs it as one or more C arrays</p>
         <div style="display: flex; gap: 10px;">
-        <v-btn @click="exportBitmap" density="compact">Export Bitmap</v-btn>
-        <v-checkbox v-model="splitForExport" label="Split for messaging (max 255 bytes)" density="compact"></v-checkbox>
+        <v-btn @click="copyAllMessages" density="compact">Copy all messages</v-btn>
+        <v-text-field v-model.number="pageId" label="PageId" type="number" density="compact" :rules="[v => v <= 255 || 'Max value is 255']"></v-text-field>
+        <v-checkbox v-model="splitForExport" @change="updateExport" label="Split for messaging (max 255 bytes)" density="compact"></v-checkbox>
+        <v-checkbox v-model="exportHex" @change="updateExport" label="Export hex" density="compact"></v-checkbox>
+
         </div>
         <div v-for="(box, index) in exportBoxes" :key="index">
             <div style="display: flex; gap: 10px;">
@@ -71,10 +78,12 @@ export default {
             importY: 0,
             clearBeforeRender: true,
             splitForExport: true,
+            exportHex: false,
             exportSizeX: 0,
             exportSizeY: 0,
             exportPositionX: 0,
             exportPositionY: 0,
+            pageId: 123,
             cArrayOutput: '',
             exportBoxes: [],
             presets: {
@@ -107,12 +116,18 @@ export default {
         this.ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         const startDrawing = () => (this.isDrawing = true);
-        const stopDrawing = () => (this.isDrawing = false);
+        const stopDrawing = () => {
+            this.isDrawing = false;
+            this.updateExport();
+        };
 
         canvas.addEventListener("mousedown", startDrawing);
         canvas.addEventListener("mouseup", stopDrawing);
         canvas.addEventListener("mousemove", this.handleMouseMove);
-        canvas.addEventListener("click", this.fillPixel);
+        canvas.addEventListener("click", () => {
+            this.fillPixel(event);
+            this.updateExport();
+        });
         canvas.addEventListener("touchstart", (event) => {
             event.preventDefault();
             startDrawing();
@@ -142,6 +157,7 @@ export default {
         clearCanvas() {
             this.ctx.fillStyle = "#FFF";
             this.ctx.fillRect(0, 0, this.$refs.pixelCanvas.width, this.$refs.pixelCanvas.height);
+            this.updateExport();
         },
         importBitmap(event) {
             const file = event.target.files[0];
@@ -150,14 +166,86 @@ export default {
             const reader = new FileReader();
             reader.onload = (e) => {
                 const content = e.target.result;
-                const bitmapData = this.parseCArray(content);
-                this.renderBitmap(bitmapData, this.importWidth, this.importHeight, this.importX, this.importY);
+                this.loadBMPIntoCanvas(content);
             };
-            reader.readAsText(file);
+            reader.readAsDataURL(file);
+        },
+        loadBMPIntoCanvas(dataURL) {
+            const img = new Image();
+            img.onload = () => {
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = img.width;
+                tempCanvas.height = img.height;
+                tempCtx.drawImage(img, 0, 0);
+
+                const imgData = tempCtx.getImageData(0, 0, img.width, img.height);
+                this.renderBitmapFromImageData(imgData, this.importX, this.importY);
+                // this.populateCArrayFromImageData(imgData);
+                this.updateExport();
+            };
+            img.src = dataURL;
+        },
+        renderBitmapFromImageData(imgData, offsetX, offsetY) {
+            if (this.clearBeforeRender) {
+                this.clearCanvas();
+            }
+            const data = imgData.data;
+            const width = imgData.width;
+            const height = imgData.height;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const index = (y * width + x) * 4;
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+                    const isBlack = r < 128 && g < 128 && b < 128;
+                    if (isBlack) {
+                        this.ctx.fillStyle = "#000";
+                        this.ctx.fillRect((x + offsetX) * this.PIXEL_SIZE, (y + offsetY) * this.PIXEL_SIZE, this.PIXEL_SIZE, this.PIXEL_SIZE);
+                    }
+                }
+            }
+        },
+        populateCArrayFromImageData(imgData) {
+            const data = imgData.data;
+            const width = imgData.width;
+            const height = imgData.height;
+            const binaryGrid = [];
+
+            for (let y = 0; y < height; y++) {
+                binaryGrid[y] = [];
+                for (let x = 0; x < width; x++) {
+                    const index = (y * width + x) * 4;
+                    const r = data[index];
+                    const g = data[index + 1];
+                    const b = data[index + 2];
+                    const isBlack = r < 128 && g < 128 && b < 128;
+                    binaryGrid[y][x] = isBlack ? 1 : 0;
+                }
+            }
+
+            const cArray = [];
+            const bytesPerRow = Math.ceil(width / 8);
+            for (let row = 0; row < height; row++) {
+                for (let byteIndex = 0; byteIndex < bytesPerRow; byteIndex++) {
+                    let byte = 0;
+                    for (let bit = 0; bit < 8; bit++) {
+                        const col = byteIndex * 8 + bit;
+                        const bitValue = col < width ? binaryGrid[row][col] : 0;
+                        byte |= (bitValue << (7 - bit));
+                    }
+                    cArray.push('0X' + byte.toString(16).padStart(2, '0').toUpperCase());
+                }
+            }
+
+            this.cArrayInput = cArray.join(',');
         },
         importFromText() {
             const bitmapData = this.parseCArray(this.cArrayInput);
             this.renderBitmap(bitmapData, this.importWidth, this.importHeight, this.importX, this.importY);
+            this.updateExport();
         },
         parseCArray(content) {
             const regex = /(0(x|X)[0-9a-fA-F]{2},\s*)+/;
@@ -182,6 +270,7 @@ export default {
                     }
                 }
             }
+            this.updateExport();
         },
         loadPreset(preset) {
             this.cArrayInput = this.presets[preset];
@@ -195,13 +284,15 @@ export default {
                 this.importWidth = 40;
                 this.importHeight = 40;
             }
+            this.importFromText();
         },
         handleMouseMove(event) {
             if (this.isDrawing) {
                 this.fillPixel(event);
+                this.updateExport();
             }
         },
-        exportBitmap() {
+        updateExport() {
             const canvas = this.$refs.pixelCanvas;
             const ctx = this.ctx;
             const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -309,7 +400,7 @@ export default {
                         pixels: (endRow - startRow + 1) * gridWidth,
                         cArrayOutput: cArray.join(','),
                     }
-                    box.msgBytes = this.screenBoxToMsgBytes(box);
+                    box.msgBytes = this.screenBoxToMsgBytes(box, (endRow != gridHeight - 1));
                     this.exportBoxes.push(box);
                     startRow = endRow + 1;
                 }
@@ -325,14 +416,14 @@ export default {
                     cArrayOutput: cArray.join(',')
                 };
                 if (box.bytes <= 255) {
-                    box.msgBytes = this.screenBoxToMsgBytes(box);
+                    box.msgBytes = this.screenBoxToMsgBytes(box, false);
                 } else {
                     box.msgBytes = "Too many bytes to fit in a message";
                 }
                 this.exportBoxes.push(box);
             }
         },
-        screenBoxToMsgBytes(box) {
+        screenBoxToMsgBytes(box, dontDraw) {
             const intTouint16LE = (num) => {
                 return [num & 0xff, (num >> 8) & 0xff];
             };
@@ -348,13 +439,16 @@ export default {
             b.push(0);
             // add data
             let data = new Map();
-            let pageId = Math.floor(Math.random() * 245) + 10;
-            data.set(3, [pageId]);
+            data.set(3, [this.pageId]);
             data.set(21, [box.exportPositionX]);
             data.set(22, [box.exportPositionY]);
             data.set(23, [box.exportSizeX]);
             data.set(24, [box.exportSizeY]);
             data.set(25, box.cArrayOutput.split(',').map(byte => parseInt(byte, 16)));
+            // only draw the last box
+            if (dontDraw) {
+                data.set(27, [1]);
+            }
             console.log(data);
             b.push(...intTouint16LE(data.size));
             for (let [key, value] of data) {
@@ -375,9 +469,25 @@ export default {
             let csumHex = calculateChecksum(b);
             let csumNum = parseInt(csumHex, 16);
             b.push(...intTouint16LE(csumNum));
+            if (this.exportHex) {
+                let s = b.map(byte => '0x' + byte.toString(16).padStart(2, '0').toUpperCase()).join(',');
+                console.log(s);
+                return s;
+            }
             let s = b.toString();
             console.log(s);
             return s
+        },
+        triggerFileInput() {
+            this.$refs.fileInput.click();
+        },
+        copyAllMessages() {
+            const allMessages = this.exportBoxes.map(box => box.msgBytes).join('\n');
+            navigator.clipboard.writeText(allMessages).then(() => {
+                console.log('Messages copied to clipboard');
+            }).catch(err => {
+                console.error('Failed to copy messages: ', err);
+            });
         }
     }
 };
