@@ -12,4 +12,4 @@ const { isDark } = useData()
 const operationId = route.data.params.operationId
 </script>
 
-<OAOperation :operationId="operationId" :spec="spec" :isDark="isDark" :hideDefaultFooter="true"/>
+<OAOperation :operationId="operationId" :spec="spec" :isDark="isDark" :hideBranding="true"/>

@@ -232,8 +232,6 @@ export function loadSpec(version: number): any {
                 }
                 if (operationId in v1ReTag) {
                     spec1.paths[path][method].tags = [v1ReTag[operationId]]
-                } else {
-                    console.log('No re-tag for', operationId)
                 }
                 if (operationId in V1ParamExamples) {
                     for (const param of spec1.paths[path][method].parameters) {

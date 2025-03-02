@@ -40,7 +40,7 @@ export default {
 
         // Setup Theme
         const themeConfig = useTheme()
-        themeConfig.setLocale('en') // en or es
+        themeConfig.setI18nConfig({ locale: 'en' })
         themeConfig.setResponseCodeSelector('select')
         theme.enhanceApp({ app })
     }

@@ -31,10 +31,10 @@ Tokens might look something like this:
 
 ## Version 2
 
-<OAOperation operationId="post-users-login" :spec="spec2" :isDark="isDark" :hideDefaultFooter="true"/>
+<OAOperation operationId="post-users-login" :spec="spec2" :isDark="isDark" :hideBranding="true"/>
 
-<OAOperation operationId="post-users-refreshToken" :spec="spec2" :isDark="isDark" :hideDefaultFooter="true"/>
+<OAOperation operationId="post-users-refreshToken" :spec="spec2" :isDark="isDark" :hideBranding="true"/>
 
 ## Version 1
 
-<OAOperation operationId="post-users-login" :spec="spec1" :isDark="isDark" :hideDefaultFooter="true"/>
+<OAOperation operationId="post-users-login" :spec="spec1" :isDark="isDark" :hideBranding="true"/>
