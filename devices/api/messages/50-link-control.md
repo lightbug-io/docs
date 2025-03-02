@@ -21,7 +21,9 @@ These pages can be seen as a view of what is to come later this year.
 <SplitColumnView>
 <template #left>
 
-Used to control a remote device link.
+Used to control a remote device link, such as connecting to a UDP server, and using the V3 messaging protocol to communicate with it.
+
+Once initiated, messages can be forwarded to the link directly using the forwarding headers.
 
 </template>
 <template #right>

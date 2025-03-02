@@ -16,39 +16,38 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 34: Device Status
+# 35: ID
 
 <SplitColumnView>
 <template #left>
 
-Used to GET the general status of the device.
+Used to GET the various IDs of the device.
 
 ### Payload
 
-<PayloadTable :messageId="34" headerText="" headerMarginTop="0px" />
+<PayloadTable :messageId="35" headerText="" headerMarginTop="0px" />
 
 </template>
 <template #right>
 
 ### Example
-If you wanted to GET all possible fields from the device.
+If you wanted to GET the ID from a device, you would send a GET message with the ID field requested (length 0).
 
 <ProtocolBytes
-byteString="3 17 0 34 0 2 0 5 1 1 2 1 51 0 0 206 243"
+byteString="3 17 0 35 0 2 0 1 5 1 234 1 2 0 0 164 245"
 :boldPositions="[3,12]"
 :allowCollapse="false"
 />
 
-<!-- The device would then respond with a message of type 34, with the fields filled in.
+<!-- The device would then respond with a message of type 35, with the ID field filled in if known.
 
 <ProtocolBytes
-byteString="76 66 3 29 0 34 0 3 0 3 4 1 1 51 1 1 1 12 3 0 1 2 3 1 47 1 100 1 0 196 29"
-:boldPositions="[3,24,26,28]"
+byteString="76 66 3 26 0 35 0 3 0 3 4 1 1 234 1 1 1 6 1 0 1 4 240 209 132 0 2 242"
+:boldPositions="[3,20]"
 :allowCollapse="false"
 />
 
-TODO update with more fields..
--->
+TODO example with more ids...-->
 
 </template>
 </SplitColumnView>
@@ -57,4 +56,4 @@ TODO update with more fields..
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="34"/>
+<GenerateConsts :messageId="35"/>

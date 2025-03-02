@@ -10,17 +10,22 @@ groups:
     hidden: true
     name: Bootserver
     description: "Device to Boot server communication"
-  device-services:
-    name: Device Services
+  info:
+    name: Information
+    description: "Device Information"
+  gsm:
+    name: GSM
+    description: "Device GSM"
+  location:
+    name: Location
+    description: "Device Location"
+  screen:
+    name: Screen
+    description: "Device screen"
     overview: true
-    description: "Messages intended to control the device"
-  livelink:
-    name: LiveLink
-    description: "Messages related to livelink (probably all of them)"
-  device-ux:
-    name: Device UX
-    overview: true
-    description: "Messages intended to control the device, specifically for user interface and interactions"
+  ungrouped:
+    name: Ungrouped
+    description: "A collection of ungrouped messages"
 header:
   1:
     name: "Message ID"
@@ -62,7 +67,7 @@ header:
         name: "Not Supported"
         description: "If the receiver does not support the requested action but otherwise the message is valid"
       8:
-        # Currently only used ofr tx now
+        # Currently only used for tx now
         name: "Failed Will Retry"
       9:
         name: "Failed Permanently"
@@ -125,7 +130,7 @@ header:
     description: "RSSI of forwarded message"
   12:
     name: "Forwarded SNR"
-    description: "SNR  of forwarded message"
+    description: "SNR of forwarded message"
   13:
     name: "Forwarding To Type"
     description: "FOR FUTURE USE: Type of client to forward the message to."
@@ -157,18 +162,18 @@ messages:
   11:
     name: "Open"
     description: "Explicit indicator for the start of a connection"
-    group: "livelink"
+    group: "general"
   12:
     name: "Close"
     description: "Explicit indicator for a connection about to close. Can be used to differentiate between deliberate and accidental disconnections."
-    group: "livelink"
+    group: "general"
   13:
     name: "Heartbeat"
     description: "A message to keep the connection alive. Arbitrary fields can be added in fields 200+"
     group: "general"
   14:
     name: "Config"
-    group: "livelink"
+    group: "ungrouped"
     data:
       7:
         name: "Key"
@@ -217,7 +222,7 @@ messages:
             name: "RtkMinElevation (byte)"
   15:
     name: "Last Position"
-    group: "livelink"
+    group: "location"
     data:
       1:
         name: "Timestamp"
@@ -283,8 +288,8 @@ messages:
             name: "RTK"
   30:
     name: "Transmit Now"
-    description: "Transmit data immediately"
-    group: "device-services"
+    description: "Transmit data immediately over GSM"
+    group: "gsm"
     data:
       1:
         name: "Search GPS"
@@ -302,10 +307,44 @@ messages:
         name: "Priority"
         description: "0 - 1"
         type: "uint8"
+  31:
+    name: "GSM Control"
+    group: "gsm"
+    # SET and GET
+    data:
+      1:
+        name: "Flight mode"
+        description: "0 = no, 1 = yes"
+        type: "uint8"
+      2:
+        name: "Duration"
+        description: "in mins"
+        type: "uint32"
+      3:
+        name: "GSM Active"
+        description: "READONLY? 0 = no, 1 = yes"
+        type: "uint8"
+      4:
+        name: "Request Control"
+        description: "0 = no, 1 = yes"
+        type: "uint8"
+  32:
+    name: "GSM Request Ownership"
+    group: "gsm"
+    # SET only
+    data:
+      2:
+        name: "Duration"
+        description: "in mins"
+        type: "uint32"
+      4:
+        name: "Request Control"
+        description: "0 = no, 1 = yes"
+        type: "uint8"
   34:
     name: "Device Status"
     description: "Device status information"
-    group: "device-services"
+    group: "info"
     data:
       1:
         name: "Battery"
@@ -348,7 +387,7 @@ messages:
   35:
     name: "Device IDs"
     description: "Device ID information"
-    group: "device-services"
+    group: "info"
     data:
       1:
         name: "ID"
@@ -364,8 +403,8 @@ messages:
         type: "ascii"
   36:
     name: "Device Time"
-    description: "Device time information"
-    group: "device-services"
+    description: "Device time information, if known"
+    group: "info"
     data:
       1:
         name: "Unix Time"
@@ -402,7 +441,7 @@ messages:
   39:
     name: "GPS Control"
     description: "Control the GPS of the device"
-    group: "device-services"
+    group: "location"
     data:
       1:
         name: "GPS Enable"
@@ -437,7 +476,7 @@ messages:
   40:
     name: "Haptics Control"
     description: "Control the haptics"
-    group: "device-services"
+    group: "ungrouped"
     data:
       1:
         name: "Pattern"
@@ -450,7 +489,7 @@ messages:
   41:
     name: "Temperature"
     description: "Temperature information"
-    group: "device-services"
+    group: "info"
     data:
       1:
         name: "Temperature"
@@ -459,7 +498,7 @@ messages:
   42:
     name: "Buzzer Control"
     description: "Control the buzzer. Either pass duration and frequency, Or all fields without frequency."
-    group: "device-services"
+    group: "ungrouped"
     data:
       1:
         name: "Duration"
@@ -501,7 +540,7 @@ messages:
   43:
     name: "Battery Status"
     description: "Battery status information"
-    group: "device-services"
+    group: "info"
     data:
       1:
         name: "Voltage"
@@ -514,7 +553,7 @@ messages:
   44:
     name: "Pressure"
     description: "Pressure information"
-    group: "device-services"
+    group: "info"
     data:
       1:
         name: "Pressure"
@@ -524,7 +563,7 @@ messages:
   45:
     name: "Alarm"
     description: "Trigger an alarm, using buzzer, haptics, strobe and optional prompt"
-    group: "device-services"
+    group: "ungrouped"
     data:
       1:
         name: "Legacy alarm action"
@@ -571,7 +610,7 @@ messages:
   50:
     name: "Link Control"
     description: "Control a link to the internet to send and receive messages"
-    group: "device-services"
+    group: "gsm"
     data:
       1:
         name: "Link Address"
@@ -589,17 +628,58 @@ messages:
           2:
             name: "Disable"
   1004:
-    name: "LORA V4 Forwarding"
-    description: "Forwarding LORA V4 message"
+    name: "LORA"
+    group: "ungrouped"
+    description: "Interaction with LORA"
+    data:
+      2:
+        name: "Payload"
+        type: "bytes"
+      4:
+        name: "Spread Factor"
+        type: "uint8"
+        description: "8-12"
+      5:
+        name: "Coding Rate"
+        type: "uint8"
+        description: "1-4. [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]"
+      6:
+        name: "Bandwidth"
+        type: "uint8"
+        description: "0-2. [0: 125 kHz, 1: 250 kHz, 2: 500 kHz]"
+      7:
+        name: "Center Frequency"
+        type: "uint32"
+        description: "860000000-925000000. value in hz"
+      8:
+        name: "TX Power"
+        type: "uint8"
+        description: "0-22"
+      9:
+        name: "Preamble Length"
+        type: "uint8"
+        description: "4-128"
+      10:
+        name: "Receive Ms"
+        type: "uint32"
+        description: "How long to listen for after a transmit, in ms"
+      11:
+        name: "Sleep"
+        type: "uint8"
+        description: "Any value will tell the LORA to stop all activity now"
+      12:
+        name: "State"
+        type: "uintn"
+        description: "Readonly"
   # 10000 is the start of UX command space
   10008:
     name: "Preset Page"
-    description: "Display a predefined Lightbug page"
-    group: "device-ux"
+    description: "Display a predefined Lightbug page."
+    group: "screen"
   10009:
     name: "Text Page"
     description: "Display or change a text page"
-    group: "device-ux"
+    group: "screen"
     data:
       3:
         name: "Page ID"
@@ -631,7 +711,7 @@ messages:
   10010:
     name: "Menu Page"
     description: "Display or change a menu page"
-    group: "device-ux"
+    group: "screen"
     data:
       2:
         name: "Item count"
@@ -709,7 +789,7 @@ messages:
   10011:
     name: "Draw Bitmap"
     description: "Draw bitmap in UX"
-    group: "device-ux"
+    group: "screen"
     data:
       3:
         name: "Page ID"
@@ -740,7 +820,7 @@ messages:
   10013:
     name: "Button Press"
     description: "Press UX button"
-    group: "device-ux"
+    group: "ungrouped"
     data:
       3:
         name: "Page ID"

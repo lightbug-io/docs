@@ -300,6 +300,7 @@ export default withMermaid(defineConfig({
             },
             {
               text: 'Messages',
+              link: '/devices/api/messages',
               items: protocolMenuItems,
             },
             {
