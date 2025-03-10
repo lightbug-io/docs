@@ -240,7 +240,7 @@ export default defineComponent({
                     } else if ( num <= 4294967295 ) {
                         return intTouint32LE(num);
                     } else {
-                        return intTouint64LE(num);
+                        return intTouint64LE(BigInt(value));
                     }
                 case 'uint8':
                     return [parseInt(value, 10)];
@@ -249,7 +249,7 @@ export default defineComponent({
                 case 'uint32':
                     return intTouint32LE(parseInt(value, 10));
                 case 'uint64':
-                    return intTouint64LE(parseInt(value, 10));
+                    return intTouint64LE(BigInt(value));
                 case 'ascii':
                     return value.split('').map(char => char.charCodeAt(0));
                 case '[]uint8':
@@ -401,12 +401,10 @@ export default defineComponent({
             return Array.from(buffer);
         };
 
-        // Max allowed in current form as we use a "number" here, is 9007199254740991
-        // TODO update to use BigInt etc throughout?!
-        const intTouint64LE = (value: number) => {
+        const intTouint64LE = (value: BigInt) => {
             console.log(value);
             const buffer = Buffer.alloc(8);
-            buffer.writeBigUInt64LE(BigInt(value));
+            buffer.writeBigUInt64LE(value);
             console.log(buffer);
             return Array.from(buffer);
         };
