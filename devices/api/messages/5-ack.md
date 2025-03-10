@@ -7,6 +7,8 @@ outline: false
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
+import PayloadTable from '../../../components/PayloadTable.vue'
+import HeaderTable from '../../../components/HeaderTable.vue'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -22,39 +24,77 @@ These pages can be seen as a view of what is to come later this year.
 
 Used to acknowledge a previously sent message.
 
-## Payload
-
-| Field | Name               | Description                         | Type |
-| ----- | ------------------ | ----------------------------------- | ---- |
-| 1     | ACKed message type | Type of message that is being ACKed | uint16 |
-| 2     | ACKed message ID   | ID of the message that is being ACKed, if previously provided. | uintn |
-
-### Details
-
-ACKs are not always required for communication, but can be useful for ensuring that messages are received.
+```mermaid
+flowchart LR
+    A[Sender] -->|Message| B(Receiver)
+    B -->|ACK| A
+```
 
 The [Response Message ID](./../headers#_3-response-message-id) field in the header can be used in place of an ACK if an immediate response is being sent.
 
-All messages should send a response, or ACK, in response to a message, so that the sender knows that the message was received.
-Otherwise resends may occur.
+In such cases the response will not have an ACK message type, instead it will have the message type of the response (often the same as the request).
+
+
+```mermaid
+flowchart LR
+    A[Sender] -->|Message| B(Receiver)
+    B -->|Response| A
+```
+
+If a sender does not receive an ACK or response, it may resend the message.
+
+
+```mermaid
+flowchart LR
+    A[Sender] -->|Message| B(Receiver)
+    A[Sender] -->|Message repeat| B(Receiver)
+```
+
+ACKs should not themselves be ACKed.
 
 </template>
 <template #right>
 
-### Example
-ACK message, acknowledging a message with type `32` and ID `234`
+<h3>Header</h3>
 
-<ProtocolBytes
-    byteString="3 17 0 5 0 0 0 2 0 1 2 1 32 1 234 176 65"
-    :boldPositions="[3,12,14]"
-    :allowCollapse="false"
-/>
+If the message being ACKed has a message ID, it should be included in the `Response to message ID` header field.
+
+<HeaderTable :headerIds="[3]" headerMarginTop="0px" />
+
+<h3>Payload</h3>
+
+If a message is sent with no ID, then you may simply receive an ACK with the previous message type in the payload.
+
+<PayloadTable :messageId="5" headerText="" headerMarginTop="0px" />
 
 </template>
 </SplitColumnView>
+
+## Examples
+
+### ID and Type known
+
+ACK message, acknowledging a message with type `32` and ID `234`
+
+<ProtocolBytes
+    byteString="3 18 0 5 0 0 0 2 0 1 2 2 32 0 1 234 14 66"
+    :boldPositions="[3,12,15]"
+    :allowCollapse="true" defaultCollapsed="true"
+/>
+
+
+### Only type known
+
+In the case that a message ID is not known, the field can be omitted.
+
+<ProtocolBytes
+    byteString="3 15 0 5 0 0 0 1 0 1 2 32 0 164 69"
+    :boldPositions="[3,11]"
+    :allowCollapse="true" defaultCollapsed="true"
+/>
 
 ## Code
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_ACK_'" :enumName="'MD_ACK'" :dataPath="'messages/5/data'"/>
+<GenerateConsts :messageId="5"/>

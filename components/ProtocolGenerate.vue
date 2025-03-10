@@ -203,8 +203,10 @@ export default defineComponent({
             { key: 'uint64', name: 'uint64' },
             { key: 'ascii', name: 'ascii' },
             { key: '[]uint8', name: '[]uint8' },
+            { key: 'bytes', name: 'bytes' },
             { key: 'float32', name: 'float32' },
-            { key: 'uintn', name: 'uintn' }
+            { key: 'uintn', name: 'uintn' },
+            { key: 'int32', name: 'int32' }
         ];
 
         const loadProtocolData = async () => {
@@ -244,6 +246,25 @@ export default defineComponent({
                     return value.split(' ').map(part => parseInt(part, 10));
                 case 'float32':
                     return Float32Utils.float32ToBytesLE(parseFloat(value));
+                case 'int32':
+                    return int32ToBytesLE(parseInt(value, 10));
+                case 'bytes':
+                    // Replace , with space
+                    value = value.replace(/,/g, ' ');
+                    // Replace "  " with " "
+                    value = value.replace(/  /g, ' ');
+                    // Replace commas with spaces
+                    value = value.replace(/,/g, ' ');
+                    let valContainsLetters = value.match(/[a-z]/i);
+                    // Split by space and parse as hex if needed
+                    let split = value.split(' ').map(part => {
+                        if (part.startsWith('0x') || valContainsLetters) {
+                            return parseInt(part, 16);
+                        } else {
+                            return parseInt(part, 10);
+                        }
+                    });
+                    return split;
                 default:
                     return [];
             }
@@ -370,6 +391,14 @@ export default defineComponent({
             return [value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff, (value >> 24) & 0xff, (value >> 32) & 0xff, (value >> 40) & 0xff, (value >> 48) & 0xff, (value >> 56) & 0xff];
         };
 
+        const int32ToBytesLE = (value: number) => {
+            return [value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff, (value >> 24) & 0xff];
+        };
+
+        const bytesToInt32LE = (bytes: number[]) => {
+            return (bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0];
+        };
+
         const calculateChecksum = (message: number[]) => {
             let crc = crc16xmodem(new Int8Array(message));
             return crc.toString(16);
@@ -462,6 +491,8 @@ export default defineComponent({
                         case 8:
                             return ((bytes[7] << 56) | (bytes[6] << 48) | (bytes[5] << 40) | (bytes[4] << 32) | (bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0]).toString();
                     }
+                case 'int32':
+                    return bytesToInt32LE(bytes).toString();
                 default:
                     return bytes.join(' ');
             }

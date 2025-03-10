@@ -7,6 +7,7 @@ outline: false
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
+import PayloadTable from '../../../components/PayloadTable.vue'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -15,7 +16,7 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 10010: Menu Page
+# 31: GSM Control
 
 ::: danger Not yet documented
 :::
@@ -24,6 +25,7 @@ These pages can be seen as a view of what is to come later this year.
 <template #left>
 
 ### Payload
+
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
@@ -46,4 +48,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_UX_MENU_PAGE_'" :enumName="'MD_DEVICE_UX_MENU_PAGE'" :dataPath="'messages/10010/data'"/>
+<GenerateConsts :messageId="31"/>

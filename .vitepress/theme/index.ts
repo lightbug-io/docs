@@ -1,6 +1,6 @@
 import DefaultTheme from 'vitepress/theme'
 import Layout from './Layout.vue'
-import { theme, useOpenapi, useTheme } from 'vitepress-openapi'
+import { theme, useTheme } from 'vitepress-openapi/client'
 import type { Theme } from 'vitepress'
 import { enhanceAppWithTabs } from 'vitepress-plugin-tabs/client'
 import 'vuetify/styles'
@@ -40,7 +40,7 @@ export default {
 
         // Setup Theme
         const themeConfig = useTheme()
-        themeConfig.setLocale('en') // en or es
+        themeConfig.setI18nConfig({ locale: 'en' })
         themeConfig.setResponseCodeSelector('select')
         theme.enhanceApp({ app })
     }

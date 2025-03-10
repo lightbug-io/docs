@@ -94,8 +94,8 @@
                             <td>{{ byteDef.name }}</td>
                             <td>{{ byteDef.desc }}</td>
                             <td :style="{ fontWeight: byteDef.bold || (hoveredByte !== null && isByteInRange(hoveredByte, byteDef)) ? 'bold' : 'normal' }">{{ byteDef.value !== undefined ? byteDef.value : '' }}</td>
-                            <td>{{ byteDef.type }}</td>
-                            <td>{{ byteDef.valueParsed || '' }}</td>
+                            <td :style="{ fontWeight: byteDef.bold ? 'bold' : 'normal' }">{{ byteDef.type }}</td>
+                            <td :style="{ fontWeight: byteDef.bold ? 'bold' : 'normal' }">{{ byteDef.valueParsed || '' }}</td>
                         </tr>
                     </tbody>
                 </table>

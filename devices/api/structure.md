@@ -15,7 +15,7 @@ All integers are in [little-endian](https://en.wikipedia.org/wiki/Endianness) fo
 In a byte stream, a message takes the follow structure:
 
 ```
-<prefix> <message
+<prefix (optional)> <message
     <version uint8> <length uint16> <type uint16> <header data> <payload data> <checksum uint16>
 >
 ```
@@ -35,7 +35,7 @@ As an example empty message including prefix (with no additional header or paylo
 
 ## Prefix
 
-To aid reading from a possibly noisy byte stream, and to increase efficiency, the messages are prefixed with a set of start bytes.
+To aid reading from a possibly noisy byte stream, such as UART, and to increase efficiency, the messages can be prefixed with a set of start bytes.
 
 `0x4c, 0x42`, or `76, 66`, which is the ASCII representation of `LB`.
 
@@ -43,13 +43,19 @@ In combination with the protocol version, this allows for a simple check that in
 
 `0x4c 0x42 0x03` or `76 66 3` for example.
 
+Communication methods such as I2C or UDP will not include this prefix.
+
 ## Stop
 
 The 2 bytes after the prefix and protocol version indicate the length of the message which gives you a stop point.
 
-In total the first 5 bytes would look something like this:
+In total the first 5 bytes would look something like this with a prefix:
 
-`0x4c 0x42 0x03 0x0b 0x00` or `76 66 3 11 0` for example.
+`0x4c 0x42 0x03 0x0b 0x00` or `76 66 3 11 0`.
+
+Or with no prefix:
+
+`0x03 0x0b 0x00` or `3 11 0`.
 
 ## Message
 

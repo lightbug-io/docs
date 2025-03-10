@@ -6,6 +6,8 @@ import { useSidebar } from 'vitepress-openapi';
 import { loadSpec } from '../swagger/load';
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 import { pagefindPlugin } from 'vitepress-plugin-pagefind';
+import { withMermaid } from "vitepress-plugin-mermaid";
+
 
 // Load protocol messages from YAML file
 const protocolYamlPath = path.resolve(__dirname, '../public/files/protocol-v3.yaml');
@@ -28,7 +30,7 @@ const protocolMenuItems = Object.keys(protocolGroups)
     }
     items.push(
       ...Object.keys(protocolMessages)
-        .filter(key => protocolMessages[key].group === groupKey)
+        .filter(key => (protocolMessages[key].group === groupKey) && !protocolMessages[key].hidden)
         .map(key => ({
           text: `${key}: ${protocolMessages[key].name}`,
           link: `/devices/api/messages/${key}-${protocolMessages[key].name.toLowerCase().replace(/ /g, '-')}`
@@ -80,7 +82,7 @@ function reorder(group: { items: { link: string }[] }, orderedLinks: string[]) {
 }
 
 // https://vitepress.dev/reference/site-config
-export default defineConfig({
+export default withMermaid(defineConfig({
   title: "Lightbug Documentation",
   description: "home for everything Lightbug",
   lang: 'en-GB',
@@ -108,6 +110,9 @@ export default defineConfig({
       detailsLabel: 'Details'
     }
   },
+  mermaid:{
+    //mermaidConfig !theme here works for light mode since dark theme is forced in dark mode
+  },
   head: [
     [
       'script',
@@ -124,6 +129,9 @@ export default defineConfig({
   ],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    editLink: {
+      pattern: 'https://github.com/lightbug-io/docs/edit/main/:path'
+    },
     nav: [
       {
         text: 'Hardware',
@@ -292,16 +300,25 @@ export default defineConfig({
             },
             {
               text: 'Messages',
-              link: '/devices/api/messages/',
+              link: '/devices/api/messages',
               items: protocolMenuItems,
             },
             {
-              text: 'Generate',
-              link: '/devices/api/generate',
-            },
-            {
-              text: 'Parse',
-              link: '/devices/api/parse',
+              text: 'Tools',
+              items: [
+                {
+                  text: 'Generate',
+                  link: '/devices/api/tools/generate',
+                },
+                {
+                  text: 'Parse',
+                  link: '/devices/api/tools/parse',
+                },
+                {
+                  text: 'Screen',
+                  link: '/devices/api/tools/screen',
+                },
+              ]
             },
           ]
         },
@@ -332,8 +349,14 @@ export default defineConfig({
                   addedOperations: new Set(),
                 })),
                 collapse(sidebarSpec2.generateSidebarGroup({
-                  tag: ["users"],
-                  text: "Users",
+                  tag: ["personalAccessTokens"],
+                  text: "Access Tokens",
+                  linkPrefix: '/apis/v2/',
+                  addedOperations: new Set(),
+                })),
+                collapse(sidebarSpec2.generateSidebarGroup({
+                  tag: ["plans"],
+                  text: "Plans",
                   linkPrefix: '/apis/v2/',
                   addedOperations: new Set(),
                 })),
@@ -571,11 +594,11 @@ export default defineConfig({
     },
 
     socialLinks: [
-      // { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'github', link: 'https://github.com/lightbug-io' }
     ],
 
     search: {
       provider: 'local'
     }
   }
-})
+}));

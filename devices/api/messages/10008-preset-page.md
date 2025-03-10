@@ -15,21 +15,21 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 44: Pressure
+# 10008: Preset Page
 
-::: danger Not yet documented
-:::
+Displays a preset page that is hardcoded in the device.
 
 <SplitColumnView>
 <template #left>
 
 ### Payload
 
+Currently there is only a single home page programmed per device.
+
+In the future a payload field will be included to decide what page is shows, defaulting to the home page. Additional fields may be used to configure the preset pages.
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
-
-If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
 
 </template>
 <template #right>
@@ -37,8 +37,8 @@ If the request could not be fulfilled, the response status would be 2 (NOT OK), 
 ### Example
 
 <ProtocolBytes
-byteString="0"
-:boldPositions="[3,12,15,16]"
+byteString="3 14 0 24 39 1 0 1 1 126 0 0 25 55"
+:boldPositions="[3]"
 :allowCollapse="false"
 />
 
@@ -47,6 +47,4 @@ byteString="0"
 
 ## Code
 
-For convenience, the following constants can be used to reference the payload fields.
-
-<GenerateConsts :messageId="44"/>
+<GenerateConsts :messageId="10008"/>

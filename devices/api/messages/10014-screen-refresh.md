@@ -15,10 +15,11 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 10009: Text Page
+# 10014: Screen Refresh
 
 ::: danger Not yet documented
 :::
+
 
 <SplitColumnView>
 <template #left>
@@ -46,4 +47,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_UX_TEXT_PAGE_'" :enumName="'MD_DEVICE_UX_TEXT_PAGE'" :dataPath="'messages/10009/data'"/>
+<GenerateConsts :messageId="10014"/>

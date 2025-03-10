@@ -5,7 +5,7 @@ outline: [1,3]
 
 <script setup lang="ts">
 import { useData } from 'vitepress'
-import { useTheme } from 'vitepress-openapi'
+import { useTheme } from 'vitepress-openapi/client'
 const { isDark } = useData()
 import { loadSpec } from '../swagger/load'
 const spec1 = loadSpec(1)
@@ -31,10 +31,10 @@ Tokens might look something like this:
 
 ## Version 2
 
-<OAOperation operationId="post-users-login" :spec="spec2" :isDark="isDark" :hideDefaultFooter="true"/>
+<OAOperation operationId="post-users-login" :spec="spec2" :isDark="isDark" :hideBranding="true"/>
 
-<OAOperation operationId="post-users-refreshToken" :spec="spec2" :isDark="isDark" :hideDefaultFooter="true"/>
+<OAOperation operationId="post-users-refreshToken" :spec="spec2" :isDark="isDark" :hideBranding="true"/>
 
 ## Version 1
 
-<OAOperation operationId="post-users-login" :spec="spec1" :isDark="isDark" :hideDefaultFooter="true"/>
+<OAOperation operationId="post-users-login" :spec="spec1" :isDark="isDark" :hideBranding="true"/>

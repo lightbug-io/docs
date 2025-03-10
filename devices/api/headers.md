@@ -16,7 +16,7 @@ These pages can be seen as a view of what is to come later this year.
 
 These header field types are reserved across all message types.
 
-<GenerateConsts :prefix="'MH_'" :enumName="'MH'" :dataPath="'header'"/>
+<GenerateConsts :dataName="'MH'" :dataPath="'header'"/>
 
 ## 1: Message ID
 
@@ -42,17 +42,48 @@ Should be the same message ID and type as the message being responded to.
 
 The status of the response.
 
- - 1: OK
- - 2: NOT OK
+ - 0: OK
+ - 1: NOT OK (Generic error)
+ - 3: Method not supported
+ - 4: Invalid payload param
+ - 5: Invalid state
+ - 6: No data
+ - 7: Not supported
+ - 8: Failed, will retry
+ - 9: Failed permanently
 
 ## 5: Method
 
 - 1: Set, Request a change, using the data provided.
 - 2: Get, Request the current value or values.
-- 3: Subscribe, Request to be notified of changes to the value or values.
+- 3: Subscribe, Request to be notified with updates for the message.
 - 4: Do, Perform an action, using the data provided.
+- 5: Unsubscribe, Request to no longer be notified with updates for the message.
+
+## 6: Subscription interval
+
+Interval in ms. To be used with the SUBSCRIBE method
+
+<!-- ## 9: Forwarded For Type (RESERVED FOR FUTURE USE)
+
+ - 1: Device
+ - 2: Module
+ - 3: Link -->
 
 ## 10: Forwarded For
+
+ID of the client sending the original message that is being forwarded.
+
 ## 11: Forwarded RSSI
+
+RSSI of forwarded message, where applicable.
+
 ## 12: Forwarded SNR
-## 13: Forwarded Type
+
+SNR of forwarded message, where applicable.
+
+<!-- ## 13: Forward To Type (RESERVED FOR FUTURE USE)-->
+
+## 14: Forward To
+
+ID of the client to forward the message to. Forwarding to type alters the meaning of this field

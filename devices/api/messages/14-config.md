@@ -7,6 +7,7 @@ outline: false
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
+import PayloadTable from '../../../components/PayloadTable.vue'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -15,32 +16,17 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 44: Pressure
-
-::: danger Not yet documented
-:::
+# 14: Config Update
 
 <SplitColumnView>
 <template #left>
 
-### Payload
-
-
-| Field | Name       | Description                      | Type   | Example | Actual |
-| ----- | ---------- | -------------------------------- | ------ | ------- | - |
-
-If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
+TODO...
 
 </template>
 <template #right>
 
-### Example
-
-<ProtocolBytes
-byteString="0"
-:boldPositions="[3,12,15,16]"
-:allowCollapse="false"
-/>
+<PayloadTable :messageId="14" headerText="Payload" headerMarginTop="0px" />
 
 </template>
 </SplitColumnView>
@@ -49,4 +35,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="44"/>
+<GenerateConsts :messageId="14"/>

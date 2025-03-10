@@ -1,4 +1,5 @@
-import { useOpenapi, httpVerbs } from 'vitepress-openapi'
+import { useOpenapi } from 'vitepress-openapi/client'
+import { httpVerbs } from 'vitepress-openapi'
 import { loadSpec } from '../../swagger/load'
 const spec1 = loadSpec(1)
 

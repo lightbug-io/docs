@@ -187,6 +187,30 @@ const V1ParamSchemaFormats = {
 
 export function loadSpec(version: number): any {
     if (version === 1) {
+        // Add auth modes to v1
+        // "securitySchemes": {
+        //     "ApiKeyAuth": {
+        //       "in": "header",
+        //       "name": "Authorization",
+        //       "type": "apiKey"
+        //     }
+        //   }
+        (spec1.components as any).securitySchemes = {
+            ApiKeyAuth: {
+                in: 'header',
+                name: 'Authorization',
+                type: 'apiKey'
+            }
+        }
+        // And add the security to the endpoints (everything except things with "login" in them)
+        for (const path of Object.keys(spec1.paths)) {
+            for (const method of Object.keys(spec1.paths[path])) {
+                if (!path.includes('login')) {
+                    spec1.paths[path][method].security = [{ ApiKeyAuth: [] }]
+                }
+            }
+        }
+
         spec1.paths = normalizePaths(spec1.paths)
 
         // override stuff
@@ -208,8 +232,6 @@ export function loadSpec(version: number): any {
                 }
                 if (operationId in v1ReTag) {
                     spec1.paths[path][method].tags = [v1ReTag[operationId]]
-                } else {
-                    console.log('No re-tag for', operationId)
                 }
                 if (operationId in V1ParamExamples) {
                     for (const param of spec1.paths[path][method].parameters) {
@@ -284,6 +306,10 @@ export function loadSpec(version: number): any {
         return spec1
     }
     if (version === 2) {
+        // Remove any servers that include "localhost"
+        if (spec2.servers) {
+            spec2.servers = spec2.servers.filter((server: any) => !server.url.includes('localhost'))
+        }
         spec2.paths = normalizePaths(spec2.paths)
         return spec2
     }

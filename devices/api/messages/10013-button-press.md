@@ -47,4 +47,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_UX_BUTTON_PRESS_'" :enumName="'MD_DEVICE_UX_BUTTON_PRESS'" :dataPath="'messages/10013/data'"/>
+<GenerateConsts :messageId="10013"/>

@@ -26,18 +26,7 @@ jobs:
                             for (const commit of commits) {
                                 let shortHash = commit.id.slice(0, 7);
                                 let commitFirstLine = commit.message.split('\n')[0];
-
-                                const jiraRegex = /CLOUD-\d+/g;
-                                const jiraMatches = commit.message.match(jiraRegex);
-                                let jiraTickets = [];
-                                if (jiraMatches) {
-                                    jiraTickets = jiraMatches.map(match => `[${match}](https://lightbug.atlassian.net/browse/${match})`);
-                                }
-
                                 actionMessage += `- <${commit.url}|${shortHash}>: ${commitFirstLine}`;
-                                if (jiraTickets.length > 0) {
-                                    actionMessage += ` (${jiraTickets.join(', ')})`;
-                                }
                                 actionMessage += '\n';
                             }
                             actionMessage = actionMessage.trim();

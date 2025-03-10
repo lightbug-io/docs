@@ -20,7 +20,7 @@ These pages can be seen as a view of what is to come later this year.
 <SplitColumnView>
 <template #left>
 
-Used to [GET](./overview-device-services#get)) the time from the device.
+Used to GET the time from the device.
 
 Initially the best available time will be provided. Moving forward we will be able to provide different times (GPS, GM etc.)
 
@@ -70,4 +70,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_TIME_'" :enumName="'MD_DEVICE_TIME'" :dataPath="'messages/36/data'"/>
+<GenerateConsts :messageId="36"/>

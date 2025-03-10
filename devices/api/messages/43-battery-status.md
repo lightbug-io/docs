@@ -15,20 +15,20 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 32: GSM IMEI
+# 43: Battery Status
 
 <SplitColumnView>
 <template #left>
 
-Used to [GET](./overview-device-services#get)) the IMEI of the device.
+Get the battery status of a device
 
 ### Payload
 
-It has a single field, the IMEI, which is a 15 byte ASCII string.
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
-| 1     | IMEI | 15 bytes ASCII data | []byte  | 51 53 48 49 50 51 52 53 49 50 51 52 53 54 48 | 350123451234560 |
+| 1     | Voltage | | float32  |   |  |
+| 2     | Percent | | uint8  |   |  |
 
 If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
 
@@ -36,19 +36,20 @@ If the request could not be fulfilled, the response status would be 2 (NOT OK), 
 <template #right>
 
 ### Example
-If you wanted to GET the IMEI from a device, you would send a GET message with the IMEI field requested (length 0).
+
+Request battery status (all fields)
 
 <ProtocolBytes
-byteString="3 19 0 32 0 2 0 1 5 1 234 1 2 1 0 1 0 21 145"
-:boldPositions="[3,12,15,16]"
+byteString="3 17 0 43 0 2 0 5 1 1 2 1 99 0 0 221 181"
+:boldPositions="[3]"
 :allowCollapse="false"
 />
 
-The device would then respond with a message of type 32, with the IMEI field filled in if known.
+Receive an OK response with `100` % battery and `4.4` volts.
 
 <ProtocolBytes
-byteString="3 42 0 32 0 3 0 1 3 4 1 22 1 234 1 1 1 0 1 20 56 57 52 53 55 51 56 55 51 48 48 48 48 50 54 52 51 57 54 54 159 188"
-:boldPositions="[20]"
+byteString="3 32 0 43 0 2 0 3 1 4 99 0 0 0 4 36 0 0 0 2 0 2 1 1 100 4 223 79 141 64 210 80"
+:boldPositions="[3,24,26]"
 :allowCollapse="false"
 />
 
@@ -59,4 +60,4 @@ byteString="3 42 0 32 0 3 0 1 3 4 1 22 1 234 1 1 1 0 1 20 56 57 52 53 55 51 56 5
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :prefix="'MD_DEVICE_IMEI_'" :enumName="'MD_DEVICE_IMEI'" :dataPath="'messages/32/data'"/>
+<GenerateConsts :messageId="43"/>

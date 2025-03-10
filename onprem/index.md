@@ -10,7 +10,7 @@ Typically, we will always recommend you allow us to manage this cloud resource b
 
 Silos are our on premise offering, that enables enterprise users to run one or more components that make up our IoT platform within their own cloud or on their own hardware.
 
-Generally speaking, this is normallly the [Data Ingress](/onprem/#ingress) or [RTK](/onprem/#rtk) services, but sometimes includes custom components. User interfaces are generally not included within the On Premise offering at this time.
+Generally speaking, this is normally the [Data Ingress](/onprem/#ingress) or [RTK](/onprem/#rtk) services, but sometimes includes custom components. User interfaces are generally not included within the On Premise offering at this time.
 
 ## Example
 
@@ -28,7 +28,7 @@ Current pricing can be found on [our main website](https://lightbug.io/product/c
 
 ## Ingress
 
-The ingress service handles all device communicaiton and data ingestion for basic devices.
+The ingress service handles all device communication and data ingestion for basic devices.
 
 The diagram below shows the basic flow of data in this siloed situation.
 
