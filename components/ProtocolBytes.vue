@@ -33,6 +33,14 @@ export default defineComponent({
         showValidation: {
             type: Boolean,
             default: false
+        },
+        customHeaderTypes: {
+            type: Object as PropType<{ [key: string]: string }>,
+            default: () => ({})
+        },
+        customPayloadTypes: {
+            type: Object as PropType<{ [key: string]: string }>,
+            default: () => ({})
         }
     },
     components: {
@@ -225,7 +233,7 @@ export default defineComponent({
                 const headerLength = parseInt(byteArray[headerDataStart]);
                 const headerFieldType = parseInt(byteArray[headerFieldStart + i]);
                 const headerFieldName = protocolData.value?.header?.[headerFieldType]?.name || 'Header ' + headerFieldType;
-                const headerFieldValueType = protocolData.value?.header?.[headerFieldType]?.type || 'undefined';
+                const headerFieldValueType = protocolData.value?.header?.[headerFieldType]?.type || props.customHeaderTypes[headerFieldType] || 'undefined';
                 byteDefinition.push({
                     pos: headerDataStart,
                     len: 1,
@@ -279,7 +287,7 @@ export default defineComponent({
                 const payloadLength = parseInt(byteArray[payloadDataStart], 10);
                 const payloadFieldType = parseInt(byteArray[payloadFieldStart + i]);
                 const payloadFieldName = messageData[payloadFieldType]?.name || 'Payload ' + (i + 1);
-                const payloadFieldValueType = messageData[payloadFieldType]?.type || 'undefined';
+                const payloadFieldValueType = messageData[payloadFieldType]?.type || props.customPayloadTypes[payloadFieldType] || 'undefined';
                 byteDefinition.push({
                     pos: payloadDataStart,
                     len: 1,

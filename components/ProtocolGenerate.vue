@@ -146,7 +146,13 @@
         </small>
     </div>
     <h5>Bytes</h5>
-    <ProtocolBytes :byteString="generatedInts" showValidation :showGeneratorLink="false" />
+    <ProtocolBytes
+        :byteString="generatedInts"
+        showValidation
+        :showGeneratorLink="false"
+        :customHeaderTypes="customHeaderTypes"
+        :customPayloadTypes="customPayloadTypes"
+    />
     <h5>Extras</h5>
     <v-checkbox
             v-model="includePrefix"
@@ -161,6 +167,7 @@ import jsyaml from 'js-yaml';
 import crc16xmodem from 'crc/calculators/crc16xmodem';
 import ProtocolBytes from './ProtocolBytes.vue';
 import Float32Utils from './../utils/Float32Utils';
+import {Buffer} from 'buffer';
 
 export default defineComponent({
     name: 'ProtocolGenerate',
@@ -388,7 +395,14 @@ export default defineComponent({
         };
 
         const intTouint64LE = (value: number) => {
-            return [value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff, (value >> 24) & 0xff, (value >> 32) & 0xff, (value >> 40) & 0xff, (value >> 48) & 0xff, (value >> 56) & 0xff];
+            try {
+                let buff = Buffer.alloc(8);
+                buff.writeBigUInt64LE(BigInt(value));
+                return Array.from(buff);
+            } catch (error) {
+                console.error('Error converting to uint64LE:', error);
+                return Array(8).fill(0);
+            }
         };
 
         const int32ToBytesLE = (value: number) => {
@@ -530,6 +544,22 @@ export default defineComponent({
             }
         };
 
+        const customHeaderTypes = computed(() => {
+            const headerTypes: { [key: string]: string } = {};
+            customHeaders.value.filter(header => header.enabled).forEach(header => {
+                headerTypes[header.id] = header.type;
+            });
+            return headerTypes;
+        });
+
+        const customPayloadTypes = computed(() => {
+            const payloadTypes: { [key: string]: string } = {};
+            customPayloads.value.filter(payload => payload.enabled).forEach(payload => {
+                payloadTypes[payload.id] = payload.type;
+            });
+            return payloadTypes;
+        });
+
         watch(selectedMessage, () => {
             if (urlLoaded.value) {
                 if (!shouldWatchForChanges.value) {
@@ -569,7 +599,9 @@ export default defineComponent({
             messageOptions,
             messageOptionsWithCustom,
             selectedMessageData,
-            typeOptions
+            typeOptions,
+            customHeaderTypes,
+            customPayloadTypes
         };
     },
 });
