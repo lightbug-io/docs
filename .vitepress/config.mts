@@ -130,7 +130,7 @@ export default withMermaid(defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     editLink: {
-      pattern: 'https://github.com/lightbug-io/docs/edit/main/:path'
+      pattern: `https://github.com/lightbug-io/docs/edit/${process.env.DEPLOYMENT_NAME === 'Production' ? 'production' : 'main'}/:path`
     },
     nav: [
       {
