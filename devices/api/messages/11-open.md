@@ -19,7 +19,13 @@ These pages can be seen as a view of what is to come later this year.
 
 # 11: Open
 
-Used to explicitly initiate communication, and responses can be used to determine your target is alive and ready.
+Used to explicitly initiate communication.
+
+Responses can be used to determine your target is alive and ready.
+
+Targets **MAY** require an open message to be sent before they will respond to other messages.
+
+Communications to Lightbug devices **MUST** start with an open message.
 
 ## Code
 
