@@ -594,7 +594,8 @@ export default withMermaid(defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/lightbug-io' }
+      { icon: 'github', link: 'https://github.com/lightbug-io' },
+      { icon: 'discord', link: 'https://chat.lightbug.io' }
     ],
 
     search: {
