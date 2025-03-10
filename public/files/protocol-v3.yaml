@@ -607,6 +607,19 @@ messages:
       13:
         name: "Prompt button 3 text"
         type: "ascii"
+  46:
+    name: Buzzer Sequence
+    description: "Play a sequence of buzzer sounds"
+    group: "ungrouped"
+    data:
+      6:
+        name: "Frequencies"
+        description: "Array of frequencies in Hz as floats"
+        type: "float32[]"
+      7:
+        name: "Timings"
+        description: "Array of timings in ms as uint16"
+        type: "uint16[]"
   50:
     name: "Link Control"
     description: "Control a link to the internet to send and receive messages"
