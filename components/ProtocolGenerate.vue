@@ -227,6 +227,9 @@ export default defineComponent({
         };
 
         const convertToBytes = (value: string, type: string): number[] => {
+            if (type.includes('int') && value === '') {
+                value = '0';
+            }
             switch (type) {
                 case 'uintn':
                     const num = parseInt(value, 10);
@@ -387,31 +390,34 @@ export default defineComponent({
         });
 
         const intTouint16LE = (value: number) => {
-            return [value & 0xff, (value >> 8) & 0xff];
+            const buffer = Buffer.alloc(2);
+            buffer.writeUInt16LE(value);
+            return Array.from(buffer);
         };
 
         const intTouint32LE = (value: number) => {
-            return [value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff, (value >> 24) & 0xff];
+            const buffer = Buffer.alloc(4);
+            buffer.writeUInt32LE(value);
+            return Array.from(buffer);
         };
 
+        // Max allowed in current form as we use a "number" here, is 9007199254740991
+        // TODO update to use BigInt etc throughout?!
         const intTouint64LE = (value: number) => {
-            try {
-                let buff = Buffer.alloc(8);
-                buff.writeBigUInt64LE(BigInt(value));
-                return Array.from(buff);
-            } catch (error) {
-                console.error('Error converting to uint64LE:', error);
-                return Array(8).fill(0);
-            }
+            console.log(value);
+            const buffer = Buffer.alloc(8);
+            buffer.writeBigUInt64LE(BigInt(value));
+            console.log(buffer);
+            return Array.from(buffer);
         };
 
         const int32ToBytesLE = (value: number) => {
-            return [value & 0xff, (value >> 8) & 0xff, (value >> 16) & 0xff, (value >> 24) & 0xff];
+            const buffer = Buffer.alloc(4);
+            buffer.writeInt32LE(value);
+            return Array.from(buffer);
         };
 
-        const bytesToInt32LE = (bytes: number[]) => {
-            return (bytes[3] << 24) | (bytes[2] << 16) | (bytes[1] << 8) | bytes[0];
-        };
+        const bytesToInt32LE = (bytes: number[]) => Buffer.from(bytes).readInt32LE();
 
         const calculateChecksum = (message: number[]) => {
             let crc = crc16xmodem(new Int8Array(message));

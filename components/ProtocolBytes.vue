@@ -7,6 +7,7 @@ import { defineComponent, ref, PropType, computed, onMounted } from 'vue';
 import jsyaml from 'js-yaml';
 import crc16 from 'crc/crc16xmodem';
 import Float32Utils from '../utils/Float32Utils';
+import {Buffer} from 'buffer';
 
 interface ByteDefinition {
     pos: number;
@@ -86,7 +87,7 @@ export default defineComponent({
                     result = bytes.length < 4 ? "" : uint32LEtoUInt(bytes[0], bytes[1], bytes[2], bytes[3]).toString();
                     break;
                 case 'uint64':
-                    result = bytes.length < 8 ? "" : uint64LEtoUInt(bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]).toString();
+                    result = bytes.length < 8 ? "" : Buffer.from(bytes).readBigUInt64LE().toString();
                     break;
                 case 'int32':
                     result = bytes.length < 4 ? "" : new Int32Array(new Uint8Array(bytes).buffer)[0].toString();
