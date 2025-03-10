@@ -31,7 +31,7 @@ const handleInputEvent = (event) => {
 };
 
 const parseBytes = (input) => {
-    return input.split(/[\s,]+/).map(byte => {
+    return input.toLowerCase().split(/[\s,]+/).map(byte => {
         if (byte.startsWith('0x')) {
             return parseInt(byte, 16);
         } else if (/^[0-9a-fA-F]+$/.test(byte)) {
