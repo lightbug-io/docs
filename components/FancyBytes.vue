@@ -237,14 +237,12 @@ export default defineComponent({
         };
 
         const copyToClipboard = () => {
-            let text = props.byteString.split(' ').map(byte => formatByte(byte)).join(byteCopySpaces.value ? ' ' : '');
-            if (byteDisplayType.value === 'ints') {
-                if (byteCopyCommas.value) {
-                    text = text.replace(/ /g, ', ');
-                }
-                if (!byteCopySpaces.value) {
-                    text = text.replace(/ /g, '');
-                }
+            let text = props.byteString.split(' ').map(byte => formatByte(byte)).join(' ');
+            if (byteCopyCommas.value) {
+                text = text.replace(/ /g, ', ');
+            }
+            if (!byteCopySpaces.value) {
+                text = text.replace(/ /g, '');
             }
             navigator.clipboard.writeText(text).then(() => {
                 console.log('Copied to clipboard:', text);
