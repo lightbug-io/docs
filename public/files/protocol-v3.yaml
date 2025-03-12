@@ -322,7 +322,7 @@ messages:
         type: "uint32"
       3:
         name: "GSM Active"
-        description: "READONLY? 0 = no, 1 = yes"
+        description: "READONLY report of if GSM is active. 0 = no, 1 = yes"
         type: "uint8"
       4:
         name: "Request Control"

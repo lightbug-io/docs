@@ -18,28 +18,13 @@ These pages can be seen as a view of what is to come later this year.
 
 # 32: GSM Request Ownership
 
-::: danger Not yet documented
-:::
-
 <SplitColumnView>
 <template #left>
-
-### Payload
-
-
-| Field | Name       | Description                      | Type   | Example | Actual |
-| ----- | ---------- | -------------------------------- | ------ | ------- | - |
 
 </template>
 <template #right>
 
-### Example
-
-<ProtocolBytes
-byteString="0"
-:boldPositions="[3,12,15,16]"
-:allowCollapse="false"
-/>
+<PayloadTable :messageId="32"/>
 
 </template>
 </SplitColumnView>
@@ -48,4 +33,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="33"/>
+<GenerateConsts :messageId="32"/>

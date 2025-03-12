@@ -18,28 +18,15 @@ These pages can be seen as a view of what is to come later this year.
 
 # 31: GSM Control
 
-::: danger Not yet documented
-:::
-
 <SplitColumnView>
 <template #left>
 
-### Payload
 
-
-| Field | Name       | Description                      | Type   | Example | Actual |
-| ----- | ---------- | -------------------------------- | ------ | ------- | - |
 
 </template>
 <template #right>
 
-### Example
-
-<ProtocolBytes
-byteString="0"
-:boldPositions="[3,12,15,16]"
-:allowCollapse="false"
-/>
+<PayloadTable :messageId="31"/>
 
 </template>
 </SplitColumnView>
