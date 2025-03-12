@@ -13,6 +13,7 @@
                         <v-radio label="Ints (1 7 255)" value="ints"></v-radio>
                         <v-radio label="Hex (01 07 FF)" value="hex"></v-radio>
                         <v-radio label="Hex with 0x (0x01 0x07 0xFF)" value="hex0x"></v-radio>
+                        <v-radio label="Printf ('\\x01' '\\x07' '\\xFF')" value="printf" title="printf, ignores space and comma selections"></v-radio>
                     </v-radio-group>
                     <v-checkbox
                         v-model="byteUpperCase"
@@ -164,7 +165,7 @@ export default defineComponent({
         // const byteCopyCommas = ref(localStorage.getItem('byteCopyCommas') === 'true');
         // const sendAddress = ref(localStorage.getItem('sendAddress') || '');
         // const byteUpperCase = ref(localStorage.getItem('byteUpperCase') === 'true');
-        const byteDisplayType = ref<'ints' | 'hex' | 'hex0x'>('ints');
+        const byteDisplayType = ref<'ints' | 'hex' | 'hex0x' | 'printf'>('ints');
         const byteCopySpaces = ref(true);
         const byteCopyCommas = ref(false);
         const sendAddress = ref('');
@@ -238,11 +239,15 @@ export default defineComponent({
 
         const copyToClipboard = () => {
             let text = props.byteString.split(' ').map(byte => formatByte(byte)).join(' ');
-            if (byteCopyCommas.value) {
-                text = text.replace(/ /g, ', ');
-            }
-            if (!byteCopySpaces.value) {
-                text = text.replace(/ /g, '');
+            if (byteDisplayType.value === 'printf') {
+                text = props.byteString.split(' ').map(byte => `'\\x${parseInt(byte).toString(16).padStart(2, '0')}'`).join('');
+            } else {
+                if (byteCopyCommas.value) {
+                    text = text.replace(/ /g, ', ');
+                }
+                if (!byteCopySpaces.value) {
+                    text = text.replace(/ /g, '');
+                }
             }
             navigator.clipboard.writeText(text).then(() => {
                 console.log('Copied to clipboard:', text);
