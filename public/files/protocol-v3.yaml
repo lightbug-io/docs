@@ -226,7 +226,7 @@ messages:
     data:
       1:
         name: "Timestamp"
-        description: "Unix timestamp in ms"
+        description: "Unix timestamp in ms (number of milliseconds since 1 Jan 1970)"
         type: "uint64"
       2:
         name: "Latitude"
