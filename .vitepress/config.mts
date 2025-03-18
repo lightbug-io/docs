@@ -434,6 +434,7 @@ export default withMermaid(defineConfig({
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["readings-gateway"], text: "Gateway readings", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["notifications"], text: "Notifications", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["geofences"], text: "Geofences", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
+                collapse(sidebarSpec1.generateSidebarGroup({ tag: ["reports"], text: "Reports", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["rtk"], text: "RTK", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["mqtt"], text: "MQTT", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["device-misc"], text: "Device Misc", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),

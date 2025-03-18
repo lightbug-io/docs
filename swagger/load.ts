@@ -50,6 +50,9 @@ const v1SummaryOverrides = {
     'get-devices-id-activateOnResellerPlan': 'Activate device on reseller plan',
 
     'get-devices-id-setNtripSettings': 'Set the NTRIP settings for a device.',
+
+    'post-reports-activity': 'Device Activity',
+    'post-reports-vehicle-summary': 'Vehicle Summary',
 }
 
 const v1DescriptionOverrides = {
@@ -137,6 +140,8 @@ const v1ReTag = {
     'get-users-id-geofences': 'geofences',
     'get-users-id-geofences-fk': 'geofences',
 
+    'post-reports-activity': 'reports',
+    'post-reports-vehicle-summary': 'reports',
 }
 
 const v1Removed = [
@@ -159,6 +164,103 @@ const V1ParamExamples = {
         'resellerPlanId': '10',
         'expiry': [Date.now() + (365 * 24 * 60 * 60 * 1000)]
     },
+}
+
+const V1ResponseExamples = {
+    'post-reports-activity': {
+        '200': {
+            'application/json': {
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'off': {
+                            'type': 'object',
+                            'properties': {
+                                'time': { 'type': 'number' },
+                                'distance': { 'type': 'number' }
+                            }
+                        },
+                        'idle': {
+                            'type': 'object',
+                            'properties': {
+                                'time': { 'type': 'number' },
+                                'distance': { 'type': 'number' }
+                            }
+                        },
+                        'movingWithIgnitionOn': {
+                            'type': 'object',
+                            'properties': {
+                                'time': { 'type': 'number' },
+                                'distance': { 'type': 'number' }
+                            }
+                        },
+                        'movingWithIgnitionOff': {
+                            'type': 'object',
+                            'properties': {
+                                'time': { 'type': 'number' },
+                                'distance': { 'type': 'number' }
+                            }
+                        },
+                        'log': {
+                            'type': 'array',
+                            'items': { 'type': 'object' }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    'post-reports-vehicle-summary': {
+        '200': {
+            'application/json': {
+                'schema': {
+                    'type': 'object',
+                    'properties': {
+                        'numTrips': { 'type': 'number' },
+                        'totalDist': { 'type': 'number' },
+                        'totalTime': { 'type': 'number' },
+                        'avgDist': { 'type': ['number', 'null'] },
+                        'avgTime': { 'type': ['number', 'null'] },
+                        'idleTime': {
+                            'type': 'object',
+                            'properties': {
+                                'total': { 'type': 'number' },
+                                'inWork': { 'type': 'number' },
+                                'inMaintenance': { 'type': 'number' }
+                            }
+                        },
+                        'distances': {
+                            'type': 'object',
+                            'properties': {
+                                'total': { 'type': 'number' },
+                                'inWork': { 'type': 'number' },
+                                'inMaintenance': { 'type': 'number' }
+                            }
+                        },
+                        'ignitionTime': { 'type': ['number', 'null'] },
+                        'movingTime': {
+                            'type': 'object',
+                            'properties': {
+                                'total': { 'type': 'number' },
+                                'inWork': { 'type': 'number' },
+                                'inMaintenance': { 'type': 'number' }
+                            }
+                        },
+                        'workTime': { 'type': 'number' },
+                        'maintenanceTime': { 'type': 'number' },
+                        'offTimes': {
+                            'type': 'object',
+                            'properties': {
+                                'total': { 'type': 'number' },
+                                'inWork': { 'type': 'number' },
+                                'inMaintenance': { 'type': 'number' }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 const V1BodyExamples = {
@@ -237,6 +339,13 @@ export function loadSpec(version: number): any {
                     for (const param of spec1.paths[path][method].parameters) {
                         if (param.name in V1ParamExamples[operationId]) {
                             param.example = V1ParamExamples[operationId][param.name]
+                        }
+                    }
+                }
+                if (operationId in V1ResponseExamples) {
+                    for (const response of Object.keys(spec1.paths[path][method].responses)) {
+                        if (response in V1ResponseExamples[operationId]) {
+                            spec1.paths[path][method].responses[response].content = V1ResponseExamples[operationId][response]
                         }
                     }
                 }

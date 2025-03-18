@@ -3828,6 +3828,92 @@
         },
         "deprecated": false
       }
+    },
+    "/reports/vehicle-summary": {
+      "post": {
+        "tags": [
+          "report"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/postReportsVehicleSummary"
+        },
+        "responses": {
+          "200": {
+            "description": "Request was successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "text/xml": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "text/javascript": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
+    "/reports/activity": {
+      "post": {
+        "tags": [
+          "report"
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/postReportsVehicleSummary"
+        },
+        "responses": {
+          "200": {
+            "description": "Request was successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "text/xml": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "text/javascript": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
     }
   },
   "tags": [
@@ -3891,6 +3977,37 @@
           }
         },
         "description": "Body (JSON)"
+      },
+      "postReportsVehicleSummary": {
+        "content": {
+          "application/x-www-form-urlencoded": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "deviceId": {
+                  "description": "The device id to get the data for",
+                  "type": "number",
+                  "format": ""
+                },
+                "dateRange": {
+                  "description": "The date range to get the data for, in epoch milliseconds, [start, end]",
+                  "type": "string",
+                  "format": "JSON"
+                },
+                "parameters": {
+                  "description": "Optional parameters, as JSON object, use the APP and developer console to see the options",
+                  "type": "string",
+                  "format": "JSON"
+                }
+              },
+              "required": [
+                "deviceId",
+                "dateRange"
+              ]
+            }
+          }
+        },
+        "required": true
       }
     },
     "schemas": {
