@@ -620,6 +620,38 @@ messages:
         name: "Timings"
         description: "Array of timings in ms as uint16"
         type: "uint16[]"
+  47:
+    name: "CPU2 Sleep"
+    description: "See how much power is being used by the device, between subscription and un-subscription time."
+    group: "ungrouped"
+    methods:
+      DO:
+    data:
+      1:
+        name: "Interval"
+        description: "Interval in ms to turn off the CPU2 for, before turning it back on"
+        type: "uint32"
+      2:
+        name: "Wake on Event"
+        description: "Should CPU1 wake up CPU2 on new events / messages"
+        type: "uint8"
+  48:
+    name: "Power Profile"
+    description: "See how much power is being used by the device, between subscription and un-subscription time."
+    group: "ungrouped"
+    methods:
+      SUBSCRIBE:
+        interval: ">= 300"
+      UNSUBSCRIBE:
+    data:
+      3:
+        name: "Total power"
+        description: "Total power used in mAH"
+        type: "float32"
+      4:
+        name: "Current now"
+        description: "Current power usage in mA"
+        type: "float32"
   50:
     name: "Link Control"
     description: "Control a link to the internet to send and receive messages"
