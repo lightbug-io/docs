@@ -1,5 +1,8 @@
 name: Notify
 
+permissions:
+  contents: none
+
 on:
     push:
         branches:
@@ -34,7 +37,7 @@ jobs:
                             return actionMessage;
             - name: Notify
               if: ${{ always() }} # Use always to ensure that the notification is also send on failure of former steps
-              uses: teknatha136/actions-google-chat-text-message@main
+              uses: teknatha136/actions-google-chat-text-message@ecec1de3697db2ae67623ed3b4de15bb85d6cac3
               with:
                 google-chat-webhook: '${{ secrets.GOOGLE_CHAT_WEBHOOK_URL }}'
                 text-message: ${{ steps.action-message.outputs.result }}
