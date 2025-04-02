@@ -1,3 +1,7 @@
+<script setup>
+import EinkText from '../../../../../components/EinkText.vue';
+</script>
+
 # Eink Hello World
 
 The latest version of the eink example can be [found on GitHub](https://github.com/lightbug-io/toit-lightbug/blob/main/examples/eink.toit).
@@ -20,6 +24,12 @@ Latch response: Message type: 5 length: 40 response-to: 3405447839
 ## Device
 
 The device EInk screen will update, displaying the text that was included in the message.
+
+<EinkText
+title="Hello world"
+line2="Welcome to your Lightbug device"
+line3="running Toit"
+/>
 
 ## Code
 
