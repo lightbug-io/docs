@@ -278,6 +278,7 @@ export default withMermaid(defineConfig({
             },
             {
               text: 'Structure',
+              collapsed: true,
               link: '/devices/api/structure',
               items: [
                 {
@@ -300,11 +301,13 @@ export default withMermaid(defineConfig({
             },
             {
               text: 'Messages',
+              collapsed: true,
               link: '/devices/api/messages',
               items: protocolMenuItems,
             },
             {
               text: 'Tools',
+              collapsed: true,
               items: [
                 {
                   text: 'Generate',
@@ -317,6 +320,26 @@ export default withMermaid(defineConfig({
                 {
                   text: 'Screen',
                   link: '/devices/api/tools/screen',
+                },
+              ]
+            },
+            {
+              text: 'SDKs',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Toit',
+                  link: '/devices/api/sdks/toit/',
+                  items: [
+                    { text: 'Getting Started', link: '/devices/api/sdks/toit/getting-started' },
+                    {
+                      text: 'Examples',
+                      link: '/devices/api/sdks/toit/examples',
+                      items: [
+                        { text: 'EInk Hello World', link: '/devices/api/sdks/toit/examples/eink' },
+                      ]
+                    },
+                  ],
                 },
               ]
             },
