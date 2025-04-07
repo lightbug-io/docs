@@ -672,6 +672,40 @@ messages:
             name: "Enable"
           2:
             name: "Disable"
+  53:
+    name: "Ublox Protection Level"
+    description: "Get information about the ublox protection level"
+    group: "ungrouped"
+    # Only supports GET
+    data:
+      1:
+        name: "PL Valid"
+        description: "Indicates if the protection level is valid"
+        type: "uint8"
+      2:
+        name: "PL X"
+        description: "Protection level in the X direction in mm"
+        type: "uint32"
+      3:
+        name: "PL Y"
+        description: "Protection level in the Y direction in mm"
+        type: "uint32"
+      4:
+        name: "PL Z"
+        description: "Protection level in the Z direction in mm"
+        type: "uint32"
+      5:
+        name: "Horizontal Orientation"
+        description: "Horizontal orientation of the protection level"
+        type: "uint16"
+      6:
+        name: "TMIR Coefficient"
+        description: "TMIR coefficient for protection level calculation"
+        type: "uint8"
+      7:
+        name: "TMIR Exponent"
+        description: "TMIR exponent for protection level calculation"
+        type: "int8"
   1004:
     name: "LORA"
     group: "ungrouped"
