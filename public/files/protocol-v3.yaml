@@ -246,11 +246,11 @@ messages:
         type: "uint16"
       6:
         name: "Course Over Ground"
-        description: "Course over ground. Divide by 1e2 to get the value in degrees."
+        description: "Course over ground centi-degrees (cd). Divide by 1e2 to get the value in degrees."
         type: "uint16"
       7:
         name: "Speed"
-        description: "Divide by 1e2 to get the value in km/h."
+        description: "Speed in meters per second (m/s). Divide by 1e2 to get the value in km/h."
         type: "uint16"
       8:
         name: "Number of Satellites"
