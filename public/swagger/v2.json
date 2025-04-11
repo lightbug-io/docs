@@ -434,6 +434,9 @@
           "orderId": {
             "type": "integer"
           },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          },
           "planId": {
             "type": "integer"
           },
@@ -510,7 +513,7 @@
             "type": "string"
           },
           "onoWhitelistId": {
-            "description": "Connectivity *string `json:\"connectivity\"`\nGroup        string  `json:\"group\"`\nResellerID     *int32  `json:\"resellerId\"`\nResellerPlanID *int32  `json:\"resellerPlanId\"`\nArchived *int32 `json:\"archived\"`\nPlanType       string  `json:\"planType\"`",
+            "description": "Connectivity *string `json:\"connectivity\"`\nGroup        string  `json:\"group\"`\nResellerID *int32 `json:\"resellerId\"`\nResellerPlanID *int32  `json:\"resellerPlanId\"`\nArchived *int32 `json:\"archived\"`\nPlanType       string  `json:\"planType\"`",
             "type": "integer"
           },
           "prices": {
@@ -757,13 +760,24 @@
         },
         "type": "object"
       },
+      "UserPlanSummaryEntry": {
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          }
+        },
+        "type": "object"
+      },
       "UserStub": {
         "properties": {
           "email": {
             "type": "string"
           },
           "hasBillingInfo": {
-            "description": "Does the user have billing info stored for automatic billing?",
+            "description": "Does the user have billing info stored (a card) for potential use in automatic billing?\nThis does not mean that there is actually an active subscription",
             "type": "boolean"
           },
           "id": {
@@ -793,17 +807,6 @@
           "message": {
             "example": "status bad request",
             "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "internal_api_handlers_v2_users.UserPlanSummaryEntry": {
-        "properties": {
-          "count": {
-            "type": "integer"
-          },
-          "plan": {
-            "$ref": "#/components/schemas/Plan"
           }
         },
         "type": "object"
@@ -1023,7 +1026,7 @@
         ]
       },
       "put": {
-        "description": "Sets the plan that the device is currently using, and optionally the plan that it should renew onto\nFor user devices, the user must have already purchased or been allocated the target plan, and it should be available in their plan pool\nFor reseller devices, an \"unpaid\" plan will be used, and billed on the next cycle.\nIf you are on legacy reseller billing, this endpoint will not work. Instead see /api/devices/{id}/activateOnResellerPlan and /api/devices/{id}/deactivate routes",
+        "description": "Sets the plan that the device is currently using, and optionally the plan that it should renew onto.\nFor user devices, the user must have already purchased or been allocated the target plan, and it should be available in their plan pool, see <a href=\"https://docs.lightbug.io/apis/v2/get-users-plans\">GET /users/plans</a>\nFor reseller devices, an \"unpaid\" plan will be used, and billed on the next cycle.",
         "parameters": [
           {
             "description": "Device ID",
@@ -2197,6 +2200,36 @@
             "schema": {
               "type": "integer"
             }
+          },
+          {
+            "description": "Sort by this field",
+            "in": "query",
+            "name": "_sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort in this direction (asc, desc)",
+            "in": "query",
+            "name": "_direction",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Include additional data",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "items": {
+                "enum": [
+                  "plan"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            }
           }
         ],
         "responses": {
@@ -2269,7 +2302,7 @@
         ]
       }
     },
-    "/users/plansSummary": {
+    "/users/plans/summary": {
       "get": {
         "description": "Gets a summary of plans for a user (already purchased or allocated)\nThis can list unused, and used plans with the `consumed` query parameter",
         "parameters": [
@@ -2288,7 +2321,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/internal_api_handlers_v2_users.UserPlanSummaryEntry"
+                    "$ref": "#/components/schemas/UserPlanSummaryEntry"
                   },
                   "type": "array"
                 }
@@ -2441,6 +2474,257 @@
         "summary": "Refresh token",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/users/{userid}/plans": {
+      "get": {
+        "description": "Gets plans that are available for a user (already purchased or allocated)",
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Filter by plans that have already been consumed by devices or not",
+            "in": "query",
+            "name": "consumed",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Filter by plan id",
+            "in": "query",
+            "name": "planId",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Limit for pagination, default 10, max 10000",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sort by this field",
+            "in": "query",
+            "name": "_sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort in this direction (asc, desc)",
+            "in": "query",
+            "name": "_direction",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Include additional data",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "items": {
+                "enum": [
+                  "plan"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResult-OrderPlan"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "User's plans",
+        "tags": [
+          "plans"
+        ]
+      }
+    },
+    "/users/{userid}/plans/summary": {
+      "get": {
+        "description": "Gets a summary of plans for a user (already purchased or allocated)\nThis can list unused, and used plans with the `consumed` query parameter",
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Filter by plans that have already been consumed by devices or not",
+            "in": "query",
+            "name": "consumed",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserPlanSummaryEntry"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Summary of plans",
+        "tags": [
+          "plans"
         ]
       }
     }
