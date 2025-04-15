@@ -23,6 +23,8 @@ These pages can be seen as a view of what is to come later this year.
 
 Used to interact with the device GPS service.
 
+Currently only accessible from Viper devices.
+
 </template>
 <template #right>
 
