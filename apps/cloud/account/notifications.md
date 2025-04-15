@@ -22,7 +22,12 @@ Receive notifications via email, to the email registered with your account.
 
 Notifications will look something like this.
 
+:::tabs
+== Low battery
 ![](https://i.imgur.com/teZScXJ.png)
+== Entering zone
+![](https://i.imgur.com/kUBZYaK.png)
+:::
 
 ## API Push
 
