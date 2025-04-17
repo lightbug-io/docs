@@ -438,6 +438,22 @@ messages:
         name: "Second"
         description: "Second"
         type: "uint8"
+  38:
+    name: "Button Press"
+    description: "Press of a device button"
+    group: "ungrouped"
+    methods:
+      SUBSCRIBE:
+      UNSUBSCRIBE:
+    data:
+      1:
+        name: "Button ID"
+        description: "ID of the button, 0 indexed"
+        type: "uint8"
+      2:
+        name: "Duration"
+        description: "Duration of the button press in ms"
+        type: "uintn"
   39:
     name: "GPS Control"
     description: "Control the GPS of the device"
@@ -896,24 +912,6 @@ messages:
         name: "Don't draw"
         description: "Set if the bitmap should not (yet) be drawn, but the data should be cached for later use"
         type: "uint8"
-  10013:
-    name: "Button Press"
-    description: "Press UX button"
-    group: "ungrouped"
-    methods:
-      SUBSCRIBE:
-      UNSUBSCRIBE:
-    data:
-      3:
-        name: "Page ID"
-        type: "uintn"
-      4:
-        name: "Button ID"
-        type: "uintn"
-      5:
-        name: "Selection ID"
-        description: "Can be used if the button relates to something being selected on the page, such as in a menu"
-        type: "uintn"
   # 10014:
   #   name: "Full Refresh"
   #   description: "Full refresh of UX"

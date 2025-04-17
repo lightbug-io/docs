@@ -15,7 +15,7 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 10013: Button Press
+# 38: Button Press
 
 ::: danger Not yet documented
 :::
@@ -47,4 +47,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="10013"/>
+<GenerateConsts :messageId="38"/>
