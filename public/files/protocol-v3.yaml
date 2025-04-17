@@ -900,6 +900,9 @@ messages:
     name: "Button Press"
     description: "Press UX button"
     group: "ungrouped"
+    methods:
+      SUBSCRIBE:
+      UNSUBSCRIBE:
     data:
       3:
         name: "Page ID"
