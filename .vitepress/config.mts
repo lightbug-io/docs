@@ -601,6 +601,7 @@ export default withMermaid(defineConfig({
             { text: 'Configs', link: '/apps/admin/configs' },
             { text: 'Users', link: '/apps/admin/users' },
             { text: 'Invoice Audit', link: '/apps/admin/invoice-audit' },
+            { text: 'Plans', link: '/apps/admin/plans' },
           ],
         }
       ],
