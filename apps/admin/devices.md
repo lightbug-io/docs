@@ -31,6 +31,8 @@ Some actions can be applied on a per device level, these all exist on the right 
 
 Clicking on the manage users icon will open a dialog allowing you to add or remove users from the device.
 
+Users can have different global permissions, which can be controlled from the [users page](/apps/admin/users#permissions).
+
 ![](https://i.imgur.com/yIbkNpT.png)
 
 Clicking `Add User`, open an additional dialog allowing you to select a user from the list of users on your account, or create a new user.
