@@ -12,6 +12,7 @@ const redirects = Object.entries({
   '/silos': '/onprem',
   '/terminology': '/terminology',
   '/guides/troubleshooting': '/faq/troubleshooting',
+  '/devices/legacy': '/devices/history',
   '/devices/api/parse': '/devices/api/tools/parse',
   '/devices/api/generate': '/devices/api/tools/generate'
 })

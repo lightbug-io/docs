@@ -2,17 +2,15 @@
 aside: true
 outline: deep
 ---
-# Legacy
+# History
 
 We have continually iterated on our devices over the years, and have a number of legacy core devices that are still in use by customers around the world.
 
 Not to mention our many custom devices that have been designed and manufactured for specific projects or clients.
 
-If you have questions about a device thatis not currently listed as a core device, please [contact us](https://lightbug.io/contact/).
+If you have questions about a device that is not currently listed as a core device, please [contact us](https://lightbug.io/contact/).
 
 ## Timeline
-
-Includes legacy and current devices.
 
 <!-- TODO better pictures -->
 

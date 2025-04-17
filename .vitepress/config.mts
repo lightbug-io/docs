@@ -245,11 +245,11 @@ export default withMermaid(defineConfig({
               link: '/devices/peripherals',
             },
             {
-              text: 'Legacy',
-              link: '/devices/legacy',
+              text: 'History',
+              link: '/devices/history',
               collapsed: true,
               items: [
-                { text: 'VT2', link: '/devices/legacy/VT2' },
+                { text: 'VT2', link: '/devices/history/VT2' },
               ]
             }
           ]
