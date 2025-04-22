@@ -400,7 +400,7 @@ export default {
                         pixels: (endRow - startRow + 1) * gridWidth,
                         cArrayOutput: cArray.join(','),
                     }
-                    box.msgBytes = this.screenBoxToMsgBytes(box, (endRow != gridHeight - 1));
+                    box.msgBytes = this.box2msgb(box, this.pageId, (endRow === gridHeight - 1), (startRow === 0), (endRow === gridHeight - 1));
                     this.exportBoxes.push(box);
                     startRow = endRow + 1;
                 }
@@ -416,67 +416,71 @@ export default {
                     cArrayOutput: cArray.join(',')
                 };
                 if (box.bytes <= 255) {
-                    box.msgBytes = this.screenBoxToMsgBytes(box, false);
+                    box.msgBytes = this.box2msgb(box, this.pageId, true, true, true);
                 } else {
                     box.msgBytes = "Too many bytes to fit in a message";
                 }
                 this.exportBoxes.push(box);
             }
         },
-        screenBoxToMsgBytes(box, dontDraw) {
-            const intTouint16LE = (num) => {
+        box2msgb(box, pageId, onlyOneLeft=true, isFirst=true, isLast=true) {
+            const ui16le = (num) => {
                 return [num & 0xff, (num >> 8) & 0xff];
             };
             let b = [];
             b.push(3);
-            // placeholder for length
             b.push(255);
             b.push(255);
-            // msg type
-            b.push(...intTouint16LE(10011));
-            // no header fields
+            b.push(...ui16le(10011));
             b.push(0);
             b.push(0);
-            // add data
-            let data = new Map();
-            data.set(3, [this.pageId]);
-            data.set(21, [box.exportPositionX]);
-            data.set(22, [box.exportPositionY]);
-            data.set(23, [box.exportSizeX]);
-            data.set(24, [box.exportSizeY]);
-            data.set(25, box.cArrayOutput.split(',').map(byte => parseInt(byte, 16)));
-            // only draw the last box
-            if (dontDraw) {
-                data.set(27, [1]);
-            }
-            console.log(data);
-            b.push(...intTouint16LE(data.size));
-            for (let [key, value] of data) {
+            let d = new Map();
+            d.set(3, [pageId]);
+            d.set(7, [box.exportPositionX]);
+            d.set(8, [box.exportPositionY]);
+            d.set(9, [box.exportSizeX]);
+            d.set(10, [box.exportSizeY]);
+            d.set(25, box.cArrayOutput.split(',').map(byte => parseInt(byte, 16)));
+            if(onlyOneLeft && isFirst) {
+            d.set(6, [2]); // FullRedraw
+            } else {
+            if(isFirst) {
+            d.set(6, [5]); // ClearDontDraw
+            } else if(isLast) {
+            d.set(6, [4]); // FullRedrawWithoutClear
+            } else {
+            d.set(6, [3]); // BufferOnly
+            }}
+            b.push(...ui16le(d.size));
+            for (let [key, value] of d) {
                 b.push(key);
             }
-            for (let [key, value] of data) {
+            for (let [key, value] of d) {
                 b.push(value.length);
                 b.push(...value);
             }
-            // backfill len
             const length = b.length + 2;
             b[1] = length & 0xff;
             b[2] = (length >> 8) & 0xff;
+            // Just add 255 255 to the end, and the /post receiver will do the csum
+            // b.push(255);
+            // b.push(255);
+            b.push(...ui16le(this.bToCsum(b)));
+            if (this.exportHex) {
+                let s = b.map(byte => '0x' + byte.toString(16).padStart(2, '0').toUpperCase()).join(',');
+                console.log(s);
+                return s;
+            }
+            return b.toString();
+        },
+        bToCsum(b) {
             const calculateChecksum = (message) => {
                 let crc = crc16(new Int8Array(message));
                 return crc.toString(16);
             };
             let csumHex = calculateChecksum(b);
             let csumNum = parseInt(csumHex, 16);
-            b.push(...intTouint16LE(csumNum));
-            if (this.exportHex) {
-                let s = b.map(byte => '0x' + byte.toString(16).padStart(2, '0').toUpperCase()).join(',');
-                console.log(s);
-                return s;
-            }
-            let s = b.toString();
-            console.log(s);
-            return s
+            return csumNum;
         },
         triggerFileInput() {
             this.$refs.fileInput.click();
