@@ -31,10 +31,18 @@ Tokens might look something like this:
 
 ## Version 2
 
+You can either use the [login](#login) endpoint to get a token from a username and password, and refresh this token using the [refreshToken](#refresh-token) endpoint.
+
+Or you can alternatively generate a longer life [access token](/apis/v2/post-users-personalAccessTokens) for an account.
+
 <OAOperation operationId="post-users-login" :spec="spec2" :isDark="isDark" :hideBranding="true"/>
 
 <OAOperation operationId="post-users-refreshToken" :spec="spec2" :isDark="isDark" :hideBranding="true"/>
 
 ## Version 1
+
+The Version 1 API only supports a [login](#login) endpoint which gives a short lived TTL token.
+
+If you require more flexibility, you should use the Version 2 API endpoints.
 
 <OAOperation operationId="post-users-login" :spec="spec1" :isDark="isDark" :hideBranding="true"/>
