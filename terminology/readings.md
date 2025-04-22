@@ -24,21 +24,23 @@ Different interfaces may expose these details in different ways, and you are enc
 
 Each reading has a `type` attribute, which indicates what kind of reading it is, and thus the type of data to expect.
 
+These types can also be used to filter the data.
+
 These reading types are sent from most devices:
 
-- temp
-- ble_seen
-- chg_voltage
+- temp: Temperature
+- ble_seen: Data associated with a Bluetooth device seen by the device
+- chg_voltage: Charging voltage
 
 Some readings will only be sent by devices that have additional sensors built in, such as the [Enviro](/devices/enviro/):
 
-- humidity_bme
-- pressure_bme
-- temp_bme
+- humidity_bme: Humidity from the BME sensor
+- pressure_bme: Pressure from the BME sensor
+- temp_bme: Temperature from the BME sensor
 
 Or by devices that plug into power, such as the [Vehicle Tracker](/devices/vehicle/):
 
-- ext_voltage
+- ext_voltage: External voltage being supplied to the device
 
 Many other sensor readings are available, and will continue to be documented here.
 

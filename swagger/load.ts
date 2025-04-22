@@ -62,6 +62,7 @@ const v1DescriptionOverrides = {
     'get-users-id-getDeviceSummary': 'Lists all devices for a user, with a summary of state, including most resent points.',
     'get-devices-id-deactivate': 'Deactivates a device.',
     'get-devices-id-activateOnResellerPlan': 'Activates a device on a reseller plan.\n\nThis is a special endpoint for resellers to activate a device on a reseller plan.\n\nIf you want to activate a device on a modern plan, see the V2 API.',
+    'get-devices-id-readings': "Gets [readings](/terminology/readings) that a device has taken, such as battery voltage, temperature, humidity etc.\n\nUse [filtering](/apis/v1/filtering) to get a specific [type](/terminology/readings#types).",
 }
 
 const v1Deprecated = [
@@ -156,7 +157,7 @@ const V1ParamExamples = {
     'get-devices-id-points': {
         'filter': [
             '{"limit":10,"order":["timestamp DESC"]}',
-            '{"where":{"between":["2024-12-01T00:00:00.000Z","2024-12-01T23:59:59.999Z"]},"order":["timestamp DESC"]}',
+            '{"where":{"timestamp":{"between":["2024-12-01T00:00:00.000Z","2024-12-01T23:59:59.999Z"]}},"order":["timestamp DESC"]}',
         ],
     },
     'get-devices-id-activateOnResellerPlan': {
@@ -164,6 +165,13 @@ const V1ParamExamples = {
         'resellerPlanId': '10',
         'expiry': [Date.now() + (365 * 24 * 60 * 60 * 1000)]
     },
+    'get-devices-id-readings': {
+        'filter': [
+            '{"limit":10,"order":["timestamp DESC"]}',
+            '{"where":{"type":"temp"},"limit":10,"order":["timestamp DESC"]}',
+            '{"where":{"type":"temp","timestamp":{"between":["2024-12-01T00:00:00.000Z","2024-12-01T23:59:59.999Z"]}},"order":["timestamp DESC"]}',
+        ],
+    }
 }
 
 const V1ResponseExamples = {
