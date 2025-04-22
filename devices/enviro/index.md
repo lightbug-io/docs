@@ -19,7 +19,7 @@ Our core tracking device with additional environmental sensors.
 | Sensors               | High accuracy Temperature & Humidity Sensors, Orientation, Accelerometer, External Bluetooth |
 | Memory                | up to 1000 locations update when they can't be transmitted                                   |
 | IP rating             | Shockproof                                                                                   |
-| Operating Temperature | -20°C to 60°C                                                                                |
+| Operating Temperature | -20°C to 60°C ¹                                                                              |
 | Buttons               | 1                                                                                            |
 | LEDs                  | 6 (4x battery, 2x status)                                                                    |
 | Sound                 | Buzzer                                                                                       |
@@ -27,6 +27,8 @@ Our core tracking device with additional environmental sensors.
 | Additional            |                                                                                              |
 | Typical Usage         | For tracking temperature & humidity sensitive non powered assets                                                                                         |
 | Optional              | NFC                                                                                          |
+
+<small>¹ All device batteries can be [customized](/devices/custom) down to -40°C with other tradeoffs, please contact us for more information.</small>
 
 ## Charging
 

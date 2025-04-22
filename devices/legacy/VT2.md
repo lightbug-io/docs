@@ -21,10 +21,12 @@ Built up to 2024.
 | Sensors               | Temperature, Orientation, Accelerometer, External Bluetooth, Voltage, Ignition |
 | Memory                | up to 1000 locations update when they can't be transmitted                     |
 | IP rating             | IP65 & Shockproof                                                              |
-| Operating Temperature | 0°C to 60°C                                                                    |
+| Operating Temperature | 0°C to 60°C ¹                                                                  |
 | Buttons               | 1                                                                              |
 | LEDs                  | 7 (4x battery, 2x status, 1x power)                                                                             |
 | Sound                 | None                                                                           |
 | Power                 | Supports 6-100v DC (overvoltage protection to 200v), via 3 pin Julet  connector |
 | Additional            | Configurable maximum power draw                                                |
 | Typical Usage         | Tracking of powered assets |
+
+<small>¹ All device batteries can be [customized](/devices/custom) down to -40°C with other tradeoffs, please contact us for more information.</small>

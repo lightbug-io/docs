@@ -19,7 +19,7 @@ Our general purpose core GPS tracking device.
 | Sensors               | Temperature, Orientation, Accelerometer, External Bluetooth |
 | Memory                | up to 1000 locations update when they can't be transmitted  |
 | IP rating             | IP66 & Shockproof                                           |
-| Operating Temperature | -20°C to 60°C                                               |
+| Operating Temperature | -20°C to 60°C ¹                                             |
 | Buttons               | 1                                                           |
 | LEDs                  | 6 (4x battery, 2x status)                                   |
 | Sound                 | Buzzer                                                      |
@@ -28,6 +28,8 @@ Our general purpose core GPS tracking device.
 | Typical Usage         | Tracking non powered assets, for long time deployments   |
 | Mounting options | Adhesive pad, container mount, magnetic mount |
 | Optional              | NFC                                                         |
+
+<small>¹ All device batteries can be [customized](/devices/custom) down to -40°C with other tradeoffs, please contact us for more information.</small>
 
 ## Charging
 
