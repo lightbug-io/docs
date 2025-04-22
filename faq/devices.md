@@ -21,11 +21,9 @@ The best way to find out the estimated battery life is to use our [battery life 
 
 ## Can the devices operate in extreme weather conditions?
 
-Generally the devices have an operating temperature of -20°C to 60°C (device specific operating temperatures are available on the dedicated device webpages). In both the extremely higher and lower temperatures the battery life of the trackers may be affected.
-
-We do have devices operating in the Middle East.
-
-We can supply Lightbug Pros with a -55°C to 65°C operational range, [let us know](https://lightbug.io/contact/) if you would like more information about these devices.
+Device operating temperature differs between different models and versions, so the device specification should be checked.
+All current core devices operate between 0°C to 50°C, if you have other requirements this can be customized.
+In both the extremely higher and lower temperatures the battery life of devices may be affected.
 
 ## Are the devices waterproof?
 

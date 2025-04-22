@@ -19,7 +19,7 @@ Our smallest core GPS tracking device.
 | Sensors               | Temperature, Orientation, Accelerometer, External Bluetooth |
 | Memory                | up to 1000 locations update when they can't be transmitted  |
 | IP rating             | IP66 & Shockproof                                           |
-| Operating Temperature | 0°C to 50°C                                                 |
+| Operating Temperature | 0°C to 50°C ¹                                               |
 | Buttons               | 1                                                           |
 | LEDs                  | 6 (4x battery, 2x status)                                   |
 | Sound                 | Buzzer                                                      |
@@ -28,6 +28,8 @@ Our smallest core GPS tracking device.
 | Typical Usage         | For tracking non powered assets, where you have a size or weight restriction  |
 | Mounting options | Adhesive pad, screw mount, keyring hole                                                      |
 | Optional              | NFC                                                         |
+
+<small>¹ All device batteries can be [customized](/devices/custom) down to -40°C with other tradeoffs, please contact us for more information.</small>
 
 ## Exterior
 
