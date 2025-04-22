@@ -167,6 +167,56 @@ const V1ParamExamples = {
 }
 
 const V1ResponseExamples = {
+    'get-users-id-getDeviceSummary': {
+        '200': {
+            'application/json': {
+                'schema': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'object',
+                        'properties': {
+                            'id': { 'type': 'number' },
+                            'name': { 'type': 'string' },
+                            'serial': { 'type': 'string' },
+                            'type': { 'type': 'string' },
+                            'latestPoints': {
+                                'type': 'array',
+                                'items': {
+                                    'type': 'object',
+                                    'properties': {
+                                        'location': {
+                                            'type': 'object',
+                                            'properties': {
+                                                'lng': { 'type': 'number' },
+                                                'lat': { 'type': 'number' }
+                                            }
+                                        },
+                                        'timestamp': { 'type': 'string', 'format': 'date-time' },
+                                        'speed': { 'type': ['number', 'null'] },
+                                        'altitude': { 'type': ['number', 'null'] },
+                                        'course': { 'type': ['number', 'null'] },
+                                        'sendReason': { 'type': 'number' },
+                                        'accuracy': { 'type': 'number' },
+                                        'locationType': { 'type': 'string' },
+                                        'averageCharge': { 'type': ['number', 'null'] },
+                                        'created': { 'type': 'string', 'format': 'date-time' },
+                                        'address': { 'type': 'string' },
+                                        'alertType': { 'type': ['string', 'null'] },
+                                        'gsmSignal': { 'type': 'number' },
+                                        'correlationId': { 'type': 'string' },
+                                        'id': { 'type': 'number' },
+                                        'deviceId': { 'type': 'number' }
+                                    }
+                                }
+                            },
+                            'config': { 'type': 'object' },
+                            'subscription': { 'type': 'object' }
+                        }
+                    }
+                }
+            }
+        }
+    },
     'post-reports-activity': {
         '200': {
             'application/json': {
