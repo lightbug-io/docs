@@ -2,16 +2,6 @@
 aside: false
 ---
 
-<script setup lang="ts">
-import { useData } from 'vitepress'
-import { useTheme } from 'vitepress-openapi/client'
-const { isDark } = useData()
-import { loadSpec } from '../swagger/load'
-const spec1 = loadSpec(1)
-const spec2 = loadSpec(2)
-useTheme().setHeadingLevels({ h1: 3, h2: 4, h3: 5 })
-</script>
-
 # Authentication
 
 Authentication for the Lightbug APIs make use of Bearer tokens in the `Authorization` header.
