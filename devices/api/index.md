@@ -22,15 +22,24 @@ The protocol builds on top of existing Lightbug Protocols, and is designed to be
  - Easy to use and understand
  - Usable in a variety of settings, without complex dependencies
 
-## Example
+## API Access
 
-An example prefixed and minimal message might look as follows:
+API access depends on the device and may not be supported on all models.
+
+Typically, it can be accessed via UART, I2C, or a UDP network connection.
+
+For access details, please [contact our support team](https://lightbug.io/contact/).
+
+Or you can get started with Toit quickly using the Lightbug provided SDK.
+
+## Example Message
+
+An example [prefixed](structure#prefix) and minimal message might look as follows:
 
 | Format | Message |
 | ------ | --- |
 | Bytes  | 76 66 3 11 0 1 0 0 0 0 0 75 190 |
 | Hex | `4c 42 03 0b 00 01 00 00 00 00 00 4b be` |
-| Hex (0x notation)    | `0x4c 0x42 0x03 0x0b 0x00 0x01 0x00 0x00 0x00 0x00 0x00 0x4b 0xbe` |
 
 <ProtocolBytes
     byteString="76 66 3 11 0 1 0 0 0 0 0 75 190"

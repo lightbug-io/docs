@@ -27,6 +27,40 @@ Some actions can be applied on a per device level, these all exist on the right 
 - Display device information
 - Migrate
 
+### Manage Users
+
+Clicking on the manage users icon will open a dialog allowing you to add or remove users from the device.
+
+Users can have different global permissions, which can be controlled from the [users page](/apps/admin/users#permissions).
+
+![](https://i.imgur.com/yIbkNpT.png)
+
+Clicking `Add User`, open an additional dialog allowing you to select a user from the list of users on your account, or create a new user.
+
+#### Add Existing user
+
+In order to select an existing user, click on their name from the list.
+
+![](https://i.imgur.com/5aFeQlp.png)
+
+On success, you'll see a confirmation message in the top right corner.
+
+#### Add New user
+
+To create a new user, click on the `Create New` button.
+
+This will open a dialog allowing you to enter the new users details.
+
+![](https://i.imgur.com/hKBzdYU.png)
+
+Once you have entered the details, click `Create` to create the user.
+
+On success, you'll see a confirmation message in the top right corner.
+
+#### Remove a user
+
+To remove a user from the device, click on the `X` icon next to their name.
+
 ### Device information
 
 Verbose information about the device, such as the last known location, battery level, and more.

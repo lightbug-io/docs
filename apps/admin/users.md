@@ -18,8 +18,8 @@ Selecting `Change permissions` will present you with some options for specific p
 
 | Name | Description |
 | --- | --- |
-| Default | |
-| View Only | |
-| Recent View Only | |
-| Enable Reporting | |
-| Hide Adv. Config | |
+| Default | General access to devices |
+| View Only | Allows viewing data only |
+| Recent View Only | Allows viewing a short period (24-48 hours) of device data |
+| Enable Reporting | Allows a view only user to also run reports |
+| Hide Adv. Config | Hides access to change the advanced settings on trackers |

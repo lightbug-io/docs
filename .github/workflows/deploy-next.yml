@@ -5,11 +5,6 @@ on:
     branches:
       - main
 
-env:
-  DEPLOYMENT_NAME: "Next"
-  SECRET_PREFIX: NEXT_
-  SOURCE_DIR: .vitepress/dist
-
 # https://github.com/ouzi-dev/commit-status-updater/tree/v2/#workflow-permissions
 permissions:
   contents: read
@@ -36,9 +31,9 @@ jobs:
       - name: Set deployment status
         uses: ouzi-dev/commit-status-updater@v2
         with:
-          name: Deploy to ${{ env.DEPLOYMENT_NAME }}
+          name: Deploy
           status: pending
-          description: Preparing deploy to ${{ env.DEPLOYMENT_NAME }}
+          description: Preparing deploy
 
       - name: Install
         run: npm ci
@@ -54,34 +49,34 @@ jobs:
         with:
           args: --delete
         env:
-          AWS_S3_BUCKET: ${{ vars[format('{0}BUCKET_NAME', env.SECRET_PREFIX)] }}
-          AWS_ACCESS_KEY_ID: ${{ secrets[format('{0}KEY', env.SECRET_PREFIX)] }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets[format('{0}SECRET', env.SECRET_PREFIX)] }}
-          AWS_REGION: ${{ vars[format('{0}REGION', env.SECRET_PREFIX)] }}
-          SOURCE_DIR: ${{ env.SOURCE_DIR }}
+          AWS_S3_BUCKET: ${{ vars.NEXT_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.NEXT_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.NEXT_SECRET }}
+          AWS_REGION: ${{ vars.NEXT_REGION }}
+          SOURCE_DIR: .vitepress/dist
 
       - name: Set success deployment status
         if: success()
         uses: ouzi-dev/commit-status-updater@v2
         with:
-          name: Deploy to ${{ env.DEPLOYMENT_NAME }}
+          name: Deploy
           status: success
-          description: Deploy ready for ${{ env.DEPLOYMENT_NAME }}!
-          url: ${{ vars[format('{0}URL', env.SECRET_PREFIX)] }}
+          description: Deploy ready
+          url: ${{ vars.NEXT_URL }}
 
       - name: Set failed deployment status
         if: failure()
         uses: ouzi-dev/commit-status-updater@v2
         with:
-          name: Deploy to ${{ env.DEPLOYMENT_NAME }}
+          name: Deploy
           status: failure
-          description: Failed to deploy to ${{ env.DEPLOYMENT_NAME }}
+          description: Failed to deploy
 
       - name: Invalidate CloudFront
         uses: chetan/invalidate-cloudfront-action@v2
         env:
-          DISTRIBUTION: ${{ vars[format('{0}DISTRIBUTION', env.SECRET_PREFIX)] }}
+          DISTRIBUTION: ${{ vars.NEXT_DISTRIBUTION }}
           PATHS: "/ /*"
-          AWS_REGION: ${{ vars[format('{0}REGION', env.SECRET_PREFIX)] }}
-          AWS_ACCESS_KEY_ID: ${{ secrets[format('{0}KEY', env.SECRET_PREFIX)] }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets[format('{0}SECRET', env.SECRET_PREFIX)] }}
+          AWS_REGION: ${{ vars.NEXT_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.NEXT_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.NEXT_SECRET }}

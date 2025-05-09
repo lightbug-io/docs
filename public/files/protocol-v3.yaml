@@ -246,11 +246,11 @@ messages:
         type: "uint16"
       6:
         name: "Course Over Ground"
-        description: "Course over ground. Divide by 1e2 to get the value in degrees."
+        description: "Course over ground centi-degrees (cd). Divide by 1e2 to get the value in degrees."
         type: "uint16"
       7:
         name: "Speed"
-        description: "Divide by 1e2 to get the value in km/h."
+        description: "Speed in meters per second (m/s). Divide by 1e2 to get the value in km/h."
         type: "uint16"
       8:
         name: "Number of Satellites"
@@ -438,6 +438,22 @@ messages:
         name: "Second"
         description: "Second"
         type: "uint8"
+  38:
+    name: "Button Press"
+    description: "Press of a device button"
+    group: "ungrouped"
+    methods:
+      SUBSCRIBE:
+      UNSUBSCRIBE:
+    data:
+      1:
+        name: "Button ID"
+        description: "ID of the button, 0 indexed"
+        type: "uint8"
+      2:
+        name: "Duration"
+        description: "Duration of the button press in ms"
+        type: "uintn"
   39:
     name: "GPS Control"
     description: "Control the GPS of the device"
@@ -620,6 +636,38 @@ messages:
         name: "Timings"
         description: "Array of timings in ms as uint16"
         type: "uint16[]"
+  47:
+    name: "CPU2 Sleep"
+    description: "See how much power is being used by the device, between subscription and un-subscription time."
+    group: "ungrouped"
+    methods:
+      DO:
+    data:
+      1:
+        name: "Interval"
+        description: "Interval in ms to turn off the CPU2 for, before turning it back on"
+        type: "uint32"
+      2:
+        name: "Wake on Event"
+        description: "Should CPU1 wake up CPU2 on new events / messages"
+        type: "uint8"
+  48:
+    name: "Power Profile"
+    description: "See how much power is being used by the device, between subscription and un-subscription time."
+    group: "ungrouped"
+    methods:
+      SUBSCRIBE:
+        interval: ">= 300"
+      UNSUBSCRIBE:
+    data:
+      3:
+        name: "Total power"
+        description: "Total power used in mAH"
+        type: "float32"
+      4:
+        name: "Current now"
+        description: "Current power usage in mA"
+        type: "float32"
   50:
     name: "Link Control"
     description: "Control a link to the internet to send and receive messages"
@@ -640,6 +688,40 @@ messages:
             name: "Enable"
           2:
             name: "Disable"
+  53:
+    name: "Ublox Protection Level"
+    description: "Get information about the ublox protection level"
+    group: "ungrouped"
+    # Only supports GET
+    data:
+      1:
+        name: "PL Valid"
+        description: "Indicates if the protection level is valid"
+        type: "uint8"
+      2:
+        name: "PL X"
+        description: "Protection level in the X direction in mm"
+        type: "uint32"
+      3:
+        name: "PL Y"
+        description: "Protection level in the Y direction in mm"
+        type: "uint32"
+      4:
+        name: "PL Z"
+        description: "Protection level in the Z direction in mm"
+        type: "uint32"
+      5:
+        name: "Horizontal Orientation"
+        description: "Horizontal orientation of the protection level"
+        type: "uint16"
+      6:
+        name: "TMIR Coefficient"
+        description: "TMIR coefficient for protection level calculation"
+        type: "uint8"
+      7:
+        name: "TMIR Exponent"
+        description: "TMIR exponent for protection level calculation"
+        type: "int8"
   1004:
     name: "LORA"
     group: "ungrouped"
@@ -830,21 +912,6 @@ messages:
         name: "Don't draw"
         description: "Set if the bitmap should not (yet) be drawn, but the data should be cached for later use"
         type: "uint8"
-  10013:
-    name: "Button Press"
-    description: "Press UX button"
-    group: "ungrouped"
-    data:
-      3:
-        name: "Page ID"
-        type: "uintn"
-      4:
-        name: "Button ID"
-        type: "uintn"
-      5:
-        name: "Selection ID"
-        description: "Can be used if the button relates to something being selected on the page, such as in a menu"
-        type: "uintn"
   # 10014:
   #   name: "Full Refresh"
   #   description: "Full refresh of UX"

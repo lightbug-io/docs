@@ -245,11 +245,11 @@ export default withMermaid(defineConfig({
               link: '/devices/peripherals',
             },
             {
-              text: 'Legacy',
-              link: '/devices/legacy',
+              text: 'History',
+              link: '/devices/history',
               collapsed: true,
               items: [
-                { text: 'VT2', link: '/devices/legacy/VT2' },
+                { text: 'VT2', link: '/devices/history/VT2' },
               ]
             }
           ]
@@ -278,6 +278,7 @@ export default withMermaid(defineConfig({
             },
             {
               text: 'Structure',
+              collapsed: true,
               link: '/devices/api/structure',
               items: [
                 {
@@ -300,11 +301,13 @@ export default withMermaid(defineConfig({
             },
             {
               text: 'Messages',
+              collapsed: true,
               link: '/devices/api/messages',
               items: protocolMenuItems,
             },
             {
               text: 'Tools',
+              collapsed: true,
               items: [
                 {
                   text: 'Generate',
@@ -317,6 +320,26 @@ export default withMermaid(defineConfig({
                 {
                   text: 'Screen',
                   link: '/devices/api/tools/screen',
+                },
+              ]
+            },
+            {
+              text: 'SDKs',
+              collapsed: true,
+              items: [
+                {
+                  text: 'Toit',
+                  link: '/devices/api/sdks/toit/',
+                  items: [
+                    { text: 'Getting Started', link: '/devices/api/sdks/toit/getting-started' },
+                    {
+                      text: 'Examples',
+                      link: '/devices/api/sdks/toit/examples',
+                      items: [
+                        { text: 'EInk Hello World', link: '/devices/api/sdks/toit/examples/eink' },
+                      ]
+                    },
+                  ],
                 },
               ]
             },
@@ -578,6 +601,7 @@ export default withMermaid(defineConfig({
             { text: 'Configs', link: '/apps/admin/configs' },
             { text: 'Users', link: '/apps/admin/users' },
             { text: 'Invoice Audit', link: '/apps/admin/invoice-audit' },
+            { text: 'Plans', link: '/apps/admin/plans' },
           ],
         }
       ],

@@ -1,6 +1,6 @@
 # Permissions
 
-All accoutnts can access the admin panel.
+All accounts can access the admin panel.
 
 Different permissions will reveal different interfaces in the side bar.
 
