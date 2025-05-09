@@ -10,8 +10,8 @@ The API data representation is very close to underlying data storage models, and
 
 For a more modern, higher level experience, we recommend the [V2 API](./../v2/), where endpoints allow.
 
-### Base URL
-
-```
-https://api.lightbug.cloud/api
-```
+<script setup lang="ts">
+import { loadSpec } from '../../swagger/load'
+const spec = loadSpec(1)
+</script>
+<OAServers :spec="spec" />

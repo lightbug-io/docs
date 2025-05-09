@@ -1,6 +1,5 @@
 ---
-aside: true
-outline: [1,3]
+aside: false
 ---
 
 <script setup lang="ts">
@@ -17,32 +16,20 @@ useTheme().setHeadingLevels({ h1: 3, h2: 4, h3: 5 })
 
 Authentication for the Lightbug APIs make use of Bearer tokens in the `Authorization` header.
 
-API calls that require authentication must have a bearer token submitted as part of the request.
+API calls that require authentication must have a bearer token submitted in the header, such as `Authorization: <token>`.
 
-```sh
-curl -X GET "https://api.lightbug.cloud/apiEndpoint" -H "Authorization: <token>"'
-```
+Tokens can be used universally across the various Lightbug API versions.
 
-Tokens can be generated from both the v1 and v2 REST APIs, and tokens from either API can be used to authenticate requests to either API.
+## Recommended
 
-Tokens might look something like this:
- - `aLB1MKbtxLBb02A0fLFUwJ2nLBMaEFeo8ZLB0gHNCTYIGTJ12oBLB0FMlLBjAlLB`
- - `xLBJhbGciOiJIUzILBiIsILBhjd76IkpXCJ9.eyJle2hs0cy3MjMwMjk1OTjkdhcmcyI6ImdnIiwianRpIjoiZ0luLXNhN3BWYjFTNnhOZFAkchdy2kF2RzlFYzhfV0hlVnJUFUQ0QjN4X3BrbLBvcFh2VUMtX2poM0d0cVlkZ2dvVUUxZ3k0ckg4YTJPNDFxVW8PdUw4OHNPR2hQlkjdbxpWMjU5UE1vb3N5bVFHbmxibW1iYlZRYkNuN2tnRUllTLBLSksyNlNEOEpqbW1qSS15ZjBJSnZHU3NCeWhBekN3R1dwTXhoLBFrcE9VbS1lVkxTb1pwYUlhWkhkQlVycWtlUi1aNE55SnF4SEg4ZmpUaGw1bE81aHZFNVY1lkg890FCTk85anZjMlRRcGdiUGN0dGNazsdfyzBGOFdzIiwibmFtZSI6ImFkYW1AbGllkHRidWcuaW8iLCJzdWIiOjM4MDh9.LBpcVEbm0sywbcPScTg9j54SxdNydJuC_vncrh-fDps`
+We recommend using the latest version of the API for authentication.
 
-## Version 2
+ - **POST** `/v2/users/login` [Username & Password login (preferred)](/apis/v2/post-users-login)
+ - **POST** `/v2/users/refreshToken` [Optionally refresh a login token](/apis/v2/post-users-refreshToken)
+ - **POST** `/v2/users/personalAccessTokens` [Generate a personal access token (longer life)](/apis/v2/post-users-personalAccessTokens)
 
-You can either use the [login](#login) endpoint to get a token from a username and password, and refresh this token using the [refreshToken](#refresh-token) endpoint.
+## Legacy
 
-Or you can alternatively generate a longer life [access token](/apis/v2/post-users-personalAccessTokens) for an account.
+The V1 API is still available for authentication, but does not support refresh tokens or personal access tokens.
 
-<OAOperation operationId="post-users-login" :spec="spec2" :isDark="isDark" :hideBranding="true"/>
-
-<OAOperation operationId="post-users-refreshToken" :spec="spec2" :isDark="isDark" :hideBranding="true"/>
-
-## Version 1
-
-The Version 1 API only supports a [login](#login) endpoint which gives a short lived TTL token.
-
-If you require more flexibility, you should use the Version 2 API endpoints.
-
-<OAOperation operationId="post-users-login" :spec="spec1" :isDark="isDark" :hideBranding="true"/>
+ - **POST** `/api/users/login` [Username & Password login](/apis/v1/post-users-login)
