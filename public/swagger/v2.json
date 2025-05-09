@@ -1,7 +1,60 @@
 {
   "components": {
     "schemas": {
-      "BuyPlansRequest": {
+      "httputil.HTTPError": {
+        "properties": {
+          "code": {
+            "example": 400,
+            "type": "integer"
+          },
+          "message": {
+            "example": "status bad request",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "internal_api_handlers_v2_devices_byId.Optional-int32": {
+        "description": "Plan ID that the device should automatically renew onto in future billing cycles",
+        "properties": {
+          "defined": {
+            "type": "boolean"
+          },
+          "value": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "internal_api_handlers_v2_devices_byId.PutPlanInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/renewOnto"
+          }
+        ],
+        "properties": {
+          "ignoreSubscriptionSetup": {
+            "description": "Optional ignoring of subscription setup for non reseller users.\nIf the user has the plan already purchased, then don't setup a card or subscription if it does'nt exist...\nSubscriptions are already ignored for reseller users, so this option would not be needed for them.",
+            "type": "boolean"
+          },
+          "planId": {
+            "description": "Plan ID to be assigned to the device if available",
+            "type": "integer"
+          },
+          "renewOnto": {
+            "$ref": "#/components/schemas/internal_api_handlers_v2_devices_byId.Optional-int32"
+          },
+          "renewUntil": {
+            "description": "Optional date, at which the device will deactivate and plans will not be renewed",
+            "type": "string"
+          }
+        },
+        "required": [
+          "planId"
+        ],
+        "type": "object"
+      },
+      "internal_api_handlers_v2_users.BuyPlansRequest": {
         "properties": {
           "currency": {
             "description": "Currency to charge in (gbp, usd, eur)",
@@ -30,7 +83,129 @@
         ],
         "type": "object"
       },
-      "CreatePersonalAccessTokenRequest": {
+      "internal_api_handlers_v2_users.LoginRequest": {
+        "properties": {
+          "password": {
+            "description": "Password of the user",
+            "type": "string"
+          },
+          "refreshable": {
+            "description": "Generate a refresh token, which expires this many seconds after the access token expiry. Max 31 days",
+            "maximum": 2678400,
+            "type": "integer"
+          },
+          "username": {
+            "description": "TODO convert to email instead of username before publishing auth routes...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object"
+      },
+      "internal_api_handlers_v2_users.LoginResponse": {
+        "properties": {
+          "expiry": {
+            "description": "Expiry of the access token",
+            "type": "string"
+          },
+          "refreshToken": {
+            "description": "Optional: Single use refresh token, if refreshable is set",
+            "type": "string"
+          },
+          "refreshTokenExpiry": {
+            "description": "Optional: Expiry of the refresh token, if refreshable is set",
+            "type": "string"
+          },
+          "token": {
+            "description": "JWT access token",
+            "type": "string"
+          },
+          "userId": {
+            "description": "User ID of the logged in user",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expiry",
+          "token",
+          "userId"
+        ],
+        "type": "object"
+      },
+      "internal_api_handlers_v2_users.LogoutResponse": {
+        "type": "object"
+      },
+      "internal_api_handlers_v2_users.RefreshTokenRequest": {
+        "properties": {
+          "accessToken": {
+            "description": "Current access token (may be expired)",
+            "type": "string"
+          },
+          "refreshToken": {
+            "description": "Current refresh token",
+            "type": "string"
+          },
+          "refreshable": {
+            "description": "A new refresh token will be generated, with an expiry this many seconds after the access token expiry. Max 31 days",
+            "maximum": 2678400,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "refreshable"
+        ],
+        "type": "object"
+      },
+      "internal_api_handlers_v2_users.RefreshTokenResponse": {
+        "properties": {
+          "expiry": {
+            "description": "Expiry of the access token",
+            "type": "string"
+          },
+          "refreshToken": {
+            "description": "Single use refresh token",
+            "type": "string"
+          },
+          "refreshTokenExpiry": {
+            "description": "Expiry of the refresh token",
+            "type": "string"
+          },
+          "token": {
+            "description": "JWT access token",
+            "type": "string"
+          },
+          "userId": {
+            "description": "User ID of the logged in user",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expiry",
+          "refreshToken",
+          "refreshTokenExpiry",
+          "token",
+          "userId"
+        ],
+        "type": "object"
+      },
+      "internal_api_handlers_v2_users.UsersClaimDeviceRequest": {
+        "properties": {
+          "serial": {
+            "description": "Serial number of the device",
+            "type": "string"
+          }
+        },
+        "required": [
+          "serial"
+        ],
+        "type": "object"
+      },
+      "internal_api_handlers_v2_users_personalAccessTokens.Handler.request": {
         "properties": {
           "description": {
             "description": "Description of the token",
@@ -47,7 +222,184 @@
         ],
         "type": "object"
       },
-      "CreatePersonalAccessTokenResponse": {
+      "internal_api_handlers_v2_users_personalAccessTokens.ListPersonalAccessTokenResponse": {
+        "properties": {
+          "limit": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "tokens": {
+            "items": {
+              "$ref": "#/components/schemas/internal_api_handlers_v2_users_personalAccessTokens.TokenResponse"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "internal_api_handlers_v2_users_personalAccessTokens.TokenResponse": {
+        "properties": {
+          "created": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "ttl": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "internal_api_presentation.Plan": {
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "features": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "onoWhitelistId": {
+            "description": "Connectivity *string `json:\"connectivity\"`\nGroup        string  `json:\"group\"`\nResellerID *int32 `json:\"resellerId\"`\nResellerPlanID *int32  `json:\"resellerPlanId\"`\nArchived *int32 `json:\"archived\"`\nPlanType       string  `json:\"planType\"`",
+            "type": "integer"
+          },
+          "prices": {
+            "$ref": "#/components/schemas/internal_api_presentation.Pricing"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "sleepLimit": {
+            "type": "integer"
+          },
+          "wakeLimit": {
+            "description": "Term           string  `json:\"term\"`\nPrice          float64 `json:\"price\"`\nCurrency       string  `json:\"currency\"`\nOwnerID        int32   `json:\"ownerId\"`",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "internal_api_presentation.Pricing": {
+        "properties": {
+          "eur": {
+            "description": "breaks:  example:\"[0,1.99],[10,1.89]\"` // Array of quantity to price in EUR",
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "gbp": {
+            "description": "breaks:   example:\"[1,2.34],[10,2.22]\"` // Array of quantity to price in GBP",
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "tax": {
+            "$ref": "#/components/schemas/internal_api_presentation.Taxes"
+          },
+          "usd": {
+            "description": "breaks:   example:\"[1,4.35],[10,4.26]\"` // Array of quantity to price in USD",
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "uniqueItems": false
+          }
+        },
+        "type": "object"
+      },
+      "internal_api_presentation.Subscription": {
+        "properties": {
+          "_stripeSubscriptionId": {
+            "description": "(legacy) Stripe Subscription ID for per device subscriptions",
+            "type": "string"
+          },
+          "created": {
+            "type": "string"
+          },
+          "deviceId": {
+            "type": "integer"
+          },
+          "expires": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/internal_api_presentation.Plan"
+          },
+          "planId": {
+            "type": "integer"
+          },
+          "renewOnto": {
+            "type": "integer"
+          },
+          "userId": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "internal_api_presentation.Taxes": {
+        "properties": {
+          "eur": {
+            "example": 0,
+            "type": "number"
+          },
+          "gbp": {
+            "example": 20,
+            "type": "number"
+          },
+          "usd": {
+            "example": 0,
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "internal_api_presentation.UserPlanSummaryEntry": {
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/internal_api_presentation.Plan"
+          }
+        },
+        "type": "object"
+      },
+      "lightbug_io_gingin_internal_api_handlers_v2_users_personalAccessTokens.Handler.response": {
         "properties": {
           "created": {
             "type": "string"
@@ -75,10 +427,10 @@
         ],
         "type": "object"
       },
-      "DeletePersonalAccessTokenResponse": {
+      "lightbug_io_gingin_internal_api_handlers_v2_users_personalAccessTokens_byId.Handler.response": {
         "type": "object"
       },
-      "Device": {
+      "lightbug_io_gingin_internal_api_presentation.Device": {
         "properties": {
           "active": {
             "type": "boolean"
@@ -103,7 +455,7 @@
             "type": "string"
           },
           "config": {
-            "$ref": "#/components/schemas/DeviceConfig"
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.DeviceConfig"
           },
           "currentMode": {
             "description": "Indicates last known device state. 0 = awake, 1 = sleep, 6 = flight mode",
@@ -140,7 +492,7 @@
             "type": "string"
           },
           "meta": {
-            "$ref": "#/components/schemas/internal_api_presentation.DeviceMeta"
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.DeviceMeta"
           },
           "name": {
             "type": "string"
@@ -153,13 +505,13 @@
             "type": "integer"
           },
           "reseller": {
-            "$ref": "#/components/schemas/Reseller"
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Reseller"
           },
           "resellerId": {
             "type": "integer"
           },
           "resellerPlan": {
-            "$ref": "#/components/schemas/ResellerPlan"
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.ResellerPlan"
           },
           "resellerPlanId": {
             "type": "integer"
@@ -170,7 +522,7 @@
           "siloId": {},
           "stripeSubscription": {},
           "subscription": {
-            "$ref": "#/components/schemas/Subscription"
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Subscription"
           },
           "subscriptionType": {},
           "tags": {
@@ -186,7 +538,7 @@
           "users": {
             "description": "(optional) User IDs associated with this device",
             "items": {
-              "$ref": "#/components/schemas/UserStub"
+              "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.UserStub"
             },
             "type": "array",
             "uniqueItems": false
@@ -197,7 +549,7 @@
         },
         "type": "object"
       },
-      "DeviceConfig": {
+      "lightbug_io_gingin_internal_api_presentation.DeviceConfig": {
         "description": "(optional) Configuration",
         "properties": {
           "alertAction": {
@@ -280,7 +632,7 @@
             "type": "integer"
           },
           "reasonsToWake": {
-            "$ref": "#/components/schemas/DeviceConfigReasonsToWake"
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.DeviceConfigReasonsToWake"
           },
           "receivedAt": {
             "description": "The last time the settings were sent to the device",
@@ -321,7 +673,7 @@
         },
         "type": "object"
       },
-      "DeviceConfigReasonsToWake": {
+      "lightbug_io_gingin_internal_api_presentation.DeviceConfigReasonsToWake": {
         "properties": {
           "bluetooth": {
             "type": "boolean"
@@ -338,123 +690,63 @@
         },
         "type": "object"
       },
-      "ListPersonalAccessTokenResponse": {
-        "properties": {
-          "limit": {
-            "type": "integer"
-          },
-          "page": {
-            "type": "integer"
-          },
-          "tokens": {
-            "items": {
-              "$ref": "#/components/schemas/PersonalAccessTokenResponse"
-            },
-            "type": "array",
-            "uniqueItems": false
-          },
-          "total": {
-            "type": "integer"
-          }
-        },
+      "lightbug_io_gingin_internal_api_presentation.DeviceMeta": {
+        "additionalProperties": {},
         "type": "object"
       },
-      "LoginRequest": {
-        "properties": {
-          "password": {
-            "description": "Password of the user",
-            "type": "string"
-          },
-          "refreshable": {
-            "description": "Generate a refresh token, which expires this many seconds after the access token expiry. Max 31 days",
-            "maximum": 2678400,
-            "type": "integer"
-          },
-          "username": {
-            "description": "TODO convert to email instead of username before publishing auth routes...",
-            "type": "string"
-          }
-        },
-        "required": [
-          "password",
-          "username"
-        ],
-        "type": "object"
-      },
-      "LoginResponse": {
-        "properties": {
-          "expiry": {
-            "description": "Expiry of the access token",
-            "type": "string"
-          },
-          "refreshToken": {
-            "description": "Optional: Single use refresh token, if refreshable is set",
-            "type": "string"
-          },
-          "refreshTokenExpiry": {
-            "description": "Optional: Expiry of the refresh token, if refreshable is set",
-            "type": "string"
-          },
-          "token": {
-            "description": "JWT access token",
-            "type": "string"
-          },
-          "userId": {
-            "description": "User ID of the logged in user",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "expiry",
-          "token",
-          "userId"
-        ],
-        "type": "object"
-      },
-      "LogoutResponse": {
-        "type": "object"
-      },
-      "OrderPlan": {
+      "lightbug_io_gingin_internal_api_presentation.OrderPlan": {
         "properties": {
           "consumedByDeviceId": {
+            "description": "DEPRECATED, i favour of deviceId\nWill continue being returned until at least Mid 2025",
             "type": "integer"
           },
           "consumedOn": {
+            "description": "Date the plan has been consumed, if null then it has not been consumed",
             "type": "string"
           },
           "creditRemainingDays": {
+            "description": "If the plan is removed, should the remaining days be credited back to the user account?\nOften the case when plan upgrades have happened",
             "type": "boolean"
+          },
+          "deviceId": {
+            "description": "The device that has consumed the plan, if it has been consumed",
+            "type": "integer"
           },
           "id": {
             "type": "integer"
           },
           "needsPayment": {
+            "description": "Flag recording if payment may still be needed for this ordered plan\nIt may have been assigned before payment, such as for resellers",
             "type": "boolean"
           },
           "orderId": {
+            "description": "Order that the plan is associated with, if already paid via a regular order",
             "type": "integer"
           },
           "plan": {
-            "$ref": "#/components/schemas/Plan"
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Plan"
           },
           "planId": {
+            "description": "Plan that has been ordered",
             "type": "integer"
           },
           "removedOn": {
+            "description": "Date the plan has been removed from a device, can be used to detect partially consumed plans\nThis might also just be the end of the month",
             "type": "string"
           },
           "userId": {
+            "description": "User that has ordered the plan",
             "type": "integer"
           }
         },
         "type": "object"
       },
-      "PaginatedResult-OrderPlan": {
+      "lightbug_io_gingin_internal_api_presentation.PaginatedResult-lightbug_io_gingin_internal_api_presentation_Device": {
         "properties": {
           "data": {
             "description": "Paginated data",
             "items": {
-              "$ref": "#/components/schemas/OrderPlan"
+              "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Device"
             },
             "type": "array",
             "uniqueItems": false
@@ -478,27 +770,36 @@
         },
         "type": "object"
       },
-      "PersonalAccessTokenResponse": {
+      "lightbug_io_gingin_internal_api_presentation.PaginatedResult-lightbug_io_gingin_internal_api_presentation_OrderPlan": {
         "properties": {
-          "created": {
-            "type": "string"
+          "data": {
+            "description": "Paginated data",
+            "items": {
+              "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.OrderPlan"
+            },
+            "type": "array",
+            "uniqueItems": false
           },
-          "description": {
-            "type": "string"
-          },
-          "expiresAt": {
-            "type": "string"
-          },
-          "id": {
+          "limit": {
+            "description": "Requested elements per page",
             "type": "integer"
           },
-          "ttl": {
+          "page": {
+            "description": "Requested page number",
+            "type": "integer"
+          },
+          "totalElements": {
+            "description": "Total elements in the database for given filters",
+            "type": "integer"
+          },
+          "totalPages": {
+            "description": "Total pages of elements given limit and filters",
             "type": "integer"
           }
         },
         "type": "object"
       },
-      "Plan": {
+      "lightbug_io_gingin_internal_api_presentation.Plan": {
         "properties": {
           "displayName": {
             "type": "string"
@@ -517,7 +818,7 @@
             "type": "integer"
           },
           "prices": {
-            "$ref": "#/components/schemas/ProductPricing"
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Pricing"
           },
           "sku": {
             "type": "string"
@@ -532,7 +833,7 @@
         },
         "type": "object"
       },
-      "ProductPricing": {
+      "lightbug_io_gingin_internal_api_presentation.Pricing": {
         "properties": {
           "eur": {
             "description": "breaks:  example:\"[0,1.99],[10,1.89]\"` // Array of quantity to price in EUR",
@@ -557,7 +858,7 @@
             "uniqueItems": false
           },
           "tax": {
-            "$ref": "#/components/schemas/ProductPricing"
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Taxes"
           },
           "usd": {
             "description": "breaks:   example:\"[1,4.35],[10,4.26]\"` // Array of quantity to price in USD",
@@ -573,87 +874,7 @@
         },
         "type": "object"
       },
-      "PutPlanInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/renewOnto"
-          }
-        ],
-        "properties": {
-          "planId": {
-            "description": "Plan ID to be assigned to the device if available",
-            "type": "integer"
-          },
-          "renewOnto": {
-            "description": "Plan ID that the device should automatically renew onto in future billing cycles",
-            "type": "integer"
-          },
-          "renewUntil": {
-            "description": "Optional date, at which the device will deactivate and plans will not be renewed",
-            "type": "string"
-          }
-        },
-        "required": [
-          "planId"
-        ],
-        "type": "object"
-      },
-      "RefreshTokenRequest": {
-        "properties": {
-          "accessToken": {
-            "description": "Current access token (may be expired)",
-            "type": "string"
-          },
-          "refreshToken": {
-            "description": "Current refresh token",
-            "type": "string"
-          },
-          "refreshable": {
-            "description": "A new refresh token will be generated, with an expiry this many seconds after the access token expiry. Max 31 days",
-            "maximum": 2678400,
-            "type": "integer"
-          }
-        },
-        "required": [
-          "accessToken",
-          "refreshToken",
-          "refreshable"
-        ],
-        "type": "object"
-      },
-      "RefreshTokenResponse": {
-        "properties": {
-          "expiry": {
-            "description": "Expiry of the access token",
-            "type": "string"
-          },
-          "refreshToken": {
-            "description": "Single use refresh token",
-            "type": "string"
-          },
-          "refreshTokenExpiry": {
-            "description": "Expiry of the refresh token",
-            "type": "string"
-          },
-          "token": {
-            "description": "JWT access token",
-            "type": "string"
-          },
-          "userId": {
-            "description": "User ID of the logged in user",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "expiry",
-          "refreshToken",
-          "refreshTokenExpiry",
-          "token",
-          "userId"
-        ],
-        "type": "object"
-      },
-      "Reseller": {
+      "lightbug_io_gingin_internal_api_presentation.Reseller": {
         "description": "(optional) Reseller",
         "properties": {
           "billingTerm": {
@@ -673,7 +894,7 @@
           },
           "plans": {
             "items": {
-              "$ref": "#/components/schemas/ResellerPlan"
+              "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.ResellerPlan"
             },
             "type": "array",
             "uniqueItems": false
@@ -690,7 +911,7 @@
         },
         "type": "object"
       },
-      "ResellerPlan": {
+      "lightbug_io_gingin_internal_api_presentation.ResellerPlan": {
         "description": "(optional) Reseller Plan",
         "properties": {
           "archived": {
@@ -726,7 +947,7 @@
         },
         "type": "object"
       },
-      "Subscription": {
+      "lightbug_io_gingin_internal_api_presentation.Subscription": {
         "description": "(optional) Current subscription",
         "properties": {
           "_stripeSubscriptionId": {
@@ -746,7 +967,7 @@
             "type": "integer"
           },
           "plan": {
-            "$ref": "#/components/schemas/Plan"
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Plan"
           },
           "planId": {
             "type": "integer"
@@ -760,18 +981,24 @@
         },
         "type": "object"
       },
-      "UserPlanSummaryEntry": {
+      "lightbug_io_gingin_internal_api_presentation.Taxes": {
         "properties": {
-          "count": {
-            "type": "integer"
+          "eur": {
+            "example": 0,
+            "type": "number"
           },
-          "plan": {
-            "$ref": "#/components/schemas/Plan"
+          "gbp": {
+            "example": 20,
+            "type": "number"
+          },
+          "usd": {
+            "example": 0,
+            "type": "number"
           }
         },
         "type": "object"
       },
-      "UserStub": {
+      "lightbug_io_gingin_internal_api_presentation.UserStub": {
         "properties": {
           "email": {
             "type": "string"
@@ -784,35 +1011,6 @@
             "type": "integer"
           }
         },
-        "type": "object"
-      },
-      "UsersClaimDeviceRequest": {
-        "properties": {
-          "serial": {
-            "description": "Serial number of the device",
-            "type": "string"
-          }
-        },
-        "required": [
-          "serial"
-        ],
-        "type": "object"
-      },
-      "httputil.HTTPError": {
-        "properties": {
-          "code": {
-            "example": 400,
-            "type": "integer"
-          },
-          "message": {
-            "example": "status bad request",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "internal_api_presentation.DeviceMeta": {
-        "additionalProperties": {},
         "type": "object"
       },
       "renewOnto": {
@@ -841,6 +1039,262 @@
     "url": ""
   },
   "paths": {
+    "/devices": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Limit for pagination, default 10, max 10000",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sort by this field",
+            "in": "query",
+            "name": "_sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort in this direction (asc, desc)",
+            "in": "query",
+            "name": "_direction",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by ID (comma separated for multiple values)",
+            "in": "query",
+            "name": "id",
+            "schema": {
+              "description": "Filter by ID (comma separated for multiple values)",
+              "form": "id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by type (comma separated for multiple values)",
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "description": "Filter by type (comma separated for multiple values)",
+              "example": "ZeroN",
+              "form": "type",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
+            "in": "query",
+            "name": "imei",
+            "schema": {
+              "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
+              "form": "imei",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by iccid (exact match) (comma separated for multiple values)",
+            "in": "query",
+            "name": "iccid",
+            "schema": {
+              "description": "Filter by iccid (exact match) (comma separated for multiple values)",
+              "form": "iccid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
+              "example": "Hello *",
+              "form": "name",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
+            "in": "query",
+            "name": "tag",
+            "schema": {
+              "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
+              "example": "device_type:truck",
+              "form": "tag",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+            "in": "query",
+            "name": "user",
+            "schema": {
+              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+              "example": "*user1*,*user2*",
+              "form": "user",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by reseller name (exact match)",
+            "in": "query",
+            "name": "reseller",
+            "schema": {
+              "description": "Filter by reseller name (exact match)",
+              "example": "Name*",
+              "form": "reseller",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by active status",
+            "in": "query",
+            "name": "active",
+            "schema": {
+              "description": "Filter by active status",
+              "example": true,
+              "form": "active",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+            "in": "query",
+            "name": "serial",
+            "schema": {
+              "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+              "example": "12001234",
+              "form": "serial",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by current firmware version",
+            "in": "query",
+            "name": "config.currentFW",
+            "schema": {
+              "description": "Filter by current firmware version",
+              "form": "config.currentFW",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only show devices connected since this date (super secret)",
+            "in": "query",
+            "name": "_connectedSince",
+            "schema": {
+              "description": "Only show devices connected since this date (super secret)",
+              "form": "_connectedSince",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan",
+              "form": "_include",
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": false
+            }
+          },
+          {
+            "description": "Optionally provide parameters as a JSON object in this header. If both query params and X-Query overlap, a 400 error is returned.",
+            "example": "{\"id\":\"1\"}",
+            "in": "header",
+            "name": "X-Query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.PaginatedResult-lightbug_io_gingin_internal_api_presentation_Device"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets devices",
+        "tags": [
+          "devices"
+        ]
+      }
+    },
     "/devices/{id}/plan": {
       "delete": {
         "description": "Removes the active plan from the device, recording the date it was removed, so that partial plan usage can be deducted during billing.\nA removed plan can not be re added to a device, and a new plan has to be used.\nIf you are on legacy reseller billing, this endpoint will not work. Instead see /api/devices/{id}/activateOnResellerPlan and /api/devices/{id}/deactivate routes",
@@ -951,7 +1405,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Device"
+                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Device"
                 }
               }
             },
@@ -1048,13 +1502,16 @@
                   }
                 ],
                 "properties": {
+                  "ignoreSubscriptionSetup": {
+                    "description": "Optional ignoring of subscription setup for non reseller users.\nIf the user has the plan already purchased, then don't setup a card or subscription if it does'nt exist...\nSubscriptions are already ignored for reseller users, so this option would not be needed for them.",
+                    "type": "boolean"
+                  },
                   "planId": {
                     "description": "Plan ID to be assigned to the device if available",
                     "type": "integer"
                   },
                   "renewOnto": {
-                    "description": "Plan ID that the device should automatically renew onto in future billing cycles",
-                    "type": "integer"
+                    "$ref": "#/components/schemas/internal_api_handlers_v2_devices_byId.Optional-int32"
                   },
                   "renewUntil": {
                     "description": "Optional date, at which the device will deactivate and plans will not be renewed",
@@ -1076,7 +1533,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Subscription"
+                  "$ref": "#/components/schemas/internal_api_presentation.Subscription"
                 }
               }
             },
@@ -1086,7 +1543,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Subscription"
+                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Subscription"
                 }
               }
             },
@@ -1575,7 +2032,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/BuyPlansRequest"
+                "$ref": "#/components/schemas/internal_api_handlers_v2_users.BuyPlansRequest"
               }
             }
           },
@@ -1659,7 +2116,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UsersClaimDeviceRequest"
+                "$ref": "#/components/schemas/internal_api_handlers_v2_users.UsersClaimDeviceRequest"
               }
             }
           },
@@ -1743,7 +2200,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/LoginRequest"
+                "$ref": "#/components/schemas/internal_api_handlers_v2_users.LoginRequest"
               }
             }
           },
@@ -1755,7 +2212,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoginResponse"
+                  "$ref": "#/components/schemas/internal_api_handlers_v2_users.LoginResponse"
                 }
               }
             },
@@ -1833,7 +2290,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LogoutResponse"
+                  "$ref": "#/components/schemas/internal_api_handlers_v2_users.LogoutResponse"
                 }
               }
             },
@@ -1924,7 +2381,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListPersonalAccessTokenResponse"
+                  "$ref": "#/components/schemas/internal_api_handlers_v2_users_personalAccessTokens.ListPersonalAccessTokenResponse"
                 }
               }
             },
@@ -1994,7 +2451,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreatePersonalAccessTokenRequest"
+                "$ref": "#/components/schemas/internal_api_handlers_v2_users_personalAccessTokens.Handler.request"
               }
             }
           },
@@ -2006,7 +2463,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreatePersonalAccessTokenResponse"
+                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_handlers_v2_users_personalAccessTokens.Handler.response"
                 }
               }
             },
@@ -2090,7 +2547,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/DeletePersonalAccessTokenResponse"
+                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_handlers_v2_users_personalAccessTokens_byId.Handler.response"
                 }
               }
             },
@@ -2178,7 +2635,31 @@
             }
           },
           {
-            "description": "Filter by plan id",
+            "description": "Filter by device ID, multiple device IDs can be passed as a comma separated list",
+            "in": "query",
+            "name": "deviceId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by consumedOn start date",
+            "in": "query",
+            "name": "consumedSince",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by consumedOn end date",
+            "in": "query",
+            "name": "consumedUntil",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by plan id, multiple plan IDs can be passed as a comma separated list",
             "in": "query",
             "name": "planId",
             "schema": {
@@ -2237,7 +2718,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedResult-OrderPlan"
+                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.PaginatedResult-lightbug_io_gingin_internal_api_presentation_OrderPlan"
                 }
               }
             },
@@ -2321,7 +2802,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/UserPlanSummaryEntry"
+                    "$ref": "#/components/schemas/internal_api_presentation.UserPlanSummaryEntry"
                   },
                   "type": "array"
                 }
@@ -2395,7 +2876,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/RefreshTokenRequest"
+                "$ref": "#/components/schemas/internal_api_handlers_v2_users.RefreshTokenRequest"
               }
             }
           },
@@ -2407,7 +2888,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RefreshTokenResponse"
+                  "$ref": "#/components/schemas/internal_api_handlers_v2_users.RefreshTokenResponse"
                 }
               }
             },
@@ -2558,7 +3039,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedResult-OrderPlan"
+                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.PaginatedResult-lightbug_io_gingin_internal_api_presentation_OrderPlan"
                 }
               }
             },
@@ -2651,7 +3132,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/UserPlanSummaryEntry"
+                    "$ref": "#/components/schemas/internal_api_presentation.UserPlanSummaryEntry"
                   },
                   "type": "array"
                 }
