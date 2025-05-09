@@ -1,22 +1,23 @@
 import { useOpenapi } from 'vitepress-openapi/client'
 import { httpVerbs } from 'vitepress-openapi'
 import { loadSpec } from '../../swagger/load'
-const spec1 = loadSpec(1)
+const spec = loadSpec(1)
 
 export default {
     paths() {
-        const openapi = useOpenapi({ spec: spec1 })
+        const openapi = useOpenapi({ spec })
 
-        if (!openapi?.json?.paths) {
+        if (!openapi?.spec?.paths) {
+            console.error('No paths found in OpenAPI spec version 1')
             return []
         }
 
-        return Object.keys(openapi.json.paths)
+        return Object.keys(openapi.spec.paths)
             .flatMap((path) => {
                 return httpVerbs
-                    .filter((verb) => openapi.json.paths[path][verb])
+                    .filter((verb) => openapi.spec.paths[path][verb])
                     .map((verb) => {
-                        const { operationId, summary } = openapi.json.paths[path][verb]
+                        const { operationId, summary } = openapi.spec.paths[path][verb]
                         return {
                             params: {
                                 operationId,
