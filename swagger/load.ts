@@ -3,143 +3,143 @@ import spec2 from '../public/swagger/v2.json' with { type: 'json' }
 
 const v1SummaryOverrides = {
     'post-users-login': 'Login',
-    'get-users-id-getMqttCredentials': 'MQTT Credentials',
+    'get-users-{id}-getMqttCredentials': 'MQTT Credentials',
     // points
-    'get-devices-id-points-fk': 'Get device point by id',
-    'get-devices-id-points': 'Get device points',
-    'delete-devices-id-points-fk': 'Delete device point by id',
+    'get-devices-{id}-points-{fk}': 'Get device point by id',
+    'get-devices-{id}-points': 'Get device points',
+    'delete-devices-{id}-points-{fk}': 'Delete device point by id',
     // readings
-    'get-devices-id-readings-fk': 'Get device reading by id',
-    'get-devices-id-readings': 'Get device readings',
-    'put-devices-id-gatewayReadings-fk': 'Update device reading by id',
+    'get-devices-{id}-readings-{fk}': 'Get device reading by id',
+    'get-devices-{id}-readings': 'Get device readings',
+    'put-devices-{id}-gatewayReadings-{fk}': 'Update device reading by id',
 
     // device
     'get-devices-id': 'Get device',
-    'get-users-id-getDeviceSummary': 'Summary of devices',
+    'get-users-{id}-getDeviceSummary': 'Summary of devices',
     'post-devices-changeTags': 'Change tags for a device',
 
     // device config stuff
-    'get-devices-id-setupSqsForwarding': 'Set SQS forwarding for a device',
-    'get-devices-id-setMetaItem': 'Set meta item for a device',
-    'get-devices-id-flightMode': 'Set flight mode for a device',
+    'get-devices-{id}-setupSqsForwarding': 'Set SQS forwarding for a device',
+    'get-devices-{id}-setMetaItem': 'Set meta item for a device',
+    'get-devices-{id}-flightMode': 'Set flight mode for a device',
 
-    'get-devices-id-gatewayReadings-fk': 'Get device gateway reading by id',
-    'delete-devices-id-gatewayReadings-fk': 'Delete device gateway reading by id',
+    'get-devices-{id}-gatewayReadings-{fk}': 'Get device gateway reading by id',
+    'delete-devices-{id}-gatewayReadings-{fk}': 'Delete device gateway reading by id',
 
-    'post-devices-id-messages': 'Send a new message to the device',
-    'delete-devices-id-messages': 'Delete all messages for a device',
-    'get-users-id-getDevicesInZone': 'Devices in zone',
-    'get-users-id-getDevicesByTag': 'Devices with tag',
+    'post-devices-{id}-messages': 'Send a new message to the device',
+    'delete-devices-{id}-messages': 'Delete all messages for a device',
+    'get-users-{id}-getDevicesInZone': 'Devices in zone',
+    'get-users-{id}-getDevicesByTag': 'Devices with tag',
 
     // TODO notification triggers should probably render in swagger with better names
-    'get-devices-id-notificationTriggers': 'Get device triggers',
-    'get-devices-id-notificationTriggers-fk': 'Get device trigger by id',
-    'put-devices-id-notificationTriggers-fk': 'Update device trigger by id',
-    'delete-devices-id-notificationTriggers-fk': 'Delete device trigger by id',
-    'post-devices-id-notificationTriggers': 'Create device trigger',
-    'delete-devices-id-notificationTriggers': 'Delete all device triggers',
+    'get-devices-{id}-notificationTriggers': 'Get device triggers',
+    'get-devices-{id}-notificationTriggers-{fk}': 'Get device trigger by id',
+    'put-devices-{id}-notificationTriggers-{fk}': 'Update device trigger by id',
+    'delete-devices-{id}-notificationTriggers-{fk}': 'Delete device trigger by id',
+    'post-devices-{id}-notificationTriggers': 'Create device trigger',
+    'delete-devices-{id}-notificationTriggers': 'Delete all device triggers',
     // TODO geofences should have better default summaries
-    'get-users-id-geofences-fk': 'Get user geofence by id',
-    'get-users-id-geofences': 'Get user geofences',
-    'put-users-id-geofences-fk': 'Update user geofence by id',
-    'delete-users-id-geofences-fk': 'Delete user geofence by id',
-    'post-users-id-geofences': 'Create user geofence',
-    'delete-users-id-geofences': 'Delete all user geofences',
+    'get-users-{id}-geofences-{fk}': 'Get user geofence by id',
+    'get-users-{id}-geofences': 'Get user geofences',
+    'put-users-{id}-geofences-{fk}': 'Update user geofence by id',
+    'delete-users-{id}-geofences-{fk}': 'Delete user geofence by id',
+    'post-users-{id}-geofences': 'Create user geofence',
+    'delete-users-{id}-geofences': 'Delete all user geofences',
 
-    'get-devices-id-deactivate': 'Deactivate device',
-    'get-devices-id-activateOnResellerPlan': 'Activate device on reseller plan',
+    'get-devices-{id}-deactivate': 'Deactivate device',
+    'get-devices-{id}-activateOnResellerPlan': 'Activate device on reseller plan',
 
-    'get-devices-id-setNtripSettings': 'Set the NTRIP settings for a device.',
+    'get-devices-{id}-setNtripSettings': 'Set the NTRIP settings for a device.',
 
     'post-reports-activity': 'Device Activity',
     'post-reports-vehicle-summary': 'Vehicle Summary',
 }
 
 const v1DescriptionOverrides = {
-    'get-devices-id-points': 'Gets one or more points for a device, based on filtering.',
-    'get-devices-id-points-fk': 'Get a specific point for device when you already know the device ID and point ID.',
-    'get-users-id-getMqttCredentials': 'Retrieves a users MQTT Credentials if set, for legacy use in connecting to MQTT.',
-    'get-users-id-getDeviceSummary': 'Lists all devices for a user, with a summary of state, including most resent points.',
-    'get-devices-id-deactivate': 'Deactivates a device.',
-    'get-devices-id-activateOnResellerPlan': 'Activates a device on a reseller plan.\n\nThis is a special endpoint for resellers to activate a device on a reseller plan.\n\nIf you want to activate a device on a modern plan, see the V2 API.',
-    'get-devices-id-readings': "Gets [readings](/terminology/readings) that a device has taken, such as battery voltage, temperature, humidity etc.\n\nUse [filtering](/apis/v1/filtering) to get a specific [type](/terminology/readings#types).",
+    'get-devices-{id}-points': 'Gets one or more points for a device, based on filtering.',
+    'get-devices-{id}-points-{fk}': 'Get a specific point for device when you already know the device ID and point ID.',
+    'get-users-{id}-getMqttCredentials': 'Retrieves a users MQTT Credentials if set, for legacy use in connecting to MQTT.',
+    'get-users-{id}-getDeviceSummary': 'Lists all devices for a user, with a summary of state, including most resent points.',
+    'get-devices-{id}-deactivate': 'Deactivates a device.',
+    'get-devices-{id}-activateOnResellerPlan': 'Activates a device on a reseller plan.\n\nThis is a special endpoint for resellers to activate a device on a reseller plan.\n\nIf you want to activate a device on a modern plan, see the V2 API.',
+    'get-devices-{id}-readings': "Gets [readings](/terminology/readings) that a device has taken, such as battery voltage, temperature, humidity etc.\n\nUse [filtering](/apis/v1/filtering) to get a specific [type](/terminology/readings#types).",
 }
 
 const v1Deprecated = [
-    'get-devices-id-transients-fk',
+    'get-devices-{id}-transients-{fk}',
 ]
 
 const v1ReTag = {
     'post-users-login': 'authentication',
 
     // Keep the MQTT in its own section, near the bottom
-    'get-users-id-getMqttCredentials': 'mqtt',
+    'get-users-{id}-getMqttCredentials': 'mqtt',
 
     // TODO geofences should probably render in swagger with their own tag
-    'put-users-id-geofences-fk': 'geofences',
-    'delete-users-id-geofences-fk': 'geofences',
-    'post-users-id-geofences': 'geofences',
-    'delete-users-id-geofences': 'geofences',
+    'put-users-{id}-geofences-{fk}': 'geofences',
+    'delete-users-{id}-geofences-{fk}': 'geofences',
+    'post-users-{id}-geofences': 'geofences',
+    'delete-users-{id}-geofences': 'geofences',
 
     // Split out gateway readings for clarity
-    'get-devices-id-gatewayReadings-fk': 'readings-gateway',
-    'delete-devices-id-gatewayReadings-fk': 'readings-gateway',
+    'get-devices-{id}-gatewayReadings-{fk}': 'readings-gateway',
+    'delete-devices-{id}-gatewayReadings-{fk}': 'readings-gateway',
 
     // Split out device config for clarity
-    'get-devices-id-config': 'device-config',
-    'put-devices-id-config': 'device-config',
-    'post-devices-id-setSafeZone': 'device-config',
-    'get-devices-id-setupSqsForwarding': 'device-config',
-    'get-devices-id-setMetaItem': 'device-config',
-    'get-devices-id-flightMode': 'device-config',
-    'get-devices-id-getSafeZone': 'device-config',
+    'get-devices-{id}-config': 'device-config',
+    'put-devices-{id}-config': 'device-config',
+    'post-devices-{id}-setSafeZone': 'device-config',
+    'get-devices-{id}-setupSqsForwarding': 'device-config',
+    'get-devices-{id}-setMetaItem': 'device-config',
+    'get-devices-{id}-flightMode': 'device-config',
+    'get-devices-{id}-getSafeZone': 'device-config',
 
     // Split out device activation too
-    'get-devices-id-deactivate': 'device-activation',
-    'get-devices-id-activateOnResellerPlan': 'device-activation',
+    'get-devices-{id}-deactivate': 'device-activation',
+    'get-devices-{id}-activateOnResellerPlan': 'device-activation',
 
-    'get-devices-id-messages': 'device-misc',
-    'post-devices-id-messages': 'device-misc',
-    'delete-devices-id-messages': 'device-misc',
-    'get-devices-id-transients': 'device-misc',
-    'get-devices-id-transients-fk': 'device-misc',
-    'get-devices-id-nearbyDevices': 'device-misc',
-    'get-devices-id-nearbyDeviceData': 'device-misc',
+    'get-devices-{id}-messages': 'device-misc',
+    'post-devices-{id}-messages': 'device-misc',
+    'delete-devices-{id}-messages': 'device-misc',
+    'get-devices-{id}-transients': 'device-misc',
+    'get-devices-{id}-transients-{fk}': 'device-misc',
+    'get-devices-{id}-nearbyDevices': 'device-misc',
+    'get-devices-{id}-nearbyDeviceData': 'device-misc',
 
-    'get-devices-id-getRtkStatus': 'rtk',
-    'get-devices-id-getRecentRtkLogs': 'rtk',
-    'get-devices-id-getRtkCommand': 'rtk',
-    'get-devices-id-queueRtkCmd-UpdateRateMs': 'rtk',
-    'get-devices-id-queueRtkCmd-AlertNow': 'rtk',
-    'get-devices-id-queueRtkCmd-AlertWithPrompt': 'rtk',
-    'get-devices-id-queueRtkCmd-RebootRtk': 'rtk',
-    'get-devices-id-queueRtkCmd-SetPointBufferSize': 'rtk',
-    'get-devices-id-updateRtkBaseStatus': 'rtk',
-    'get-devices-id-setNtripSettings': 'rtk',
+    'get-devices-{id}-getRtkStatus': 'rtk',
+    'get-devices-{id}-getRecentRtkLogs': 'rtk',
+    'get-devices-{id}-getRtkCommand': 'rtk',
+    'get-devices-{id}-queueRtkCmd-UpdateRateMs': 'rtk',
+    'get-devices-{id}-queueRtkCmd-AlertNow': 'rtk',
+    'get-devices-{id}-queueRtkCmd-AlertWithPrompt': 'rtk',
+    'get-devices-{id}-queueRtkCmd-RebootRtk': 'rtk',
+    'get-devices-{id}-queueRtkCmd-SetPointBufferSize': 'rtk',
+    'get-devices-{id}-updateRtkBaseStatus': 'rtk',
+    'get-devices-{id}-setNtripSettings': 'rtk',
 
     'get-devices-id': 'device',
-    'get-users-id-devices': 'device',
-    'get-users-id-getDeviceSummary': 'device',
-    'get-users-id-getDevicesInZone': 'device',
-    'get-users-id-getDevicesByTag': 'device',
+    'get-users-{id}-devices': 'device',
+    'get-users-{id}-getDeviceSummary': 'device',
+    'get-users-{id}-getDevicesInZone': 'device',
+    'get-users-{id}-getDevicesByTag': 'device',
 
-    'get-devices-id-points-fk': 'points',
-    'get-devices-id-points': 'points',
-    'delete-devices-id-points-fk': 'points',
+    'get-devices-{id}-points-{fk}': 'points',
+    'get-devices-{id}-points': 'points',
+    'delete-devices-{id}-points-{fk}': 'points',
 
-    'get-devices-id-readings-fk': 'readings',
-    'get-devices-id-readings': 'readings',
-    'put-devices-id-gatewayReadings-fk': 'readings',
+    'get-devices-{id}-readings-{fk}': 'readings',
+    'get-devices-{id}-readings': 'readings',
+    'put-devices-{id}-gatewayReadings-{fk}': 'readings',
 
-    'get-devices-id-notificationTriggers-fk': 'notifications',
-    'delete-devices-id-notificationTriggers-fk': 'notifications',
-    'put-devices-id-notificationTriggers-fk': 'notifications',
-    'get-devices-id-notificationTriggers': 'notifications',
-    'post-devices-id-notificationTriggers': 'notifications',
-    'delete-devices-id-notificationTriggers': 'notifications',
+    'get-devices-{id}-notificationTriggers-{fk}': 'notifications',
+    'delete-devices-{id}-notificationTriggers-{fk}': 'notifications',
+    'put-devices-{id}-notificationTriggers-{fk}': 'notifications',
+    'get-devices-{id}-notificationTriggers': 'notifications',
+    'post-devices-{id}-notificationTriggers': 'notifications',
+    'delete-devices-{id}-notificationTriggers': 'notifications',
 
-    'get-users-id-geofences': 'geofences',
-    'get-users-id-geofences-fk': 'geofences',
+    'get-users-{id}-geofences': 'geofences',
+    'get-users-{id}-geofences-{fk}': 'geofences',
 
     'post-reports-activity': 'reports',
     'post-reports-vehicle-summary': 'reports',
@@ -147,25 +147,25 @@ const v1ReTag = {
 
 const v1Removed = [
     // At the time of writing the new docs site, this endpoint had been removed
-    'delete-devices-id-gatewayReadings-fk',
-    'delete-devices-id-transients-fk',
-    'put-devices-id-transients-fk',
-    'get-devices-id-transients-fk',
+    'delete-devices-{id}-gatewayReadings-{fk}',
+    'delete-devices-{id}-transients-{fk}',
+    'put-devices-{id}-transients-{fk}',
+    'get-devices-{id}-transients-{fk}',
 ]
 
 const V1ParamExamples = {
-    'get-devices-id-points': {
+    'get-devices-{id}-points': {
         'filter': [
             '{"limit":10,"order":["timestamp DESC"]}',
             '{"where":{"timestamp":{"between":["2024-12-01T00:00:00.000Z","2024-12-01T23:59:59.999Z"]}},"order":["timestamp DESC"]}',
         ],
     },
-    'get-devices-id-activateOnResellerPlan': {
+    'get-devices-{id}-activateOnResellerPlan': {
         'id': '56892',
         'resellerPlanId': '10',
         'expiry': [Date.now() + (365 * 24 * 60 * 60 * 1000)]
     },
-    'get-devices-id-readings': {
+    'get-devices-{id}-readings': {
         'filter': [
             '{"limit":10,"order":["timestamp DESC"]}',
             '{"where":{"type":"temp"},"limit":10,"order":["timestamp DESC"]}',
@@ -175,7 +175,7 @@ const V1ParamExamples = {
 }
 
 const V1ResponseExamples = {
-    'get-users-id-getDeviceSummary': {
+    'get-users-{id}-getDeviceSummary': {
         '200': {
             'application/json': {
                 'schema': {
@@ -329,10 +329,10 @@ const V1BodyExamples = {
 }
 
 const V1ParamDescriptions = {
-    'get-devices-id-points': {
+    'get-devices-{id}-points': {
         'filter': 'Filter criteria for fetching device points.',
     },
-    'get-devices-id-activateOnResellerPlan': {
+    'get-devices-{id}-activateOnResellerPlan': {
         'id': 'The ID of the device to activate.',
         'resellerPlanId': 'The ID of the reseller plan, which must relate to your reseller account.',
         'expiry': 'The expiry date for the activation in milliseconds since epoch. The device will be deactivated at this time.',
@@ -340,7 +340,7 @@ const V1ParamDescriptions = {
 }
 
 const V1ParamSchemaFormats = {
-    'get-devices-id-activateOnResellerPlan': {
+    'get-devices-{id}-activateOnResellerPlan': {
         'resellerPlanId': 'integer',
     },
 }
@@ -371,15 +371,13 @@ export function loadSpec(version: number): any {
             }
         }
 
-        spec1.paths = normalizePaths(spec1.paths)
-
         // override stuff
         for (const path of Object.keys(spec1.paths)) {
             for (const method of Object.keys(spec1.paths[path])) {
-                // opertaionId is method-path (with / replaced with -)
-                let operationId = method + path.replace(/\//g, '-')
-                // Replace _ with -
-                operationId = operationId.replace(/_/g, '-')
+                let normalizedOperationId = method + path.replace(/\//g, '-').replace(/{/g, '').replace(/}/g, '')
+                normalizedOperationId = normalizedOperationId.replace(/_/g, '-')
+                spec1.paths[path][method].operationId = normalizedOperationId
+                let operationId = spec1.paths[path][method].operationId
                 if (v1Removed.includes(operationId)) {
                     delete spec1.paths[path][method]
                     continue
@@ -477,24 +475,15 @@ export function loadSpec(version: number): any {
         if (spec2.servers) {
             spec2.servers = spec2.servers.filter((server: any) => !server.url.includes('localhost'))
         }
-        spec2.paths = normalizePaths(spec2.paths)
+        // Add normalizedOperationId to each operation
+        for (const path of Object.keys(spec2.paths)) {
+            for (const method of Object.keys(spec2.paths[path])) {
+                let normalizedOperationId = method + path.replace(/\//g, '-').replace(/{/g, '').replace(/}/g, '')
+                normalizedOperationId = normalizedOperationId.replace(/_/g, '-')
+                spec2.paths[path][method].operationId = normalizedOperationId
+            }
+        }
         return spec2
     }
     return null
-}
-
-// Normalize paths by removing { and } from the path
-function normalizePaths(paths: any) {
-    for (const path of Object.keys(paths)) {
-        // Remove { and } from the path
-        const pathName = path.replace(/{/g, '').replace(/}/g, '')
-        if (pathName === path) {
-            continue // No change
-        }
-        // Replace the path with the new path
-        paths[pathName] = paths[path]
-        // Remove the old path
-        delete paths[path]
-    }
-    return paths
 }
