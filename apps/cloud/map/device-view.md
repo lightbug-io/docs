@@ -48,6 +48,50 @@ When clicking `DONE` you will be taken back to the map view with the new time ra
 The time range selector can only be used to show at most 90 days of data at once.
 :::
 
+## Data & Playback
+
+Next to the time range selector, you will see a playback button.
+
+![](https://i.imgur.com/5BTlmMJ.png)
+
+Clicking this will open the playback panel at the bottom of the page.
+
+Mousing over the graph will displays data names and values.
+
+![](https://i.imgur.com/EEb61bj.png)
+
+:::tip
+This is best viewed on a desktop, as the playback panel is quite large.
+:::
+
+### Navigation {#data-playback-navigation}
+
+You can alter the time range, to show more or less data within this view.
+
+Within the selected time range, you can use the playback controls (direction keys) to navigate through the data points.
+
+You can also choose to drag the playback slider to a specific point in time.
+
+![](https://i.imgur.com/yzEEsvE.png)
+
+
+### Options {#data-playback-options}
+
+Clicking the menu icon in the top left of the playback panel will open a menu with options to:
+
+- Show and hide various data lines
+- Export the visualized data as a PNG, PDF or CSV
+
+![](https://i.imgur.com/nmZCKGB.png)
+
+Example CSV data might look like this:
+
+```csv
+"DateTime","Altitude","chg_voltage","Humidity","Pressure","Speed","Temperature","Temperature (basic)"
+"2025-04-01 10:25:51",,4900,0,0,,0,34.11328125
+"2025-04-01 10:40:58",,4900,32,1018,0,31.89,34.84765625
+```
+
 ## History list
 
 The history list can be accessed by clicking the dropdown in the top left of the device view.
