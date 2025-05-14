@@ -14,6 +14,36 @@ This includes:
  - Y Tilt (Roll)
  - Z Tilt (Yaw)
 
+This data is recorded whenever a location update is sent, while the data collection is enabled.
+
+## Configuration
+
+There are a few things you must to to correctly set up the motion data report on a device.
+
+::: tip
+In order to get your device to send motion data at the point in time that motion occurs, you will want to enable either **Motion detection** or notifications for when **A fall or shock is detected**.
+
+A fall will be detected if the tilt is greater than 30 degrees and or a shock of more than 1.5g is detected (defaults).
+:::
+
+### Enable data collection
+
+To enable the report, you must enable the `Advanced Accelerometer Data` setting in the advanced device settings.
+
+![](https://i.imgur.com/a0GmMTN.png)
+
+### Positioning the device
+
+In order to get correct data for tilt values, you must configure the 0 position of the device.
+
+If this is not done, the tilt values will be incorrect.
+
+- Grab your tracker
+- Hold the button for 3 seconds, and release, the device should do 2 short beeps, and LEDs should flash.
+- Immediately place the device in desired position, this will be your baseline.
+
+If you want to change the baseline position of the device in the future, you will need to repeat this process.
+
 ## Examples
 
 ### Tilting
