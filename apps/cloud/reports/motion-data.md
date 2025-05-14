@@ -46,6 +46,8 @@ If you want to change the baseline position of the device in the future, you wil
 
 ## Examples
 
+![](https://i.imgur.com/8zOtUfm.png)
+
 ### Tilting
 
 <v-row>
