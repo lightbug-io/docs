@@ -1,919 +1,931 @@
 version: 3
-limits:
-  MAX_DATA_FIELD_LEN: 200 # As currently defined in Firmware
-  MAX_HEADER_FILED_LEN: 20 # As currently defined in Firmware
 groups:
   general:
     name: General
-    description: "General messages"
-  bootserver:
-    hidden: true
-    name: Bootserver
-    description: "Device to Boot server communication"
-  info:
-    name: Information
-    description: "Device Information"
+    description: General messages
   gsm:
     name: GSM
-    description: "Device GSM"
+    description: Device GSM
+  info:
+    name: Information
+    description: Device Information
   location:
     name: Location
-    description: "Device Location"
+    description: Device Location
   screen:
     name: Screen
-    description: "Device screen"
-    overview: true
+    description: Device screen
   ungrouped:
     name: Ungrouped
-    description: "A collection of ungrouped messages"
+    description: A collection of ungrouped messages
 header:
   1:
-    name: "Message ID"
-    description: "ID that can be used by receiver to ACK, and client to track for various responses, or re-sends. Max uint32 4,294,967,295."
-    type: "uintn"
+    name: Message ID
+    description: ID that can be used by receiver to ACK, and client to track for various responses, or re-sends. Max uint32 4,294,967,295.
+    type: uintn
   2:
-    name: "Client ID"
-    description: "ID of the client sending the message"
-    type: "uintn"
+    name: Client ID
+    description: ID of the client sending the message
+    type: uintn
   3:
-    name: "Response to Message ID"
-    description: "ID of the message that is being responded to"
-    type: "uintn"
+    name: Response to Message ID
+    description: ID of the message that is being responded to
+    type: uintn
   4:
-    name: "Message Status" # Response code
-    description: "Status of the message. If omitted, assume OK?"
-    type: "uintn"
+    name: Message Status
+    description: Status of the message. If omitted, assume OK?
+    type: uintn
     values:
       0:
-        name: "OK"
-        description: "Everything appears to be OK"
+        name: OK
+        description: Everything appears to be OK
       1:
-        name: "Generic Error"
+        name: Generic Error
       2:
-        name: "Missing Payload Parameter"
+        name: Missing Payload Parameter
       3:
-        name: "Method Not Supported"
-        description: "e.g., SETting GPS position"
+        name: Method Not Supported
+        description: e.g., SETting GPS position
       4:
-        name: "Invalid Payload Parameter"
-        description: "Unsupported values requested (e.g., requesting the GPS data at 100hz)"
+        name: Invalid Payload Parameter
+        description: Unsupported values requested (e.g., requesting the GPS data at 100hz)
       5:
-        name: "Invalid State"
-        description: "e.g., requesting GPS data stream before turning GPS on"
+        name: Invalid State
+        description: e.g., requesting GPS data stream before turning GPS on
       6:
-        name: "No Data"
-        description: "e.g., requesting GPS or time data when not yet available"
+        name: No Data
+        description: e.g., requesting GPS or time data when not yet available
       7:
-        name: "Not Supported"
-        description: "If the receiver does not support the requested action but otherwise the message is valid"
+        name: Not Supported
+        description: If the receiver does not support the requested action but otherwise the message is valid
       8:
-        # Currently only used for tx now
-        name: "Failed Will Retry"
+        name: Failed Will Retry
       9:
-        name: "Failed Permanently"
+        name: Failed Permanently
   5:
-    name: "Message Method"
-    description: "Request a service to be perform an action"
-    type : "uintn"
+    name: Message Method
+    description: Request a service to be perform an action
+    type: uintn
     values:
       1:
-        name: "SET"
-        description: "Set one or more values that are provided in the message payload"
+        name: SET
+        description: Set one or more values that are provided in the message payload
       2:
-        name: "GET"
-        description: "Get one or more values that have their types provided in the message payload. If no payload types are provided, all available values are returned"
+        name: GET
+        description: Get one or more values that have their types provided in the message payload. If no payload types are provided, all available values are returned
       3:
-        name: "SUBSCRIBE"
-        description: "Subscribe to a value or values. If no payload types are provided, all available values will be subscribed to. If a value changes, the service will send a message with the new value"
+        name: SUBSCRIBE
+        description: Subscribe to a value or values. If no payload types are provided, all available values will be subscribed to. If a value changes, the service will send a message with the new value
       4:
-        name: "DO"
-        description: "Perform an action."
+        name: DO
+        description: Perform an action.
       5:
-        name: "UNSUBSCRIBE"
-        description: "Unsubscribe from some previously subscribed to data"
+        name: UNSUBSCRIBE
+        description: Unsubscribe from some previously subscribed to data
   6:
-    name: "Subscription interval"
-    description: "Interval in ms. To be used with the SUBSCRIBE method"
-    type: "uintn"
-  # Not yet used, but a placeholder for more advanced forwarding
-  # 8:
-  #   name: "Client Type"
-  #   description: "FOR FUTURE USE: Type of client sending the message. Relates to the Client ID."
-  #   values:
-  #     1:
-  #       name: "Device"
-  #       description: "Message is from a device."
-  #     2:
-  #       name: "Module"
-  #       description: "Message is from a module."
-  #     3:
-  #       name: "Link"
-  #       description: "Message is from a link."
+    name: Subscription interval
+    description: Interval in ms. To be used with the SUBSCRIBE method
+    type: uintn
   9:
-    name: "Forward For Type"
-    description: "FOR FUTURE USE: Type of client that the message is being forwarded for."
+    name: Forward For Type
+    description: 'FOR FUTURE USE: Type of client that the message is being forwarded for.'
     values:
       1:
-        name: "Device"
-        description: "Message is being forwarded for a device. LORA forwarding default."
+        name: Device
+        description: Message is being forwarded for a device. LORA forwarding default.
       2:
-        name: "Module"
-        description: "Message is being forwarded for a module. Default when receiving a message over a link."
+        name: Module
+        description: Message is being forwarded for a module. Default when receiving a message over a link.
       3:
-        name: "Link"
-        description: "Message is being forwarded for a link. Default when receiving a message from a module"
+        name: Link
+        description: Message is being forwarded for a link. Default when receiving a message from a module
   10:
-    name: "Forwarded For"
-    description: "ID of the client sending the original message that is being forwarded. Forward for type alters the meaning of this field"
+    name: Forwarded For
+    description: ID of the client sending the original message that is being forwarded. Forward for type alters the meaning of this field
   11:
-    name: "Forwarded RSSI"
-    description: "RSSI of forwarded message"
+    name: Forwarded RSSI
+    description: RSSI of forwarded message
   12:
-    name: "Forwarded SNR"
-    description: "SNR of forwarded message"
+    name: Forwarded SNR
+    description: SNR of forwarded message
   13:
-    name: "Forwarding To Type"
-    description: "FOR FUTURE USE: Type of client to forward the message to."
-    type: "uintn"
+    name: Forwarding To Type
+    description: 'FOR FUTURE USE: Type of client to forward the message to.'
+    type: uintn
     values:
       1:
-        name: "Device"
-        description: "Message should be forwarded to a device. Lightbug device IDs."
+        name: Device
+        description: Message should be forwarded to a device. Lightbug device IDs.
       2:
-        name: "Module"
-        description: "Message should be forwarded to a module. IDs 1=STM, 2=ESP. Default for messages received from a link."
+        name: Module
+        description: Message should be forwarded to a module. IDs 1=STM, 2=ESP. Default for messages received from a link.
       3:
-        name: "Link"
-        description: "Message should be forwarded to a link. The only valid link ID is 1. Default for messages received from a module."
+        name: Link
+        description: Message should be forwarded to a link. The only valid link ID is 1. Default for messages received from a module.
   14:
-    name: "Forward To"
-    description: "ID of the client to forward the message to. Forwarding to type alters the meaning of this field"
-    type: "uintn"
+    name: Forward To
+    description: ID of the client to forward the message to. Forwarding to type alters the meaning of this field
+    type: uintn
 messages:
   5:
-    name: "ACK"
-    description: ""
-    group: "general"
+    name: ACK
+    group: general
     data:
       1:
-        name: "ACKed Type"
-        description: "Type of previous message being ACKed"
-        type: "uint16"
+        name: ACKed Type
+        description: Type of previous message being ACKed
+        type: uint16
   11:
-    name: "Open"
-    description: "Explicit indicator for the start of a connection"
-    group: "general"
+    name: Open
+    description: Explicit indicator for the start of a connection
+    group: general
   12:
-    name: "Close"
-    description: "Explicit indicator for a connection about to close. Can be used to differentiate between deliberate and accidental disconnections."
-    group: "general"
+    name: Close
+    description: Explicit indicator for a connection about to close. Can be used to differentiate between deliberate and accidental disconnections.
+    group: general
   13:
-    name: "Heartbeat"
-    description: "A message to keep the connection alive. Arbitrary fields can be added in fields 200+"
-    group: "general"
+    name: Heartbeat
+    description: A message to keep the connection alive. Arbitrary fields can be added in fields 200+
+    group: general
   14:
-    name: "Config"
-    group: "ungrouped"
+    name: Config
+    group: ungrouped
     data:
       7:
-        name: "Key"
-        type: "uintn"
-      # 8:
-      #   name: "Type"
-      #   description: ""
-      #   type: "uint16"
-      #   values:
-      #     0:
-      #       name: "unknown"
-      #     1:
-      #       name: "float"
-      #     2:
-      #       name: "byte"
-      #     3:
-      #       name: "long (4 byte)"
-      #     4:
-      #       name: "blob / bytes"
+        name: Key
+        type: uintn
       9:
-        name: "Payload"
-        description: "Payload for the config"
-        type: "bytes"
+        name: Payload
+        description: Payload for the config
+        type: bytes
         values:
-          # 1:
-          #   name: "BaseSettings"
-          # 2:
-          #   name: "HomeWifi"
-          # 3:
-          #   name: "CurrentUsageUah"
-          # 4:
-          #   name: "KnownMacs"
-          # 5:
-          #   name: "TimedSettings"
-          # 6:
-          #   name: "UnixAlarms"
-          # 7:
-          #   name: "GsmSettings"
-          # 8:
-          #   name: "LastKnownPos"
-          # 9:
-          #   name: "LastErrorCode"
           19:
-            name: "RtkMinUsableSatDb (byte)"
+            name: RtkMinUsableSatDb
+            description: Minimum usable satellite db (byte)
           20:
-            name: "RtkMinElevation (byte)"
+            name: RtkMinElevation
+            description: RtkMinElevation (byte)
   15:
-    name: "Last Position"
-    group: "location"
+    name: Position
+    group: location
     data:
       1:
-        name: "Timestamp"
-        description: "Unix timestamp in ms (number of milliseconds since 1 Jan 1970)"
-        type: "uint64"
+        name: Timestamp
+        description: Unix timestamp in ms (number of milliseconds since 1 Jan 1970)
+        type: uint64
+        unit: ms since epoch
       2:
-        name: "Latitude"
-        description: "Fixed point representation of Latitude. Divide by 1e7 to get the value in degrees."
-        type: "int32"
+        name: Latitude
+        raw-description: Fixed point representation of Latitude.
+        type: int32
+        conversion: "1e7"
+        unit: degree
       3:
-        name: "Longitude"
-        description: "Fixed point representation of Longitude. Divide by 1e7 to get the value in degrees."
-        type: "int32"
+        name: Longitude
+        raw-description: Fixed point representation of Longitude.
+        type: int32
+        conversion: "1e7"
+        unit: degree
       4:
-        name: "Altitude"
-        description: "Altitude in mm. Divide by 1e3 to get the value in meters."
-        type: "int32"
+        name: Altitude
+        description: Altitude
+        raw-description: Altitude in mm.
+        type: int32
+        conversion: "1e3"
+        unit: meter
       5:
-        name: "Accuracy"
-        description: "Accuracy in cm. Divide by 1e2 to get the value in meters."
-        type: "uint16"
+        name: Accuracy
+        description: Accuracy
+        raw-description: Accuracy in cm.
+        type: uint16
+        conversion: "1e2"
+        unit: meter
       6:
-        name: "Course Over Ground"
-        description: "Course over ground centi-degrees (cd). Divide by 1e2 to get the value in degrees."
-        type: "uint16"
+        name: Course
+        description: Course over ground
+        raw-description: Course over ground centi-degrees (cd).
+        type: uint16
+        conversion: "1e2"
+        unit: degree
       7:
-        name: "Speed"
-        description: "Speed in meters per second (m/s). Divide by 1e2 to get the value in km/h."
-        type: "uint16"
+        name: Speed
+        description: Speed
+        raw-description: Speed in meters per second (m/s).
+        type: uint16
+        conversion: "1e2"
+        unit: km/h
       8:
-        name: "Number of Satellites"
-        type: "uint8"
+        name: Satellites
+        type: uint8
+        unit: count
       9:
-        name: "Average CN0"
-        description: "Carrier to noise density. Higher is better."
-        type: "uint8"
+        name: CN0
+        description: Average CN0. Carrier to noise density. Higher is better.
+        type: uint8
+        unit: dB-Hz
       10:
-        name: "Position Type"
-        type: "uint8"
+        name: Type
+        description: Position type
+        type: uint8
         values:
           0:
-            name: "invalid"
+            name: invalid
           1:
-            name: "fixed"
+            name: fixed
           2:
-            name: "RESERVED"
+            name: reserved
           3:
-            name: "standalone"
+            name: standalone
           4:
-            name: "rtkFloat"
+            name: rtk-float
           5:
-            name: "rtkFix"
+            name: rtk-fix
           6:
-            name: "surveying"
+            name: surveying
       11:
-        name: "Position Source"
-        type: "uint8"
+        name: Source
+        description: Position source
+        type: uint8
         values:
           0:
-            name: "GPS"
+            name: gps
+            description: Position has come from a GPS module.
           1:
-            # DOESN'T MEAN RTK CORRECTED DATA, just coming from an RTK module
-            name: "RTK"
-  30:
-    name: "Transmit Now"
-    description: "Transmit data immediately over GSM"
-    group: "gsm"
+            name: rtk
+            description: Position has come from an RTK module. This does not mean the position is RTK corrected.
+  16:
+    name: Satellite Data
+    group: location
     data:
       1:
-        name: "Search GPS"
-        description: "0 = no, 1 = yes"
-        type: "uint8"
+        name: Average SNR
+        description: Average signal-to-noise ratio across all satellites
+        type: uint8
       2:
-        name: "Data"
-        description: "can be up to 200 bytes"
-        type: "bytes"
+        name: Minimum SNR
+        description: Minimum signal-to-noise ratio among all satellites
+        type: uint8
       3:
-        name: "Retries"
-        description: "0 - 10"
-        type: "uint8"
+        name: Maximum SNR
+        description: Maximum signal-to-noise ratio among all satellites
+        type: uint8
       4:
-        name: "Priority"
-        description: "0 - 1"
-        type: "uint8"
-  31:
-    name: "GSM Control"
-    group: "gsm"
-    # SET and GET
-    data:
-      1:
-        name: "Flight mode"
-        description: "0 = no, 1 = yes"
-        type: "uint8"
-      2:
-        name: "Duration"
-        description: "in mins"
-        type: "uint32"
-      3:
-        name: "GSM Active"
-        description: "READONLY report of if GSM is active. 0 = no, 1 = yes"
-        type: "uint8"
-      4:
-        name: "Request Control"
-        description: "0 = no, 1 = yes"
-        type: "uint8"
-  32:
-    name: "GSM Request Ownership"
-    group: "gsm"
-    # SET only
-    data:
-      2:
-        name: "Duration"
-        description: "in mins"
-        type: "uint32"
-      4:
-        name: "Request Control"
-        description: "0 = no, 1 = yes"
-        type: "uint8"
-  34:
-    name: "Device Status"
-    description: "Device status information"
-    group: "info"
-    data:
-      1:
-        name: "Battery"
-        description: "Battery level"
-        type: "uint8"
-      2:
-        name: "Signal Strength"
-        description: "Signal strength"
-        type: "uint8"
-      3:
-        name: "Device Mode"
-        description: "Device mode"
-        type: "uint8"
-        values:
-          0:
-            name: "Sleep"
-          1:
-            name: "Awake"
-      4:
-        name: "Network type"
-        type: "uint8"
-        values:
-          0:
-            name: "No network"
-          2:
-            name: "GSM (2G)"
-          3:
-            name: "WCDMA (3G)"
-          4:
-            name: "LTE (4G)"
+        name: Total Satellites
+        description: Total number of satellites in view
+        type: uint8
       5:
-        name: "Network MNC"
-        type: "uint16"
-      6:
-        name: "Network MCC"
-        type: "uint16"
-      7:
-        name: "Firmware Version"
-        type: "uint32"
-  35:
-    name: "Device IDs"
-    description: "Device ID information"
-    group: "info"
-    data:
-      1:
-        name: "ID"
-        description: "ID"
-        type: "uintn"
-      2:
-        name: "IMEI"
-        description: "IMEI"
-        type: "ascii"
-      3:
-        name: "ICCID"
-        description: "ICCID"
-        type: "ascii"
-  36:
-    name: "Device Time"
-    description: "Device time information, if known"
-    group: "info"
-    data:
-      1:
-        name: "Unix Time"
-        description: "Unix time"
-        type: "uint32"
-      2:
-        name: "Year"
-        description: "Year"
-        type: "uint16"
-      3:
-        name: "Month"
-        description: "Month"
-        type: "uint8"
-      4:
-        name: "Date"
-        description: "Date"
-        type: "uint8"
-      5:
-        name: "Weekday"
-        description: "Weekday (1 monday etc)"
-        type: "uint8"
-      6:
-        name: "Hour"
-        description: "Hour"
-        type: "uint8"
-      7:
-        name: "Minute"
-        description: "Minute"
-        type: "uint8"
-      8:
-        name: "Second"
-        description: "Second"
-        type: "uint8"
-  38:
-    name: "Button Press"
-    description: "Press of a device button"
-    group: "ungrouped"
-    methods:
-      SUBSCRIBE:
-      UNSUBSCRIBE:
-    data:
-      1:
-        name: "Button ID"
-        description: "ID of the button, 0 indexed"
-        type: "uint8"
-      2:
-        name: "Duration"
-        description: "Duration of the button press in ms"
-        type: "uintn"
-  39:
-    name: "GPS Control"
-    description: "Control the GPS of the device"
-    group: "location"
-    data:
-      1:
-        name: "GPS Enable"
-        type: "uint8"
-        values:
-          0:
-            name: "Disabled"
-          1:
-            name: "Enabled"
-      2:
-        name: "RTK Enable Correction"
-        description: "Request correction data to be applied to the GPS"
-        type: "uint8"
-        values:
-          0:
-            name: "Disabled"
-          1:
-            name: "Enabled"
-      3:
-        name: "Start Mode"
-        description: "If only start mode is set, and the module is already enabled, it will reboot the module into that state."
-        type : "uint8"
-        values:
-          1:
-            name: "Normal"
-          2:
-            name: "Cold"
-          3:
-            name: "Warm"
-          4:
-            name: "Hot"
-  40:
-    name: "Haptics Control"
-    description: "Control the haptics"
-    group: "ungrouped"
-    data:
-      1:
-        name: "Pattern"
-        description: "Pattern of haptics [1-3]"
-        type: "uint8"
-      2:
-        name: "Intensity"
-        description: "Intensity of haptics [0-2], 0 = low, 1 = medium, 2 = high"
-        type: "uint8"
-  41:
-    name: "Temperature"
-    description: "Temperature information"
-    group: "info"
-    data:
-      1:
-        name: "Temperature"
-        description: "Temperature in Celsius"
-        type: "float32"
-  42:
-    name: "Buzzer Control"
-    description: "Control the buzzer. Either pass duration and frequency, Or all fields without frequency."
-    group: "ungrouped"
-    data:
-      1:
-        name: "Duration"
-        description: "Duration of buzzer in milliseconds"
-        type: "uint16"
-      2:
-        name: "Sound Type"
-        description: "A predefined sound type"
-        type: "uint8"
-        values:
-          0:
-            name: "Solid"
-          1:
-            name: "Siren"
-          2:
-            name: "Beep Beep"
-          3:
-            name: "Ambulance"
-          4:
-            name: "FireTruck"
-          5:
-            name: "Positive1"
-          6:
-            name: "SlowBeep"
-          7:
-            name: "Alarm"
-      3:
-        name: "Intensity"
-        description: "Intensity of buzzer. [0-2]. Work as speed control for buzzer types."
-        type: "uint8"
-      4:
-        name: "Run Count"
-        description: "Number of times to run the buzzer"
-        type: "uint8"
-      5:
-        name: "Frequency"
-        description: "Frequency of buzzer of KHz.(if frequency is sent, only duration and frequency parameters will be inside the message)"
-        type: "float32"
-  43:
-    name: "Battery Status"
-    description: "Battery status information"
-    group: "info"
-    data:
-      1:
-        name: "Voltage"
-        description: "Current battery voltage"
-        type: "float32"
-      2:
-        name: "Percent"
-        description: "Current battery percent"
-        type: "uint8"
-  44:
-    name: "Pressure"
-    description: "Pressure information"
-    group: "info"
-    data:
-      1:
-        name: "Pressure"
-        # 1000 is a normal atmosphere
-        description: "Pressure in Milibar"
-        type: "float32"
-  45:
-    name: "Alarm"
-    description: "Trigger an alarm, using buzzer, haptics, strobe and optional prompt"
-    group: "ungrouped"
-    data:
-      1:
-        name: "Legacy alarm action"
-        description: "4 bytes of encoded data relating to legacy alarm formats. Can not be used with other options."
-        type: "uint32"
-      2:
-        name: "Duration"
-        description: "Duration of alarm in seconds. Max 127s"
-        type: "uint8"
-      3:
-        name: "Buzzer Pattern"
-        type: "uint8"
-      4:
-        name: "Buzzer Intensity"
-        type: "uint8"
-      5:
-        name: "Haptics Pattern"
-        type: "uint8"
-      6:
-        name: "Haptics Intensity"
-        type: "uint8"
-      7:
-        name: "Strobe Pattern"
-        type: "uint8"
-      8:
-        name: "Strobe Intensity"
-        type: "uint8"
-      9:
-        name: "Prompt message"
-        type: "ascii"
+        name: Good Satellites
+        description: Number of satellites with good signal
+        type: uint8
       10:
-        name: "Prompt timeout"
-        description: "Timeout for the prompt in seconds"
-        type: "uint8"
+        name: GPS L1
+        description: Summary data for GPS L1 satellites
+        type: bytes
+        parser: gsv
       11:
-        name: "Prompt button 1 text"
-        type: "ascii"
+        name: GPS Lx
+        description: Summary data for GPS Lx satellites
+        type: bytes
+        parser: gsv
       12:
-        name: "Prompt button 2 text"
-        type: "ascii"
+        name: GLONASS L1
+        description: Summary data for GLONASS L1 satellites
+        type: bytes
+        parser: gsv
       13:
-        name: "Prompt button 3 text"
-        type: "ascii"
+        name: GLONASS Lx
+        description: Summary data for GLONASS Lx satellites
+        type: bytes
+        parser: gsv
+      14:
+        name: Beidou L1
+        description: Summary data for Beidou L1 satellites
+        type: bytes
+        parser: gsv
+      15:
+        name: Beidou Lx
+        description: Summary data for Beidou Lx satellites
+        type: bytes
+        parser: gsv
+      16:
+        name: Galileo L1
+        description: Summary data for Galileo L1 satellites
+        type: bytes
+        parser: gsv
+      17:
+        name: Galileo Lx
+        description: Summary data for Galileo Lx satellites
+        type: bytes
+        parser: gsv
+  30:
+    name: Transmit Now
+    description: Transmit data immediately over GSM
+    group: gsm
+    data:
+      1:
+        name: Search GPS
+        description: 0 = no, 1 = yes
+        type: uint8
+      2:
+        name: Data
+        description: can be up to 200 bytes
+        type: bytes
+      3:
+        name: Retries
+        description: 0 - 10
+        type: uint8
+      4:
+        name: Priority
+        description: 0 - 1
+        type: uint8
+  31:
+    name: GSM Control
+    group: gsm
+    data:
+      1:
+        name: Flight mode
+        description: 0 = no, 1 = yes
+        type: uint8
+      2:
+        name: Duration
+        description: in mins
+        type: uint32
+      3:
+        name: GSM Active
+        description: READONLY report of if GSM is active. 0 = no, 1 = yes
+        type: uint8
+      4:
+        name: Request Control
+        description: 0 = no, 1 = yes
+        type: uint8
+  32:
+    name: GSM Request Ownership
+    group: gsm
+    data:
+      2:
+        name: Duration
+        description: in mins
+        type: uint32
+      4:
+        name: Request Control
+        description: 0 = no, 1 = yes
+        type: uint8
+  34:
+    name: Device Status
+    description: Device status information
+    group: info
+    data:
+      1:
+        name: Battery
+        description: Battery level
+        type: uint8
+      2:
+        name: Signal Strength
+        description: Signal strength
+        type: uint8
+      3:
+        name: Device Mode
+        description: Device mode
+        type: uint8
+        values:
+          0:
+            name: Sleep
+          1:
+            name: Awake
+      4:
+        name: Network type
+        type: uint8
+        values:
+          0:
+            name: No network
+          2:
+            name: GSM (2G)
+          3:
+            name: WCDMA (3G)
+          4:
+            name: LTE (4G)
+      5:
+        name: Network MNC
+        type: uint16
+      6:
+        name: Network MCC
+        type: uint16
+      7:
+        name: Firmware Version
+        type: uint32
+  35:
+    name: Device IDs
+    description: Device ID information
+    group: info
+    data:
+      1:
+        name: ID
+        description: ID
+        type: uintn
+      2:
+        name: IMEI
+        description: IMEI
+        type: ascii
+      3:
+        name: ICCID
+        description: ICCID
+        type: ascii
+  36:
+    name: Device Time
+    description: Device time information, if known
+    group: info
+    data:
+      1:
+        name: Unix Time
+        description: Unix time
+        type: uint32
+      2:
+        name: Year
+        description: Year
+        type: uint16
+      3:
+        name: Month
+        description: Month
+        type: uint8
+      4:
+        name: Date
+        description: Date
+        type: uint8
+      5:
+        name: Weekday
+        description: Weekday (1 monday etc)
+        type: uint8
+      6:
+        name: Hour
+        description: Hour
+        type: uint8
+      7:
+        name: Minute
+        description: Minute
+        type: uint8
+      8:
+        name: Second
+        description: Second
+        type: uint8
+  38:
+    name: Button Press
+    description: Press of a device button
+    group: ungrouped
+    data:
+      1:
+        name: Button ID
+        description: ID of the button, 0 indexed
+        type: uint8
+      2:
+        name: Duration
+        description: Duration of the button press in ms
+        type: uintn
+  39:
+    name: GPS Control
+    description: Control the GPS of the device
+    group: location
+    data:
+      1:
+        name: GPS Enable
+        type: uint8
+        values:
+          0:
+            name: Disabled
+          1:
+            name: Enabled
+      2:
+        name: RTK Enable Correction
+        description: Request correction data to be applied to the GPS
+        type: uint8
+        values:
+          0:
+            name: Disabled
+          1:
+            name: Enabled
+      3:
+        name: Start Mode
+        description: If only start mode is set, and the module is already enabled, it will reboot the module into that state.
+        type: uint8
+        values:
+          1:
+            name: Normal
+          2:
+            name: Cold
+          3:
+            name: Warm
+          4:
+            name: Hot
+  40:
+    name: Haptics Control
+    description: Control the haptics
+    group: ungrouped
+    data:
+      1:
+        name: Pattern
+        description: Pattern of haptics [1-3]
+        type: uint8
+      2:
+        name: Intensity
+        description: Intensity of haptics [0-2], 0 = low, 1 = medium, 2 = high
+        type: uint8
+  41:
+    name: Temperature
+    description: Temperature information
+    group: info
+    data:
+      1:
+        name: Temperature
+        description: Temperature in Celsius
+        type: float32
+  42:
+    name: Buzzer Control
+    description: Control the buzzer. Either pass duration and frequency, Or all fields without frequency.
+    group: ungrouped
+    data:
+      1:
+        name: Duration
+        description: Duration of buzzer in milliseconds
+        type: uint16
+      2:
+        name: Sound Type
+        description: A predefined sound type
+        type: uint8
+        values:
+          0:
+            name: Solid
+          1:
+            name: Siren
+          2:
+            name: Beep Beep
+          3:
+            name: Ambulance
+          4:
+            name: FireTruck
+          5:
+            name: Positive1
+          6:
+            name: SlowBeep
+          7:
+            name: Alarm
+      3:
+        name: Intensity
+        description: Intensity of buzzer. [0-2]. Work as speed control for buzzer types.
+        type: uint8
+      4:
+        name: Run Count
+        description: Number of times to run the buzzer
+        type: uint8
+      5:
+        name: Frequency
+        description: Frequency of buzzer of KHz.(if frequency is sent, only duration and frequency parameters will be inside the message)
+        type: float32
+  43:
+    name: Battery Status
+    description: Battery status information
+    group: info
+    data:
+      1:
+        name: Voltage
+        description: Current battery voltage
+        type: float32
+      2:
+        name: Percent
+        description: Current battery percent
+        type: uint8
+  44:
+    name: Pressure
+    description: Pressure information
+    group: info
+    data:
+      1:
+        name: Pressure
+        description: Pressure in Milibar
+        type: float32
+  45:
+    name: Alarm
+    description: Trigger an alarm, using buzzer, haptics, strobe and optional prompt
+    group: ungrouped
+    data:
+      1:
+        name: Legacy alarm action
+        description: 4 bytes of encoded data relating to legacy alarm formats. Can not be used with other options.
+        type: uint32
+      2:
+        name: Duration
+        description: Duration of alarm in seconds. Max 127s
+        type: uint8
+      3:
+        name: Buzzer Pattern
+        type: uint8
+      4:
+        name: Buzzer Intensity
+        type: uint8
+      5:
+        name: Haptics Pattern
+        type: uint8
+      6:
+        name: Haptics Intensity
+        type: uint8
+      7:
+        name: Strobe Pattern
+        type: uint8
+      8:
+        name: Strobe Intensity
+        type: uint8
+      9:
+        name: Prompt message
+        type: ascii
+      10:
+        name: Prompt timeout
+        description: Timeout for the prompt in seconds
+        type: uint8
+      11:
+        name: Prompt button 1 text
+        type: ascii
+      12:
+        name: Prompt button 2 text
+        type: ascii
+      13:
+        name: Prompt button 3 text
+        type: ascii
   46:
     name: Buzzer Sequence
-    description: "Play a sequence of buzzer sounds"
-    group: "ungrouped"
+    description: Play a sequence of buzzer sounds
+    group: ungrouped
     data:
       6:
-        name: "Frequencies"
-        description: "Array of frequencies in Hz as floats"
-        type: "float32[]"
+        name: Frequencies
+        description: Array of frequencies in Hz as floats
+        type: float32[]
       7:
-        name: "Timings"
-        description: "Array of timings in ms as uint16"
-        type: "uint16[]"
+        name: Timings
+        description: Array of timings in ms as uint16
+        type: uint16[]
   47:
-    name: "CPU2 Sleep"
-    description: "See how much power is being used by the device, between subscription and un-subscription time."
-    group: "ungrouped"
-    methods:
-      DO:
+    name: CPU2 Sleep
+    description: See how much power is being used by the device, between subscription and un-subscription time.
+    group: ungrouped
     data:
       1:
-        name: "Interval"
-        description: "Interval in ms to turn off the CPU2 for, before turning it back on"
-        type: "uint32"
+        name: Interval
+        description: Interval in ms to turn off the CPU2 for, before turning it back on
+        type: uint32
       2:
-        name: "Wake on Event"
-        description: "Should CPU1 wake up CPU2 on new events / messages"
-        type: "uint8"
+        name: Wake on Event
+        description: Should CPU1 wake up CPU2 on new events / messages
+        type: uint8
   48:
-    name: "Power Profile"
-    description: "See how much power is being used by the device, between subscription and un-subscription time."
-    group: "ungrouped"
-    methods:
-      SUBSCRIBE:
-        interval: ">= 300"
-      UNSUBSCRIBE:
+    name: Power Profile
+    description: See how much power is being used by the device, between subscription and un-subscription time.
+    group: ungrouped
     data:
       3:
-        name: "Total power"
-        description: "Total power used in mAH"
-        type: "float32"
+        name: Total power
+        description: Total power used in mAH
+        type: float32
       4:
-        name: "Current now"
-        description: "Current power usage in mA"
-        type: "float32"
+        name: Current now
+        description: Current power usage in mA
+        type: float32
   50:
-    name: "Link Control"
-    description: "Control a link to the internet to send and receive messages"
-    group: "gsm"
+    name: Link Control
+    description: Control a link to the internet to send and receive messages
+    group: gsm
     data:
       1:
-        name: "Link Address"
-        description: "IP Address of the link"
-        type: "ascii"
+        name: Link Address
+        description: IP Address of the link
+        type: ascii
       2:
-        name: "Link Port"
-        type: "uint16"
+        name: Link Port
+        type: uint16
       3:
-        name: "Link Enable"
-        type: "uint8"
+        name: Link Enable
+        type: uint8
         values:
           1:
-            name: "Enable"
+            name: Enable
           2:
-            name: "Disable"
+            name: Disable
   53:
-    name: "Ublox Protection Level"
-    description: "Get information about the ublox protection level"
-    group: "ungrouped"
-    # Only supports GET
+    name: Ublox Protection Level
+    description: Get information about the ublox protection level
+    group: ungrouped
     data:
       1:
-        name: "PL Valid"
-        description: "Indicates if the protection level is valid"
-        type: "uint8"
+        name: PL Valid
+        description: Indicates if the protection level is valid
+        type: uint8
       2:
-        name: "PL X"
-        description: "Protection level in the X direction in mm"
-        type: "uint32"
+        name: PL X
+        description: Protection level in the X direction in mm
+        type: uint32
       3:
-        name: "PL Y"
-        description: "Protection level in the Y direction in mm"
-        type: "uint32"
+        name: PL Y
+        description: Protection level in the Y direction in mm
+        type: uint32
       4:
-        name: "PL Z"
-        description: "Protection level in the Z direction in mm"
-        type: "uint32"
+        name: PL Z
+        description: Protection level in the Z direction in mm
+        type: uint32
       5:
-        name: "Horizontal Orientation"
-        description: "Horizontal orientation of the protection level"
-        type: "uint16"
+        name: Horizontal Orientation
+        description: Horizontal orientation of the protection level
+        type: uint16
       6:
-        name: "TMIR Coefficient"
-        description: "TMIR coefficient for protection level calculation"
-        type: "uint8"
+        name: TMIR Coefficient
+        description: TMIR coefficient for protection level calculation
+        type: uint8
       7:
-        name: "TMIR Exponent"
-        description: "TMIR exponent for protection level calculation"
-        type: "int8"
+        name: TMIR Exponent
+        description: TMIR exponent for protection level calculation
+        type: int8
   1004:
-    name: "LORA"
-    group: "ungrouped"
-    description: "Interaction with LORA"
+    name: LORA
+    description: Interaction with LORA
+    group: ungrouped
     data:
       2:
-        name: "Payload"
-        type: "bytes"
+        name: Payload
+        type: bytes
       4:
-        name: "Spread Factor"
-        type: "uint8"
-        description: "8-12"
+        name: Spread Factor
+        description: 8-12
+        type: uint8
       5:
-        name: "Coding Rate"
-        type: "uint8"
-        description: "1-4. [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]"
+        name: Coding Rate
+        description: '1-4. [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]'
+        type: uint8
       6:
-        name: "Bandwidth"
-        type: "uint8"
-        description: "0-2. [0: 125 kHz, 1: 250 kHz, 2: 500 kHz]"
+        name: Bandwidth
+        description: '0-2. [0: 125 kHz, 1: 250 kHz, 2: 500 kHz]'
+        type: uint8
       7:
-        name: "Center Frequency"
-        type: "uint32"
-        description: "860000000-925000000. value in hz"
+        name: Center Frequency
+        description: 860000000-925000000. value in hz
+        type: uint32
       8:
-        name: "TX Power"
-        type: "uint8"
-        description: "0-22"
+        name: TX Power
+        description: 0-22
+        type: uint8
       9:
-        name: "Preamble Length"
-        type: "uint8"
-        description: "4-128"
+        name: Preamble Length
+        description: 4-128
+        type: uint8
       10:
-        name: "Receive Ms"
-        type: "uint32"
-        description: "How long to listen for after a transmit, in ms"
+        name: Receive Ms
+        description: How long to listen for after a transmit, in ms
+        type: uint32
       11:
-        name: "Sleep"
-        type: "uint8"
-        description: "Any value will tell the LORA to stop all activity now"
+        name: Sleep
+        description: Any value will tell the LORA to stop all activity now
+        type: uint8
       12:
-        name: "State"
-        type: "uintn"
-        description: "Readonly"
-  # 10000 is the start of UX command space
+        name: State
+        description: Readonly
+        type: uintn
   10008:
-    name: "Preset Page"
-    description: "Display a predefined Lightbug page."
-    group: "screen"
+    name: Preset Page
+    description: Display a predefined Lightbug page.
+    group: screen
   10009:
-    name: "Text Page"
-    description: "Display or change a text page"
-    group: "screen"
+    name: Text Page
+    description: Display or change a text page
+    group: screen
     data:
       3:
-        name: "Page ID"
-        description: "ID of page to display or update"
-        type: "uintn"
+        name: Page ID
+        description: ID of page to display or update
+        type: uintn
       4:
-        name: "Page Title"
-        description: "Title of the page"
-        type: "ascii"
+        name: Page Title
+        description: Title of the page
+        type: ascii
       5:
-        name: "Status bar"
-        description: "Show the status bar"
-        type: "uint8"
+        name: Status bar
+        description: Show the status bar
+        type: uint8
       100:
-        name: "Line 1"
-        type: "ascii"
+        name: Line 1
+        type: ascii
       101:
-        name: "Line 2"
-        type: "ascii"
+        name: Line 2
+        type: ascii
       102:
-        name: "Line 3"
-        type: "ascii"
+        name: Line 3
+        type: ascii
       103:
-        name: "Line 4"
-        type: "ascii"
+        name: Line 4
+        type: ascii
       104:
-        name: "Line 5"
-        type: "ascii"
+        name: Line 5
+        type: ascii
   10010:
-    name: "Menu Page"
-    description: "Display or change a menu page"
-    group: "screen"
+    name: Menu Page
+    description: Display or change a menu page
+    group: screen
     data:
       2:
-        name: "Item count"
-        type: "uint8"
+        name: Item count
+        type: uint8
       3:
-        name: "Page ID"
-        type: "uintn"
+        name: Page ID
+        type: uintn
       4:
-        name: "Page Title"
-        type: "ascii"
+        name: Page Title
+        type: ascii
       5:
-        name: "Initial item selection"
-        description: "An optional item to show as initially selected"
-        type: "uint8"
+        name: Initial item selection
+        description: An optional item to show as initially selected
+        type: uint8
       100:
-        name: "Item 1"
-        type: "ascii"
+        name: Item 1
+        type: ascii
       101:
-        name: "Item 2"
-        type: "ascii"
+        name: Item 2
+        type: ascii
       102:
-        name: "Item 3"
-        type: "ascii"
+        name: Item 3
+        type: ascii
       103:
-        name: "Item 4"
-        type: "ascii"
+        name: Item 4
+        type: ascii
       104:
-        name: "Item 5"
-        type: "ascii"
+        name: Item 5
+        type: ascii
       105:
-        name: "Item 6"
-        type: "ascii"
+        name: Item 6
+        type: ascii
       106:
-        name: "Item 7"
-        type: "ascii"
+        name: Item 7
+        type: ascii
       107:
-        name: "Item 8"
-        type: "ascii"
+        name: Item 8
+        type: ascii
       108:
-        name: "Item 9"
-        type: "ascii"
+        name: Item 9
+        type: ascii
       109:
-        name: "Item 10"
-        type: "ascii"
+        name: Item 10
+        type: ascii
       110:
-        name: "Item 11"
-        type: "ascii"
+        name: Item 11
+        type: ascii
       111:
-        name: "Item 12"
-        type: "ascii"
+        name: Item 12
+        type: ascii
       112:
-        name: "Item 13"
-        type: "ascii"
+        name: Item 13
+        type: ascii
       113:
-        name: "Item 14"
-        type: "ascii"
+        name: Item 14
+        type: ascii
       114:
-        name: "Item 15"
-        type: "ascii"
+        name: Item 15
+        type: ascii
       115:
-        name: "Item 16"
-        type: "ascii"
+        name: Item 16
+        type: ascii
       116:
-        name: "Item 17"
-        type: "ascii"
+        name: Item 17
+        type: ascii
       117:
-        name: "Item 18"
-        type: "ascii"
+        name: Item 18
+        type: ascii
       118:
-        name: "Item 19"
-        type: "ascii"
+        name: Item 19
+        type: ascii
       119:
-        name: "Item 20"
-        type: "ascii"
+        name: Item 20
+        type: ascii
   10011:
-    name: "Draw Bitmap"
-    description: "Draw bitmap in UX"
-    group: "screen"
+    name: Draw Bitmap
+    description: Draw bitmap in UX
+    group: screen
     data:
       3:
-        name: "Page ID"
-        type: "uintn"
+        name: Page ID
+        type: uintn
       21:
-        name: "Bitmap at X"
-        type: "uintn"
+        name: Bitmap at X
+        type: uintn
       22:
-        name: "Bitmap at Y"
-        type: "uintn"
+        name: Bitmap at Y
+        type: uintn
       23:
-        name: "Bitmap width"
-        type: "uintn"
+        name: Bitmap width
+        type: uintn
       24:
-        name: "Bitmap height"
-        type: "uintn"
+        name: Bitmap height
+        type: uintn
       25:
-        name: "Bitmap data"
-        type: "bytes"
+        name: Bitmap data
+        type: bytes
       26:
-        name: "Bitmap overlay"
-        description: "Set if the previous page should NOT be cleared before drawing the bitmap"
-        type: "uint8"
+        name: Bitmap overlay
+        description: Set if the previous page should NOT be cleared before drawing the bitmap
+        type: uint8
       27:
-        name: "Don't draw"
-        description: "Set if the bitmap should not (yet) be drawn, but the data should be cached for later use"
-        type: "uint8"
-  # 10014:
-  #   name: "Full Refresh"
-  #   description: "Full refresh of UX"
-  #   group: "device-ux"
-  # 11000 is the end of the UX command space
+        name: Don't draw
+        description: Set if the bitmap should not (yet) be drawn, but the data should be cached for later use
+        type: uint8
