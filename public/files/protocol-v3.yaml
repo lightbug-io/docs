@@ -22,19 +22,19 @@ header:
   1:
     name: Message ID
     description: ID that can be used by receiver to ACK, and client to track for various responses, or re-sends. Max uint32 4,294,967,295.
-    type: uintn
+    type: uint
   2:
     name: Client ID
     description: ID of the client sending the message
-    type: uintn
+    type: uint
   3:
     name: Response to Message ID
     description: ID of the message that is being responded to
-    type: uintn
+    type: uint
   4:
     name: Message Status
     description: Status of the message. If omitted, assume OK?
-    type: uintn
+    type: uint
     values:
       0:
         name: OK
@@ -65,7 +65,7 @@ header:
   5:
     name: Message Method
     description: Request a service to be perform an action
-    type: uintn
+    type: uint
     values:
       1:
         name: SET
@@ -85,7 +85,7 @@ header:
   6:
     name: Subscription interval
     description: Interval in ms. To be used with the SUBSCRIBE method
-    type: uintn
+    type: uint
   9:
     name: Forward For Type
     description: 'FOR FUTURE USE: Type of client that the message is being forwarded for.'
@@ -111,7 +111,7 @@ header:
   13:
     name: Forwarding To Type
     description: 'FOR FUTURE USE: Type of client to forward the message to.'
-    type: uintn
+    type: uint
     values:
       1:
         name: Device
@@ -125,7 +125,7 @@ header:
   14:
     name: Forward To
     description: ID of the client to forward the message to. Forwarding to type alters the meaning of this field
-    type: uintn
+    type: uint
 messages:
   5:
     name: ACK
@@ -153,7 +153,7 @@ messages:
     data:
       7:
         name: Key
-        type: uintn
+        type: uint
       9:
         name: Payload
         description: Payload for the config
@@ -171,9 +171,11 @@ messages:
     data:
       1:
         name: Timestamp
-        description: Unix timestamp in ms (number of milliseconds since 1 Jan 1970)
+        description: Timestamp the position was taken
+        raw-description: Unix timestamp in ms (number of milliseconds since 1 Jan 1970)
         type: uint64
         unit: ms since epoch
+        parser: timestamp
       2:
         name: Latitude
         raw-description: Fixed point representation of Latitude.
@@ -390,7 +392,7 @@ messages:
         description: Signal strength
         type: uint8
       3:
-        name: Device Mode
+        name: Mode
         description: Device mode
         type: uint8
         values:
@@ -427,7 +429,7 @@ messages:
       1:
         name: ID
         description: ID
-        type: uintn
+        type: uint
       2:
         name: IMEI
         description: IMEI
@@ -479,13 +481,13 @@ messages:
     group: ungrouped
     data:
       1:
-        name: Button ID
+        name: ID
         description: ID of the button, 0 indexed
         type: uint8
       2:
         name: Duration
         description: Duration of the button press in ms
-        type: uintn
+        type: uint
   39:
     name: GPS Control
     description: Control the GPS of the device
@@ -699,14 +701,16 @@ messages:
     group: gsm
     data:
       1:
-        name: Link Address
+        name: Address
         description: IP Address of the link
         type: ascii
       2:
-        name: Link Port
+        name: Port
+        description: Port of the link
         type: uint16
       3:
-        name: Link Enable
+        name: Enable
+        description: Enable or disable the link
         type: uint8
         values:
           1:
@@ -789,7 +793,7 @@ messages:
       12:
         name: State
         description: Readonly
-        type: uintn
+        type: uint
   10008:
     name: Preset Page
     description: Display a predefined Lightbug page.
@@ -802,7 +806,7 @@ messages:
       3:
         name: Page ID
         description: ID of page to display or update
-        type: uintn
+        type: uint
       4:
         name: Page Title
         description: Title of the page
@@ -836,7 +840,7 @@ messages:
         type: uint8
       3:
         name: Page ID
-        type: uintn
+        type: uint
       4:
         name: Page Title
         type: ascii
@@ -911,24 +915,28 @@ messages:
     data:
       3:
         name: Page ID
-        type: uintn
+        type: uint
       21:
-        name: Bitmap at X
-        type: uintn
+        name: X
+        description: X coordinate for the start of the bitmap
+        type: uint
       22:
-        name: Bitmap at Y
-        type: uintn
+        name: "Y"
+        description: Y coordinate for the start of the bitmap
+        type: uint
       23:
-        name: Bitmap width
-        type: uintn
+        name: Width
+        description: Width of the bitmap
+        type: uint
       24:
-        name: Bitmap height
-        type: uintn
+        name: Height
+        description: Height of the bitmap
+        type: uint
       25:
-        name: Bitmap data
+        name: Data
         type: bytes
       26:
-        name: Bitmap overlay
+        name: Overlay
         description: Set if the previous page should NOT be cleared before drawing the bitmap
         type: uint8
       27:

@@ -27,7 +27,7 @@ Display or alter a menu page on the device screen.
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
 | 2     | Item count | | uint8  |   |  |
-| 3     | Page ID | | uintn  |   |  |
+| 3     | Page ID | | uint  |   |  |
 | 4     | Page Title | ??? | ascii  |   |  |
 | 5     | Initial selection |  | uint8  |   |  |
 | 100-119 | Menu items | Menu items to display on the screen | | |

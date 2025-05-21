@@ -36,7 +36,7 @@ A text page can have a title, and an optional status bar.
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
-| 3     | Page ID | | uintn  |   |  |
+| 3     | Page ID | | uint  |   |  |
 | 4     | Page Title | | ascii  |   |  |
 | 5     | Status bar | Should the status bar be shown? | uint8  |   |  |
 | 100-104 | Text lines | Lines of text to display on the screen | | |

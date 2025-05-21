@@ -101,7 +101,7 @@ export default defineComponent({
                 case '[]uint8':
                     result = bytes.map(byte => byte.toString()).join(' ');
                     break;
-                case 'uintn':
+                case 'uint':
                     const size = bytes.length;
                     result = bytes.reduce((acc, byte, index) => {
                         return acc + (byte << (8 * index));

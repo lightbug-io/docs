@@ -212,7 +212,8 @@ export default defineComponent({
             { key: '[]uint8', name: '[]uint8' },
             { key: 'bytes', name: 'bytes' },
             { key: 'float32', name: 'float32' },
-            { key: 'uintn', name: 'uintn' },
+            { key: 'uint', name: 'uint' },
+            { key: 'int', name: 'int' },
             { key: 'int32', name: 'int32' }
         ];
 
@@ -231,7 +232,7 @@ export default defineComponent({
                 value = '0';
             }
             switch (type) {
-                case 'uintn':
+                case 'uint':
                     const num = parseInt(value, 10);
                     if ( num <= 255 ) {
                         return [num];
@@ -497,7 +498,7 @@ export default defineComponent({
                     return String.fromCharCode(...bytes);
                 case '[]uint8':
                     return bytes.join(' ');
-                case 'uintn':
+                case 'uint':
                     // decide based on the length of the array
                     switch (bytes.length) {
                         case 1:
