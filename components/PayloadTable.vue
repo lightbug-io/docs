@@ -11,12 +11,32 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(field, index) in payloadFields" :key="index">
-          <td>{{ index }}</td>
-          <td>{{ field.name }}</td>
-          <td>{{ field.description }}</td>
-          <td>{{ field.type }}</td>
-        </tr>
+        <template v-for="(field, index) in payloadFields" :key="index">
+          <tr>
+            <td>{{ index }}</td>
+            <td>{{ field.name }}</td>
+            <td>
+              <template v-if="field.description">
+                {{ field.description }}
+              </template>
+              <template v-if="field.values">
+                <template v-if="field.description">
+                  <br />
+                </template>
+                <span style="font-size: 0.95em; color: #555;">
+                  <strong>Possible values:</strong>
+                  <ul style="margin: 0 0 0 1.2em; padding: 0; list-style-type: disc;">
+                    <li v-for="([key, val]) in Object.entries(field.values)" :key="key">
+                      <span style="font-family: monospace;">{{ key }}</span>: <strong>{{ (val as any).name }}</strong>
+                      <span v-if="(val as any).description">— {{ (val as any).description }}</span>
+                    </li>
+                  </ul>
+                </span>
+              </template>
+            </td>
+            <td>{{ field.type }}</td>
+          </tr>
+        </template>
       </tbody>
     </table>
   </div>
@@ -59,7 +79,9 @@ export default defineComponent({
     onMounted(loadProtocolData);
 
     return {
-      payloadFields
+      payloadFields,
+      headerText: props.headerText,
+      headerMarginTop: props.headerMarginTop
     };
   }
 });

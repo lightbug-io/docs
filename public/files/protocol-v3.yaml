@@ -815,6 +815,28 @@ messages:
         name: Status bar
         description: Show the status bar
         type: uint8
+      6:
+        name: Redraw Type
+        type: uint8
+        values:
+          0:
+            name: Auto
+            description: Automatically choose the redraw type
+          1:
+            name: PartialRedraw
+            description: Only redraw the parts of the screen changed in this message
+          2:
+            name: FullRedraw
+            description: Clear the screen buffer, and redraw the entire screen
+          3:
+            name: BufferOnly
+            description: Update the buffer only, do not redraw
+          4:
+            name: FullRedrawWithoutClear
+            description: Redraw the entire screen, without clearing the buffer
+          5:
+            name: ClearDontDraw
+            description: Clear the screen buffer, but don't redraw
       100:
         name: Line 1
         type: ascii
@@ -916,6 +938,28 @@ messages:
       3:
         name: Page ID
         type: uint
+      6:
+        name: Redraw Type
+        type: uint8
+        values:
+          0:
+            name: Auto
+            description: Automatically choose the redraw type
+          1:
+            name: PartialRedraw
+            description: Only redraw the parts of the screen changed in this message
+          2:
+            name: FullRedraw
+            description: Clear the screen buffer, and redraw the entire screen
+          3:
+            name: BufferOnly
+            description: Update the buffer only, do not redraw
+          4:
+            name: FullRedrawWithoutClear
+            description: Redraw the entire screen, without clearing the buffer
+          5:
+            name: ClearDontDraw
+            description: Clear the screen buffer, but don't redraw
       21:
         name: X
         description: X coordinate for the start of the bitmap
@@ -935,11 +979,3 @@ messages:
       25:
         name: Data
         type: bytes
-      26:
-        name: Overlay
-        description: Set if the previous page should NOT be cleared before drawing the bitmap
-        type: uint8
-      27:
-        name: Don't draw
-        description: Set if the bitmap should not (yet) be drawn, but the data should be cached for later use
-        type: uint8
