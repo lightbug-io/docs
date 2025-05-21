@@ -253,6 +253,12 @@ messages:
           1:
             name: rtk
             description: Position has come from an RTK module. This does not mean the position is RTK corrected.
+      12:
+        name: Correction Age
+        description: Age of the any correction data (primarily relating to MINEW based RTK devices)
+        type: uint8
+        conversion: "10"
+        unit: seconds
   16:
     name: Satellite Data
     group: location
