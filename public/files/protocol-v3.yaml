@@ -85,7 +85,7 @@ header:
   6:
     name: Subscription interval
     description: Interval in ms. To be used with the SUBSCRIBE method
-    type: uint
+    type: uint32
   9:
     name: Forward For Type
     description: 'FOR FUTURE USE: Type of client that the message is being forwarded for.'
