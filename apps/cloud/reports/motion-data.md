@@ -32,6 +32,12 @@ To enable the report, you must enable the `Advanced Accelerometer Data` setting 
 
 ![](https://i.imgur.com/a0GmMTN.png)
 
+You must then reset the device twice for the changes to take effect with 10 minutes between resets.
+
+::: info
+You can reset the device by holding the button for 10 seconds, it should beep once and then the LEDs will flash.
+:::
+
 ### Positioning the device
 
 In order to get correct data for tilt values, you must configure the 0 position of the device.
