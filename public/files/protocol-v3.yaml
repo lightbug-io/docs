@@ -261,6 +261,10 @@ messages:
         type: uint8
         conversion: "10"
         unit: seconds
+    methods:
+      GET: null
+      SUBSCRIBE: null
+      UNSUBSCRIBE: null
   16:
     name: Satellite Data
     group: location
@@ -325,6 +329,10 @@ messages:
         description: Summary data for Galileo Lx satellites
         type: bytes
         parser: gsv
+    methods:
+      GET: null
+      SUBSCRIBE: null
+      UNSUBSCRIBE: null
   30:
     name: Transmit Now
     description: Transmit data immediately over GSM
@@ -346,6 +354,8 @@ messages:
         name: Priority
         description: 0 - 1
         type: uint8
+    methods:
+      DO: null
   31:
     name: GSM Control
     group: gsm
@@ -366,6 +376,9 @@ messages:
         name: Request Control
         description: 0 = no, 1 = yes
         type: uint8
+    methods:
+      GET: null
+      SET: null
   32:
     name: GSM Request Ownership
     group: gsm
@@ -378,6 +391,8 @@ messages:
         name: Request Control
         description: 0 = no, 1 = yes
         type: uint8
+    methods:
+      SET: null
   34:
     name: Device Status
     description: Device status information
@@ -488,6 +503,9 @@ messages:
         name: Duration
         description: Duration of the button press in ms
         type: uint
+    methods:
+      SUBSCRIBE: null
+      UNSUBSCRIBE: null
   39:
     name: GPS Control
     description: Control the GPS of the device
@@ -682,6 +700,8 @@ messages:
         name: Wake on Event
         description: Should CPU1 wake up CPU2 on new events / messages
         type: uint8
+    methods:
+      DO: null
   48:
     name: Power Profile
     description: See how much power is being used by the device, between subscription and un-subscription time.
@@ -695,6 +715,15 @@ messages:
         name: Current now
         description: Current power usage in mA
         type: float32
+    methods:
+      SUBSCRIBE:
+        interval: '>= 300'
+      UNSUBSCRIBE: null
+  49:
+    name: CPU1 Reset
+    group: ungrouped
+    methods:
+      DO: null
   50:
     name: Link Control
     description: Control a link to the internet to send and receive messages
@@ -960,19 +989,19 @@ messages:
           5:
             name: ClearDontDraw
             description: Clear the screen buffer, but don't redraw
-      21:
+      7:
         name: X
         description: X coordinate for the start of the bitmap
         type: uint
-      22:
+      8:
         name: "Y"
         description: Y coordinate for the start of the bitmap
         type: uint
-      23:
+      9:
         name: Width
         description: Width of the bitmap
         type: uint
-      24:
+      10:
         name: Height
         description: Height of the bitmap
         type: uint

@@ -16,7 +16,7 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 15: Last Position
+# 15: Position
 
 ::: danger Not yet documented
 :::
@@ -24,7 +24,7 @@ These pages can be seen as a view of what is to come later this year.
 <SplitColumnView>
 <template #left>
 
-Used to interact with the devices last position.
+Used to interact with the devices position.
 
 <PayloadTable :messageId="15" headerText="Payload" headerMarginTop="0px" />
 
