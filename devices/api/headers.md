@@ -42,15 +42,25 @@ Should be the same message ID and type as the message being responded to.
 
 The status of the response.
 
- - 0: OK
- - 1: NOT OK (Generic error)
- - 3: Method not supported
- - 4: Invalid payload param
- - 5: Invalid state
- - 6: No data
- - 7: Not supported
- - 8: Failed, will retry
- - 9: Failed permanently
+Values below 0 indicate an OK status, but with special meanings.
+
+Values above 0 indicate an error or status that is not OK.
+
+| Value  | Status Description                                 |
+|--------|----------------------------------------------------|
+| 0      | OK                                                 |
+| -1     | OK Processing (there will be one or more further responses) |
+| -126   | OK No Ack (internal only, message does not require an ACK) |
+| -127   | OK Already Responded (message has already been responded to) |
+| 1      | NOT OK (Generic error)                             |
+| 3      | Method not supported                               |
+| 4      | Invalid payload param                              |
+| 5      | Invalid state                                      |
+| 6      | No data                                            |
+| 7      | Not supported                                      |
+| 8      | Failed, will retry                                 |
+| 9      | Failed permanently                                 |
+| 10     | Unknown message                                    |
 
 ## 5: Method
 
