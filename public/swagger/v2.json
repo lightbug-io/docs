@@ -1,60 +1,7 @@
 {
   "components": {
     "schemas": {
-      "httputil.HTTPError": {
-        "properties": {
-          "code": {
-            "example": 400,
-            "type": "integer"
-          },
-          "message": {
-            "example": "status bad request",
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "internal_api_handlers_v2_devices_byId.Optional-int32": {
-        "description": "Plan ID that the device should automatically renew onto in future billing cycles",
-        "properties": {
-          "defined": {
-            "type": "boolean"
-          },
-          "value": {
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "internal_api_handlers_v2_devices_byId.PutPlanInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/renewOnto"
-          }
-        ],
-        "properties": {
-          "ignoreSubscriptionSetup": {
-            "description": "Optional ignoring of subscription setup for non reseller users.\nIf the user has the plan already purchased, then don't setup a card or subscription if it does'nt exist...\nSubscriptions are already ignored for reseller users, so this option would not be needed for them.",
-            "type": "boolean"
-          },
-          "planId": {
-            "description": "Plan ID to be assigned to the device if available",
-            "type": "integer"
-          },
-          "renewOnto": {
-            "$ref": "#/components/schemas/internal_api_handlers_v2_devices_byId.Optional-int32"
-          },
-          "renewUntil": {
-            "description": "Optional date, at which the device will deactivate and plans will not be renewed",
-            "type": "string"
-          }
-        },
-        "required": [
-          "planId"
-        ],
-        "type": "object"
-      },
-      "internal_api_handlers_v2_users.BuyPlansRequest": {
+      "BuyPlansRequest": {
         "properties": {
           "currency": {
             "description": "Currency to charge in (gbp, usd, eur)",
@@ -83,129 +30,7 @@
         ],
         "type": "object"
       },
-      "internal_api_handlers_v2_users.LoginRequest": {
-        "properties": {
-          "password": {
-            "description": "Password of the user",
-            "type": "string"
-          },
-          "refreshable": {
-            "description": "Generate a refresh token, which expires this many seconds after the access token expiry. Max 31 days",
-            "maximum": 2678400,
-            "type": "integer"
-          },
-          "username": {
-            "description": "TODO convert to email instead of username before publishing auth routes...",
-            "type": "string"
-          }
-        },
-        "required": [
-          "password",
-          "username"
-        ],
-        "type": "object"
-      },
-      "internal_api_handlers_v2_users.LoginResponse": {
-        "properties": {
-          "expiry": {
-            "description": "Expiry of the access token",
-            "type": "string"
-          },
-          "refreshToken": {
-            "description": "Optional: Single use refresh token, if refreshable is set",
-            "type": "string"
-          },
-          "refreshTokenExpiry": {
-            "description": "Optional: Expiry of the refresh token, if refreshable is set",
-            "type": "string"
-          },
-          "token": {
-            "description": "JWT access token",
-            "type": "string"
-          },
-          "userId": {
-            "description": "User ID of the logged in user",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "expiry",
-          "token",
-          "userId"
-        ],
-        "type": "object"
-      },
-      "internal_api_handlers_v2_users.LogoutResponse": {
-        "type": "object"
-      },
-      "internal_api_handlers_v2_users.RefreshTokenRequest": {
-        "properties": {
-          "accessToken": {
-            "description": "Current access token (may be expired)",
-            "type": "string"
-          },
-          "refreshToken": {
-            "description": "Current refresh token",
-            "type": "string"
-          },
-          "refreshable": {
-            "description": "A new refresh token will be generated, with an expiry this many seconds after the access token expiry. Max 31 days",
-            "maximum": 2678400,
-            "type": "integer"
-          }
-        },
-        "required": [
-          "accessToken",
-          "refreshToken",
-          "refreshable"
-        ],
-        "type": "object"
-      },
-      "internal_api_handlers_v2_users.RefreshTokenResponse": {
-        "properties": {
-          "expiry": {
-            "description": "Expiry of the access token",
-            "type": "string"
-          },
-          "refreshToken": {
-            "description": "Single use refresh token",
-            "type": "string"
-          },
-          "refreshTokenExpiry": {
-            "description": "Expiry of the refresh token",
-            "type": "string"
-          },
-          "token": {
-            "description": "JWT access token",
-            "type": "string"
-          },
-          "userId": {
-            "description": "User ID of the logged in user",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "expiry",
-          "refreshToken",
-          "refreshTokenExpiry",
-          "token",
-          "userId"
-        ],
-        "type": "object"
-      },
-      "internal_api_handlers_v2_users.UsersClaimDeviceRequest": {
-        "properties": {
-          "serial": {
-            "description": "Serial number of the device",
-            "type": "string"
-          }
-        },
-        "required": [
-          "serial"
-        ],
-        "type": "object"
-      },
-      "internal_api_handlers_v2_users_personalAccessTokens.Handler.request": {
+      "CreatePersonalAccessTokenRequest": {
         "properties": {
           "description": {
             "description": "Description of the token",
@@ -222,184 +47,7 @@
         ],
         "type": "object"
       },
-      "internal_api_handlers_v2_users_personalAccessTokens.ListPersonalAccessTokenResponse": {
-        "properties": {
-          "limit": {
-            "type": "integer"
-          },
-          "page": {
-            "type": "integer"
-          },
-          "tokens": {
-            "items": {
-              "$ref": "#/components/schemas/internal_api_handlers_v2_users_personalAccessTokens.TokenResponse"
-            },
-            "type": "array",
-            "uniqueItems": false
-          },
-          "total": {
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "internal_api_handlers_v2_users_personalAccessTokens.TokenResponse": {
-        "properties": {
-          "created": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "expiresAt": {
-            "type": "string"
-          },
-          "id": {
-            "type": "integer"
-          },
-          "ttl": {
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "internal_api_presentation.Plan": {
-        "properties": {
-          "displayName": {
-            "type": "string"
-          },
-          "features": {
-            "type": "string"
-          },
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string"
-          },
-          "onoWhitelistId": {
-            "description": "Connectivity *string `json:\"connectivity\"`\nGroup        string  `json:\"group\"`\nResellerID *int32 `json:\"resellerId\"`\nResellerPlanID *int32  `json:\"resellerPlanId\"`\nArchived *int32 `json:\"archived\"`\nPlanType       string  `json:\"planType\"`",
-            "type": "integer"
-          },
-          "prices": {
-            "$ref": "#/components/schemas/internal_api_presentation.Pricing"
-          },
-          "sku": {
-            "type": "string"
-          },
-          "sleepLimit": {
-            "type": "integer"
-          },
-          "wakeLimit": {
-            "description": "Term           string  `json:\"term\"`\nPrice          float64 `json:\"price\"`\nCurrency       string  `json:\"currency\"`\nOwnerID        int32   `json:\"ownerId\"`",
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "internal_api_presentation.Pricing": {
-        "properties": {
-          "eur": {
-            "description": "breaks:  example:\"[0,1.99],[10,1.89]\"` // Array of quantity to price in EUR",
-            "items": {
-              "items": {
-                "type": "number"
-              },
-              "type": "array"
-            },
-            "type": "array",
-            "uniqueItems": false
-          },
-          "gbp": {
-            "description": "breaks:   example:\"[1,2.34],[10,2.22]\"` // Array of quantity to price in GBP",
-            "items": {
-              "items": {
-                "type": "number"
-              },
-              "type": "array"
-            },
-            "type": "array",
-            "uniqueItems": false
-          },
-          "tax": {
-            "$ref": "#/components/schemas/internal_api_presentation.Taxes"
-          },
-          "usd": {
-            "description": "breaks:   example:\"[1,4.35],[10,4.26]\"` // Array of quantity to price in USD",
-            "items": {
-              "items": {
-                "type": "number"
-              },
-              "type": "array"
-            },
-            "type": "array",
-            "uniqueItems": false
-          }
-        },
-        "type": "object"
-      },
-      "internal_api_presentation.Subscription": {
-        "properties": {
-          "_stripeSubscriptionId": {
-            "description": "(legacy) Stripe Subscription ID for per device subscriptions",
-            "type": "string"
-          },
-          "created": {
-            "type": "string"
-          },
-          "deviceId": {
-            "type": "integer"
-          },
-          "expires": {
-            "type": "string"
-          },
-          "id": {
-            "type": "integer"
-          },
-          "plan": {
-            "$ref": "#/components/schemas/internal_api_presentation.Plan"
-          },
-          "planId": {
-            "type": "integer"
-          },
-          "renewOnto": {
-            "type": "integer"
-          },
-          "userId": {
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
-      "internal_api_presentation.Taxes": {
-        "properties": {
-          "eur": {
-            "example": 0,
-            "type": "number"
-          },
-          "gbp": {
-            "example": 20,
-            "type": "number"
-          },
-          "usd": {
-            "example": 0,
-            "type": "number"
-          }
-        },
-        "type": "object"
-      },
-      "internal_api_presentation.UserPlanSummaryEntry": {
-        "properties": {
-          "count": {
-            "type": "integer"
-          },
-          "plan": {
-            "$ref": "#/components/schemas/internal_api_presentation.Plan"
-          }
-        },
-        "type": "object"
-      },
-      "lightbug_io_gingin_internal_api_handlers_v2_users_personalAccessTokens.Handler.response": {
+      "CreatePersonalAccessTokenResponse": {
         "properties": {
           "created": {
             "type": "string"
@@ -427,10 +75,10 @@
         ],
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_handlers_v2_users_personalAccessTokens_byId.Handler.response": {
+      "DeletePersonalAccessTokenResponse": {
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.Device": {
+      "Device": {
         "properties": {
           "active": {
             "type": "boolean"
@@ -455,7 +103,7 @@
             "type": "string"
           },
           "config": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.DeviceConfig"
+            "$ref": "#/components/schemas/DeviceConfig"
           },
           "currentMode": {
             "description": "Indicates last known device state. 0 = awake, 1 = sleep, 6 = flight mode",
@@ -492,7 +140,7 @@
             "type": "string"
           },
           "meta": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.DeviceMeta"
+            "$ref": "#/components/schemas/DeviceMeta"
           },
           "name": {
             "type": "string"
@@ -505,13 +153,13 @@
             "type": "integer"
           },
           "reseller": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Reseller"
+            "$ref": "#/components/schemas/Reseller"
           },
           "resellerId": {
             "type": "integer"
           },
           "resellerPlan": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.ResellerPlan"
+            "$ref": "#/components/schemas/ResellerPlan"
           },
           "resellerPlanId": {
             "type": "integer"
@@ -522,7 +170,7 @@
           "siloId": {},
           "stripeSubscription": {},
           "subscription": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Subscription"
+            "$ref": "#/components/schemas/Subscription"
           },
           "subscriptionType": {},
           "tags": {
@@ -538,7 +186,7 @@
           "users": {
             "description": "(optional) User IDs associated with this device",
             "items": {
-              "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.UserStub"
+              "$ref": "#/components/schemas/UserStub"
             },
             "type": "array",
             "uniqueItems": false
@@ -549,7 +197,7 @@
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.DeviceConfig": {
+      "DeviceConfig": {
         "description": "(optional) Configuration",
         "properties": {
           "alertAction": {
@@ -632,7 +280,7 @@
             "type": "integer"
           },
           "reasonsToWake": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.DeviceConfigReasonsToWake"
+            "$ref": "#/components/schemas/DeviceConfigReasonsToWake"
           },
           "receivedAt": {
             "description": "The last time the settings were sent to the device",
@@ -673,7 +321,7 @@
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.DeviceConfigReasonsToWake": {
+      "DeviceConfigReasonsToWake": {
         "properties": {
           "bluetooth": {
             "type": "boolean"
@@ -690,11 +338,220 @@
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.DeviceMeta": {
+      "DeviceMeta": {
         "additionalProperties": {},
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.OrderPlan": {
+      "Geofence": {
+        "properties": {
+          "center": {
+            "$ref": "#/components/schemas/GeofencePoint"
+          },
+          "deviceId": {
+            "type": "integer"
+          },
+          "foreignId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "list": {
+            "$ref": "#/components/schemas/GeofenceList"
+          },
+          "listId": {
+            "type": "integer"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_mysql_dao_model.GeofenceMeta"
+          },
+          "modified": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "outline": {
+            "description": "List of {lat:x,lng:y} objects representing the vertices of the polygon.\nNot to be used with center and radius.",
+            "items": {
+              "$ref": "#/components/schemas/GeofencePoint"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "ownerId": {
+            "type": "integer"
+          },
+          "radius": {
+            "description": "For circular geofences, the radius of the circle in meters. Property is ignored if outline != null.",
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "GeofenceList": {
+        "properties": {
+          "color": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "color",
+          "name"
+        ],
+        "type": "object"
+      },
+      "GeofenceListWrite": {
+        "properties": {
+          "color": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "color",
+          "name"
+        ],
+        "type": "object"
+      },
+      "GeofencePoint": {
+        "description": "For circular geofences, the center {lat:x,lng:y}. Property is ignored if outline != null.",
+        "properties": {
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "GeofenceWrite": {
+        "properties": {
+          "center": {
+            "$ref": "#/components/schemas/GeofencePoint"
+          },
+          "foreignId": {
+            "type": "string"
+          },
+          "listId": {
+            "type": "integer"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/lightbug_io_gingin_internal_mysql_dao_model.GeofenceMeta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "outline": {
+            "description": "List of {lat:x,lng:y} objects representing the vertices of the polygon.\nNot to be used with center and radius.",
+            "items": {
+              "$ref": "#/components/schemas/GeofencePoint"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "radius": {
+            "description": "For circular geofences, the radius of the circle in meters. Property is ignored if outline != null.",
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ListPersonalAccessTokenResponse": {
+        "properties": {
+          "limit": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "tokens": {
+            "items": {
+              "$ref": "#/components/schemas/PersonalAccessTokenResponse"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "LoginRequest": {
+        "properties": {
+          "password": {
+            "description": "Password of the user",
+            "type": "string"
+          },
+          "refreshable": {
+            "description": "Generate a refresh token, which expires this many seconds after the access token expiry. Max 31 days",
+            "maximum": 2678400,
+            "type": "integer"
+          },
+          "username": {
+            "description": "TODO convert to email instead of username before publishing auth routes...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object"
+      },
+      "LoginResponse": {
+        "properties": {
+          "expiry": {
+            "description": "Expiry of the access token",
+            "type": "string"
+          },
+          "refreshToken": {
+            "description": "Optional: Single use refresh token, if refreshable is set",
+            "type": "string"
+          },
+          "refreshTokenExpiry": {
+            "description": "Optional: Expiry of the refresh token, if refreshable is set",
+            "type": "string"
+          },
+          "token": {
+            "description": "JWT access token",
+            "type": "string"
+          },
+          "userId": {
+            "description": "User ID of the logged in user",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expiry",
+          "token",
+          "userId"
+        ],
+        "type": "object"
+      },
+      "LogoutResponse": {
+        "type": "object"
+      },
+      "OrderPlan": {
         "properties": {
           "consumedByDeviceId": {
             "description": "DEPRECATED, i favour of deviceId\nWill continue being returned until at least Mid 2025",
@@ -724,7 +581,7 @@
             "type": "integer"
           },
           "plan": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Plan"
+            "$ref": "#/components/schemas/Plan"
           },
           "planId": {
             "description": "Plan that has been ordered",
@@ -741,12 +598,12 @@
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.PaginatedResult-lightbug_io_gingin_internal_api_presentation_Device": {
+      "PaginatedResult-Device": {
         "properties": {
           "data": {
             "description": "Paginated data",
             "items": {
-              "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Device"
+              "$ref": "#/components/schemas/Device"
             },
             "type": "array",
             "uniqueItems": false
@@ -770,12 +627,12 @@
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.PaginatedResult-lightbug_io_gingin_internal_api_presentation_OrderPlan": {
+      "PaginatedResult-Geofence": {
         "properties": {
           "data": {
             "description": "Paginated data",
             "items": {
-              "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.OrderPlan"
+              "$ref": "#/components/schemas/Geofence"
             },
             "type": "array",
             "uniqueItems": false
@@ -799,7 +656,85 @@
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.Plan": {
+      "PaginatedResult-GeofenceList": {
+        "properties": {
+          "data": {
+            "description": "Paginated data",
+            "items": {
+              "$ref": "#/components/schemas/GeofenceList"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "limit": {
+            "description": "Requested elements per page",
+            "type": "integer"
+          },
+          "page": {
+            "description": "Requested page number",
+            "type": "integer"
+          },
+          "totalElements": {
+            "description": "Total elements in the database for given filters",
+            "type": "integer"
+          },
+          "totalPages": {
+            "description": "Total pages of elements given limit and filters",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PaginatedResult-OrderPlan": {
+        "properties": {
+          "data": {
+            "description": "Paginated data",
+            "items": {
+              "$ref": "#/components/schemas/OrderPlan"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "limit": {
+            "description": "Requested elements per page",
+            "type": "integer"
+          },
+          "page": {
+            "description": "Requested page number",
+            "type": "integer"
+          },
+          "totalElements": {
+            "description": "Total elements in the database for given filters",
+            "type": "integer"
+          },
+          "totalPages": {
+            "description": "Total pages of elements given limit and filters",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PersonalAccessTokenResponse": {
+        "properties": {
+          "created": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "ttl": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "Plan": {
         "properties": {
           "displayName": {
             "type": "string"
@@ -818,7 +753,7 @@
             "type": "integer"
           },
           "prices": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Pricing"
+            "$ref": "#/components/schemas/ProductPricing"
           },
           "sku": {
             "type": "string"
@@ -833,7 +768,15 @@
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.Pricing": {
+      "PostGeofenceListShareRequest": {
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ProductPricing": {
         "properties": {
           "eur": {
             "description": "breaks:  example:\"[0,1.99],[10,1.89]\"` // Array of quantity to price in EUR",
@@ -858,7 +801,7 @@
             "uniqueItems": false
           },
           "tax": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Taxes"
+            "$ref": "#/components/schemas/ProductPricing"
           },
           "usd": {
             "description": "breaks:   example:\"[1,4.35],[10,4.26]\"` // Array of quantity to price in USD",
@@ -874,7 +817,62 @@
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.Reseller": {
+      "RefreshTokenRequest": {
+        "properties": {
+          "accessToken": {
+            "description": "Current access token (may be expired)",
+            "type": "string"
+          },
+          "refreshToken": {
+            "description": "Current refresh token",
+            "type": "string"
+          },
+          "refreshable": {
+            "description": "A new refresh token will be generated, with an expiry this many seconds after the access token expiry. Max 31 days",
+            "maximum": 2678400,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "refreshable"
+        ],
+        "type": "object"
+      },
+      "RefreshTokenResponse": {
+        "properties": {
+          "expiry": {
+            "description": "Expiry of the access token",
+            "type": "string"
+          },
+          "refreshToken": {
+            "description": "Single use refresh token",
+            "type": "string"
+          },
+          "refreshTokenExpiry": {
+            "description": "Expiry of the refresh token",
+            "type": "string"
+          },
+          "token": {
+            "description": "JWT access token",
+            "type": "string"
+          },
+          "userId": {
+            "description": "User ID of the logged in user",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expiry",
+          "refreshToken",
+          "refreshTokenExpiry",
+          "token",
+          "userId"
+        ],
+        "type": "object"
+      },
+      "Reseller": {
         "description": "(optional) Reseller",
         "properties": {
           "billingTerm": {
@@ -894,7 +892,7 @@
           },
           "plans": {
             "items": {
-              "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.ResellerPlan"
+              "$ref": "#/components/schemas/ResellerPlan"
             },
             "type": "array",
             "uniqueItems": false
@@ -911,7 +909,7 @@
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.ResellerPlan": {
+      "ResellerPlan": {
         "description": "(optional) Reseller Plan",
         "properties": {
           "archived": {
@@ -947,7 +945,7 @@
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.Subscription": {
+      "Subscription": {
         "description": "(optional) Current subscription",
         "properties": {
           "_stripeSubscriptionId": {
@@ -967,7 +965,7 @@
             "type": "integer"
           },
           "plan": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Plan"
+            "$ref": "#/components/schemas/Plan"
           },
           "planId": {
             "type": "integer"
@@ -981,24 +979,18 @@
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.Taxes": {
+      "UserPlanSummaryEntry": {
         "properties": {
-          "eur": {
-            "example": 0,
-            "type": "number"
+          "count": {
+            "type": "integer"
           },
-          "gbp": {
-            "example": 20,
-            "type": "number"
-          },
-          "usd": {
-            "example": 0,
-            "type": "number"
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
           }
         },
         "type": "object"
       },
-      "lightbug_io_gingin_internal_api_presentation.UserStub": {
+      "UserStub": {
         "properties": {
           "email": {
             "type": "string"
@@ -1011,6 +1003,75 @@
             "type": "integer"
           }
         },
+        "type": "object"
+      },
+      "UsersClaimDeviceRequest": {
+        "properties": {
+          "serial": {
+            "description": "Serial number of the device",
+            "type": "string"
+          }
+        },
+        "required": [
+          "serial"
+        ],
+        "type": "object"
+      },
+      "httputil.HTTPError": {
+        "properties": {
+          "code": {
+            "example": 400,
+            "type": "integer"
+          },
+          "message": {
+            "example": "status bad request",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "internal_api_handlers_v2_devices_byId.Optional-int32": {
+        "description": "Plan ID that the device should automatically renew onto in future billing cycles",
+        "properties": {
+          "defined": {
+            "type": "boolean"
+          },
+          "value": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "internal_api_handlers_v2_devices_byId.PutPlanInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/renewOnto"
+          }
+        ],
+        "properties": {
+          "ignoreSubscriptionSetup": {
+            "description": "Optional ignoring of subscription setup for non reseller users.\nIf the user has the plan already purchased, then don't setup a card or subscription if it does'nt exist...\nSubscriptions are already ignored for reseller users, so this option would not be needed for them.",
+            "type": "boolean"
+          },
+          "planId": {
+            "description": "Plan ID to be assigned to the device if available",
+            "type": "integer"
+          },
+          "renewOnto": {
+            "$ref": "#/components/schemas/internal_api_handlers_v2_devices_byId.Optional-int32"
+          },
+          "renewUntil": {
+            "description": "Optional date, at which the device will deactivate and plans will not be renewed",
+            "type": "string"
+          }
+        },
+        "required": [
+          "planId"
+        ],
+        "type": "object"
+      },
+      "lightbug_io_gingin_internal_mysql_dao_model.GeofenceMeta": {
+        "additionalProperties": {},
         "type": "object"
       },
       "renewOnto": {
@@ -1106,6 +1167,63 @@
             }
           },
           {
+            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+            "in": "query",
+            "name": "user",
+            "schema": {
+              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+              "example": "*user1*,*user2*",
+              "form": "user",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only show devices connected since this date (super secret)",
+            "in": "query",
+            "name": "_connectedSince",
+            "schema": {
+              "description": "Only show devices connected since this date (super secret)",
+              "form": "_connectedSince",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan",
+              "form": "_include",
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": false
+            }
+          },
+          {
+            "description": "Filter by active status",
+            "in": "query",
+            "name": "active",
+            "schema": {
+              "description": "Filter by active status",
+              "example": true,
+              "form": "active",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+            "in": "query",
+            "name": "serial",
+            "schema": {
+              "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+              "example": "12001234",
+              "form": "serial",
+              "type": "string"
+            }
+          },
+          {
             "description": "Filter by iccid (exact match) (comma separated for multiple values)",
             "in": "query",
             "name": "iccid",
@@ -1138,17 +1256,6 @@
             }
           },
           {
-            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
-            "in": "query",
-            "name": "user",
-            "schema": {
-              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
-              "example": "*user1*,*user2*",
-              "form": "user",
-              "type": "string"
-            }
-          },
-          {
             "description": "Filter by reseller name (exact match)",
             "in": "query",
             "name": "reseller",
@@ -1160,28 +1267,6 @@
             }
           },
           {
-            "description": "Filter by active status",
-            "in": "query",
-            "name": "active",
-            "schema": {
-              "description": "Filter by active status",
-              "example": true,
-              "form": "active",
-              "type": "boolean"
-            }
-          },
-          {
-            "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
-            "in": "query",
-            "name": "serial",
-            "schema": {
-              "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
-              "example": "12001234",
-              "form": "serial",
-              "type": "string"
-            }
-          },
-          {
             "description": "Filter by current firmware version",
             "in": "query",
             "name": "config.currentFW",
@@ -1189,30 +1274,6 @@
               "description": "Filter by current firmware version",
               "form": "config.currentFW",
               "type": "string"
-            }
-          },
-          {
-            "description": "Only show devices connected since this date (super secret)",
-            "in": "query",
-            "name": "_connectedSince",
-            "schema": {
-              "description": "Only show devices connected since this date (super secret)",
-              "form": "_connectedSince",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan",
-            "in": "query",
-            "name": "_include",
-            "schema": {
-              "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan",
-              "form": "_include",
-              "items": {
-                "type": "string"
-              },
-              "type": "array",
-              "uniqueItems": false
             }
           },
           {
@@ -1230,7 +1291,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.PaginatedResult-lightbug_io_gingin_internal_api_presentation_Device"
+                  "$ref": "#/components/schemas/PaginatedResult-Device"
                 }
               }
             },
@@ -1405,7 +1466,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Device"
+                  "$ref": "#/components/schemas/Device"
                 }
               }
             },
@@ -1533,7 +1594,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/internal_api_presentation.Subscription"
+                  "$ref": "#/components/schemas/Subscription"
                 }
               }
             },
@@ -1543,7 +1604,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.Subscription"
+                  "$ref": "#/components/schemas/Subscription"
                 }
               }
             },
@@ -2032,7 +2093,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/internal_api_handlers_v2_users.BuyPlansRequest"
+                "$ref": "#/components/schemas/BuyPlansRequest"
               }
             }
           },
@@ -2116,7 +2177,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/internal_api_handlers_v2_users.UsersClaimDeviceRequest"
+                "$ref": "#/components/schemas/UsersClaimDeviceRequest"
               }
             }
           },
@@ -2200,7 +2261,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/internal_api_handlers_v2_users.LoginRequest"
+                "$ref": "#/components/schemas/LoginRequest"
               }
             }
           },
@@ -2212,7 +2273,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/internal_api_handlers_v2_users.LoginResponse"
+                  "$ref": "#/components/schemas/LoginResponse"
                 }
               }
             },
@@ -2290,7 +2351,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/internal_api_handlers_v2_users.LogoutResponse"
+                  "$ref": "#/components/schemas/LogoutResponse"
                 }
               }
             },
@@ -2381,7 +2442,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/internal_api_handlers_v2_users_personalAccessTokens.ListPersonalAccessTokenResponse"
+                  "$ref": "#/components/schemas/ListPersonalAccessTokenResponse"
                 }
               }
             },
@@ -2451,7 +2512,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/internal_api_handlers_v2_users_personalAccessTokens.Handler.request"
+                "$ref": "#/components/schemas/CreatePersonalAccessTokenRequest"
               }
             }
           },
@@ -2463,7 +2524,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_handlers_v2_users_personalAccessTokens.Handler.response"
+                  "$ref": "#/components/schemas/CreatePersonalAccessTokenResponse"
                 }
               }
             },
@@ -2547,7 +2608,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_handlers_v2_users_personalAccessTokens_byId.Handler.response"
+                  "$ref": "#/components/schemas/DeletePersonalAccessTokenResponse"
                 }
               }
             },
@@ -2718,7 +2779,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.PaginatedResult-lightbug_io_gingin_internal_api_presentation_OrderPlan"
+                  "$ref": "#/components/schemas/PaginatedResult-OrderPlan"
                 }
               }
             },
@@ -2802,7 +2863,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/internal_api_presentation.UserPlanSummaryEntry"
+                    "$ref": "#/components/schemas/UserPlanSummaryEntry"
                   },
                   "type": "array"
                 }
@@ -2876,7 +2937,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/internal_api_handlers_v2_users.RefreshTokenRequest"
+                "$ref": "#/components/schemas/RefreshTokenRequest"
               }
             }
           },
@@ -2888,7 +2949,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/internal_api_handlers_v2_users.RefreshTokenResponse"
+                  "$ref": "#/components/schemas/RefreshTokenResponse"
                 }
               }
             },
@@ -2955,6 +3016,1286 @@
         "summary": "Refresh token",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/users/{userid}/geofenceLists": {
+      "get": {
+        "parameters": [
+          {
+            "description": "User ID. 0 can be used for the current user",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Limit for pagination, default 10, max 10000",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sort by this field",
+            "in": "query",
+            "name": "_sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort in this direction (asc, desc)",
+            "in": "query",
+            "name": "_direction",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResult-GeofenceList"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets a list of geofence lists",
+        "tags": [
+          "geofences"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "User ID. 0 can be used for the current user",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeofenceListWrite"
+              }
+            }
+          },
+          "description": "Geofence list to create",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeofenceList"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Creates a new geofence list",
+        "tags": [
+          "geofences"
+        ]
+      }
+    },
+    "/users/{userid}/geofenceLists/{listid}": {
+      "delete": {
+        "description": "Deletes a geofence list\nThis can be a list that you have created, or a list that has been shared with you.",
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence list ID",
+            "in": "path",
+            "name": "listid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes a geofence list",
+        "tags": [
+          "geofences"
+        ]
+      },
+      "get": {
+        "description": "Gets a geofence list\nThis can be a list that you have created, or a list that has been shared with you.",
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence list ID",
+            "in": "path",
+            "name": "listid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeofenceList"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets a geofence list",
+        "tags": [
+          "geofences"
+        ]
+      }
+    },
+    "/users/{userid}/geofenceLists/{listid}/share": {
+      "post": {
+        "description": "Shares a geofence list with a user\nThis can be a list that you have created, or a list that has been shared with you.",
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence list ID",
+            "in": "path",
+            "name": "listid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostGeofenceListShareRequest"
+              }
+            }
+          },
+          "description": "Email",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Shares a geofence list with a user",
+        "tags": [
+          "geofences"
+        ]
+      }
+    },
+    "/users/{userid}/geofenceLists/{listid}/user/{targetid}": {
+      "delete": {
+        "description": "Deletes a user from a geofence list\nAnyone that has access to the list (via sharing) can alter the users that have access to it",
+        "parameters": [
+          {
+            "description": "User ID. 0 can be used for the current user",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence list ID",
+            "in": "path",
+            "name": "listid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "User ID to add to the list",
+            "in": "path",
+            "name": "targetid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes a user from a geofence list",
+        "tags": [
+          "geofences"
+        ]
+      },
+      "put": {
+        "description": "Adds a user to a geofence list\nAnyone that has access to the list (via sharing) can alter the users that have access to it",
+        "parameters": [
+          {
+            "description": "User ID. 0 can be used for the current user",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence list ID",
+            "in": "path",
+            "name": "listid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "User ID to add to the list",
+            "in": "path",
+            "name": "targetid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Adds a user to a geofence list",
+        "tags": [
+          "geofences"
+        ]
+      }
+    },
+    "/users/{userid}/geofences": {
+      "get": {
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Limit for pagination, default 10, max 10000",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sort by this field",
+            "in": "query",
+            "name": "_sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort in this direction (asc, desc)",
+            "in": "query",
+            "name": "_direction",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Include related models",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "enum": [
+                "list"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResult-Geofence"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets a list of geofences",
+        "tags": [
+          "geofences"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeofenceWrite"
+              }
+            }
+          },
+          "description": "Geofence to create",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Geofence"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Creates a new geofence",
+        "tags": [
+          "geofences"
+        ]
+      }
+    },
+    "/users/{userid}/geofences/{fenceid}": {
+      "get": {
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence ID",
+            "in": "path",
+            "name": "fenceid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Include related models",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "enum": [
+                "list"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Geofence"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets a single geofence",
+        "tags": [
+          "geofences"
+        ]
+      }
+    },
+    "/users/{userid}/geofences/{fenceid}/list": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence ID",
+            "in": "path",
+            "name": "fenceid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "410": {
+            "description": "Gone"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes a geofence from the associated list",
+        "tags": [
+          "geofences"
+        ]
+      }
+    },
+    "/users/{userid}/geofences/{fenceid}/list/{listid}": {
+      "put": {
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence ID",
+            "in": "path",
+            "name": "fenceid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "List ID",
+            "in": "path",
+            "name": "listid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Puts a geofence on a list",
+        "tags": [
+          "geofences"
         ]
       }
     },
@@ -3039,7 +4380,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_api_presentation.PaginatedResult-lightbug_io_gingin_internal_api_presentation_OrderPlan"
+                  "$ref": "#/components/schemas/PaginatedResult-OrderPlan"
                 }
               }
             },
@@ -3132,7 +4473,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/internal_api_presentation.UserPlanSummaryEntry"
+                    "$ref": "#/components/schemas/UserPlanSummaryEntry"
                   },
                   "type": "array"
                 }
