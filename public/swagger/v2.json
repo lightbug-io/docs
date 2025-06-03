@@ -1136,6 +1136,60 @@
             }
           },
           {
+            "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+            "in": "query",
+            "name": "serial",
+            "schema": {
+              "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+              "example": "12001234",
+              "form": "serial",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
+            "in": "query",
+            "name": "tag",
+            "schema": {
+              "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
+              "example": "device_type:truck",
+              "form": "tag",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+            "in": "query",
+            "name": "user",
+            "schema": {
+              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+              "example": "*user1*,*user2*",
+              "form": "user",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by reseller name (exact match)",
+            "in": "query",
+            "name": "reseller",
+            "schema": {
+              "description": "Filter by reseller name (exact match)",
+              "example": "Name*",
+              "form": "reseller",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only show devices connected since this date (super secret)",
+            "in": "query",
+            "name": "_connectedSince",
+            "schema": {
+              "description": "Only show devices connected since this date (super secret)",
+              "form": "_connectedSince",
+              "type": "string"
+            }
+          },
+          {
             "description": "Filter by ID (comma separated for multiple values)",
             "in": "query",
             "name": "id",
@@ -1157,33 +1211,33 @@
             }
           },
           {
-            "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
+            "description": "Filter by iccid (exact match) (comma separated for multiple values)",
             "in": "query",
-            "name": "imei",
+            "name": "iccid",
             "schema": {
-              "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
-              "form": "imei",
+              "description": "Filter by iccid (exact match) (comma separated for multiple values)",
+              "form": "iccid",
               "type": "string"
             }
           },
           {
-            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+            "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
             "in": "query",
-            "name": "user",
+            "name": "name",
             "schema": {
-              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
-              "example": "*user1*,*user2*",
-              "form": "user",
+              "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
+              "example": "Hello *",
+              "form": "name",
               "type": "string"
             }
           },
           {
-            "description": "Only show devices connected since this date (super secret)",
+            "description": "Filter by current firmware version",
             "in": "query",
-            "name": "_connectedSince",
+            "name": "config.currentFW",
             "schema": {
-              "description": "Only show devices connected since this date (super secret)",
-              "form": "_connectedSince",
+              "description": "Filter by current firmware version",
+              "form": "config.currentFW",
               "type": "string"
             }
           },
@@ -1213,66 +1267,12 @@
             }
           },
           {
-            "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+            "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
             "in": "query",
-            "name": "serial",
+            "name": "imei",
             "schema": {
-              "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
-              "example": "12001234",
-              "form": "serial",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by iccid (exact match) (comma separated for multiple values)",
-            "in": "query",
-            "name": "iccid",
-            "schema": {
-              "description": "Filter by iccid (exact match) (comma separated for multiple values)",
-              "form": "iccid",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
-            "in": "query",
-            "name": "name",
-            "schema": {
-              "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
-              "example": "Hello *",
-              "form": "name",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
-            "in": "query",
-            "name": "tag",
-            "schema": {
-              "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
-              "example": "device_type:truck",
-              "form": "tag",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by reseller name (exact match)",
-            "in": "query",
-            "name": "reseller",
-            "schema": {
-              "description": "Filter by reseller name (exact match)",
-              "example": "Name*",
-              "form": "reseller",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by current firmware version",
-            "in": "query",
-            "name": "config.currentFW",
-            "schema": {
-              "description": "Filter by current firmware version",
-              "form": "config.currentFW",
+              "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
+              "form": "imei",
               "type": "string"
             }
           },
@@ -3138,9 +3138,9 @@
             "ApiKeyAuth": []
           }
         ],
-        "summary": "Gets a list of geofence lists",
+        "summary": "Gets geofence lists",
         "tags": [
-          "geofences"
+          "geofencelists"
         ]
       },
       "put": {
@@ -3213,9 +3213,9 @@
             "ApiKeyAuth": []
           }
         ],
-        "summary": "Creates a new geofence list",
+        "summary": "Creates a geofence list",
         "tags": [
-          "geofences"
+          "geofencelists"
         ]
       }
     },
@@ -3318,7 +3318,7 @@
         ],
         "summary": "Deletes a geofence list",
         "tags": [
-          "geofences"
+          "geofencelists"
         ]
       },
       "get": {
@@ -3419,7 +3419,7 @@
         ],
         "summary": "Gets a geofence list",
         "tags": [
-          "geofences"
+          "geofencelists"
         ]
       }
     },
@@ -3531,9 +3531,9 @@
             "ApiKeyAuth": []
           }
         ],
-        "summary": "Shares a geofence list with a user",
+        "summary": "Shares a geofence list",
         "tags": [
-          "geofences"
+          "geofencelists"
         ]
       }
     },
@@ -3643,9 +3643,9 @@
             "ApiKeyAuth": []
           }
         ],
-        "summary": "Deletes a user from a geofence list",
+        "summary": "Removes a user from a geofence list",
         "tags": [
-          "geofences"
+          "geofencelists"
         ]
       },
       "put": {
@@ -3755,7 +3755,7 @@
         ],
         "summary": "Adds a user to a geofence list",
         "tags": [
-          "geofences"
+          "geofencelists"
         ]
       }
     },
@@ -3971,6 +3971,109 @@
       }
     },
     "/users/{userid}/geofences/{fenceid}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence ID",
+            "in": "path",
+            "name": "fenceid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes a single geofence",
+        "tags": [
+          "geofences"
+        ]
+      },
       "get": {
         "parameters": [
           {
@@ -4182,9 +4285,9 @@
             "ApiKeyAuth": []
           }
         ],
-        "summary": "Deletes a geofence from the associated list",
+        "summary": "Deletes a geofence from a list",
         "tags": [
-          "geofences"
+          "geofencelists"
         ]
       }
     },
@@ -4295,7 +4398,7 @@
         ],
         "summary": "Puts a geofence on a list",
         "tags": [
-          "geofences"
+          "geofencelists"
         ]
       }
     },
