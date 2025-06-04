@@ -2375,101 +2375,6 @@
         "deprecated": false
       }
     },
-    "/devices/{id}/activateOnResellerPlan": {
-      "get": {
-        "tags": [
-          "device"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "device id",
-            "required": true,
-            "schema": {
-              "type": "number",
-              "format": "integer"
-            }
-          },
-          {
-            "name": "resellerPlanId",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "number",
-              "format": ""
-            }
-          },
-          {
-            "name": "expiry",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "format": "date-time"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Request was successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "text/xml": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "application/javascript": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "text/javascript": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "success": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "deprecated": false
-      }
-    },
     "/devices/{id}/deactivate": {
       "get": {
         "tags": [
@@ -4893,10 +4798,6 @@
             "type": "number",
             "format": ""
           },
-          "resellerPlanId": {
-            "type": "number",
-            "format": ""
-          },
           "btPasskey": {
             "type": "number",
             "format": ""
@@ -4910,6 +4811,10 @@
             "format": ""
           },
           "ownerId": {
+            "type": "number",
+            "format": ""
+          },
+          "resellerPlanId": {
             "type": "number",
             "format": ""
           },
