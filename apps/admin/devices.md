@@ -7,6 +7,29 @@ The default view is the device list, which shows all devices in the account.
 
 ![](https://i.imgur.com/2Yok4An.png)
 
+## Fields
+
+The device list shows the following fields:
+- Identifiers: Static [identifiers](/terminology/devices#identity) for the device.
+    - ID
+    - Serial Number
+    - IMEI
+    - ICCID
+- Names
+    - Name: User defined name for the device.
+    - Type: Device type, such as `ZeroN` etc.
+    - Tags: User defined [tags](terminology/devices#tags) for the device.
+- Seen
+    - Last: Time the device was last seen by the Lightbug platform, this may not be a 1:1 match with when data was last received.
+    - First: Time the device was fist seen by the Lightbug platform, likely around the time it was manufactured.
+- Users
+- Plan details
+- Firmware
+- Status
+    - Battery
+    - Enabled
+- [Actions](#actions)
+
 ## Filters
 
 Filters can be used to narrow down the list of devices.
@@ -114,6 +137,26 @@ Settings allows you to change the settings of multiple devices at once, making u
 Allows, bulk adding or removing of users from the selected devices.
 
 ![](https://i.imgur.com/KIweB1w.png)
+
+### Tags
+
+Allows, bulk adding or removing of tags from the selected devices.
+
+Devices with no tags will allow you to add new tags.
+
+![](https://i.imgur.com/KjnS0iT.png)
+
+Changes can be reviewed before they are applied.
+
+![](https://i.imgur.com/lE4YthQ.png)
+
+If selected devices have a mixture of tags, they will be shown differently in the existing tags list.
+
+![](https://i.imgur.com/ES7HrLi.png)
+
+Tags can be:
+ - Removed from all devices, using the bin icon.
+ - Applied to all devices by clicking tags only applied to "Some devices" (in yellow).
 
 ### Activate / Deactivate
 

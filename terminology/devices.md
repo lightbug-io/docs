@@ -52,3 +52,13 @@ Will send updates based on the `update rate` set in device configuration, by def
 If your device battery level is critical, wake mode may be disabled.
 Generally this is 20% or less.
 :::
+
+## Tags
+
+Within the platform, a device can have one or more tags associated with it.
+
+Every tag has a name and a value, such as `location: office`, or `group: John`.
+
+Tags can be used to filter devices in the platform, and are useful for grouping devices together.
+
+Tags are exposed in both the [Cloud](apps/cloud/device-settings/tags) and [Admin](/apps/admin/devices#tags) portals.
