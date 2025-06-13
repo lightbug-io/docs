@@ -13,21 +13,20 @@ import {
     V1ParamSchemaFormats
 } from './v1-overrides'
 
+var apiKeyDescription = "API Key for authentication. Retrieval from either API version login routes, or other authentication token type. See <a href='/apis/authentication'>Authentication</a> for more details."
+// https://github.com/enzonotario/vitepress-openapi/issues/236
+// var apiKeyExample = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTY3Mjc2NjAyOCwiZXhwIjoxNjc0NDk0MDI4fQ.kCak9sLJr74frSRVQp0_27BY4iBCgQSmoT3vQVWKzJg"
+var apiKeyExample = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
 export function loadSpec(version: number): any {
     if (version === 1) {
-        // Add auth modes to v1
-        // "securitySchemes": {
-        //     "ApiKeyAuth": {
-        //       "in": "header",
-        //       "name": "Authorization",
-        //       "type": "apiKey"
-        //     }
-        //   }
         (spec1.components as any).securitySchemes = {
             ApiKeyAuth: {
                 in: 'header',
                 name: 'Authorization',
-                type: 'apiKey'
+                type: 'apiKey',
+                description: apiKeyDescription,
+                example: apiKeyExample
             }
         }
         // And add the security to the endpoints (everything except things with "login" in them)
@@ -150,6 +149,11 @@ export function loadSpec(version: number): any {
                 normalizedOperationId = normalizedOperationId.replace(/_/g, '-')
                 spec2.paths[path][method].operationId = normalizedOperationId
             }
+        }
+        // Add description to ApiKeyAuth if it exists
+        if (spec2.components && spec2.components.securitySchemes && spec2.components.securitySchemes.ApiKeyAuth) {
+            spec2.components.securitySchemes.ApiKeyAuth.description = apiKeyDescription
+            spec2.components.securitySchemes.ApiKeyAuth.example = apiKeyExample
         }
         return spec2
     }
