@@ -96,9 +96,15 @@ async function downloadPdf() {
         const attr = cells[0].innerText.trim();
         const val = cells[1].innerText.trim();
         if (attr && val) {
-          doc.text(`${attr}:`, 12, y, { maxWidth: 50 });
-          doc.text(val, 60, y, { maxWidth: 130 });
-          y += 7;
+          // Calculate height needed for wrapped text
+          const attrLines = doc.splitTextToSize(`${attr}:`, 50);
+          const valLines = doc.splitTextToSize(val, 130);
+          const lineCount = Math.max(attrLines.length, valLines.length);
+          // Reduce row height multiplier for less vertical space
+          const rowHeight = 5.5 * lineCount;
+          doc.text(attrLines, 12, y, { maxWidth: 50 });
+          doc.text(valLines, 60, y, { maxWidth: 130 });
+          y += rowHeight;
         }
       }
     }
