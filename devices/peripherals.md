@@ -6,9 +6,7 @@ These includes peripherals custom to a device type, such as a Keyring attachment
 
 ## Bluetooth
 
-![](https://lightbug.io/images/shop/LB-ACC-ME2.webp)
-
-This beacons provide convenient markers for locations or people.
+These beacons provide convenient markers for locations, devices, vehicles, people and other assets.
 
 - `lb-acc-mi7` - Bluetooth beacon with up to 240m range ([shop](https://lightbug.io/product/lb-acc-me2/))
 - `lb-acc-mi7` - Bluetooth beacon with up to 100m range ([shop](https://lightbug.io/product/lb-acc-mi7/))
@@ -19,3 +17,19 @@ These sensors can be used to monitor the environment, and submit additional info
 - `lb-acc-ms1` Bluetooth Temperature & Humidity Sensor ([shop](https://lightbug.io/product/lb-acc-ms1/))
 
 If you are interested in further bluetooth compatibility or sensors, please [contact us](https://lightbug.io/contact/).
+
+<v-row>
+    <v-col
+        v-for="(image, index) in [
+            'https://lightbug.io/images/shop/LB-ACC-MS1.webp',
+            'https://lightbug.io/images/shop/LB-ACC-ME2.webp',
+            'https://lightbug.io/images/shop/LB-ACC-MI7.webp',
+            'https://lightbug.io/images/shop/LB-ACC-C10.webp',
+        ]"
+        :key="index"
+        class="d-flex child-flex"
+        :cols="3"
+    >
+        <v-img :lazy-src="image" :src="image"></v-img>
+    </v-col>
+</v-row>
