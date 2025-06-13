@@ -1,8 +1,14 @@
+<script setup>
+import DownloadPdfButton from '../../components/DownloadPdfButton.vue'
+</script>
+
+<span style="float:right;"><DownloadPdfButton /></span>
+
 # Enviro
 
 Our core tracking device with additional environmental sensors.
 
-<v-img src="https://lightbug.io/images/product/lightbug_environmental_tracker_hu6a350a725fdca69abfd288f1b4171667_331520_600x600_fit_q100_box_2.png" alt="Envrio" style="width:200px"></v-img>
+<v-img src="https://lightbug.io/images/product/lightbug_environmental_tracker_hu6a350a725fdca69abfd288f1b4171667_331520_600x600_fit_q100_box_2.png" alt="Envrio" style="width:200px" id="device-image"></v-img>
 
 ## Specification
 

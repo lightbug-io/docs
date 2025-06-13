@@ -4,13 +4,19 @@ next:
   link: '/devices/vehicle/installation'
 ---
 
+<script setup>
+import DownloadPdfButton from '../../components/DownloadPdfButton.vue'
+</script>
+
+<span style="float:right;"><DownloadPdfButton /></span>
+
 # Vehicle
 
 Our wired core GPS tracking device.
 
 Designed for use where a power source is available.
 
-<img src="https://lightbug.io/images/product-front/LB-DEV-VT2_hu6c96dd0084ad7c7254ad7ef44efd2a3c_296576_600x900_fit_q95_h2_box_2.webp" alt="Vehicle" style="max-height: 250px; max-width: 380px">
+<img src="https://lightbug.io/images/product-front/LB-DEV-VT2_hu6c96dd0084ad7c7254ad7ef44efd2a3c_296576_600x900_fit_q95_h2_box_2.webp" alt="Vehicle" style="max-height: 250px; max-width: 380px" id="device-image">
 
 ## Specification
 

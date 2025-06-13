@@ -1,8 +1,14 @@
+<script setup>
+import DownloadPdfButton from '../../components/DownloadPdfButton.vue'
+</script>
+
+<span style="float:right;"><DownloadPdfButton /></span>
+
 # Pro
 
 Our general purpose core GPS tracking device.
 
-<img src="https://lightbug.io/images/product-front/LB-DEV-PR2_hu128f0c9381f6a9afd4c494ea04934e0d_235936_600x900_fit_q95_h2_box_2.webp" alt="Pro" style="max-height: 250px; max-width: 380px">
+<img src="https://lightbug.io/images/product-front/LB-DEV-PR2_hu128f0c9381f6a9afd4c494ea04934e0d_235936_600x900_fit_q95_h2_box_2.webp" alt="Pro" style="max-height: 250px; max-width: 380px" id="device-image">
 
 ## Specification
 
