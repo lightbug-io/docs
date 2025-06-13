@@ -82,6 +82,35 @@ async function downloadPdf() {
       var tableStartY = 30 + height + 10;
     }
   }
+  // Add Lightbug logo to top right
+  try {
+    let logoUrl = 'https://lightbug.io/images/logo-orange_hudcdce2ead9cbe2715b5cf652e648439f_53864_100x200_fit_q100_h2_box_2.webp';
+    // Use CORS proxy for logo
+    logoUrl = `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(logoUrl)}`;
+    // Fetch logo as image and convert to base64
+    const logoImg = new Image();
+    logoImg.crossOrigin = 'Anonymous';
+    logoImg.src = logoUrl;
+    await new Promise((resolve, reject) => {
+      logoImg.onload = resolve;
+      logoImg.onerror = reject;
+    });
+    // Draw logo to canvas to get PNG data
+    const canvas = document.createElement('canvas');
+    canvas.width = logoImg.width;
+    canvas.height = logoImg.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(logoImg, 0, 0);
+    const logoData = canvas.toDataURL('image/png');
+    // Place logo at top right, width 24mm, keep aspect ratio
+    const logoWidth = 8;
+    const logoAspect = logoImg.height / logoImg.width;
+    const logoHeight = logoWidth * logoAspect;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    doc.addImage(logoData, 'PNG', pageWidth - logoWidth - 10, 10, logoWidth, logoHeight);
+  } catch (e) {
+    // Logo failed to load, skip
+  }
   // Get specification table and render as concise text
   const table = document.querySelector('table');
   if (table) {
