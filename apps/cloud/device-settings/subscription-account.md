@@ -40,7 +40,7 @@ If you have no billing details set up, you will be prompted to enter them before
 
 ## Purchased Plans
 
-The Purchased Plans section will show you the plans you have purchased, that are in your [plan pool](terminology/billing#plan-pool) and, that are currently unused.
+The Purchased Plans section will show you the plans you have purchased, that are in your [plan pool](/terminology/billing#plan-pool) and, that are currently unused.
 
 If you have no pre purchased plans, you will see a message indicating that you have no plans.
 

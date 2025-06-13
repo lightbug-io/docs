@@ -18,7 +18,7 @@ The device list shows the following fields:
 - Names
     - Name: User defined name for the device.
     - Type: Device type, such as `ZeroN` etc.
-    - Tags: User defined [tags](terminology/devices#tags) for the device.
+    - Tags: User defined [tags](/terminology/devices#tags) for the device.
 - Seen
     - Last: Time the device was last seen by the Lightbug platform, this may not be a 1:1 match with when data was last received.
     - First: Time the device was fist seen by the Lightbug platform, likely around the time it was manufactured.
