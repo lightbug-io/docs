@@ -7,3 +7,5 @@
 Lightbug provides a [Toit package](https://pkg.toit.io/package/github.com%2Flightbug-io%2Ftoit-lightbug) that includes a set of bindings to Lightbug devices and the [Lightbug device API](./../../).
 
 Together, these tools allow you to quickly develop and deploy applications on Lightbug devices using Toit.
+
+Once developed, Toit firmware can be build without the jaguar development tooling enabled, and sent to Lightbug devices over the air for update.
