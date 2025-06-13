@@ -37,7 +37,7 @@ async function downloadPdf() {
   // Get device name
   const name = document.querySelector('h1, #device-title')?.innerText || 'Device';
   doc.setFontSize(22);
-  doc.text(name, 10, 20);
+  doc.text("Lightbug " + name, 10, 20);
   // Get image
   const imgContainer = document.getElementById('device-image');
   let imgEl = imgContainer;
@@ -103,7 +103,18 @@ async function downloadPdf() {
       }
     }
   }
-  doc.save(name + '-specification.pdf');
+// Add URL and date at the bottom BEFORE saving
+const pageHeight = doc.internal.pageSize.getHeight();
+const url = window.location.href;
+const date = new Date().toLocaleDateString();
+doc.setFontSize(10);
+doc.setTextColor(0, 0, 255);
+const urlWidth = doc.getTextWidth(url);
+doc.textWithLink(url, 10, pageHeight - 10, { url });
+doc.setTextColor(0, 0, 0);
+doc.text(` | Generated: ${date}`, 10 + urlWidth, pageHeight - 10);
+const cleanName = name.trim().replace(/\s+/g, '').replace(/[^\w\-]/g, '');
+doc.save(`Lightbug ${cleanName} spec.pdf`);
 }
 </script>
 
