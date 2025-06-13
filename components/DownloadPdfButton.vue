@@ -111,6 +111,29 @@ async function downloadPdf() {
   } catch (e) {
     // Logo failed to load, skip
   }
+  // Get the text between the first heading and the logo
+  let pageText = '';
+  const h1 = document.querySelector('h1, #device-title');
+  const logoEl = document.getElementById('device-image');
+  if (h1 && logoEl) {
+    let node = h1.nextSibling;
+    while (node && node !== logoEl) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent.trim();
+        if (text) pageText += text + '\n';
+      } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const text = node.textContent.trim();
+        if (text) pageText += text + '\n';
+      }
+      node = node.nextSibling;
+    }
+  }
+  if (pageText) {
+    doc.setFontSize(13);
+    doc.setTextColor(60, 60, 60);
+    doc.text(doc.splitTextToSize(pageText.trim(), 180), 10, 28);
+    doc.setTextColor(0, 0, 0);
+  }
   // Get specification table and render as concise text
   const table = document.querySelector('table');
   if (table) {
