@@ -37,3 +37,15 @@ You'll then be prompted to select a plan for the device, setting billing details
 <v-img src="https://i.imgur.com/zSSs8BK.png" style="height:350px"/>
 
 If you have no billing details set up, you will be prompted to enter them before the device will then be activated and the plan consumed.
+
+## Purchased Plans
+
+The Purchased Plans section will show you the plans you have purchased, that are in your [plan pool](terminology/billing#plan-pool) and, that are currently unused.
+
+If you have no pre purchased plans, you will see a message indicating that you have no plans.
+
+<v-img src="https://i.imgur.com/gCVftY9.png" style="height:250px"/>
+
+Otherwise you will see a breakdown of the unused plans you have available.
+
+<v-img src="https://i.imgur.com/KLXZ64D.png" style="height:250px"/>
