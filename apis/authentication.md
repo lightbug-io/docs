@@ -14,12 +14,12 @@ Tokens can be used universally across the various Lightbug API versions.
 
 We recommend using the latest version of the API for authentication.
 
- - **POST** `/v2/users/login` [Username & Password login (preferred)](/apis/v2/post-users-login)
- - **POST** `/v2/users/refreshToken` [Optionally refresh a login token](/apis/v2/post-users-refreshToken)
- - **POST** `/v2/users/personalAccessTokens` [Generate a personal access token (longer life)](/apis/v2/post-users-personalAccessTokens)
+ - <OAOperationLink method="POST" title="/v2/users/login - Username &amp; Password login (preferred)"/>
+ - <OAOperationLink method="POST" title="/v2/users/refreshToken - Optionally refresh a login token"/>
+ - <OAOperationLink method="POST" title="/v2/users/personalAccessTokens - Generate a personal access token (longer life)"/>
 
 ## Legacy
 
 The V1 API is still available for authentication, but does not support refresh tokens or personal access tokens.
 
- - **POST** `/api/users/login` [Username & Password login](/apis/v1/post-users-login)
+ - <OAOperationLink method="POST" title="/api/users/login - Username &amp; Password login"/>
