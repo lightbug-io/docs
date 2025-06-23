@@ -29,7 +29,7 @@
     "cross-env": "^7.0.3",
     "highlight.js": "^11.11.0",
     "jest-environment-jsdom": "^29.7.0",
-    "vitepress-openapi": "^0.0.3-alpha.81",
+    "vitepress-openapi": "^0.0.3-alpha.85",
     "vitepress-plugin-pagefind": "^0.4.10",
     "vue-i18n": "^9.14.0",
     "vuetify": "^3.6.15"
