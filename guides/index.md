@@ -16,6 +16,9 @@ features:
   - title: Adding your first device
     details: Get started with a Cloud account, add your first device, setup a plan, and start tracking.
     link: /guides/adding-your-first-device
+  - title: Browser Hard Refresh Guide
+    details: Learn how to perform a hard refresh in different browsers to resolve display issues and ensure you see the latest updates.
+    link: /guides/browser-hard-refresh
 ---
 
 If you want to request coverage of a specific topic, or have any questions, please [contact us](https://lightbug.io/contact/).
