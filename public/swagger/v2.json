@@ -1030,18 +1030,6 @@
         },
         "type": "object"
       },
-      "internal_api_handlers_v2_devices_byId.Optional-int32": {
-        "description": "Plan ID that the device should automatically renew onto in future billing cycles",
-        "properties": {
-          "defined": {
-            "type": "boolean"
-          },
-          "value": {
-            "type": "integer"
-          }
-        },
-        "type": "object"
-      },
       "internal_api_handlers_v2_devices_byId.PutPlanInput": {
         "allOf": [
           {
@@ -1058,7 +1046,8 @@
             "type": "integer"
           },
           "renewOnto": {
-            "$ref": "#/components/schemas/internal_api_handlers_v2_devices_byId.Optional-int32"
+            "description": "Plan ID that the device should automatically renew onto in future billing cycles",
+            "type": "integer"
           },
           "renewUntil": {
             "description": "Optional date, at which the device will deactivate and plans will not be renewed",
@@ -1136,50 +1125,6 @@
             }
           },
           {
-            "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
-            "in": "query",
-            "name": "serial",
-            "schema": {
-              "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
-              "example": "12001234",
-              "form": "serial",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
-            "in": "query",
-            "name": "tag",
-            "schema": {
-              "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
-              "example": "device_type:truck",
-              "form": "tag",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
-            "in": "query",
-            "name": "user",
-            "schema": {
-              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
-              "example": "*user1*,*user2*",
-              "form": "user",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by reseller name (exact match)",
-            "in": "query",
-            "name": "reseller",
-            "schema": {
-              "description": "Filter by reseller name (exact match)",
-              "example": "Name*",
-              "form": "reseller",
-              "type": "string"
-            }
-          },
-          {
             "description": "Only show devices connected since this date (super secret)",
             "in": "query",
             "name": "_connectedSince",
@@ -1187,6 +1132,20 @@
               "description": "Only show devices connected since this date (super secret)",
               "form": "_connectedSince",
               "type": "string"
+            }
+          },
+          {
+            "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan",
+              "form": "_include",
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": false
             }
           },
           {
@@ -1221,13 +1180,13 @@
             }
           },
           {
-            "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
+            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
             "in": "query",
-            "name": "name",
+            "name": "user",
             "schema": {
-              "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
-              "example": "Hello *",
-              "form": "name",
+              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+              "example": "*user1*,*user2*",
+              "form": "user",
               "type": "string"
             }
           },
@@ -1242,17 +1201,14 @@
             }
           },
           {
-            "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan",
+            "description": "Filter by reseller name (exact match)",
             "in": "query",
-            "name": "_include",
+            "name": "reseller",
             "schema": {
-              "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan",
-              "form": "_include",
-              "items": {
-                "type": "string"
-              },
-              "type": "array",
-              "uniqueItems": false
+              "description": "Filter by reseller name (exact match)",
+              "example": "Name*",
+              "form": "reseller",
+              "type": "string"
             }
           },
           {
@@ -1267,12 +1223,45 @@
             }
           },
           {
+            "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+            "in": "query",
+            "name": "serial",
+            "schema": {
+              "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+              "example": "12001234",
+              "form": "serial",
+              "type": "string"
+            }
+          },
+          {
             "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
             "in": "query",
             "name": "imei",
             "schema": {
               "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
               "form": "imei",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
+              "example": "Hello *",
+              "form": "name",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
+            "in": "query",
+            "name": "tag",
+            "schema": {
+              "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
+              "example": "device_type:truck",
+              "form": "tag",
               "type": "string"
             }
           },
@@ -1358,7 +1347,7 @@
     },
     "/devices/{id}/plan": {
       "delete": {
-        "description": "Removes the active plan from the device, recording the date it was removed, so that partial plan usage can be deducted during billing.\nA removed plan can not be re added to a device, and a new plan has to be used.\nIf you are on legacy reseller billing, this endpoint will not work. Instead see /api/devices/{id}/activateOnResellerPlan and /api/devices/{id}/deactivate routes",
+        "description": "Removes the active plan from the device, recording the date it was removed, so that partial plan usage can be deducted during billing.\nA removed plan can not be re added to a device, and a new plan has to be used.\nThis action will cause the device to be deactivated.",
         "parameters": [
           {
             "description": "Device ID",
@@ -1446,10 +1435,11 @@
         ],
         "summary": "Deletes a device plan",
         "tags": [
-          "devices"
+          "plans"
         ]
       },
       "get": {
+        "description": "Gets the current plan of a device, if it has one.",
         "parameters": [
           {
             "description": "Device ID",
@@ -1537,11 +1527,11 @@
         ],
         "summary": "Gets a device plan",
         "tags": [
-          "devices"
+          "plans"
         ]
       },
       "put": {
-        "description": "Sets the plan that the device is currently using, and optionally the plan that it should renew onto.\nFor user devices, the user must have already purchased or been allocated the target plan, and it should be available in their plan pool, see <a href=\"https://docs.lightbug.io/apis/v2/get-users-plans\">GET /users/plans</a>\nFor reseller devices, an \"unpaid\" plan will be used, and billed on the next cycle.",
+        "description": "Sets the plan that the device is currently using, and optionally the plan that it should renew onto.\nFor user devices, the user must have already purchased or been allocated the target plan, and it should be available in their plan pool, see <a href=\"https://docs.lightbug.io/apis/v2/get-users-plans\">GET /users/plans</a>\nFor reseller devices, an \"unpaid\" plan will be used, and billed on the next cycle.\nIf the device was previously deactivated, this action will also activate the device.",
         "parameters": [
           {
             "description": "Device ID",
@@ -1572,7 +1562,8 @@
                     "type": "integer"
                   },
                   "renewOnto": {
-                    "$ref": "#/components/schemas/internal_api_handlers_v2_devices_byId.Optional-int32"
+                    "description": "Plan ID that the device should automatically renew onto in future billing cycles",
+                    "type": "integer"
                   },
                   "renewUntil": {
                     "description": "Optional date, at which the device will deactivate and plans will not be renewed",
@@ -1675,7 +1666,7 @@
         ],
         "summary": "Sets a device plan",
         "tags": [
-          "devices"
+          "plans"
         ]
       }
     },

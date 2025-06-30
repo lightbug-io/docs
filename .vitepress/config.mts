@@ -67,18 +67,25 @@ function collapse(group) {
   return group;
 }
 
-function reorder(group: { items: { link: string }[] }, orderedLinks: string[]) {
-  const ordered: { link: string }[] = []
-  const unordered: { link: string }[] = []
+function reorder(
+  group: { items: { link: string }[] },
+  orderAtStart: string[] = [],
+  orderAtEnd: string[] = []
+) {
+  const orderedStart: { link: string }[] = [];
+  const orderedEnd: { link: string }[] = [];
+  const unordered: { link: string }[] = [];
   for (const item of group.items) {
-    if (orderedLinks.includes(item.link)) {
-      ordered.push(item)
+    if (orderAtStart.includes(item.link)) {
+      orderedStart.push(item);
+    } else if (orderAtEnd.includes(item.link)) {
+      orderedEnd.push(item);
     } else {
-      unordered.push(item)
+      unordered.push(item);
     }
   }
-  group.items = ordered.concat(unordered)
-  return group
+  group.items = orderedStart.concat(unordered, orderedEnd);
+  return group;
 }
 
 // https://vitepress.dev/reference/site-config
@@ -377,12 +384,21 @@ export default withMermaid(defineConfig({
                   linkPrefix: '/apis/v2/',
                   addedOperations: new Set(),
                 })),
-                collapse(sidebarSpec2.generateSidebarGroup({
+                reorder(collapse(sidebarSpec2.generateSidebarGroup({
                   tag: ["plans"],
                   text: "Plans",
                   linkPrefix: '/apis/v2/',
                   addedOperations: new Set(),
                 })),
+                [
+                  '/apis/v2/get-users-plans-summary',
+                  '/apis/v2/get-users-userid-plans-summary',
+                ],[
+                  '/apis/v2/get-devices-id-plan',
+                  '/apis/v2/put-devices-id-plan',
+                  '/apis/v2/delete-devices-id-plan',
+                ],
+              ),
                 collapse(sidebarSpec2.generateSidebarGroup({
                   tag: ["devices"],
                   text: "Devices",
