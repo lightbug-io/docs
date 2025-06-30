@@ -1,0 +1,260 @@
+<template>
+  <div>
+    <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+      <div>
+        <h1>{{ deviceTitle }}</h1>
+        <span v-if="specs && specs.product && specs.product.description">{{ specs.product.description }}</span>
+        <div v-if="imageUrl" class="device-image-wrapper">
+          <img :src="imageUrl" alt="Device image" class="device-image" />
+        </div>
+      </div>
+      <DownloadPdfButton :get-pdf-data="getPdfData" />
+    </div>
+    <h3>Overview</h3>
+    <span v-if="specs && specs.product && specs.product.description">{{ specs.product.description }}</span>
+    <table v-if="specs">
+      <tbody>
+        <tr v-for="(value, key) in displaySpecs" :key="key">
+          <th>{{ key }}</th>
+          <td>{{ value }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div v-if="specs">
+      <div v-for="section in genericSections" :key="section.name">
+        <h3>{{ section.title }}</h3>
+        <table>
+          <tbody>
+            <template v-for="subsection in section.subsections" :key="subsection.name">
+              <tr>
+                <th class="subsection-heading" colspan="2">{{ subsection.title }}</th>
+              </tr>
+              <tr v-for="row in subsection.rows" :key="row.label">
+                <th>{{ row.label }}</th>
+                <td v-html="row.value"></td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div v-else>
+      <slot name="loading">Loading...</slot>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, watchEffect } from 'vue'
+import yaml from 'js-yaml'
+import DownloadPdfButton from './DownloadPdfButton.vue'
+
+const props = defineProps({
+  yamlText: {
+    type: String,
+    required: true
+  },
+  imageUrl: {
+    type: String,
+    required: false
+  }
+})
+
+const specs = ref(null)
+const displaySpecs = ref({})
+const deviceTitle = ref('Device Specification')
+const genericSections = ref([])
+
+// An allowed list of keys to use from the YAML for now..
+const sectionKeys = ['integrations','connectivity','battery','positioning','sensors','charging','user interface','components']
+
+function normalizePhrase(str) {
+  if (!str) return ''
+  // Replace underscores and dashes with spaces
+  let phrase = str.replace(/[_-]/g, ' ')
+  // Capitalize each word
+  phrase = phrase.replace(/\b\w/g, l => l.toUpperCase())
+  // Special case: Bluetooth Le -> Bluetooth LE
+  phrase = phrase.replace(/Bluetooth Le/gi, 'Bluetooth LE')
+  phrase = phrase.replace(/ Mah/gi, ' mAh')
+  return phrase
+}
+
+function formatValueForDisplay(val) {
+  if (Array.isArray(val)) {
+    // Array: join items, format each recursively
+    return val.map(item => formatValueForDisplay(item)).join(', ')
+  } else if (val && typeof val === 'object') {
+    // Object: key-value pairs, each on a new line
+    return Object.entries(val)
+      .map(([k, v]) => `${normalizePhrase(k)}: ${formatValueForDisplay(v)}`)
+      .join('<br>')
+  } else {
+    // Primitive
+    return val
+  }
+}
+
+watchEffect(() => {
+  try {
+    specs.value = yaml.load(props.yamlText)
+    genericSections.value = []
+    if (specs.value && specs.value.product) {
+      const p = specs.value.product
+      deviceTitle.value = p.sku ? `${p.name} (${p.sku})` : p.name
+      // Main table (excluding sectionKeys)
+      displaySpecs.value = {
+        'Name': p.name,
+        'Version': p.version,
+        'Connectivity': p.connectivity ? Object.keys(p.connectivity).join(', ') : '',
+        'Positioning': p.positioning ? Object.keys(p.positioning).join(', ') : '',
+        'Sensors': p.sensors ? Object.keys(p.sensors).join(', ') : '',
+      }
+      // Generic section rendering
+      for (const sectionKey of sectionKeys) {
+        if (p[sectionKey]) {
+          const subsections = []
+          for (const [key, value] of Object.entries(p[sectionKey])) {
+            const rows = []
+            if (typeof value === 'object' && value !== null) {
+              for (const [k, v] of Object.entries(value)) {
+                let displayValue = v
+                // Generic handling for object-of-objects with bands
+                if (
+                  typeof v === 'object' && v !== null && !Array.isArray(v)
+                ) {
+                  // Check if all values are objects with a single key/value (e.g., { L1: 1575.42 })
+                  const entries = Object.entries(v)
+                  if (
+                    entries.length > 0 &&
+                    entries.every(([, obj]) => obj && typeof obj === 'object' && Object.keys(obj).length === 1)
+                  ) {
+                    displayValue = entries.map(([outerKey, innerObj]) => {
+                      const [innerKey, innerVal] = Object.entries(innerObj)[0]
+                      let valStr
+                      if (innerVal && typeof innerVal === 'object' && !Array.isArray(innerVal)) {
+                        // Render as key (value), key2 (value2)
+                        valStr = Object.entries(innerVal)
+                          .map(([k, v]) => `${k} @ ${v}`)
+                          .join(', ')
+                      } else {
+                        valStr = innerVal
+                      }
+                      return `${outerKey}: ${innerKey} (${valStr})`
+                    }).join('<br>')
+                  } else if (Array.isArray(v)) {
+                    displayValue = v.map(item => typeof item === 'object' ? JSON.stringify(item) : item).join(', ')
+                  } else {
+                    displayValue = JSON.stringify(v)
+                  }
+                } else if (Array.isArray(v)) {
+                  displayValue = v.map(item => typeof item === 'object' ? JSON.stringify(item) : item).join(', ')
+                } else if (typeof v === 'object' && v !== null) {
+                  // Render object as human-readable key-value pairs
+                  displayValue = Object.entries(v)
+                    .map(([objKey, objVal]) => {
+                      if (Array.isArray(objVal)) {
+                        return `${normalizePhrase(objKey)}: ${objVal.join(', ')}`
+                      } else if (typeof objVal === 'object' && objVal !== null) {
+                        // Nested object: flatten one level
+                        return `${normalizePhrase(objKey)}: ` + Object.entries(objVal).map(([k, val]) => `${normalizePhrase(k)}: ${val}`).join(', ')
+                      } else {
+                        return `${normalizePhrase(objKey)}: ${objVal}`
+                      }
+                    })
+                    .join('<br>')
+                }
+                displayValue = formatValueForDisplay(v)
+                if (displayValue !== undefined && displayValue !== null && displayValue !== '' && displayValue !== '[]' && displayValue !== '{}') {
+                  rows.push({ label: normalizePhrase(k), value: displayValue })
+                }
+              }
+            } else if (value !== undefined && value !== null && value !== '') {
+              rows.push({ label: normalizePhrase(key), value })
+            }
+            if (rows.length) {
+              subsections.push({
+                name: key,
+                title: normalizePhrase(key),
+                rows
+              })
+            }
+          }
+          if (subsections.length) {
+            genericSections.value.push({
+              name: sectionKey,
+              title: normalizePhrase(sectionKey),
+              subsections
+            })
+          }
+        }
+      }
+    }
+  } catch (e) {
+    specs.value = null
+    displaySpecs.value = {}
+    deviceTitle.value = 'Device Specification'
+    genericSections.value = []
+  }
+})
+
+// Function to provide all data needed for PDF generation
+function getPdfData() {
+  return {
+    title: deviceTitle.value,
+    description: specs.value?.product?.description || '',
+    imageUrl: props.imageUrl,
+    mainTable: displaySpecs.value,
+    sections: genericSections.value.map(section => ({
+      title: section.title,
+      subsections: section.subsections.map(sub => ({
+        title: sub.title,
+        rows: sub.rows.map(row => ({
+          label: row.label,
+          value: row.value
+        }))
+      }))
+    }))
+  }
+}
+</script>
+
+<style scoped>
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1em;
+}
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+th {
+  background: #f5f5f5;
+  text-align: left;
+}
+h3 {
+  margin-top: 2em;
+}
+h4 {
+  margin-top: 1em;
+}
+.subsection-heading {
+  background: #e0e7ef;
+  font-weight: bold;
+  text-align: left;
+  font-size: 1em;
+  padding: 10px 8px;
+  border-bottom: 2px solid #bfc8d6;
+}
+.device-image-wrapper {
+  text-align: center;
+  margin: 1em 0;
+}
+.device-image {
+  max-width: 220px;
+  max-height: 220px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+</style>

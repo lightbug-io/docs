@@ -5,9 +5,21 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, defineProps } from 'vue';
 let jsPDFLoaded = false;
-let html2canvasLoaded = false;
+
+const titleSize = 20;
+const textSize = 11;
+const bottomMargin = 20;
+const cellPadding = 2.5; // px
+const rowHeight = 8; // px
+const headerBg = [245, 245, 245]; // #f5f5f5
+const borderColor = [221, 221, 221]; // #ddd
+const subsectionBg = [224, 231, 239]; // #e0e7ef
+
+const props = defineProps({
+  getPdfData: Function
+});
 
 function loadScript(src) {
   return new Promise((resolve, reject) => {
@@ -25,70 +37,25 @@ onMounted(async () => {
     await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
     jsPDFLoaded = true;
   }
-  if (!html2canvasLoaded) {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
-    html2canvasLoaded = true;
-  }
 });
 
 async function downloadPdf() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  // Get device name
-  const name = document.querySelector('h1, #device-title')?.innerText || 'Device';
-  doc.setFontSize(22);
-  doc.text("Lightbug " + name, 10, 20);
-  // Get image
-  const imgContainer = document.getElementById('device-image');
-  let imgEl = imgContainer;
-  if (imgContainer && imgContainer.tagName !== 'IMG') {
-    imgEl = imgContainer.querySelector('img') || imgContainer;
-  }
-  if (imgEl && imgEl.tagName === 'IMG') {
-    // Wait for image to load if not already
-    if (!imgEl.complete) {
-      await new Promise((resolve, reject) => {
-        imgEl.onload = resolve;
-        imgEl.onerror = reject;
-      });
-    }
-    // Use CORS proxy for PDF export
-    let imgSrc = imgEl.src;
-    if (imgSrc.startsWith('https://lightbug.io/')) {
-      imgSrc = `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(imgSrc)}`;
-    }
-    try {
-      if (imgSrc && imgEl.naturalWidth > 0) {
-        // Calculate aspect ratio and fit width to 50mm
-        const maxWidth = 50;
-        const aspect = imgEl.naturalHeight / imgEl.naturalWidth;
-        const width = maxWidth;
-        const height = width * aspect;
-        doc.addImage(imgSrc, 'PNG', 10, 30, width, height);
-        // Move table start Y below image
-        var tableStartY = 30 + height + 10;
-      } else {
-        throw new Error('Image src not usable');
-      }
-    } catch (e) {
-      const canvas = await window.html2canvas(imgEl, { backgroundColor: null });
-      const imgData = canvas.toDataURL('image/png');
-      // Calculate aspect ratio and fit width to 50mm
-      const maxWidth = 50;
-      const aspect = canvas.height / canvas.width;
-      const width = maxWidth;
-      const height = width * aspect;
-      doc.addImage(imgData, 'PNG', 10, 30, width, height);
-      var tableStartY = 30 + height + 10;
-    }
-  }
+  const data = props.getPdfData ? props.getPdfData() : null;
+  let y = 20;
+  if (!data) return;
+  const pageHeight = doc.internal.pageSize.getHeight();
+
   // Add Lightbug logo to top right
-  try {
-    let logoUrl = 'https://lightbug.io/images/logo-orange_hudcdce2ead9cbe2715b5cf652e648439f_53864_100x200_fit_q100_h2_box_2.webp';
-    // Use CORS proxy for logo
+  let logoUrl = 'https://lightbug.io/images/logo-orange_hudcdce2ead9cbe2715b5cf652e648439f_53864_100x200_fit_q100_h2_box_2.webp';
+  if (logoUrl.startsWith('https://lightbug.io/')) {
     logoUrl = `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(logoUrl)}`;
-    // Fetch logo as image and convert to base64
-    const logoImg = new Image();
+  }
+  let logoHeight = 0;
+  try {
+    // Fetch logo as image and convert to base64 for best compatibility
+    const logoImg = new window.Image();
     logoImg.crossOrigin = 'Anonymous';
     logoImg.src = logoUrl;
     await new Promise((resolve, reject) => {
@@ -97,88 +64,183 @@ async function downloadPdf() {
     });
     // Draw logo to canvas to get PNG data
     const canvas = document.createElement('canvas');
-    canvas.width = logoImg.width;
-    canvas.height = logoImg.height;
+    canvas.width = logoImg.naturalWidth;
+    canvas.height = logoImg.naturalHeight;
     const ctx = canvas.getContext('2d');
     ctx.drawImage(logoImg, 0, 0);
     const logoData = canvas.toDataURL('image/png');
     // Place logo at top right, width 24mm, keep aspect ratio
-    const logoWidth = 8;
-    const logoAspect = logoImg.height / logoImg.width;
-    const logoHeight = logoWidth * logoAspect;
+    const logoWidth = 7; // mm
+    const logoAspect = logoImg.naturalHeight / logoImg.naturalWidth;
+    logoHeight = logoWidth * logoAspect;
     const pageWidth = doc.internal.pageSize.getWidth();
     doc.addImage(logoData, 'PNG', pageWidth - logoWidth - 10, 10, logoWidth, logoHeight);
   } catch (e) {
-    // Logo failed to load, skip
+    console.log('Failed to load logo image:', e);
   }
-  // Get the text between the first heading and the logo
-  let pageText = '';
-  const h1 = document.querySelector('h1, #device-title');
-  const logoEl = document.getElementById('device-image');
-  if (h1 && logoEl) {
-    let node = h1.nextSibling;
-    while (node && node !== logoEl) {
-      if (node.nodeType === Node.TEXT_NODE) {
-        const text = node.textContent.trim();
-        if (text) pageText += text + '\n';
-      } else if (node.nodeType === Node.ELEMENT_NODE) {
-        const text = node.textContent.trim();
-        if (text) pageText += text + '\n';
-      }
-      node = node.nextSibling;
-    }
-  }
-  if (pageText) {
-    doc.setFontSize(13);
+
+  // Title
+  doc.setFontSize(titleSize);
+  doc.text('Lightbug ' + data.title || 'Device', 10, y);
+  y += 10;
+  // Description
+  if (data.description) {
+    doc.setFontSize(textSize);
     doc.setTextColor(60, 60, 60);
-    doc.text(doc.splitTextToSize(pageText.trim(), 180), 10, 28);
+    doc.text(doc.splitTextToSize(data.description, 180), 10, y);
+    y += 10 + 5 * (doc.splitTextToSize(data.description, 180).length - 1);
     doc.setTextColor(0, 0, 0);
   }
-  // Get specification table and render as concise text
-  const table = document.querySelector('table');
-  if (table) {
-    let y = typeof tableStartY !== 'undefined' ? tableStartY : 90;
+
+  // Images
+  if (data.imageUrl) {
+    let imgSrc = data.imageUrl;
+    if (imgSrc.startsWith('https://lightbug.io/')) {
+      imgSrc = `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(imgSrc)}`;
+    }
+    const img = new window.Image();
+    img.crossOrigin = 'Anonymous';
+    img.src = imgSrc;
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+    });
+    const maxWidth = 50;
+    const aspect = img.naturalHeight / img.naturalWidth;
+    const width = maxWidth;
+    const height = width * aspect;
+    doc.addImage(img, 'PNG', 10, y, width, height);
+    y += height + 10;
+  }
+
+  // Main Table
+  if (data.mainTable) {
+    // Calculate total height needed for main table
+    let mainTableHeight = rowHeight; // header
+    for (const [attr, val] of Object.entries(data.mainTable)) {
+      if (val) {
+        const attrLines = doc.splitTextToSize(`${attr}:`, 50 - 2 * cellPadding);
+        const valLines = doc.splitTextToSize(val, 130 - 2 * cellPadding);
+        const lineCount = Math.max(attrLines.length, valLines.length);
+        mainTableHeight += rowHeight * lineCount;
+      }
+    }
+    if (y + mainTableHeight > pageHeight - bottomMargin) {
+      doc.addPage();
+      y = 0;
+    }
+    // Header row
+    doc.setFillColor(...headerBg);
+    doc.setDrawColor(...borderColor);
+    doc.rect(10, y, 50, rowHeight, 'F');
+    doc.rect(60, y, 130, rowHeight, 'F');
     doc.setFontSize(14);
-    doc.text('Specification', 10, y);
-    y += 8;
+    doc.setFont(undefined, 'bold');
+    doc.text('Specification', 12, y + rowHeight - cellPadding);
+    doc.setFont(undefined, 'normal');
+    y += rowHeight;
     doc.setFontSize(11);
-    for (const row of table.querySelectorAll('tr')) {
-      const cells = row.querySelectorAll('td, th');
-      if (cells.length === 2) {
-        const attr = cells[0].innerText.trim();
-        const val = cells[1].innerText.trim();
-        if (attr && val) {
-          // Calculate height needed for wrapped text
-          const attrLines = doc.splitTextToSize(`${attr}:`, 50);
-          const valLines = doc.splitTextToSize(val, 130);
+    for (const [attr, val] of Object.entries(data.mainTable)) {
+      if (val) {
+        const attrLines = doc.splitTextToSize(`${attr}:`, 50 - 2 * cellPadding);
+        const valLines = doc.splitTextToSize(val, 130 - 2 * cellPadding);
+        const lineCount = Math.max(attrLines.length, valLines.length);
+        const thisRowHeight = rowHeight * lineCount;
+        // Draw cell backgrounds and borders
+        doc.setFillColor(255,255,255);
+        doc.setDrawColor(...borderColor);
+        doc.rect(10, y, 50, thisRowHeight, 'F');
+        doc.rect(60, y, 130, thisRowHeight, 'F');
+        // Text
+        doc.setFont(undefined, 'bold');
+        doc.text(attrLines, 12, y + rowHeight - cellPadding, { maxWidth: 50 - 2 * cellPadding });
+        doc.setFont(undefined, 'normal');
+        doc.text(valLines, 62, y + rowHeight - cellPadding, { maxWidth: 130 - 2 * cellPadding });
+        y += thisRowHeight;
+      }
+    }
+  }
+
+  // Sections
+  if (data.sections) {
+    for (const section of data.sections) {
+      // Calculate total height needed for this section's table
+      let sectionTableHeight = rowHeight; // section title
+      for (const subsection of section.subsections) {
+        sectionTableHeight += rowHeight; // subsection title
+        for (const row of subsection.rows) {
+          const attrLines = doc.splitTextToSize(`${row.label}:`, 50 - 2 * cellPadding);
+          const valText = String(row.value).replace(/<br\s*\/??\s*>/gi, '\n');
+          const valLines = doc.splitTextToSize(valText, 130 - 2 * cellPadding);
           const lineCount = Math.max(attrLines.length, valLines.length);
-          // Reduce row height multiplier for less vertical space
-          const rowHeight = 5.5 * lineCount;
-          doc.text(attrLines, 12, y, { maxWidth: 50 });
-          doc.text(valLines, 60, y, { maxWidth: 130 });
-          y += rowHeight;
+          sectionTableHeight += rowHeight * lineCount;
+        }
+      }
+      if (y + sectionTableHeight > pageHeight - bottomMargin) {
+        doc.addPage();
+        y = 0
+      }
+      // Section title as table header
+      doc.setFillColor(...headerBg);
+      doc.setDrawColor(...borderColor);
+      doc.rect(10, y, 180, rowHeight, 'F');
+      doc.setFontSize(14);
+      doc.setFont(undefined, 'bold');
+      doc.text(section.title, 12, y + rowHeight - cellPadding);
+      doc.setFont(undefined, 'normal');
+      y += rowHeight;
+      doc.setFontSize(11);
+      for (const subsection of section.subsections) {
+        // Subsection heading row
+        doc.setFillColor(...subsectionBg);
+        doc.setDrawColor(...borderColor);
+        doc.rect(10, y, 180, rowHeight, 'F');
+        doc.setFont(undefined, 'bold');
+        doc.text(subsection.title, 12, y + rowHeight - cellPadding);
+        doc.setFont(undefined, 'normal');
+        y += rowHeight;
+        for (const row of subsection.rows) {
+          const attrLines = doc.splitTextToSize(`${row.label}:`, 50 - 2 * cellPadding);
+          const valText = String(row.value).replace(/<br\s*\/??\s*>/gi, '\n');
+          const valLines = doc.splitTextToSize(valText, 130 - 2 * cellPadding);
+          const lineCount = Math.max(attrLines.length, valLines.length);
+          const thisRowHeight = rowHeight * lineCount;
+          // Draw cell backgrounds and borders
+          doc.setFillColor(255,255,255);
+          doc.setDrawColor(...borderColor);
+          doc.rect(10, y, 50, thisRowHeight, 'F');
+          doc.rect(60, y, 130, thisRowHeight, 'F');
+          // Text
+          doc.setFont(undefined, 'bold');
+          doc.text(attrLines, 12, y + rowHeight - cellPadding, { maxWidth: 50 - 2 * cellPadding });
+          doc.setFont(undefined, 'normal');
+          doc.text(valLines, 62, y + rowHeight - cellPadding, { maxWidth: 130 - 2 * cellPadding });
+          y += thisRowHeight;
         }
       }
     }
   }
-// Add URL and date at the bottom BEFORE saving
-const pageHeight = doc.internal.pageSize.getHeight();
-const url = window.location.href;
-const date = new Date().toLocaleDateString();
-doc.setFontSize(10);
-doc.setTextColor(0, 0, 255);
-const urlWidth = doc.getTextWidth(url);
-doc.textWithLink(url, 10, pageHeight - 10, { url });
-doc.setTextColor(0, 0, 0);
-doc.text(` | Generated: ${date}`, 10 + urlWidth, pageHeight - 10);
-const cleanName = name.trim().replace(/\s+/g, '').replace(/[^\w\-]/g, '');
-doc.save(`Lightbug ${cleanName} spec.pdf`);
+
+  // Footer
+  const url = window.location.href;
+  const date = new Date().toLocaleDateString();
+  doc.setFontSize(10);
+  doc.setTextColor(0, 0, 255);
+  const urlWidth = doc.getTextWidth(url);
+  doc.textWithLink(url, 10, pageHeight - 10, { url });
+  doc.setTextColor(0, 0, 0);
+  doc.text(` | Generated: ${date}`, 10 + urlWidth, pageHeight - 10);
+  // Open PDF in new tab instead of downloading
+  const pdfBlob = doc.output('blob');
+  const blobUrl = URL.createObjectURL(pdfBlob);
+  window.open(blobUrl, '_blank');
 }
 </script>
 
 <style scoped>
 .pdf-btn-wrapper {
   display: flex;
+  flex-direction: column;
   justify-content: flex-end;
   margin: 16px 0 24px 0;
 }
