@@ -4,8 +4,8 @@
       <div>
         <h1>{{ deviceTitle }}</h1>
         <span v-if="specs && specs.product && specs.product.description">{{ specs.product.description }}</span>
-        <div v-if="imageUrl" class="device-image-wrapper">
-          <img :src="imageUrl" alt="Device image" class="device-image" />
+        <div v-if="specs && specs.product && specs.product.images && specs.product.images.length" class="device-image-row">
+          <img v-for="(img, idx) in specs.product.images" :key="img" :src="img.startsWith('https://lightbug.io/') ? `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(img)}` : img" :alt="`Device image ${idx+1}`" class="device-image" />
         </div>
       </div>
       <DownloadPdfButton :get-pdf-data="getPdfData" />
@@ -53,10 +53,6 @@ const props = defineProps({
   yamlText: {
     type: String,
     required: true
-  },
-  imageUrl: {
-    type: String,
-    required: false
   }
 })
 
@@ -66,7 +62,7 @@ const deviceTitle = ref('Device Specification')
 const genericSections = ref([])
 
 // An allowed list of keys to use from the YAML for now..
-const sectionKeys = ['integrations','connectivity','battery','positioning','sensors','charging','user interface','components']
+const sectionKeys = ['physical','integrations','connectivity','battery','positioning','sensors','charging','user interface','components']
 
 function normalizePhrase(str) {
   if (!str) return ''
@@ -200,10 +196,16 @@ watchEffect(() => {
 
 // Function to provide all data needed for PDF generation
 function getPdfData() {
+  // Use CORS proxy for images if needed
+  const images = (specs.value?.product?.images || []).map(img =>
+    img.startsWith('https://lightbug.io/')
+      ? `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(img)}`
+      : img
+  );
   return {
     title: deviceTitle.value,
     description: specs.value?.product?.description || '',
-    imageUrl: props.imageUrl,
+    images,
     mainTable: displaySpecs.value,
     sections: genericSections.value.map(section => ({
       title: section.title,
@@ -220,6 +222,24 @@ function getPdfData() {
 </script>
 
 <style scoped>
+.device-image-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  margin: 1em 0;
+  max-width: 100%;
+  justify-content: center;
+}
+.device-image {
+  flex: 1 1 180px;
+  max-width: 180px;
+  min-width: 120px;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  object-fit: contain;
+}
 table {
   width: 100%;
   border-collapse: collapse;

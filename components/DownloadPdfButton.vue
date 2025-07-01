@@ -8,20 +8,42 @@
 import { onMounted, defineProps } from 'vue';
 let jsPDFLoaded = false;
 
+// Text sizes
 const titleSize = 20;
-const textSize = 11;
-const bottomMargin = 20;
-const cellPadding = 2.5; // px
-const rowHeight = 8; // px
-const headerBg = [245, 245, 245]; // #f5f5f5
-const borderColor = [221, 221, 221]; // #ddd
-const subsectionBg = [224, 231, 239]; // #e0e7ef
+const sectionTitleSize = 12;
+const tableTextSize = 8;
+const textSize = 10;
+const footerSize = 10;
+
+const topMargin = 10;
+const bottomMargin = 10;
+const cellPadding = 2;
+const rowHeight = 6;
+const sectionSpacing = 4;
+
+const orange = [252, 124, 61]; // #fc7c3d
+const purple = [206, 0, 39];   // #ce0027
+
+const headerBg = orange; // Use orange for main header background
+const borderColor = [221, 221, 221]; // #ddd (keep for subtle borders)
+const subsectionBg = [252, 232, 220]; // light orange tint for subsections
 
 const props = defineProps({
   getPdfData: Function
 });
 
 function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src='${src}']`)) return resolve();
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+function loadFontScript(src) {
   return new Promise((resolve, reject) => {
     if (document.querySelector(`script[src='${src}']`)) return resolve();
     const script = document.createElement('script');
@@ -39,9 +61,38 @@ onMounted(async () => {
   }
 });
 
+/**
+ * Crops an image to the specified rectangle and returns a PNG data URL.
+ *
+ * @param {string} imgSrc - The source URL of the image to crop.
+ * @param {number} cropX - The x-coordinate (in pixels) of the top-left corner of the crop rectangle within the source image.
+ * @param {number} cropY - The y-coordinate (in pixels) of the top-left corner of the crop rectangle within the source image.
+ * @param {number} cropWidth - The width (in pixels) of the crop rectangle.
+ * @param {number} cropHeight - The height (in pixels) of the crop rectangle.
+ * @returns {Promise<string>} A promise that resolves to a PNG data URL of the cropped image.
+ */
+async function cropImageToDataUrl(imgSrc, cropX, cropY, cropWidth, cropHeight) {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    img.crossOrigin = 'Anonymous';
+    img.src = imgSrc;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = cropWidth;
+      canvas.height = cropHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.onerror = reject;
+  });
+}
+
 async function downloadPdf() {
+  await loadFontScript('/fonts/Raleway-VariableFont_wght-normal.js');
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
+  doc.setFont('Raleway-VariableFont_wgh');
   const data = props.getPdfData ? props.getPdfData() : null;
   let y = 20;
   if (!data) return;
@@ -81,36 +132,77 @@ async function downloadPdf() {
 
   // Title
   doc.setFontSize(titleSize);
-  doc.text('Lightbug ' + data.title || 'Device', 10, y);
+  doc.text('Lightbug ' + data.title || 'Device', textSize, y);
   y += 10;
   // Description
   if (data.description) {
     doc.setFontSize(textSize);
     doc.setTextColor(60, 60, 60);
-    doc.text(doc.splitTextToSize(data.description, 180), 10, y);
+    doc.text(doc.splitTextToSize(data.description, 180), textSize, y);
     y += 10 + 5 * (doc.splitTextToSize(data.description, 180).length - 1);
     doc.setTextColor(0, 0, 0);
   }
 
-  // Images
-  if (data.imageUrl) {
-    let imgSrc = data.imageUrl;
-    if (imgSrc.startsWith('https://lightbug.io/')) {
-      imgSrc = `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(imgSrc)}`;
+  // Images (row, cropped if params present)
+  if (data.images && data.images.length) {
+    const maxWidth = 50; // mm per image
+    const spacing = 5; // mm between images
+    let totalWidth = data.images.length * maxWidth + (data.images.length - 1) * spacing;
+    let startX = (doc.internal.pageSize.getWidth() - totalWidth) / 2;
+    let maxHeight = 0;
+    // Preload and crop all images if needed
+    const loadedImages = await Promise.all(data.images.map(async (imgUrl) => {
+      let crop = null;
+      let cropUrlToParse = imgUrl;
+      // If proxied, decode the original URL for crop params
+      if (imgUrl.startsWith('https://cors-proxy.lightbug.workers.dev?url=')) {
+        const match = imgUrl.match(/url=([^&]+)/);
+        if (match) {
+          cropUrlToParse = decodeURIComponent(match[1]);
+        }
+      }
+      try {
+        const urlObj = new URL(cropUrlToParse);
+        const x = urlObj.searchParams.get('x');
+        const y = urlObj.searchParams.get('y');
+        const w = urlObj.searchParams.get('w');
+        const h = urlObj.searchParams.get('h');
+        if (x && y && w && h) {
+          crop = {
+            x: parseInt(x, 10),
+            y: parseInt(y, 10),
+            w: parseInt(w, 10),
+            h: parseInt(h, 10)
+          };
+        }
+      } catch (e) {}
+      let imgDataUrl;
+      if (crop) {
+        // Always use the proxied URL for loading, but crop using params from original
+        imgDataUrl = await cropImageToDataUrl(imgUrl, crop.x, crop.y, crop.w, crop.h);
+      } else {
+        imgDataUrl = imgUrl;
+      }
+      const img = new window.Image();
+      img.crossOrigin = 'Anonymous';
+      img.src = imgDataUrl;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+      const aspect = img.naturalHeight / img.naturalWidth;
+      const width = maxWidth;
+      const height = width * aspect;
+      if (height > maxHeight) maxHeight = height;
+      return { imgDataUrl, width, height };
+    }));
+    // Draw all images in a row
+    let x = startX;
+    for (const { imgDataUrl, width, height } of loadedImages) {
+      doc.addImage(imgDataUrl, 'PNG', x, y, width, height);
+      x += width + spacing;
     }
-    const img = new window.Image();
-    img.crossOrigin = 'Anonymous';
-    img.src = imgSrc;
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-    });
-    const maxWidth = 50;
-    const aspect = img.naturalHeight / img.naturalWidth;
-    const width = maxWidth;
-    const height = width * aspect;
-    doc.addImage(img, 'PNG', 10, y, width, height);
-    y += height + 10;
+    y += maxHeight + 10;
   }
 
   // Main Table
@@ -122,30 +214,38 @@ async function downloadPdf() {
         const attrLines = doc.splitTextToSize(`${attr}:`, 50 - 2 * cellPadding);
         const valLines = doc.splitTextToSize(val, 130 - 2 * cellPadding);
         const lineCount = Math.max(attrLines.length, valLines.length);
-        mainTableHeight += rowHeight * lineCount;
+        // Calculate height based on font size and line count
+        const lineHeightPt = doc.getLineHeight();
+        const lineHeight = lineHeightPt * 0.352778; // convert pt to mm
+        const thisRowHeight = lineHeight * lineCount + 2 * cellPadding;
+        mainTableHeight += thisRowHeight;
       }
     }
     if (y + mainTableHeight > pageHeight - bottomMargin) {
       doc.addPage();
-      y = 0;
+      y = topMargin;
     }
-    // Header row
-    doc.setFillColor(...headerBg);
+    // Header row (make it match section header style)
+    doc.setFillColor(...orange); // Use orange for main header background
     doc.setDrawColor(...borderColor);
-    doc.rect(10, y, 50, rowHeight, 'F');
-    doc.rect(60, y, 130, rowHeight, 'F');
-    doc.setFontSize(14);
-    doc.setFont(undefined, 'bold');
-    doc.text('Specification', 12, y + rowHeight - cellPadding);
+    doc.rect(10, y, 180, rowHeight, 'F');
+    doc.setFontSize(sectionTitleSize);
+    doc.setFont(undefined, 'bold'); // XXX TODO railway
+    doc.setTextColor(255,255,255); // White text for contrast
+    doc.text('Overview', 12, y + rowHeight - cellPadding);
+    doc.setTextColor(0,0,0); // Reset to black
     doc.setFont(undefined, 'normal');
     y += rowHeight;
-    doc.setFontSize(11);
+    doc.setFontSize(tableTextSize);
     for (const [attr, val] of Object.entries(data.mainTable)) {
       if (val) {
         const attrLines = doc.splitTextToSize(`${attr}:`, 50 - 2 * cellPadding);
         const valLines = doc.splitTextToSize(val, 130 - 2 * cellPadding);
         const lineCount = Math.max(attrLines.length, valLines.length);
-        const thisRowHeight = rowHeight * lineCount;
+        // Calculate height based on font size and line count
+        const lineHeightPt = doc.getLineHeight();
+        const lineHeight = lineHeightPt * 0.352778; // convert pt to mm
+        const thisRowHeight = lineHeight * lineCount + 2 * cellPadding;
         // Draw cell backgrounds and borders
         doc.setFillColor(255,255,255);
         doc.setDrawColor(...borderColor);
@@ -153,46 +253,47 @@ async function downloadPdf() {
         doc.rect(60, y, 130, thisRowHeight, 'F');
         // Text
         doc.setFont(undefined, 'bold');
-        doc.text(attrLines, 12, y + rowHeight - cellPadding, { maxWidth: 50 - 2 * cellPadding });
+        doc.text(attrLines, 12, y + cellPadding + lineHeight * 0.75, { maxWidth: 50 - 2 * cellPadding });
         doc.setFont(undefined, 'normal');
-        doc.text(valLines, 62, y + rowHeight - cellPadding, { maxWidth: 130 - 2 * cellPadding });
+        doc.text(valLines, 62, y + cellPadding + lineHeight * 0.75, { maxWidth: 130 - 2 * cellPadding });
         y += thisRowHeight;
       }
     }
+    // Add spacing after main table before sections
+    y += sectionSpacing;
   }
 
   // Sections
   if (data.sections) {
+    let isFirstSection = true;
     for (const section of data.sections) {
-      // Calculate total height needed for this section's table
-      let sectionTableHeight = rowHeight; // section title
-      for (const subsection of section.subsections) {
-        sectionTableHeight += rowHeight; // subsection title
-        for (const row of subsection.rows) {
-          const attrLines = doc.splitTextToSize(`${row.label}:`, 50 - 2 * cellPadding);
-          const valText = String(row.value).replace(/<br\s*\/??\s*>/gi, '\n');
-          const valLines = doc.splitTextToSize(valText, 130 - 2 * cellPadding);
-          const lineCount = Math.max(attrLines.length, valLines.length);
-          sectionTableHeight += rowHeight * lineCount;
-        }
+      if (!isFirstSection) {
+        y += sectionSpacing;
       }
-      if (y + sectionTableHeight > pageHeight - bottomMargin) {
-        doc.addPage();
-        y = 0
-      }
+      isFirstSection = false;
       // Section title as table header
-      doc.setFillColor(...headerBg);
+      if (y + rowHeight > pageHeight - bottomMargin) {
+        doc.addPage();
+        y = topMargin;
+      }
+      doc.setFillColor(...orange); // Use orange for section headers
       doc.setDrawColor(...borderColor);
       doc.rect(10, y, 180, rowHeight, 'F');
-      doc.setFontSize(14);
+      doc.setFontSize(sectionTitleSize);
       doc.setFont(undefined, 'bold');
+      doc.setTextColor(255,255,255); // White text for contrast
       doc.text(section.title, 12, y + rowHeight - cellPadding);
+      doc.setTextColor(0,0,0); // Reset to black
       doc.setFont(undefined, 'normal');
       y += rowHeight;
-      doc.setFontSize(11);
+      doc.setFontSize(tableTextSize);
       for (const subsection of section.subsections) {
         // Subsection heading row
-        doc.setFillColor(...subsectionBg);
+        if (y + rowHeight > pageHeight - bottomMargin) {
+          doc.addPage();
+          y = topMargin;
+        }
+        doc.setFillColor(...subsectionBg); // Use light orange for subsection
         doc.setDrawColor(...borderColor);
         doc.rect(10, y, 180, rowHeight, 'F');
         doc.setFont(undefined, 'bold');
@@ -204,17 +305,33 @@ async function downloadPdf() {
           const valText = String(row.value).replace(/<br\s*\/??\s*>/gi, '\n');
           const valLines = doc.splitTextToSize(valText, 130 - 2 * cellPadding);
           const lineCount = Math.max(attrLines.length, valLines.length);
-          const thisRowHeight = rowHeight * lineCount;
+          // Calculate height based on font size and line count
+          const lineHeightPt = doc.getLineHeight();
+          const lineHeight = lineHeightPt * 0.352778; // convert pt to mm
+          const thisRowHeight = lineHeight * lineCount + 2 * cellPadding;
+          // If row doesn't fit, add a new page
+          if (y + thisRowHeight > pageHeight - bottomMargin) {
+            doc.addPage();
+            y = topMargin;
+            // Redraw subsection header on new page
+            doc.setFillColor(...subsectionBg);
+            doc.setDrawColor(...borderColor);
+            doc.rect(10, y, 180, rowHeight, 'F');
+            doc.setFont(undefined, 'bold');
+            doc.text(subsection.title, 12, y + rowHeight - cellPadding);
+            doc.setFont(undefined, 'normal');
+            y += rowHeight;
+          }
           // Draw cell backgrounds and borders
           doc.setFillColor(255,255,255);
           doc.setDrawColor(...borderColor);
-          doc.rect(10, y, 50, thisRowHeight, 'F');
-          doc.rect(60, y, 130, thisRowHeight, 'F');
+          doc.rect(10, y, 50, thisRowHeight, 'F'); // Change to S to see the grid
+          doc.rect(60, y, 130, thisRowHeight, 'F'); // Change to S to see the grid
           // Text
           doc.setFont(undefined, 'bold');
-          doc.text(attrLines, 12, y + rowHeight - cellPadding, { maxWidth: 50 - 2 * cellPadding });
+          doc.text(attrLines, 12, y + cellPadding + lineHeight * 0.75, { maxWidth: 50 - 2 * cellPadding });
           doc.setFont(undefined, 'normal');
-          doc.text(valLines, 62, y + rowHeight - cellPadding, { maxWidth: 130 - 2 * cellPadding });
+          doc.text(valLines, 62, y + cellPadding + lineHeight * 0.75, { maxWidth: 130 - 2 * cellPadding });
           y += thisRowHeight;
         }
       }
@@ -222,14 +339,21 @@ async function downloadPdf() {
   }
 
   // Footer
-  const url = window.location.href;
-  const date = new Date().toLocaleDateString();
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 255);
+  let url = window.location.href;
+  // Remove anchor/hash from URL
+  url = url.split('#')[0];
+  // Format date as '1 May 2025'
+  const dateObj = new Date();
+  const day = dateObj.getDate();
+  const month = dateObj.toLocaleString('default', { month: 'long' });
+  const year = dateObj.getFullYear();
+  const fullDate = `${day} ${month} ${year}`;
+  doc.setFontSize(footerSize);
+  doc.setTextColor(...orange); // orange for the link
   const urlWidth = doc.getTextWidth(url);
   doc.textWithLink(url, 10, pageHeight - 10, { url });
-  doc.setTextColor(0, 0, 0);
-  doc.text(` | Generated: ${date}`, 10 + urlWidth, pageHeight - 10);
+  doc.setTextColor(0, 0, 0); // reset to black for the rest
+  doc.text(` | Generated: ${fullDate}`, 10 + urlWidth, pageHeight - 10);
   // Open PDF in new tab instead of downloading
   const pdfBlob = doc.output('blob');
   const blobUrl = URL.createObjectURL(pdfBlob);
