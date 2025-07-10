@@ -1,40 +1,9 @@
 <script setup>
-import DownloadPdfButton from '../../components/DownloadPdfButton.vue'
+import DeviceSpecTable from '../../components/DeviceSpecTable.vue'
+import spec from '../../public/device-specs/zero/v2.yaml?raw'
 </script>
 
-<span style="float:right;"><DownloadPdfButton /></span>
-
-# Zero
-
-Our smallest core GPS tracking device.
-
-<img src="https://lightbug.io/images/product-front/LB-DEV-ZE2_hu4ff3455ecb7f322eb1f00907f166ea0e_177507_600x900_fit_q95_h2_box_2.webp" alt="Zero" style="max-height: 250px; max-width: 380px" id="device-image">
-## Specification
-
-| Attribute             | Value                                                       |
-| --------------------- | ----------------------------------------------------------- |
-| Device                | ZE2                                                         |
-| Size                  | 56 x 37 x 12.9mm                                            |
-| Weight                | 35g                                                         |
-| Battery               | 1000mAh                                                     |
-| Sim                   | Integrated roaming sim                                      |
-| GSM                   | Quadband 4G LTE-M & NBIoT + 2G fallback                              |
-| Bluetooth             | 5.0                                                         |
-| Positioning           | GPS (GPS, GLONASS, BEIDOU, GALILEO & QZSS), WiFi & GSM      |
-| Sensors               | Temperature, Orientation, Accelerometer, External Bluetooth |
-| Memory                | up to 1000 locations update when they can't be transmitted  |
-| IP rating             | IP66 & Shockproof                                           |
-| Operating Temperature | 0°C to 50°C ¹                                               |
-| Buttons               | 1                                                           |
-| LEDs                  | 6 (4x battery, 2x status)                                   |
-| Sound                 | Buzzer                                                      |
-| Charging              | Magnetic 4 pin connector                                    |
-| Additional            |                       |
-| Typical Usage         | For tracking non powered assets, where you have a size or weight restriction  |
-| Mounting options | Adhesive pad, screw mount, keyring hole                                                      |
-| Optional              | NFC                                                         |
-
-<small>¹ All device batteries can be [customized](/devices/custom) down to -40°C with other tradeoffs, please contact us for more information.</small>
+<DeviceSpecTable :yamlText="spec" />
 
 ## Exterior
 
