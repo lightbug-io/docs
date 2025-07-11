@@ -611,10 +611,6 @@ export default withMermaid(defineConfig({
                 }
               ],
             },
-            {
-              text: 'Notifications',
-              link: '/apps/cloud/notifications',
-            },
           ]
         }
       ],

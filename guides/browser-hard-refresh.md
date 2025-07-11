@@ -5,7 +5,7 @@ sidebar: false
 ---
 
 
-# Browser Hard Refresh Guide
+# Browser Hard Refresh
 
 If you have been told by Lightbug to perform a hard refresh, this guide will help you understand what it is, why it's necessary, and how to do it across different browsers and operating systems.
 

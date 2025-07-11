@@ -16,12 +16,15 @@ features:
   - title: Adding your first device
     details: Get started with a Cloud account, add your first device, setup a plan, and start tracking.
     link: /guides/adding-your-first-device
-  - title: Browser Hard Refresh Guide
-    details: Learn how to perform a hard refresh in different browsers to resolve display issues and ensure you see the latest updates.
-    link: /guides/browser-hard-refresh
+  - title: Setup HTTP Push Notifications
+    details: Learn how to set up webhooks to receive real-time notifications for device events.
+    link: /guides/notifications-setup-http
+  - title: Setup SQS Notifications
+    details: Integrate AWS SQS to receive device notifications via our platform, with a step-by-step guide.
+    link: /guides/notifications-setup-sqs
 ---
 
-If you want to request coverage of a specific topic, or have any questions, please [contact us](https://lightbug.io/contact/).
+- [Browser Hard Refresh Guide](/guides/browser-hard-refresh): Learn how to perform a hard refresh in different browsers to resolve display issues and ensure you see the latest updates.
 
 ### Older guides
 
@@ -43,3 +46,5 @@ These are slowly being integrated into the documentation of this site.
  - [GPS tracker with home WiFi safe-zone](https://drive.google.com/file/d/1dbAfxiSHmjXFzQmioN13LQnSK2eua6Y9/view?usp=drive_link)
  - [Get maximum battery life from Lightbug devices](https://drive.google.com/file/d/1ChCZ6cogtdPglOCU6EbMgmx1r9DBuRke/view?usp=drive_link)
  - [Create multiple geofence with Lightbug devices](https://drive.google.com/file/d/1pwdtmbVktLh6vKeSgxJP-AprlWyJk5md/view?usp=drive_link)
+
+If you want to request coverage of a specific topic, or have any questions, please [contact us](https://lightbug.io/contact/).

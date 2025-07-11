@@ -10,7 +10,8 @@ import {
     V1ResponseExamples,
     V1BodyExamples,
     V1ParamDescriptions,
-    V1ParamSchemaFormats
+    V1ParamSchemaFormats,
+    V1ParamSchemaTypes
 } from './v1-overrides'
 
 var apiKeyDescription = "API Key for authentication. Retrieval from either API version login routes, or other authentication token type. See <a href='/apis/authentication'>Authentication</a> for more details."
@@ -83,6 +84,13 @@ export function loadSpec(version: number): any {
                     for (const param of spec1.paths[path][method].parameters) {
                         if (param.name in V1ParamSchemaFormats[operationId]) {
                             param.schema.format = V1ParamSchemaFormats[operationId][param.name]
+                        }
+                    }
+                }
+                if (operationId in V1ParamSchemaTypes) {
+                    for (const param of spec1.paths[path][method].parameters) {
+                        if (param.name in V1ParamSchemaTypes[operationId]) {
+                            param.schema.type = V1ParamSchemaTypes[operationId][param.name]
                         }
                     }
                 }

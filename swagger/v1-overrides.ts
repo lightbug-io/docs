@@ -14,7 +14,7 @@ export const v1SummaryOverrides = {
     'get-users-id-getDeviceSummary': 'Summary of devices',
     'post-devices-changeTags': 'Change tags for a device',
     // device config stuff
-    'get-devices-id-setupSqsForwarding': 'Set SQS forwarding for a device',
+    'get-devices-id-setupSqsForwarding': 'Configure SQS Notifications for a device',
     'get-devices-id-setMetaItem': 'Set meta item for a device',
     'get-devices-id-flightMode': 'Set flight mode for a device',
     'get-devices-id-gatewayReadings-{fk}': 'Get device gateway reading by id',
@@ -41,17 +41,29 @@ export const v1SummaryOverrides = {
     'get-devices-id-activateOnResellerPlan': 'Activate device on reseller plan',
     'get-devices-id-setNtripSettings': 'Set the NTRIP settings for a device.',
     'post-reports-activity': 'Device Activity',
-    'post-reports-vehicle-summary': 'Vehicle Summary',
+    'post-reports-vehicle-summary': 'Vehicle Summary'
 };
 
 export const v1DescriptionOverrides = {
-    'get-devices-id-points': 'Gets one or more points for a device, based on filtering.',
-    'get-devices-id-points-{fk}': 'Get a specific point for device when you already know the device ID and point ID.',
-    'get-users-id-getMqttCredentials': 'Retrieves a users MQTT Credentials if set, for legacy use in connecting to MQTT.',
-    'get-users-id-getDeviceSummary': 'Lists all devices for a user, with a summary of state, including most resent points.',
-    'get-devices-id-deactivate': 'Deactivates a device.',
-    'get-devices-id-activateOnResellerPlan': 'Activates a device on a reseller plan.\n\nThis is a special endpoint for resellers to activate a device on a reseller plan.\n\nIf you want to activate a device on a modern plan, see the V2 API.',
-    'get-devices-id-readings': "Gets [readings](/terminology/readings) that a device has taken, such as battery voltage, temperature, humidity etc.\n\nUse [filtering](/apis/v1/filtering) to get a specific [type](/terminology/readings#types).",
+    'get-devices-id-points': `Gets one or more points for a device, based on filtering.`,
+    'get-devices-id-points-{fk}': `Get a specific point for device when you already know the device ID and point ID.`,
+    'get-users-id-getMqttCredentials': `Retrieves a users MQTT Credentials if set, for legacy use in connecting to MQTT.`,
+    'get-users-id-getDeviceSummary': `Lists all devices for a user, with a summary of state, including most resent points.`,
+    'get-devices-id-deactivate': `Deactivates a device.`,
+    'get-devices-id-activateOnResellerPlan':
+`Activates a device on a reseller plan.
+
+This is a special endpoint for resellers to activate a device on a reseller plan.
+
+If you want to activate a device on a modern plan, see the V2 API.`,
+    'get-devices-id-readings':
+`Gets [readings](/terminology/readings) that a device has taken, such as battery voltage, temperature, humidity etc.
+
+Use [filtering](/apis/v1/filtering) to get a specific [type](/terminology/readings#types).`,
+    'get-devices-id-setupSqsForwarding':
+`Configure SQS Notifications for a device.
+
+There is a [full guide](/guides/notifications-setup-sqs) written for this endpoint.`,
 };
 
 export const v1Deprecated = [
@@ -141,7 +153,12 @@ export const V1ParamExamples = {
             '{"where":{"type":"temp"},"limit":10,"order":["timestamp DESC"]}',
             '{"where":{"type":"temp","timestamp":{"between":["2024-12-01T00:00:00.000Z","2024-12-01T23:59:59.999Z"]}},"order":["timestamp DESC"]}',
         ],
-    }
+    },
+    'get-devices-id-setupSqsForwarding': {
+        'id': 1234,
+        'sqsArn': 'arn:aws:sqs:us-east-1:123456789012:my-queue',
+        // 'types': [ 'newLoc', 'newReading' ],
+    },
 };
 
 export const V1ResponseExamples = {
@@ -312,5 +329,14 @@ export const V1ParamDescriptions = {
 export const V1ParamSchemaFormats = {
     'get-devices-id-activateOnResellerPlan': {
         'resellerPlanId': 'integer',
+    },
+    'get-devices-id-setupSqsForwarding': {
+        'types': 'list',
+    },
+};
+
+export const V1ParamSchemaTypes = {
+    'get-devices-id-setupSqsForwarding': {
+        'types': 'array',
     },
 };
