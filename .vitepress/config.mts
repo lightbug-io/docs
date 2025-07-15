@@ -619,8 +619,13 @@ export default withMermaid(defineConfig({
           text: 'Admin',
           link: '/apps/admin/',
           items : [
-            { text: 'Creating Account', link: '/apps/admin/creating-account' },
-            { text: 'Permissions', link: '/apps/admin/permissions' },
+            { text: 'Authentication', link: '/apps/admin/authentication',
+              items: [
+                { text: 'Account Creation', link: '/apps/admin/authentication#creating-an-account' },
+                { text: 'Logging In', link: '/apps/admin/authentication#logging-in' },
+                { text: 'Permissions', link: '/apps/admin/authentication#permissions' },
+              ]
+            },
             { text: 'Devices', link: '/apps/admin/devices' },
             { text: 'Configs', link: '/apps/admin/configs' },
             { text: 'Users', link: '/apps/admin/users' },
