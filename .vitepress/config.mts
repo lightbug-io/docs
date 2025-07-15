@@ -626,10 +626,17 @@ export default withMermaid(defineConfig({
                 { text: 'Permissions', link: '/apps/admin/authentication#permissions' },
               ]
             },
-            { text: 'Devices', link: '/apps/admin/devices' },
+            { text: 'Devices', link: '/apps/admin/devices',
+              items: [
+                { text: 'Actions', link: '/apps/admin/devices#actions' },
+                { text: 'Metrics', link: '/apps/admin/devices#metric-summary' },
+                { text: 'Timeline', link: '/apps/admin/devices#timeline' },
+              ]
+
+            },
             { text: 'Configs', link: '/apps/admin/configs' },
             { text: 'Users', link: '/apps/admin/users' },
-            { text: 'Invoice Audit', link: '/apps/admin/invoice-audit' },
+            // { text: 'Invoice Audit', link: '/apps/admin/invoice-audit' },
             { text: 'Plans', link: '/apps/admin/plans' },
           ],
         }
