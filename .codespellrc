@@ -1,3 +1,0 @@
-[codespell]
-skip = package-lock.json,*.svg,*.png,public/swagger/*,node_modules,public/fonts/*
-ignore-words-list = nin

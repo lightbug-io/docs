@@ -6,7 +6,7 @@ repos:
     - id: check-json
     - id: end-of-file-fixer
     - id: trailing-whitespace
-- repo: https://github.com/codespell-project/codespell
-  rev: v2.2.4
+- repo: https://github.com/streetsidesoftware/cspell-cli
+  rev: v9.1.1
   hooks:
-  - id: codespell
+    - id: cspell # Spell check changed files
