@@ -4,7 +4,10 @@ product:
   sku: RH2
   version: 2
   images:
-  # - "https://lightbug.io/images/product-front/LB-DEV-RH1_hu18007a3e135c04d8f26d632ee552eaf0_351559_600x900_fit_q95_h2_box_2.webp"
+  - "https://lightbug.io/raw-renders/2025-07-01/RH2_w-front angle.png?x=600&y=0&w=600&h=1000"
+  - "https://lightbug.io/raw-renders/2025-07-01/RH2_w-top side.png?x=600&y=0&w=600&h=1000"
+  - "https://lightbug.io/raw-renders/2025-07-01/RH2_w-back.png?x=650&y=0&w=600&h=1000"
+  - "https://lightbug.io/raw-renders/2025-07-01/RH2_w-side.png?x=700&y=70&w=600&h=1000"
   physical:
     size:
       dimensions_mm: "85 x 44 x 28.4"
