@@ -102,6 +102,7 @@ watchEffect(() => {
       displaySpecs.value = {
         'Name': p.name,
         'Version': p.version,
+        'Serial prefix': p.prefix,
         'Connectivity': p.connectivity ? Object.keys(p.connectivity).join(', ') : '',
         'Positioning': p.positioning ? Object.keys(p.positioning).join(', ') : '',
         'Sensors': p.sensors ? Object.keys(p.sensors).join(', ') : '',

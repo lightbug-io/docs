@@ -3,6 +3,7 @@ product:
   description: "Our core tracking device with additional environmental sensors."
   usage: "For tracking temperature & humidity sensitive non powered assets"
   sku: EN2
+  prefix: 26
   version: 2
   images:
   - "https://lightbug.io/raw-renders/2025-07-01/enviro-front angle.png?x=600&y=300&w=600&h=700"

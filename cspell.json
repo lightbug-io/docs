@@ -1,7 +1,8 @@
 {
     "version": "0.2",
     "ignorePaths": [
-        "cSpell_dict.txt"
+        "cSpell_dict.txt",
+        "public/device-specs/**/*.yaml"
     ],
     "dictionaryDefinitions": [],
     "dictionaries": [],

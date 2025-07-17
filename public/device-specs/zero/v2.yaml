@@ -3,6 +3,7 @@ product:
   description: "Our smallest core GPS tracking device."
   usage: "For tracking non powered assets, where you have a size or weight restriction"
   sku: ZE2
+  prefix: 19
   version: 2
   images:
   - "https://lightbug.io/raw-renders/2025-07-01/lightbug-zero-front angle.png?x=600&y=400&w=600&h=500"
