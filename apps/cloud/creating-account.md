@@ -88,7 +88,7 @@ You will then be asked to select a currency for your account, before you can cho
 
 After selecting a currency, you can choose a plan for your device.
 
-You can find details of each plan, and also buy them in bulk from [the shop](https://lightbug.io/shop/).
+You can find details of each plan, and also buy them in bulk via a [sales enquiry](https://lightbug.io/contact/)
 
 :::tabs
 == Desktop

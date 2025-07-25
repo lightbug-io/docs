@@ -8,7 +8,7 @@ All of our devices are designed and made in the UK from the same modular compone
 
 ## Core
 
-Our core products have been rigorously tested in the field since and iterated on since 2015, are used by customers around the world, and are available to purchase from stock [in the shop](https://lightbug.io/shop/).
+Our core products have been rigorously tested in the field since and iterated on since 2015, are used by customers around the world, and are available to purchase from stock, via a [sales enquiry](https://lightbug.io/contact/)
 
 The current core line up includes:
 

@@ -28,12 +28,12 @@ Some products, such as retail bundles, come with one or more plan credits bundle
 When an order is placed, the plan credits will be added to the pool of the user that placed the order.
 
 :::warning
-If the order is not made via the online shop, allocation of the plan credits will be done manually, and you may need to reach out to support to have the plan credits added to your account if they appear missing.
+Allocation of the plan credits will be done manually, and you may need to reach out to support to have the plan credits added to your account if they appear missing.
 :::
 
 ### Bulk purchasing
 
-Plan credits can be purchased in bulk, at a discount on the [shop](https://lightbug.io/shop/).
+Plan credits can be purchased in bulk, at a discount via a [sales enquiry](https://lightbug.io/contact/).
 
 Plans purchased this way will be added to the pool of the user that purchased the plans.
 

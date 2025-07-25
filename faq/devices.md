@@ -47,7 +47,7 @@ You'll possibly find the [adding my first device guide](/guides/adding-your-firs
 
 The contents of the box will vary depending on the device you have ordered.
 
-The shop includes all information on what is bundled with the various SKUs.
+The lightbug.io product listings include all information on what is bundled with the various SKUs.
 
 Such as the page for the [Pro](https://lightbug.io/product/lb-dev-pr2/) which at the time of writing includes the Pro device, a charge dock, USB cable and one month of data.
 

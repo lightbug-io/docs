@@ -168,7 +168,6 @@ export default withMermaid(defineConfig({
         text: 'Company',
         items: [
           { text: 'About', link: 'https://lightbug.io/about/' },
-          { text: 'Shop', link: 'https://lightbug.io/shop/' },
           { text: 'Contact', link: 'https://lightbug.io/contact/' },
         ]
       }

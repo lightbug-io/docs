@@ -8,13 +8,13 @@ These includes peripherals custom to a device type, such as a Keyring attachment
 
 These beacons provide convenient markers for locations, devices, vehicles, people and other assets.
 
-- `lb-acc-mi7` - Bluetooth beacon with up to 240m range ([shop](https://lightbug.io/product/lb-acc-me2/))
-- `lb-acc-mi7` - Bluetooth beacon with up to 100m range ([shop](https://lightbug.io/product/lb-acc-mi7/))
-- `lb-acc-c10` - Bluetooth card ([shop](https://lightbug.io/product/lb-acc-c10/))
+- `lb-acc-mi7` - Bluetooth beacon with up to 240m range ([product listing](https://lightbug.io/product/lb-acc-me2/))
+- `lb-acc-mi7` - Bluetooth beacon with up to 100m range ([product listing](https://lightbug.io/product/lb-acc-mi7/))
+- `lb-acc-c10` - Bluetooth card ([product listing](https://lightbug.io/product/lb-acc-c10/))
 
 These sensors can be used to monitor the environment, and submit additional information alongside location datapoints.
 
-- `lb-acc-ms1` Bluetooth Temperature & Humidity Sensor ([shop](https://lightbug.io/product/lb-acc-ms1/))
+- `lb-acc-ms1` Bluetooth Temperature & Humidity Sensor ([product listing](https://lightbug.io/product/lb-acc-ms1/))
 
 If you are interested in further bluetooth compatibility or sensors, please [contact us](https://lightbug.io/contact/).
 
