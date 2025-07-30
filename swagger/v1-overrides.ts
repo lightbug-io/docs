@@ -359,16 +359,16 @@ export const V1SchemaPropertyOverrides = {
                 'distance',
                 'alertMode',
                 'temp',
+                'temp_bme',
                 'humidity',
                 'pressure',
-                'temp',
                 'extAccel',
                 'geoEntry',
-                'ultraLevel',
                 'proximity',
-                'newAvailLoc',
-                'newMsg',
-                'lightLevel'
+                // 'ultraLevel',
+                // 'newAvailLoc',
+                // 'newMsg',
+                // 'lightLevel'
             ]
         }
     }
