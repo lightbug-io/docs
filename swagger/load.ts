@@ -11,7 +11,8 @@ import {
     V1BodyExamples,
     V1ParamDescriptions,
     V1ParamSchemaFormats,
-    V1ParamSchemaTypes
+    V1ParamSchemaTypes,
+    V1SchemaPropertyOverrides
 } from './v1-overrides'
 
 var apiKeyDescription = "API Key for authentication. Retrieval from either API version login routes, or other authentication token type. See <a href='/apis/authentication'>Authentication</a> for more details."
@@ -132,12 +133,26 @@ export function loadSpec(version: number): any {
                         }
                     }
                 }
+            }
+        }
 
-                // Make sure that all schemas have "type": "object", if they don't have another type defined
-                if (spec1.components.schemas) {
-                    for (const schema of Object.keys(spec1.components.schemas)) {
-                        if (!spec1.components.schemas[schema].type) {
-                            spec1.components.schemas[schema].type = 'object'
+        // Make sure that all schemas have "type": "object", if they don't have another type defined
+        if (spec1.components.schemas) {
+            for (const schema of Object.keys(spec1.components.schemas)) {
+                if (!spec1.components.schemas[schema].type) {
+                    spec1.components.schemas[schema].type = 'object'
+                }
+            }
+        }
+        // Apply schema property overrides
+        if (spec1.components && spec1.components.schemas) {
+            for (const schemaName in V1SchemaPropertyOverrides) {
+                if (spec1.components.schemas[schemaName]) {
+                    const schema = spec1.components.schemas[schemaName];
+                    const overrides = V1SchemaPropertyOverrides[schemaName];
+                    for (const propertyName in overrides) {
+                        if (schema.properties && schema.properties[propertyName]) {
+                            Object.assign(schema.properties[propertyName], overrides[propertyName]);
                         }
                     }
                 }

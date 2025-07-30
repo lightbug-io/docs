@@ -341,3 +341,35 @@ export const V1ParamSchemaTypes = {
         'types': 'array',
     },
 };
+
+export const V1SchemaPropertyOverrides = {
+    'notificationTrigger': {
+        'type': {
+            enum: [
+                'lowBat',
+                'button',
+                'expiresDaily',
+                'expiresWeekly',
+                'geofence',
+                'newLoc',
+                'newWakeLoc',
+                'acc',
+                'newReading',
+                'speed',
+                'distance',
+                'alertMode',
+                'temp',
+                'humidity',
+                'pressure',
+                'temp',
+                'extAccel',
+                'geoEntry',
+                'ultraLevel',
+                'proximity',
+                'newAvailLoc',
+                'newMsg',
+                'lightLevel'
+            ]
+        }
+    }
+};
