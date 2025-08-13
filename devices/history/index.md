@@ -8,7 +8,7 @@ We have continually iterated on our devices over the years, and have a number of
 
 ## Current
 
-| Image | Identify | Description | Production |
+| Image | Identity | Description | Production |
 |-------|---------|------------------|------------|
 | <div align="center" style="padding: 20px;">![](https://lightbug.io/images/product/lightbug-RH2-front-angle_hu5249cd979b1a5fb71ccb0d550c4a59ce_666038_600x600_fit_q100_box_2.png)</div> | [RtkHandheld2](/devices/rtk)<br>SKU: RH2 | Precision RTK handheld tracker | <table><tr><td>Development</td><td>2024</td></tr><tr><td>Release</td><td>Pre Production</td></tr></table> |
 | <div align="center" style="padding: 20px; width: 300px; margin: auto">![](https://lightbug.io/images/product/lightbug_wired_gps_tracker_angle_hu3852c106dfa3e0439e3eb688c9cfa849_245817_600x600_fit_q100_box_2.png)</div> | [Vehicle3](/devices/vehicle)<br>SKU: VT3<br>Prefix: 40 | 3rd Generation Wired GPS tracker for vehicles	 | <table><tr><td>Development</td><td>2023</td></tr><tr><td>Release</td><td>2024</td></tr></table> |
@@ -18,7 +18,7 @@ We have continually iterated on our devices over the years, and have a number of
 
 ## Out of Production
 
-| Image | Identify | Description | Production |
+| Image | Identity | Description | Production |
 |-------|---------|------------------|------------|
 | <div align="center" style="padding: 20px;">![](https://lightbug.io/images/product/lightbug-RH1-front-angle_huaa926e2085c0968ca73e1718b3e5df0c_676321_600x600_fit_q100_box_2.png)</div> | RtkHandheld<br>SKU: RH1<br>Prefix: 21 | Our first high precision RTK handheld tracker | <table><tr><td>Since</td><td>2021</td></tr><tr><td>Discontinued</td><td>2025</td></tr></table> |
 | <div align="center" style="padding: 20px;">![](https://lightbug.io/images/product-front/LB-DEV-EN2_hu840ae98c2675b160231853d09ef00730_192512_150x225_fit_q75_h2_box_2.webp)</div> | EnviroN (white)<br>SKU: EN2<br>Prefix: 26 | Rugged Tracker with exceptional battery life and built-in sensors | <table><tr><td>Release</td><td>2021</td></tr><tr><td>Discontinued</td><td>2025</td></tr></table> |
