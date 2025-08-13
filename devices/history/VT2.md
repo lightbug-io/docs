@@ -1,8 +1,10 @@
 # VT2
 
-Our wired core GPS tracking device.
+:::warning ⚠️ No Longer in Production
+The VT2 is no longer in production, please see the [VT3](/devices/vehicle) for the latest version.
+:::
 
-Built up to 2024.
+Our wired core GPS tracking device, between 2021 and 2024.
 
 ![Vehicle](https://lightbug.io/images/product-front/LB-DEV-VT2_hu8c2874194884c59d2a3ac51d539313f6_135807_150x225_fit_q75_h2_box_2.webp)
 

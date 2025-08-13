@@ -25,7 +25,13 @@
         "behaviour",
         "modecontrol",
         "Envrio",
-        "OBDII"
+        "OBDII",
+        "Quadband",
+        "GLONASS",
+        "BEIDOU",
+        "QZSS",
+        "overvoltage",
+        "Julet"
     ],
     "ignoreWords": [],
     "import": []
