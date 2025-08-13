@@ -1,0 +1,40 @@
+{
+    "version": "0.2",
+    "ignorePaths": [
+        "cSpell_dict.txt",
+        "package-lock.json",
+        "package.json",
+        "public/device-specs/**/*.yaml"
+    ],
+    "dictionaryDefinitions": [],
+    "dictionaries": [],
+    "words": [
+        "Lightbug",
+        "Geofences",
+        "onprem",
+        "vuetify",
+        "Enviro",
+        "enviro",
+        "Toit",
+        "toit",
+        "eink",
+        "geofencelists",
+        "Geofence",
+        "Datapoints",
+        "datapoints",
+        "sendreason",
+        "alerttype",
+        "behaviour",
+        "modecontrol",
+        "Envrio",
+        "OBDII",
+        "Quadband",
+        "GLONASS",
+        "BEIDOU",
+        "QZSS",
+        "overvoltage",
+        "Julet"
+    ],
+    "ignoreWords": [],
+    "import": []
+}

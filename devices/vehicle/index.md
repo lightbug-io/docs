@@ -5,18 +5,11 @@ next:
 ---
 
 <script setup>
-import DownloadPdfButton from '../../components/DownloadPdfButton.vue'
+import DeviceSpecTable from '../../components/DeviceSpecTable.vue'
+import spec from '../../public/device-specs/vehicle/v3.yaml?raw'
 </script>
 
-<span style="float:right;"><DownloadPdfButton /></span>
-
-# Vehicle
-
-Our wired core GPS tracking device.
-
-Designed for use where a power source is available.
-
-<img src="https://lightbug.io/images/product-front/LB-DEV-VT2_hu6c96dd0084ad7c7254ad7ef44efd2a3c_296576_600x900_fit_q95_h2_box_2.webp" alt="Vehicle" style="max-height: 250px; max-width: 380px" id="device-image">
+<DeviceSpecTable :yamlText="spec" />
 
 ## Specification
 

@@ -1,0 +1,11 @@
+product:
+  name: "Vehicle"
+  description: "Our wired core GPS tracking device."
+  sku: VT3
+  prefix: 40
+  version: 3
+  images:
+  - "https://lightbug.io/raw-renders/2025-07-01/lightbug-vt3-front angle.png?x=450&y=600&w=900&h=430"
+  - "https://lightbug.io/raw-renders/2025-07-01/lightbug-vt3-top side.png?x=500&y=500&w=900&h=430"
+  - "https://lightbug.io/raw-renders/2025-07-01/lightbug-vt3-other side.png?x=450&y=250&w=1100&h=430"
+  - "https://lightbug.io/raw-renders/2025-07-01/lightbug-vt3-side.png?x=600&y=650&w=900&h=430"

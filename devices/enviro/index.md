@@ -1,14 +1,16 @@
 <script setup>
-import DownloadPdfButton from '../../components/DownloadPdfButton.vue'
+import DeviceSpecTable from '../../components/DeviceSpecTable.vue'
+import { ref, onMounted } from 'vue'
+
+const yamlText = ref('')
+
+onMounted(async () => {
+  const res = await fetch('/device-specs/enviro/v2.yaml')
+  yamlText.value = await res.text()
+})
 </script>
 
-<span style="float:right;"><DownloadPdfButton /></span>
-
-# Enviro
-
-Our core tracking device with additional environmental sensors.
-
-<v-img src="https://lightbug.io/images/product/lightbug_environmental_tracker_hu6a350a725fdca69abfd288f1b4171667_331520_600x600_fit_q100_box_2.png" alt="Envrio" style="width:200px" id="device-image"></v-img>
+<DeviceSpecTable v-if="yamlText" :yaml-text="yamlText" :image-url="'https://lightbug.io/raw-renders/2025-07-01/enviro-front angle.png'" />
 
 ## Specification
 

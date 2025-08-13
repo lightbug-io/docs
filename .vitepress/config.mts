@@ -251,7 +251,7 @@ export default withMermaid(defineConfig({
               link: '/devices/peripherals',
             },
             {
-              text: 'History',
+              text: 'Lineage',
               link: '/devices/history',
               collapsed: true,
               items: [
