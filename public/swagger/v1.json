@@ -3627,113 +3627,6 @@
         "deprecated": false
       }
     },
-    "/users/{id}/getMqttCredentials": {
-      "get": {
-        "tags": [
-          "user"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "user id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "JSON"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Request was successful",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "clientId": {
-                      "type": "string"
-                    },
-                    "username": {
-                      "type": "string"
-                    },
-                    "password": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "clientId": {
-                      "type": "string"
-                    },
-                    "username": {
-                      "type": "string"
-                    },
-                    "password": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "text/xml": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "clientId": {
-                      "type": "string"
-                    },
-                    "username": {
-                      "type": "string"
-                    },
-                    "password": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "application/javascript": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "clientId": {
-                      "type": "string"
-                    },
-                    "username": {
-                      "type": "string"
-                    },
-                    "password": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "text/javascript": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "clientId": {
-                      "type": "string"
-                    },
-                    "username": {
-                      "type": "string"
-                    },
-                    "password": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "deprecated": false
-      }
-    },
     "/reports/vehicle-summary": {
       "post": {
         "tags": [
@@ -4359,9 +4252,6 @@
           "deviceId": {
             "type": "number",
             "format": ""
-          },
-          "sensorDeviceId": {
-            "type": "string"
           },
           "datapointId": {
             "type": "number",

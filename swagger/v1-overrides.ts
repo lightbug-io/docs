@@ -1,6 +1,5 @@
 export const v1SummaryOverrides = {
     'post-users-login': 'Login',
-    'get-users-id-getMqttCredentials': 'MQTT Credentials',
     // points
     'get-devices-id-points-fk': 'Get device point by id',
     'get-devices-id-points': 'Get device points',
@@ -47,7 +46,6 @@ export const v1SummaryOverrides = {
 export const v1DescriptionOverrides = {
     'get-devices-id-points': `Gets one or more points for a device, based on filtering.`,
     'get-devices-id-points-fk': `Get a specific point for device when you already know the device ID and point ID.`,
-    'get-users-id-getMqttCredentials': `Retrieves a users MQTT Credentials if set, for legacy use in connecting to MQTT.`,
     'get-users-id-getDeviceSummary': `Lists all devices for a user, with a summary of state, including most resent points.`,
     'get-devices-id-deactivate': `Deactivates a device.`,
     'get-devices-id-activateOnResellerPlan':
@@ -72,7 +70,6 @@ export const v1Deprecated = [
 
 export const v1ReTag = {
     'post-users-login': 'authentication',
-    'get-users-id-getMqttCredentials': 'mqtt',
     'put-users-id-geofences-fk': 'geofences',
     'delete-users-id-geofences-fk': 'geofences',
     'post-users-id-geofences': 'geofences',
