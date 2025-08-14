@@ -50,19 +50,25 @@ Leave the terminal with `jag monitor` running open, as it will show you the outp
 
 ### 5. Start a project
 
-Create a new directory for your project, and run the following command to create a new Toit project:
+Create a new directory for your project, and run the `jag pkg init` command to create a new Toit project.
 
 ```sh
 mkdir my-lightbug-project
 cd my-lightbug-project
 jag pkg init
-jag pkg install github.com/lightbug-io/toit-lightbug
+```
+
+And install the latest version of the Toit Lightbug SDK, which contains the Toit code that runs on the Lightbug devices.
+
+```sh
+VERSION=$(jag pkg search lightbug-io/toit-lightbug | awk '{print $3}')
+jag pkg install github.com/lightbug-io/toit-lightbug@$VERSION
 ```
 
 You can copy the example [eink based Hello World application](https://github.com/lightbug-io/toit-lightbug/blob/main/examples/eink.toit) for the RTK Handheld 2 device into your project with the following command:
 
 ```sh
-cp ./.packages/github.com/lightbug-io/toit-lightbug/0.7.0/examples/eink.toit ./main.toit
+cp ./.packages/github.com/lightbug-io/toit-lightbug/$VERSION/examples/eink.toit ./main.toit
 ```
 
 ### 6. Run the code
