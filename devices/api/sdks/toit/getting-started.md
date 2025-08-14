@@ -38,13 +38,17 @@ Running `jag flash --chip esp32c6` will ask you for the serial port to use, and 
 
 It's possible to configure default WiFi credentials, see the [Toit guide](https://docs.toit.io/getstarted/device/#3-flash-your-device) for more info.
 
-After flashing, your device boots up and starts the Toit virtual machine. The Jaguar service on the device starts a small HTTP server that listens for incoming requests. You can follow along by monitoring the serial output of the device:
+### 4. Monitor the device
 
-```sh
-jag monitor
-```
+After flashing, your device boots up and starts the Toit virtual machine. The Jaguar service on the device starts a small HTTP server that listens for incoming requests.
 
-### 4. Start a project
+You can see what the ESP is doing by monitoring the serial output of the device with the `jag monitor` command.
+
+::: tip
+Leave the terminal with `jag monitor` running open, as it will show you the output of the device, and will also show you the output of the code you run on the device.
+:::
+
+### 5. Start a project
 
 Create a new directory for your project, and run the following command to create a new Toit project:
 
@@ -61,7 +65,7 @@ You can copy the example [eink based Hello World application](https://github.com
 cp ./.packages/github.com/lightbug-io/toit-lightbug/0.7.0/examples/eink.toit ./main.toit
 ```
 
-### 5. Run the code
+### 6. Run the code
 
 Use the `jag run` command to run the code on your device.
 
