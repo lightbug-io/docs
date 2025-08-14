@@ -10,7 +10,7 @@
             </div>
             <span>Presets:&nbsp;</span>
             <input type="file" @change="importBitmap" accept=".bmp" style="display: none;" ref="fileInput">
-            <v-btn @click="triggerFileInput" density="compact" title="Import a correctly oriented and sized 250x122 pixel BMP">Import BMP</v-btn>&nbsp;
+            <v-btn @click="triggerFileInput" density="compact" title="Import a correctly oriented and sized 250x122 pixel BMP">Import BMP (max 250x122)</v-btn>&nbsp;
             <v-btn @click="loadPreset('lightbug2020')" density="compact">Lightbug 20x20</v-btn>&nbsp;
             <v-btn @click="loadPreset('lightbug3030')" density="compact">Lightbug 30x30</v-btn>&nbsp;
             <v-btn @click="loadPreset('lightbug4040')" density="compact">Lightbug 40x40</v-btn>

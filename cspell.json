@@ -33,7 +33,12 @@
         "BEIDOU",
         "QZSS",
         "overvoltage",
-        "Julet"
+        "Julet",
+        "xmodem",
+        "msgb",
+        "Dont",
+        "csum",
+        "Csum"
     ],
     "ignoreWords": [],
     "import": []
