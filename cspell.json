@@ -46,7 +46,8 @@
         "Optimisations",
         "RTCM",
         "initialised",
-        "EEPROM"
+        "EEPROM",
+        "trycloudflare"
     ],
     "ignoreWords": [],
     "import": []

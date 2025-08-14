@@ -98,6 +98,11 @@ export default withMermaid(defineConfig({
     '/onprem/' : '/silos/',
   },
   vite: {
+    server: {
+      allowedHosts: [
+        ".trycloudflare.com"
+      ]
+    },
     ssr: {
       noExternal: ["vuetify"]
     },
