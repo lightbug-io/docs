@@ -1,7 +1,7 @@
 # VT2
 
 :::warning ⚠️ No Longer in Production
-The VT2 is no longer in production, please see the [VT3](/devices/vehicle) for the latest version.
+The VT2 is no longer in production, please see the [VT3](/devices/vehicle/) for the latest version.
 :::
 
 Our wired core GPS tracking device, between 2021 and 2024.
