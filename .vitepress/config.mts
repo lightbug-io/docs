@@ -425,7 +425,7 @@ export default withMermaid(defineConfig({
               items: [
                 {
                   text: 'Glossary',
-                  link: '/apis/v1/glossary/',
+                  link: '/apis/v1/glossary', // No ending /, as the sub items are not sub pages
                   collapsed: true,
                   items: [
                     {
@@ -452,8 +452,8 @@ export default withMermaid(defineConfig({
                     },
                   ],
                 },
-                {text: 'Filtering', link: '/apis/v1/filtering/'},
-                {text: 'SDKs', link: '/apis/v1/sdks/'},
+                {text: 'Filtering', link: '/apis/v1/filtering'},
+                {text: 'SDKs', link: '/apis/v1/sdks'},
                 collapse(sidebarSpec1.generateSidebarGroup({ tag: ["authentication"], text: "Authentication", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
                 reorder(
                   collapse(sidebarSpec1.generateSidebarGroup({ tag: ["device"], text: "Devices", linkPrefix: '/apis/v1/', addedOperations: new Set(),})),
@@ -617,14 +617,14 @@ export default withMermaid(defineConfig({
           text: 'Admin',
           link: '/apps/admin/',
           items : [
-            { text: 'Authentication', link: '/apps/admin/authentication',
+            { text: 'Authentication', link: '/apps/admin/authentication', // No ending /, as the sub items are not sub pages
               items: [
                 { text: 'Account Creation', link: '/apps/admin/authentication#creating-an-account' },
                 { text: 'Logging In', link: '/apps/admin/authentication#logging-in' },
                 { text: 'Permissions', link: '/apps/admin/authentication#permissions' },
               ]
             },
-            { text: 'Devices', link: '/apps/admin/devices',
+            { text: 'Devices', link: '/apps/admin/devices', // No ending /, as the sub items are not sub pages
               items: [
                 { text: 'Actions', link: '/apps/admin/devices#actions' },
                 { text: 'Metrics', link: '/apps/admin/devices#metric-summary' },

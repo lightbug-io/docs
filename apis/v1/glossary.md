@@ -10,7 +10,7 @@ import BitfieldCalculator from '../../components/BitfieldCalculator.vue'
 
 The version 1 API uses a number of terms that may not be familiar to all users.
 
-## Points
+## Datapoints
 
 General information about points can be found [in the basics section](/terminology/points.html).
 
@@ -105,6 +105,10 @@ Some error codes are less useful for end users:
 | 21         | EEPROM error |
 | 22         | I2C error |
 :::
+
+## Readings
+
+General information about readings can be found [in the basics section](/terminology/readings.html).
 
 ## Device Settings
 

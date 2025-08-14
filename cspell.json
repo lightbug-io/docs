@@ -38,7 +38,15 @@
         "msgb",
         "Dont",
         "csum",
-        "Csum"
+        "Csum",
+        "Bitfield",
+        "bitfield",
+        "bitfields",
+        "optimisation",
+        "Optimisations",
+        "RTCM",
+        "initialised",
+        "EEPROM"
     ],
     "ignoreWords": [],
     "import": []
