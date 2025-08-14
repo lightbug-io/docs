@@ -340,7 +340,7 @@ export default withMermaid(defineConfig({
                     { text: 'Getting Started', link: '/devices/api/sdks/toit/getting-started' },
                     {
                       text: 'Examples',
-                      link: '/devices/api/sdks/toit/examples',
+                      link: '/devices/api/sdks/toit/examples/',
                       items: [
                         { text: 'EInk Hello World', link: '/devices/api/sdks/toit/examples/eink' },
                       ]
