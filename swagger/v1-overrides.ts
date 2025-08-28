@@ -143,6 +143,7 @@ export const V1ParamExamples = {
         'filter': [
             '{"limit":10,"order":["timestamp DESC"]}',
             '{"where":{"timestamp":{"between":["2024-12-01T00:00:00.000Z","2024-12-01T23:59:59.999Z"]}},"order":["timestamp DESC"]}',
+            '{"where":{"correlationId":"abc123"}}',
         ],
     },
     'get-devices-id-activateOnResellerPlan': {
