@@ -141,6 +141,7 @@ export const v1Removed = [
 export const V1ParamExamples = {
     'get-devices-id-points': {
         'filter': [
+            // TODO unquote / alter these once https://github.com/enzonotario/vitepress-openapi/issues/301 is fixed
             '{"limit":10,"order":["timestamp DESC"]}',
             '{"where":{"timestamp":{"between":["2024-12-01T00:00:00.000Z","2024-12-01T23:59:59.999Z"]}},"order":["timestamp DESC"]}',
             '{"where":{"correlationId":"abc123"}}',
@@ -153,6 +154,7 @@ export const V1ParamExamples = {
     },
     'get-devices-id-readings': {
         'filter': [
+            // TODO unquote / alter these once https://github.com/enzonotario/vitepress-openapi/issues/301 is fixed
             '{"limit":10,"order":["timestamp DESC"]}',
             '{"where":{"type":"temp"},"limit":10,"order":["timestamp DESC"]}',
             '{"where":{"type":"temp","timestamp":{"between":["2024-12-01T00:00:00.000Z","2024-12-01T23:59:59.999Z"]}},"order":["timestamp DESC"]}',
