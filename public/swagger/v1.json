@@ -302,6 +302,40 @@
           }
         },
         "deprecated": false
+      },
+      "delete": {
+        "tags": [
+          "device"
+        ],
+        "summary": "Delete a related item by id for readings.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "device id",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "integer"
+            }
+          },
+          {
+            "name": "fk",
+            "in": "path",
+            "description": "Foreign key for readings",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Request was successful"
+          }
+        },
+        "deprecated": false
       }
     },
     "/devices/{id}/gatewayReadings/{fk}": {

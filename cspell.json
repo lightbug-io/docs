@@ -4,7 +4,8 @@
         "cSpell_dict.txt",
         "package-lock.json",
         "package.json",
-        "public/device-specs/**/*.yaml"
+        "public/device-specs/**/*.yaml",
+        "public/swagger/v1.json"
     ],
     "dictionaryDefinitions": [],
     "dictionaries": [],
@@ -47,7 +48,11 @@
         "RTCM",
         "initialised",
         "EEPROM",
-        "trycloudflare"
+        "trycloudflare",
+        "multipath",
+        "iccid",
+        "imei",
+        "NTRIP"
     ],
     "ignoreWords": [],
     "import": []

@@ -7,7 +7,7 @@ export const v1SummaryOverrides = {
     // readings
     'get-devices-id-readings-fk': 'Get device reading by id',
     'get-devices-id-readings': 'Get device readings',
-    'put-devices-id-gatewayReadings-fk': 'Update device reading by id',
+    'delete-devices-id-readings-fk': 'Delete device reading by id',
     // device
     'get-devices-id': 'Get device',
     'get-users-id-getDeviceSummary': 'Summary of devices',
@@ -110,9 +110,9 @@ export const v1ReTag = {
     'get-devices-id-points-fk': 'points',
     'get-devices-id-points': 'points',
     'delete-devices-id-points-fk': 'points',
+    'delete-devices-id-readings-fk': 'readings',
     'get-devices-id-readings-fk': 'readings',
     'get-devices-id-readings': 'readings',
-    'put-devices-id-gatewayReadings-fk': 'readings',
     'get-devices-id-notificationTriggers-fk': 'notifications',
     'delete-devices-id-notificationTriggers-fk': 'notifications',
     'put-devices-id-notificationTriggers-fk': 'notifications',
