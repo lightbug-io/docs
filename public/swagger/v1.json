@@ -3661,6 +3661,82 @@
         "deprecated": false
       }
     },
+    "/users/{id}/getRecentActivity": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "user id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "JSON"
+            }
+          },
+          {
+            "name": "dateRange",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "JSON"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Request was successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/x-any"
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/x-any"
+                  }
+                }
+              },
+              "text/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/x-any"
+                  }
+                }
+              },
+              "application/javascript": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/x-any"
+                  }
+                }
+              },
+              "text/javascript": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/x-any"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false
+      }
+    },
     "/reports/vehicle-summary": {
       "post": {
         "tags": [

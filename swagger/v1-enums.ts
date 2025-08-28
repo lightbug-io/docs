@@ -1,0 +1,26 @@
+
+export const notificationTriggerTypes = [
+                    'lowBat',
+                'button',
+                'expiresDaily',
+                'expiresWeekly',
+                'geofence',
+                'newLoc',
+                'newWakeLoc',
+                'acc',
+                'newReading',
+                'speed',
+                'distance',
+                'alertMode',
+                'temp',
+                'temp_bme',
+                'humidity',
+                'pressure',
+                'extAccel',
+                'geoEntry',
+                'proximity',
+                // 'ultraLevel',
+                // 'newAvailLoc',
+                // 'newMsg',
+                // 'lightLevel'
+];

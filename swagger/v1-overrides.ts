@@ -1,3 +1,5 @@
+import { notificationTriggerTypes } from "./v1-enums.js";
+
 export const v1SummaryOverrides = {
     'post-users-login': 'Login',
     // points
@@ -40,7 +42,8 @@ export const v1SummaryOverrides = {
     'get-devices-id-activateOnResellerPlan': 'Activate device on reseller plan',
     'get-devices-id-setNtripSettings': 'Set the NTRIP settings for a device.',
     'post-reports-activity': 'Device Activity',
-    'post-reports-vehicle-summary': 'Vehicle Summary'
+    'post-reports-vehicle-summary': 'Vehicle Summary',
+    'get-users-id-getRecentActivity': 'Get recent activity for a user'
 };
 
 export const v1DescriptionOverrides = {
@@ -62,6 +65,7 @@ Use [filtering](/apis/v1/filtering) to get a specific [type](/terminology/readin
 `Configure SQS Notifications for a device.
 
 There is a [full guide](/guides/notifications-setup-sqs) written for this endpoint.`,
+    'get-users-id-getRecentActivity': 'Gets recent activity for a user, which focuses around notifications that have been triggered.',
 };
 
 export const v1Deprecated = [
@@ -113,6 +117,7 @@ export const v1ReTag = {
     'delete-devices-id-readings-fk': 'readings',
     'get-devices-id-readings-fk': 'readings',
     'get-devices-id-readings': 'readings',
+    'get-users-id-getRecentActivity': 'notifications',
     'get-devices-id-notificationTriggers-fk': 'notifications',
     'delete-devices-id-notificationTriggers-fk': 'notifications',
     'put-devices-id-notificationTriggers-fk': 'notifications',
@@ -156,6 +161,10 @@ export const V1ParamExamples = {
         'id': 1234,
         'sqsArn': 'arn:aws:sqs:us-east-1:123456789012:my-queue',
         // 'types': [ 'newLoc', 'newReading' ],
+    },
+    'get-users-id-getRecentActivity': {
+        'id': '5678',
+        'dateRange': '[1756249200000,1756388711959]',
     },
 };
 
@@ -303,6 +312,49 @@ export const V1ResponseExamples = {
                 }
             }
         }
+    },
+    'get-users-id-getRecentActivity': {
+        '200': {
+            'application/json': {
+                schema: {
+                    type: 'array',
+                    items: {
+                        type: 'object',
+                        properties: {
+                            created: { type: 'string', format: 'date-time' },
+                            params: {
+                                type: 'object',
+                                properties: {
+                                    type: {
+                                        type: 'string',
+                                        enum: notificationTriggerTypes
+                                    },
+                                    subtype: { type: 'string' },
+                                    name: { type: 'string' },
+                                    zones: {
+                                        type: 'array',
+                                        items: { type: 'string' }
+                                    },
+                                    message: { type: 'string' }
+                                }
+                            },
+                            deviceId: {
+                                type: 'number',
+                                description: 'The ID of the device that generated this activity.'
+                            },
+                            pointId: {
+                                type: 'number',
+                                description: 'Either a datapoint ID or a reading ID, depending on the type of activity.'
+                            },
+                            triggerId: {
+                                type: 'number',
+                                description: 'The ID of the notification trigger that caused this activity, if applicable.'
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 };
 
@@ -342,31 +394,7 @@ export const V1ParamSchemaTypes = {
 export const V1SchemaPropertyOverrides = {
     'notificationTrigger': {
         'type': {
-            enum: [
-                'lowBat',
-                'button',
-                'expiresDaily',
-                'expiresWeekly',
-                'geofence',
-                'newLoc',
-                'newWakeLoc',
-                'acc',
-                'newReading',
-                'speed',
-                'distance',
-                'alertMode',
-                'temp',
-                'temp_bme',
-                'humidity',
-                'pressure',
-                'extAccel',
-                'geoEntry',
-                'proximity',
-                // 'ultraLevel',
-                // 'newAvailLoc',
-                // 'newMsg',
-                // 'lightLevel'
-            ]
+            enum: notificationTriggerTypes,
         }
     }
 };
