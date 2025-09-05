@@ -94,6 +94,9 @@ export default withMermaid(defineConfig({
   description: "home for everything Lightbug",
   lang: 'en-GB',
   cleanUrls: true,
+  sitemap: {
+    hostname: process.env.DEPLOYMENT_NAME === 'Production' ? 'https://docs.lightbug.io' : 'https://docs-next.lightbug.io'
+  },
   rewrites: {
     '/onprem/' : '/silos/',
   },
