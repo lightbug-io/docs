@@ -30,7 +30,7 @@ flowchart LR
     B -->|ACK| A
 ```
 
-The [Response Message ID](./../headers#_3-response-message-id) field in the header can be used in place of an ACK if an immediate response is being sent.
+The [Response Message ID](../protocol/headers#_3-response-message-id) field in the header can be used in place of an ACK if an immediate response is being sent.
 
 In such cases the response will not have an ACK message type, instead it will have the message type of the response (often the same as the request).
 

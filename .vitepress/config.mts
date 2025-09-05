@@ -291,33 +291,48 @@ export default withMermaid(defineConfig({
               link: '/devices/api/glossary',
             },
             {
-              text: 'Structure',
-              collapsed: true,
-              link: '/devices/api/structure',
+              text: 'Toit',
+              link: '/devices/api/sdks/toit/',
               items: [
-                {
-                  text: 'Prefix',
-                  link: '/devices/api/structure#prefix',
-                },
-                {
-                  text: 'Message',
-                  link: '/devices/api/structure#message',
-                },
+                { text: 'Getting Started', link: '/devices/api/sdks/toit/getting-started' },
                 {
                   text: 'Examples',
-                  link: '/devices/api/structure#examples',
+                  link: '/devices/api/sdks/toit/examples/',
                 },
-              ]
-            },
-            {
-              text: 'Headers',
-              link: '/devices/api/headers',
+              ],
             },
             {
               text: 'Messages',
               collapsed: true,
               link: '/devices/api/messages',
               items: protocolMenuItems,
+            },
+            {
+              text: 'Protocol',
+              collapsed: true,
+              link: '/devices/api/protocol/',
+              items: [
+                {
+                  text: 'Prefix',
+                  link: '/devices/api/protocol/prefix',
+                },
+                {
+                  text: 'Stop',
+                  link: '/devices/api/protocol/stop',
+                },
+                {
+                  text: 'Structure',
+                  link: '/devices/api/protocol/structure',
+                },
+                {
+                  text: 'Headers',
+                  link: '/devices/api/protocol/headers',
+                },
+                {
+                  text: 'Examples',
+                  link: '/devices/api/protocol/examples',
+                },
+              ]
             },
             {
               text: 'Tools',
@@ -334,26 +349,6 @@ export default withMermaid(defineConfig({
                 {
                   text: 'Screen',
                   link: '/devices/api/tools/screen',
-                },
-              ]
-            },
-            {
-              text: 'SDKs',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Toit',
-                  link: '/devices/api/sdks/toit/',
-                  items: [
-                    { text: 'Getting Started', link: '/devices/api/sdks/toit/getting-started' },
-                    {
-                      text: 'Examples',
-                      link: '/devices/api/sdks/toit/examples/',
-                      items: [
-                        { text: 'EInk Hello World', link: '/devices/api/sdks/toit/examples/eink' },
-                      ]
-                    },
-                  ],
                 },
               ]
             },

@@ -5,7 +5,8 @@
         "package-lock.json",
         "package.json",
         "public/device-specs/**/*.yaml",
-        "public/swagger/v1.json"
+        "public/swagger/v1.json",
+        "public/files/protocol-v3.yaml"
     ],
     "dictionaryDefinitions": [],
     "dictionaries": [],
@@ -52,7 +53,20 @@
         "multipath",
         "iccid",
         "imei",
-        "NTRIP"
+        "NTRIP",
+        "microcontroller",
+        "UART",
+        "HPSYS",
+        "SPIWP",
+        "acking",
+        "RSSI",
+        "actioned",
+        "centi",
+        "DGNSS",
+        "NMEA",
+        "WCDMA",
+        "hectopascals",
+        "codegen"
     ],
     "ignoreWords": [],
     "import": []
