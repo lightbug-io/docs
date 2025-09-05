@@ -126,7 +126,9 @@ Once the code is running, you should see some output through the `monitor` comma
 💬 Sending text to device
 ```
 
-And you should see the device screen update, saying `Lightbug...` in the top right.
+And you should see the device screen update, saying `Lightbug...` in the top left.
+
+![](https://i.imgur.com/8QP1022.png)
 
 ### 7. Inspect the code
 

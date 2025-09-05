@@ -10,7 +10,7 @@ import GenerateConsts from '../../../components/GenerateConsts.vue'
 
 These header field types are reserved across all message types and usages of the protocol.
 
-<GenerateConsts :dataName="'MH'" :dataPath="'header'"/>
+For use in code, you can find a code generation section at the [bottom of this page](#code-generation).
 
 ## 1: Message ID
 
@@ -124,3 +124,7 @@ Reserved for future use.
 ## 16: Message Level
 
 Reserved for future use.
+
+## Code generation
+
+<GenerateConsts :dataName="'MH'" :dataPath="'header'"/>
