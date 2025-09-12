@@ -89,6 +89,7 @@ const generateAdminDevicesSidebar = () => {
     scanStartPath: 'apps/admin/devices',
     hyphenToSpace: true,
     capitalizeFirst: true,
+    useTitleFromFrontmatter: true,
     sortMenusByFrontmatterOrder: true,
     frontmatterOrderDefaultValue: 100,
     includeRootIndexFile: false,

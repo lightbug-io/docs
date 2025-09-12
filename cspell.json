@@ -6,7 +6,8 @@
         "package.json",
         "public/device-specs/**/*.yaml",
         "public/swagger/v1.json",
-        "public/files/protocol-v3.yaml"
+        "public/files/protocol-v3.yaml",
+        ".vitepress/theme/index.ts"
     ],
     "dictionaryDefinitions": [],
     "dictionaries": [],
