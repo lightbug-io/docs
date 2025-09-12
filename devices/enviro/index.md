@@ -1,3 +1,7 @@
+---
+aside: false
+---
+
 <script setup>
 import DeviceSpecTable from '../../components/DeviceSpecTable.vue'
 import { ref, onMounted } from 'vue'

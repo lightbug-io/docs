@@ -1,4 +1,6 @@
 ---
+
+aside: false
 next:
   text: 'Installation'
   link: '/devices/vehicle/installation'

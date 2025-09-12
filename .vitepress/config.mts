@@ -210,8 +210,17 @@ export default withMermaid(defineConfig({
             {
               text: 'General',
               items: [
+                {
+                  text: 'Positioning',
+                  link: '/terminology/positioning/',
+                  items: [
+                    { text: 'GNSS', link: '/terminology/positioning/gnss' },
+                    { text: 'RTK', link: '/terminology/positioning/rtk' },
+                    { text: 'WiFi', link: '/terminology/positioning/wifi' },
+                    { text: 'Cellular', link: '/terminology/positioning/cellular' },
+                  ]
+                },
                 { text: 'IoT', link: '/terminology/iot' },
-                { text: 'Positioning', link: '/terminology/positioning' },
                 { text: 'Observability', link: '/terminology/observability' },
               ]
             },
@@ -261,10 +270,14 @@ export default withMermaid(defineConfig({
                   text: 'Enviro',
                   link: '/devices/enviro/',
                 },
-                {
-                  text: 'RTK',
-                  link: '/devices/rtk/',
-                },
+              ]
+            },
+            {
+              text: 'RTK',
+              link: '/devices/rtk/',
+              items: [
+                { text: 'Handheld', link: '/devices/rtk/handheld' },
+                { text: 'Vehicle', link: '/devices/rtk/vehicle' },
               ]
             },
             {

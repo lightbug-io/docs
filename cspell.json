@@ -65,8 +65,13 @@
         "DGNSS",
         "NMEA",
         "WCDMA",
+        "GPRS",
         "hectopascals",
-        "codegen"
+        "codegen",
+        "VTRTK",
+        "pseudorange",
+        "Centimetre",
+        "integ"
     ],
     "ignoreWords": [],
     "import": []

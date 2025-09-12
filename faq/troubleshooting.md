@@ -7,7 +7,7 @@ aside: false
 
 ## Why are location updates not instant?
 
-In many cases, location can not be retrieved instantly, it takes time to get a [GPS fix](/terminology/positioning#gnss-global-navigation-satellite-system) and if that fails, the [other location technologies](/terminology/positioning) come into action.
+In many cases, location can not be retrieved instantly, it takes time to get a [GPS fix](/terminology/positioning/gnss) and if that fails, the [other location technologies](/terminology/positioning/) come into action.
 
 After a device has determined its location, it has to connect to the internet via the mobile networks in order to send the location information.
 

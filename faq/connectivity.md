@@ -33,7 +33,7 @@ Luckily, with over 600 network partners globally, this is a rare occurrence!
 
 Our trackers work both indoors and outdoors.
 
-They use [GPS/GNSS](/terminology/positioning#gnss-global-navigation-satellite-system) to locate themselves outdoors and [WPS (WiFi Positioning System)](/terminology/positioning#wifi-positioning) when indoors.
+They use [GPS/GNSS](/terminology/positioning/gnss) to locate themselves outdoors and [WPS (WiFi Positioning System)](/terminology/positioning/wifi) when indoors.
 
 Typical accuracy outdoors is 1-5m, and 10-30m indoors.
 

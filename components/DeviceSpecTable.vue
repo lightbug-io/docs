@@ -54,6 +54,13 @@ const props = defineProps({
     type: String,
     required: true
   }
+  ,
+  // Optional override for the device title. If provided, this will be used
+  // instead of the title extracted from the YAML.
+  deviceTitle: {
+    type: String,
+    required: false
+  }
 })
 
 const specs = ref(null)
@@ -97,7 +104,12 @@ watchEffect(() => {
     genericSections.value = []
     if (specs.value && specs.value.product) {
       const p = specs.value.product
-      deviceTitle.value = p.sku ? `${p.name} (${p.sku})` : p.name
+      // Prefer the explicit prop if provided, otherwise derive from YAML
+      if (props.deviceTitle) {
+        deviceTitle.value = props.deviceTitle
+      } else {
+        deviceTitle.value = p.sku ? `${p.name} (${p.sku})` : p.name
+      }
       // Main table (excluding sectionKeys)
       displaySpecs.value = {
         'Name': p.name,

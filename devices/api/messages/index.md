@@ -16,7 +16,7 @@ Messages all have a type, represented as a `uint16` value, which defines the str
 Some example message types for the device API include:
 - [13: Heartbeat](./13-heartbeat) - A simple message to indicate the communication link is alive
 - [34: Device Status](./34-device-status) - A message containing various status information about the device
-- [10011: Draw Element](./10011-draw-element) - A message to draw a shape on the device's display
+- [10011: Draw Element](./10011-draw-bitmap) - A message to draw a shape on the device's display
 - ...
 
 You can find complete documentation for the messages used as part of the device API in the sidebar of this page.
