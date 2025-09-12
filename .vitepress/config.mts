@@ -7,6 +7,7 @@ import { loadSpec } from '../swagger/load';
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 import { pagefindPlugin } from 'vitepress-plugin-pagefind';
 import { withMermaid } from "vitepress-plugin-mermaid";
+import { withSidebar, generateSidebar } from 'vitepress-sidebar';
 
 
 // Load protocol messages from YAML file
@@ -60,6 +61,44 @@ const sidebarItemsFromDir = (dir) => {
 
 const sidebarSpec1 = useSidebar({ spec: loadSpec(1) });
 const sidebarSpec2 = useSidebar({ spec: loadSpec(2) });
+
+// Generate Admin Actions sidebar automatically using vitepress-sidebar
+const generateAdminDevicesSidebar = () => {
+  // Helper function to fix links recursively
+  const fixLinks = (items, prefix = '/apps/admin/devices') => {
+    return items.map(item => {
+      const newItem = { ...item };
+
+      // Fix the link if it exists and doesn't already start with the prefix
+      if (newItem.link && !newItem.link.startsWith(prefix)) {
+        newItem.link = prefix + (newItem.link.startsWith('/') ? '' : '/') + newItem.link;
+      }
+
+      // Recursively fix nested items
+      if (newItem.items) {
+        newItem.items = fixLinks(newItem.items, prefix);
+      }
+
+      return newItem;
+    });
+  };
+
+  // Use vitepress-sidebar to auto-generate the entire devices section
+  const devicesSidebar = generateSidebar({
+    documentRootPath: '/',
+    scanStartPath: 'apps/admin/devices',
+    hyphenToSpace: true,
+    capitalizeFirst: true,
+    sortMenusByFrontmatterOrder: true,
+    frontmatterOrderDefaultValue: 100,
+    includeRootIndexFile: false,
+    includeFolderIndexFile: false,
+    useFolderLinkFromIndexFile: true,
+  });
+
+  const fixedSidebar = Array.isArray(devicesSidebar) ? fixLinks(devicesSidebar) : devicesSidebar;
+  return fixedSidebar as any;
+};
 
 // Function to make a sidebar group be collapsed
 function collapse(group) {
@@ -658,12 +697,7 @@ export default withMermaid(defineConfig({
               ]
             },
             { text: 'Devices', link: '/apps/admin/devices', // No ending /, as the sub items are not sub pages
-              items: [
-                { text: 'Actions', link: '/apps/admin/devices#actions' },
-                { text: 'Metrics', link: '/apps/admin/devices#metric-summary' },
-                { text: 'Timeline', link: '/apps/admin/devices#timeline' },
-              ]
-
+              items: generateAdminDevicesSidebar()
             },
             { text: 'Configs', link: '/apps/admin/configs' },
             { text: 'Users', link: '/apps/admin/users' },
