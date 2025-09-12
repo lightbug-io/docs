@@ -239,33 +239,28 @@ product:
           spi: "Yes (Multiplexed from I2C and UART1)"
     wifi:
       manufacturer: "Espressif Systems"
-      model: "ESP8285"
+      model: "ESP32-C6"
       specifications:
-        soc_description: "Highly integrated Wi-Fi SoC solution for IoT industry (can perform as a standalone application or as the slave to a host MCU)"
-        recommended_upgrade: "ESP8684"
-        wi_fi_protocols: "802.11 b/g/n (HT20)"
-        wi_fi_frequency_range_mhz: "2400 ~ 2483.5"
+        soc_description: "Ultra-low-power SoC with RISC-V single-core CPU, supports Wi-Fi 6 (802.11ax), Bluetooth LE, Zigbee, Thread"
+        wi_fi_protocols: "802.11 b/g/n/ac/ax (Wi-Fi 6), backward compatible"
+        wi_fi_frequency_range_mhz: "2412 ~ 2484"
         tx_power_dbm:
-          802_11b: "+19"
-          802_11g_6mbps: "+19"
-          802_11g_54mbps: "+15"
-          802_11n_mcs0: "+19"
-          802_11n_mcs7: "+14"
-        rx_sensitivity_dbm:
-          802_11b_1mbps: "-97"
-          802_11g_54mbps: "-74"
-          802_11n_mcs7: "-70"
-        cpu: "Tensilica L106 32-bit processor (up to 160 MHz)"
-        memory: "1 MB"
-        operating_voltage_v: "2.7 ~ 3.6"
-        crystal_frequency_range_mhz: "24 ~ 52"
-        power_consumption_deep_sleep_ua: 20
+          802_11b: "+21"
+          802_11ax (MCS9, 20MHz): "+19.5"
+        cpu:
+          high_performance: "32-bit RISC-V up to 160 MHz"
+          low_power: "32-bit RISC-V up to 20 MHz"
+        memory:
+          rom: "320 KB"
+          hp_sram: "512 KB"
+          lp_sram: "16 KB"
+          external_flash: "TBD"
+        operating_voltage_v: "3.0 ~ 3.6"
+        crystal_frequency_range_mhz: "40"
+        power_consumption_deep_sleep_ua: 7
         power_consumption_active_ma:
-          average: 80
-          tx_802_11b_19dbm: 197
-          rx_802_11b: 73
-          modem_sleep_typical: "~15 (DTIM3, 300ms sleep/3ms wakeup)"
-          light_sleep_typical: "~0.9 (DTIM3, 300ms sleep/3ms wakeup)"
+          typical_receive: ~71-82
+          typical_transmit_max: ~354
     accelerometer:
       manufacturer: "STMicroelectronics"
       model: "LIS3DHTR"
