@@ -1,6 +1,6 @@
 <template>
   <div class="pdf-btn-wrapper">
-    <button @click="downloadPdf" class="pdf-download-btn">PDF Download</button>
+    <button @click="downloadPdf" class="pdf-download-btn">{{ props.label }}</button>
   </div>
 </template>
 
@@ -29,7 +29,11 @@ const borderColor = [221, 221, 221]; // #ddd (keep for subtle borders)
 const subsectionBg = [252, 232, 220]; // light orange tint for subsections
 
 const props = defineProps({
-  getPdfData: Function
+  getPdfData: Function,
+  label: {
+    type: String,
+    default: 'Download PDF'
+  }
 });
 
 function loadScript(src) {
@@ -363,22 +367,29 @@ async function downloadPdf() {
 
 <style scoped>
 .pdf-btn-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  margin: 16px 0 24px 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 12px 0 16px 0;
 }
 .pdf-download-btn {
+  display: inline-block;
+  min-width: 120px;
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   background: var(--vp-c-bg-alt, #f5f7fa);
   color: var(--vp-c-text-1, #222);
   border: 1px solid var(--vp-c-divider, #d1d5db);
   border-radius: 6px;
-  padding: 10px 22px;
-  font-size: 1rem;
+  padding: 8px 14px;
+  font-size: 0.95rem;
   font-weight: 500;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
   cursor: pointer;
   transition: background 0.2s, border 0.2s;
+  text-align: center;
 }
 .pdf-download-btn:hover {
   background: var(--vp-c-bg, #e6eaf1);

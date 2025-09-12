@@ -2,7 +2,9 @@ product:
   name: "RTK"
   description: "Our highest accuracy device with both indoor and outdoor positioning capabilities."
   sku: RH2
+  prefix: 43
   version: 2
+  booklet: "https://lightbug.io/rh2_rtk_handheld_booklet.pdf"
   images:
   - "https://lightbug.io/raw-renders/2025-07-01/RH2_w-front angle.png?x=600&y=0&w=600&h=1000"
   - "https://lightbug.io/raw-renders/2025-07-01/RH2_w-top side.png?x=600&y=0&w=600&h=1000"

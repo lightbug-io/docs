@@ -8,9 +8,13 @@
           <img v-for="(img, idx) in specs.product.images" :key="img" :src="img.startsWith('https://lightbug.io/') ? `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(img)}` : img" :alt="`Device image ${idx+1}`" class="device-image" />
         </div>
       </div>
-      <DownloadPdfButton :get-pdf-data="getPdfData" />
     </div>
-    <h3>Overview</h3>
+  <DownloadPdfButton :get-pdf-data="getPdfData" label="Spec PDF"/>
+  <DownloadYamlButton :get-yaml-data="() => props.yamlText" :filename="(specs && specs.product && (specs.product.sku ? specs.product.sku + '.yaml' : specs.product.name + '.yaml')) || 'spec.yaml'" label="Spec YAML" />
+  <DownloadBookletButton v-if="specs && specs.product && specs.product.booklet" :url="specs.product.booklet" />
+
+  <h2>Specification</h2>
+  <h3>Overview</h3>
     <span v-if="specs && specs.product && specs.product.description">{{ specs.product.description }}</span>
     <table v-if="specs">
       <tbody>
@@ -48,6 +52,8 @@
 import { ref, watchEffect } from 'vue'
 import yaml from 'js-yaml'
 import DownloadPdfButton from './DownloadPdfButton.vue'
+import DownloadYamlButton from './DownloadYamlButton.vue'
+import DownloadBookletButton from './DownloadBookletButton.vue'
 
 const props = defineProps({
   yamlText: {

@@ -71,6 +71,7 @@
         "VTRTK",
         "pseudorange",
         "Centimetre",
+        "wght",
         "integ"
     ],
     "ignoreWords": [],
