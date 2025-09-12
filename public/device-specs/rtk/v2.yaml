@@ -178,34 +178,36 @@ product:
         - "REACH"
         - "RCM"
         - "PTCRB"
-    bluetooth-le:
+    P1 & LORA:
       manufacturer: "STMicroelectronics"
-      model: "STM32WB55xx"
+      model: "STM32WL55xx"
+      datasheet: "https://www.st.com/resource/en/datasheet/stm32wl55cc.pdf"
       specifications:
-        chip_type: "Multiprotocol wireless 32-bit MCU Arm®-based Cortex®-M4 with FPU"
+        chip_type: "Multiprotocol wireless 32-bit MCU, Arm® Cortex-M4 with FPU + Cortex-M0+ for real-time radio tasks"
         radio_features:
-          frequency: "2.4 GHz"
-          bluetooth_specification: "5.4"
-          ieee_802_15_4_support: "Yes (supports PHY and MAC, supporting Thread 1.3 and Zigbee® 3.0)"
+          frequency_range_mhz: "150 - 960"
+          supported_modulations: "LoRa, (G)FSK, (G)MSK, BPSK"
           rx_sensitivity_dbm:
-            bluetooth_le_1mbps: -96
-            ieee_802_15_4: -100
-          programmable_output_power_dbm: "+6 (with 1 dB steps)"
-          integrated_balun: "Yes"
-          data_rates_mbps: "1, 2"
-          dedicated_radio_cpu: "Arm® 32-bit Cortex® M0+"
-          external_pa_support: "Yes"
+            2fsK_1_2kbps: -123
+            LoRa_SF12_BW_10_4kHz: -148
+          programmable_output_power_dbm:
+            low_power_path: "+15"
+            high_power_path: "+22"
+          integrated_balun: "Yes (with IPD companion options for matching / filtering / balun)"
         memory:
           flash_memory_size: "Up to 1 Mbyte"
-          sram_size: "Up to 256 Kbytes (includes 64 K SRAM1 and 64 K SRAM2 for STM32WB55Cx models)"
-        operating_voltage_v: "1.71 to 3.6"
-        operating_temperature_c: "-40 to +85 and -40 to +105 (Ambient)"
-        power_consumption_typical_ma_at_3_3v:
-          tx_max_output_bluetooth_le: 7.8
-          tx_max_output_802_15_4: 6.5
-          rx_bluetooth_le: 4.5
-          rx_802_15_4: 4.5
-          run_mode_flash_64mhz_typical_ma: 8.8
+          sram_size: "Up to 256 Kbytes"
+        operating_voltage_v: "1.8 to 3.6"
+        operating_temperature_c: "-40 to +105 (ambient), -40 to +85 (with radio)"
+        power_consumption_modes:
+          shutdown_at_3v: "31 nA"
+          standby_rtc_at_3v: "360 nA"
+          stop2_rtc_at_3v: "1.07 µA"
+          active_mcu_performance: "<72 µA/MHz (CoreMark benchmark)"
+          rx_active: "4.82 mA"
+          tx_active:
+            LoRa_125kHz_10dBm: "15 mA"
+            LoRa_125kHz_20dBm: "87 mA"
     gnss:
       manufacturer: "Quectel"
       model: "LC29HEA"
@@ -237,9 +239,10 @@ product:
           i2c: "Yes (Up to 400 kbps)"
           uart: "Yes (Adjustable: 9600-3000000 bps)"
           spi: "Yes (Multiplexed from I2C and UART1)"
-    wifi:
+    P2 & WIFI/BT:
       manufacturer: "Espressif Systems"
       model: "ESP32-C6"
+      datasheet: "https://www.espressif.com/sites/default/files/documentation/esp32-c6_datasheet_en.pdf"
       specifications:
         soc_description: "Ultra-low-power SoC with RISC-V single-core CPU, supports Wi-Fi 6 (802.11ax), Bluetooth LE, Zigbee, Thread"
         wi_fi_protocols: "802.11 b/g/n/ac/ax (Wi-Fi 6), backward compatible"

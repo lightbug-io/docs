@@ -16,11 +16,11 @@
   <h2>Specification</h2>
   <h3>Overview</h3>
     <span v-if="specs && specs.product && specs.product.description">{{ specs.product.description }}</span>
-    <table v-if="specs">
+  <table v-if="specs">
       <tbody>
         <tr v-for="(value, key) in displaySpecs" :key="key">
           <th>{{ key }}</th>
-          <td>{{ value }}</td>
+      <td v-html="value"></td>
         </tr>
       </tbody>
     </table>
@@ -116,6 +116,13 @@ function linkTerms(text) {
   return out
 }
 
+function linkUrls(text) {
+  if (!text || typeof text !== 'string') return text
+  // Simple URL regex (http/https). Keep it conservative.
+  const urlRe = /https?:\/\/[^\s"'<>]+/g
+  return text.replace(urlRe, url => `<a href="${url}" target="_blank" rel="noopener">${url}</a>`)
+}
+
 function formatValueForDisplay(val) {
   if (Array.isArray(val)) {
     // Array: join items, format each recursively
@@ -145,12 +152,12 @@ watchEffect(() => {
       }
       // Main table (excluding sectionKeys)
       displaySpecs.value = {
-        'Name': p.name,
+        'Name': linkUrls(linkTerms(p.name)),
         'Version': p.version,
         'Serial prefix': p.prefix,
-        'Connectivity': p.connectivity ? Object.keys(p.connectivity).join(', ') : '',
-        'Positioning': p.positioning ? Object.keys(p.positioning).join(', ') : '',
-        'Sensors': p.sensors ? Object.keys(p.sensors).join(', ') : '',
+        'Connectivity': p.connectivity ? linkUrls(linkTerms(Object.keys(p.connectivity).join(', '))) : '',
+        'Positioning': p.positioning ? linkUrls(linkTerms(Object.keys(p.positioning).join(', '))) : '',
+        'Sensors': p.sensors ? linkUrls(linkTerms(Object.keys(p.sensors).join(', '))) : '',
       }
       // Generic section rendering
       for (const sectionKey of sectionKeys) {
@@ -209,6 +216,7 @@ watchEffect(() => {
                 displayValue = formatValueForDisplay(v)
                 if (typeof displayValue === 'string') {
                   displayValue = linkTerms(displayValue)
+                  displayValue = linkUrls(displayValue)
                 }
                 if (displayValue !== undefined && displayValue !== null && displayValue !== '' && displayValue !== '[]' && displayValue !== '{}') {
                   rows.push({ label: normalizePhrase(k), value: displayValue })
