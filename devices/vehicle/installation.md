@@ -11,56 +11,9 @@ If you purchase a vehicle tracker today, you will receive the VT3 device.
 
 ## Tools
 
-You will likely need the following tools to complete installation.
+You will likely need the following tools to complete installation:
 
-<v-row>
-    <v-col
-        v-for="(image, index) in toolImageUrls"
-        :key="index"
-        class="d-flex child-flex"
-        cols="toolImageUrls.length"
-    >
-        <v-img
-            :lazy-src="image"
-            :src="image"
-            aspect-ratio="1"
-            class="bg-grey-lighten-2"
-            cover
-        >
-            <template v-slot:placeholder>
-                <v-row
-                    align="center"
-                    class="fill-height ma-0"
-                    justify="center"
-                >
-                    <v-progress-circular
-                        color="grey-lighten-5"
-                        indeterminate
-                    ></v-progress-circular>
-                </v-row>
-            </template>
-        </v-img>
-    </v-col>
-</v-row>
-
-<script>
-// TODO factor this out into a component
-export default {
-    data() {
-        return {
-            toolImageUrls: [
-                "https://upload.wikimedia.org/wikipedia/commons/1/1e/Alicate_boca_redonda.png",
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Wire_cutter_-_Sept._2013.jpg/640px-Wire_cutter_-_Sept._2013.jpg",
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Swisstools_Screwdrivers_ESD_VDE.jpg/640px-Swisstools_Screwdrivers_ESD_VDE.jpg",
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/2017_Cyfrowy_miernik_uniwersalny.jpg/640px-2017_Cyfrowy_miernik_uniwersalny.jpg",
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/4/42/Bremsleitungsschluessel.JPG/639px-Bremsleitungsschluessel.JPG",
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Cable_ties.jpg/640px-Cable_ties.jpg",
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Rolls_of_adhesive_tape.jpg/640px-Rolls_of_adhesive_tape.jpg",
-            ],
-        };
-    },
-};
-</script>
+![](https://i.imgur.com/rKFNxsu.png){width=300 style="float:right"}
 
  - Long Nose Pliers
  - Wire cutters or strippers
