@@ -67,6 +67,13 @@ const props = defineProps({
     type: String,
     required: false
   }
+  ,
+  // Optional mapping from term -> url. Allows overriding where terms link to.
+  termLinkMap: {
+    type: Object,
+    required: false,
+    default: () => ({})
+  }
 })
 
 const specs = ref(null)
@@ -87,6 +94,26 @@ function normalizePhrase(str) {
   phrase = phrase.replace(/Bluetooth Le/gi, 'Bluetooth LE')
   phrase = phrase.replace(/ Mah/gi, ' mAh')
   return phrase
+}
+
+const defaultTermLinkMap = {
+  rtk: '/terminology/positioning/rtk',
+  gnss: '/terminology/positioning/gnss',
+  "Wi-Fi AP scanning": '/terminology/positioning/wifi',
+}
+
+function linkTerms(text) {
+  if (!text || typeof text !== 'string') return text
+  const map = { ...defaultTermLinkMap, ...props.termLinkMap }
+  // Sort keys by length desc to avoid partial matches (e.g., 'gps' inside other words)
+  const keys = Object.keys(map).sort((a, b) => b.length - a.length)
+  let out = text
+  for (const key of keys) {
+    const url = map[key]
+    const re = new RegExp('\\b' + key.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&') + '\\b', 'gi')
+    out = out.replace(re, match => `<a href="${url}" class="term-link">${match}</a>`)
+  }
+  return out
 }
 
 function formatValueForDisplay(val) {
@@ -180,6 +207,9 @@ watchEffect(() => {
                     .join('<br>')
                 }
                 displayValue = formatValueForDisplay(v)
+                if (typeof displayValue === 'string') {
+                  displayValue = linkTerms(displayValue)
+                }
                 if (displayValue !== undefined && displayValue !== null && displayValue !== '' && displayValue !== '[]' && displayValue !== '{}') {
                   rows.push({ label: normalizePhrase(k), value: displayValue })
                 }

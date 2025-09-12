@@ -68,6 +68,7 @@ product:
     gnss:
       typical_accuracy_meters: "0.01-1"
       technologies:
+        - "RTK"
         - "GPS"
         - "QZSS"
         - "GLONASS"
