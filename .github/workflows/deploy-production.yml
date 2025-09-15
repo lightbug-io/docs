@@ -47,7 +47,8 @@ jobs:
         if: success()
         uses: jakejarvis/s3-sync-action@v0.5.1
         with:
-          args: --delete
+          # delete files not present in SOURCE_DIR, but exclude the static directory
+          args: --delete --exclude "static/*" --exclude "static"
         env:
           AWS_S3_BUCKET: ${{ vars.PRODUCTION_BUCKET_NAME }}
           AWS_ACCESS_KEY_ID: ${{ secrets.PRODUCTION_KEY }}
