@@ -135,46 +135,6 @@ And you should see the device screen update, saying `Lightbug...` in the top lef
 ![](https://i.imgur.com/7ca0Nda.png){width=500}
 :::
 
-### 7. Inspect the code
-
-The code is very minimal.
-
-Initially importing dependencies...
-
-```
-import lightbug.devices as devices
-import lightbug.messages.messages_gen as
-```
-
-Then defining the `main` function, which is the entry point for the Toit application.
-
-```
-main:
-```
-
-Here we get a handle to the Lightbug device.
-
-```
-  device := devices.I2C
-```
-
-And send it a message, asking it to draw a clear box with some text in it, using a random page ID, in position `0,0` (top left), and disabling the status bar.
-
-```
-  print "💬 Sending text to device"
-  device.comms.send (messages.DrawElement.msg
-    --data=(messages.DrawElement.data
-      --page-id=(random 10 255)
-      --status-bar-enable=false
-      --type=messages.DrawElement.TYPE_BOX
-      --x=0
-      --y=0
-      --text="Lightbug..."))
-```
-
-We then enter an infinite loop, sleeping for 10 seconds at a time, to keep the application running.
-
-```
-  while true:
-    sleep --ms=10000
-```
+:::tip
+You can also see this code [under the examples section](/devices/api/sdks/toit/examples/screen-text).
+:::
