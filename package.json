@@ -28,6 +28,7 @@
     "@mdit/plugin-attrs": "^0.23.1",
     "@mdit/plugin-figure": "^0.22.1",
     "@mdit/plugin-img-size": "^0.22.2",
+    "@mdit/plugin-include": "^0.22.1",
     "@wdns/vue-code-block": "^2.3.5",
     "buffer": "^6.0.3",
     "crc": "^4.3.2",

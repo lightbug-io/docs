@@ -11,6 +11,7 @@ import { imgSize } from "@mdit/plugin-img-size";
 import { figure } from "@mdit/plugin-figure";
 import { attrs } from "@mdit/plugin-attrs";
 import { align } from "@mdit/plugin-align";
+import { include } from "@mdit/plugin-include";
 import { withSidebar, generateSidebar } from 'vitepress-sidebar';
 
 
@@ -51,16 +52,42 @@ const protocolMenuItems = Object.keys(protocolGroups)
 // Ability to generate other collections of side bar entries
 const sidebarItemsFromDir = (dir) => {
   const files = fs.readdirSync(dir)
-  return files
-    .filter(file => file !== 'index.md')
-    .map(file => {
-      const name = file.replace('.md', '')
-      const displayName = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
-      return {
-        text: displayName,
-        link: `${dir}/${name}`
+    .filter(file => file !== 'index.md' && file.endsWith('.md'))
+
+  const items = files.map(file => {
+    const fullPath = path.resolve(dir, file);
+    let order = 100;
+    try {
+      const content = fs.readFileSync(fullPath, 'utf8');
+      // simple frontmatter parse: look for leading --- yaml --- block
+      const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+      if (fmMatch) {
+        const fm = yaml.load(fmMatch[1]);
+        if (fm && typeof fm.order === 'number') {
+          order = fm.order;
+        }
       }
-    })
+    } catch (e) {
+      // ignore and use default order
+    }
+
+    const name = file.replace('.md', '')
+    const displayName = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
+    return {
+      text: displayName,
+      link: `${dir}/${name}`,
+      order,
+    }
+  })
+
+  // sort by order, then by text
+  items.sort((a, b) => {
+    if (a.order !== b.order) return a.order - b.order;
+    return a.text.localeCompare(b.text);
+  });
+
+  // remove the temporary order field before returning
+  return items.map(({ order, ...rest }) => rest)
 }
 
 const sidebarSpec1 = useSidebar({ spec: loadSpec(1) });
@@ -164,6 +191,11 @@ export default withMermaid(defineConfig({
       md.use(figure)
       md.use(attrs)
       md.use(align)
+      md.use(include,{
+        currentPath: () => {
+          return path.resolve(__dirname, '..', 'index.md');
+        },
+      })
     },
     languages: (() => {
       try {
@@ -401,6 +433,7 @@ export default withMermaid(defineConfig({
                 {
                   text: 'Examples',
                   link: '/devices/api/sdks/toit/examples/',
+                  items: sidebarItemsFromDir('devices/api/sdks/toit/examples')
                 },
               ],
             },

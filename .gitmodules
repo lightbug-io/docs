@@ -1,0 +1,3 @@
+[submodule "ext/toit-lightbug"]
+	path = ext/toit-lightbug
+	url = https://github.com/lightbug-io/toit-lightbug.git
