@@ -24,6 +24,10 @@
   },
   "dependencies": {
     "@highlightjs/vue-plugin": "^2.1.0",
+    "@mdit/plugin-align": "^0.22.1",
+    "@mdit/plugin-attrs": "^0.23.1",
+    "@mdit/plugin-figure": "^0.22.1",
+    "@mdit/plugin-img-size": "^0.22.2",
     "@wdns/vue-code-block": "^2.3.5",
     "buffer": "^6.0.3",
     "crc": "^4.3.2",
@@ -32,6 +36,7 @@
     "highlight.js": "^11.11.0",
     "jest-environment-jsdom": "^29.7.0",
     "js-yaml": "^4.1.0",
+    "markdown-it": "^14.1.0",
     "shiki": "^3.12.2",
     "vitepress-openapi": "^0.1.9",
     "vitepress-plugin-pagefind": "^0.4.10",

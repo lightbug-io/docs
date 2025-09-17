@@ -7,6 +7,10 @@ import { loadSpec } from '../swagger/load';
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 import { pagefindPlugin } from 'vitepress-plugin-pagefind';
 import { withMermaid } from "vitepress-plugin-mermaid";
+import { imgSize } from "@mdit/plugin-img-size";
+import { figure } from "@mdit/plugin-figure";
+import { attrs } from "@mdit/plugin-attrs";
+import { align } from "@mdit/plugin-align";
 import { withSidebar, generateSidebar } from 'vitepress-sidebar';
 
 
@@ -156,6 +160,10 @@ export default withMermaid(defineConfig({
   markdown: {
     config: (md) => {
       md.use(tabsMarkdownPlugin)
+      md.use(imgSize)
+      md.use(figure)
+      md.use(attrs)
+      md.use(align)
     },
     languages: (() => {
       try {
