@@ -157,6 +157,22 @@ export default withMermaid(defineConfig({
     config: (md) => {
       md.use(tabsMarkdownPlugin)
     },
+    languages: (() => {
+      try {
+        const toitGrammar = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'languages/toit.tmLanguage.json'), 'utf8'));
+
+        const toitLang = {
+          ...toitGrammar,
+          id: 'toit',
+          aliases: ['toit']
+        };
+
+        return [toitLang];
+      } catch (error) {
+        console.error('Error loading Toit grammar:', error);
+        return [];
+      }
+    })(),
     container: {
       tipLabel: '⚡ Tip',
       warningLabel: '⚠️ Warning',

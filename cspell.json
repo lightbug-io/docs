@@ -7,6 +7,7 @@
         "public/device-specs/**/*.yaml",
         "public/swagger/v1.json",
         "public/files/protocol-v3.yaml",
+        ".vitepress/languages/*",
         ".vitepress/theme/index.ts"
     ],
     "dictionaryDefinitions": [],

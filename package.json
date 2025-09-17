@@ -32,6 +32,7 @@
     "highlight.js": "^11.11.0",
     "jest-environment-jsdom": "^29.7.0",
     "js-yaml": "^4.1.0",
+    "shiki": "^3.12.2",
     "vitepress-openapi": "^0.1.9",
     "vitepress-plugin-pagefind": "^0.4.10",
     "vue-i18n": "^9.14.0",
