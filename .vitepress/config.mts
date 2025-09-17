@@ -439,13 +439,11 @@ export default withMermaid(defineConfig({
             },
             {
               text: 'Messages',
-              collapsed: true,
               link: '/devices/api/messages',
               items: protocolMenuItems,
             },
             {
               text: 'Protocol',
-              collapsed: true,
               link: '/devices/api/protocol/',
               items: [
                 {
