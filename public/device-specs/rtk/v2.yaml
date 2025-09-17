@@ -12,13 +12,28 @@ product:
   - "https://lightbug.io/raw-renders/2025-07-01/RH2_w-side.png?x=700&y=70&w=600&h=1000"
   physical:
     size:
-      dimensions_mm: "85 x 44 x 28.4"
+      dimensions_mm:
+       - without_antenna: "95 x 72.6 x 30"
+       - with_antenna: "129.7 x 72.6 x 49.75"
       weight_g: 155
     certifications:
-    - "CE"
+      CE: "yes"
     rating:
-      ip: "IP66"
+      ip: "IP67"
       operating temperature_c: "-20 to +60"
+    construction:
+      material: "Polycarbonate-ABS"
+      properties:
+        - "Fire-proof"
+        - "Shock Proof"
+        - "UV-stable"
+    connectors:
+      antenna: "IP67 SMA"
+      versitile:
+       - "Power + Data In/Out + Analogue input"
+       - "Suitable for docking & permanent wiring"
+      mount:
+        - "KickFast (wide range of attachments)"
   integrations:
     cloud:
       supported_platforms:
@@ -31,42 +46,80 @@ product:
       - "MQTT"
       - "HTTP(S)"
       - "WebSocket"
+    on_device:
+      co_processor: "ESP32-C6"
+      control: "Control of device via APIs"
+      supported_platforms:
+        - "Toit (micro-containers)"
+        - "Arduino"
+        - "PlatformIO"
+        - "Espressif IDF"
+      external_interfaces:
+        wired_i2c: "Master or Slave"
+        usb: "Virtual Com Port (USB-C)"
   connectivity:
     cellular:
       technologies:
-      - "LTE CAT-M1"
+      - "LTE CAT-1"
       - "GPRS"
       - "EDGE"
       territory: "Global"
       bands:
-        - B1
-        - B2
-        - B3
-        - B4
-        - B5
-        - B8
-        - B12
-        - B13
-        - B18
-        - B19
-        - B20
-        - B26
-        - B28
-        - B39
-        - 850MHz
-        - 900MHz
-        - 1800MHz
-        - 1900MHz
+        LTE_FDD:
+          - B1
+          - B2
+          - B3
+          - B4
+          - B5
+          - B7
+          - B8
+          - B12
+          - B13
+          - B18
+          - B19
+          - B20
+          - B25
+          - B26
+          - B28
+          - B66
+        LTE_TDD:
+          - B38
+          - B39
+          - B40
+          - B41
+        GSM:
+          - 850MHz
+          - 900MHz
+          - 1800MHz
+          - 1900MHz
+    lora:
+      regions:
+        - "EU868"
+        - "US915"
+      p2p: "yes"
+      loRaWAN: "capable"
     bluetooth-le:
-      technologies:
-      - "Low Power Broadcasting (iBeacon)"
-      - "Gateway Scanning"
-      - "Child (peripheral) device"
-      territory: "Global"
-      version: "5.4"
+      version: "5.3"
+      roles:
+        - "Host"
+        - "Peripheral"
+    wifi:
+      version: "802.11ax"
+      frequency: "2.4GHz"
+      wifi_generation: "Wi‑Fi 6"
+    uwb:
+      channels:
+        - 5
+        - 9
+      notes: "Supports common UWB channels; compatible with TDoA/TWR systems (requires infrastructure)"
+    ieee_802_15_4: yes
   positioning:
     gnss:
       typical_accuracy_meters: "0.01-1"
+      chipset: "Quectel LC29H (L1/L5)"
+      chipset_options:
+        - "AG3335A (L1/L5)"
+        - "ZEDF9P (L1/L5)"
       technologies:
         - "RTK"
         - "GPS"
@@ -94,41 +147,80 @@ product:
           bands:
             B1I: 1561.098
             B2a: 1176.45
+    rtk:
+    uwb:
+      typical_accuracy_meters: "0.1-1"
+      notes: "Typical indoor accuracy; compatible with most UWB TDoA or TWR systems"
     wifi:
-      typical_accuracy_meters: 10-30
-      technologies:
-        - "2.4Ghz Wi-Fi AP scanning"
+      typical_accuracy_meters: "2-20"
+      notes: "Based on RSSI & triangulation"
+    bluetooth:
+      typical_accuracy_meters: "2-20"
+      notes: "Based on RSSI & triangulation"
   sensors:
     accelerometer:
       typical_accuracy_g: 0.01
+      modules:
+        - "6D Accelerometer + Gyroscope (available to ESP32)"
+        - "3D Accelerometer (main CPU)"
       features:
-      - "3-axis accelerometer"
       - "Motion Detection"
       - "Orientation & Tilt detection"
       - "Shock and Vibration detection"
+    magnetometer:
+      description: "3D Magnetometer (Compass)"
+    pressure:
+      description: "Barometric pressure sensor"
+      altitude_resolution_cm: 13
     temperature:
+      description: "Non-calibrated internal temperature sensor"
       typical_accuracy_c: 5
       features:
       - "Temperature Sensing (low accuracy)"
       - "Thermal Protection"
   charging:
     inputs:
-      voltage_range_v: "5-14"
-      current_limit_a: "0.1 to 3.25"
+      voltage_range_v: "4-14"
+      current_limit_a: 3.0
     features:
-      fast_charge: "5-14V input with Fast Charge support"
+      fast_charge: "Configurable up to 3A input"
       configurable: "Configurable draw and charge rates"
+      docking: true
+      usb_c: true
+      notes: "Charging dock and USB-C available. Automatic power-path management supported."
   user interface:
     buttons:
       "Multi-purpose":
+        - "x3 Large buttons"
         - "Status Check"
-        - "Trigger Update"
-        - "Software Reset"
-        - "Hardware Reset"
+        - "Resets"
+        - "Menu Navigation"
+        - "User control"
+        - "User subscribable via ESP32"
     leds:
-      "Status":
+      "RGB Status":
+        - "RGB LED x2"
+        - "Used to display device status (chargins etc.)."
+        - "Is user controllable"
+      "RGB Strobe":
+        - "RGB LED x2"
+        - "Fully configurable high brightness RGB LED dome"
+        - "Is user controllable"
+      "Debug (hidden)":
         - "Single Color LED x4"
-        - "Indicates device status (battery level, charging, connected, etc.)"
+        - "Indicates device status and debug infomation (battery level, charging, connected, etc.)"
+        - "Hidden behind eink, but visible for maintenance"
+    haptics:
+      type: "Vibration Motor"
+      purpose: "Haptic feedback for user interface"
+    siren:
+      decibel: 82
+      purpose: "Audible alert for personnel"
+      waterproof_rating: "IP67"
+    display:
+      type: "2.13\" E-Paper"
+      front_light: "yes"
+      controllable_via: "ESP32 (user controllable)"
   components:
     cellular:
       manufacturer: "SIMCom Wireless Solutions Limited"
@@ -298,16 +390,18 @@ product:
         operating_temperature_c: "-40 to 85"
   battery:
     overall:
-      capacity_mah: 6600
+      capacity_mah: 6700
       pack_configuration: "1S2P"
-      voltage_v: 3.7
+      voltage_v: 3.6
+      continuous_use_hours: ">50"
+      operating_temperature_c: "-10 to +60 (standard); -40 to +60 (optional)"
     cells:
       type: 18650
       spec:
         model: "18650 3300mAh"
         type: "Li-ion Cell"
-        nominal_voltage_v: 3.7
-        nominal_capacity_mah: 3300
+        nominal_voltage_v: 3.6
+        nominal_capacity_mah: 3350
         nominal_energy_wh: 12.21
         physical_dimensions_mm: "Φ 65.0*18.0"
         appearance: "Blue cylindrical battery"
