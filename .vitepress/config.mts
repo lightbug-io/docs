@@ -314,7 +314,6 @@ export default withMermaid(defineConfig({
             },
             {
               text: 'RTK',
-              link: '/devices/rtk/',
               items: [
                 {
                   text: 'Handheld',
@@ -340,7 +339,7 @@ export default withMermaid(defineConfig({
             },
             {
               text: 'Lineage',
-              link: '/devices/history',
+              link: '/devices/history/',
               collapsed: true,
               items: [
                 { text: 'VT2', link: '/devices/history/VT2' },

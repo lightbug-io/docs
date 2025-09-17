@@ -17,3 +17,30 @@ Access to the device API is not limited to Toit, however it is the current prefe
 Devices with an ESP32 can also be programmed using C/C++ with the ESP-IDF framework, or anything else that is supported on the ESP32. For such solutions, you'll need to make use of the lower level [messages](./../../messages/), rather than a higher level abstraction like the Toit package.
 
 :::
+
+Interacting with the device using the Toit SDK can be as simple as this to draw some text on the screen:
+
+```toit
+import lightbug.devices as devices
+import lightbug.messages.messages_gen as messages
+
+main:
+  device := devices.I2C
+  device.eink.draw-element --status-bar-enable=false --type=messages.DrawElement.TYPE_BOX --x=0 --y=0 --text="Lightbug..."
+  while true:
+    sleep --ms=1000
+```
+
+Or this to subscribe to button press events:
+
+```toit
+import lightbug.devices as devices
+
+main:
+  device := devices.I2C
+  device.buttons.subscribe --callback=(:: |button-data|
+    print "Button pressed: (ID: $button-data.button-id)"
+  )
+  while true:
+    sleep --ms=1000
+```

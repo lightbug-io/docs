@@ -1,3 +1,8 @@
+---
+aside: true
+outline: deep
+---
+
 # Screen
 
 The RH2 features a 2.13" monochrome e-ink display with a resolution of 250x122 pixels, which is visible in direct sunlight and has a very low power consumption.
@@ -6,7 +11,7 @@ The default firmware of the RH2 has a simple user interface that makes use of th
 
 The screen can also be used by the ESP32 microcontroller as part of a custom application, for example to display sensor data, custom menus, alerts, messaging and more.
 
-## Default screens
+## Defaults
 
 The default firmware has a single main [home](#home) screen, with a sub [menu](#menu) screen.
 
@@ -74,3 +79,7 @@ The menu allows selection of:
 == Zoom Photo
 ![](https://i.imgur.com/a0mwlDn.jpeg)
 :::
+
+## Custom
+
+Custom applications running on the [ESP32](esp32) can make use of [Toit SDK](/devices/api/sdks/toit/) and or [device API](/devices/api/) to draw custom screens.
