@@ -9,3 +9,11 @@ Lightbug provides a [Toit package](https://pkg.toit.io/package/github.com%2Fligh
 Together, these tools allow you to quickly develop and deploy applications on Lightbug devices using Toit.
 
 Once developed, Toit firmware can be build without the jaguar development tooling enabled, and sent to Lightbug devices over the air for update.
+
+:::tip
+
+Access to the device API is not limited to Toit, however it is the current preferred and documented high-level language for Lightbug devices.
+
+Devices with an ESP32 can also be programmed using C/C++ with the ESP-IDF framework, or anything else that is supported on the ESP32. For such solutions, you'll need to make use of the lower level [messages](./../../messages/), rather than a higher level abstraction like the Toit package.
+
+:::

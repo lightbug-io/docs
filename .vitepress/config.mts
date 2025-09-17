@@ -316,7 +316,17 @@ export default withMermaid(defineConfig({
               text: 'RTK',
               link: '/devices/rtk/',
               items: [
-                { text: 'Handheld', link: '/devices/rtk/handheld' },
+                {
+                  text: 'Handheld',
+                  link: '/devices/rtk/handheld/',
+                  collapsed: true,
+                  items: [
+                    { text: 'External', link: '/devices/rtk/handheld/external' },
+                    { text: 'Screen', link: '/devices/rtk/handheld/screen' },
+                    { text: 'ESP32', link: '/devices/rtk/handheld/esp32' },
+                    { text: 'Accessories', link: '/devices/rtk/handheld/accessories' },
+                  ]
+                },
                 { text: 'Vehicle', link: '/devices/rtk/vehicle' },
               ]
             },

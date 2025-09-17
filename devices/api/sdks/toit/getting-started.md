@@ -128,7 +128,12 @@ Once the code is running, you should see some output through the `monitor` comma
 
 And you should see the device screen update, saying `Lightbug...` in the top left.
 
+:::tabs
+== Graphic
 ![](https://i.imgur.com/8QP1022.png)
+== Photo
+![](https://i.imgur.com/7ca0Nda.png){width=500}
+:::
 
 ### 7. Inspect the code
 

@@ -13,7 +13,6 @@
   <DownloadYamlButton :get-yaml-data="() => props.yamlText" :filename="(specs && specs.product && (specs.product.sku ? specs.product.sku + '.yaml' : specs.product.name + '.yaml')) || 'spec.yaml'" label="Spec YAML" />
   <DownloadBookletButton v-if="specs && specs.product && specs.product.booklet" :url="specs.product.booklet" />
 
-  <h2>Specification</h2>
   <h3>Overview</h3>
     <span v-if="specs && specs.product && specs.product.description">{{ specs.product.description }}</span>
   <table v-if="specs">
