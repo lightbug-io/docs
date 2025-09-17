@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { onMounted, defineProps } from 'vue';
+import { onMounted } from 'vue';
 let jsPDFLoaded = false;
 
 // Text sizes
