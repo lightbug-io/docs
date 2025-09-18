@@ -177,12 +177,14 @@ messages:
         type: uint16
   11:
     name: Open
-    description: Explicit indicator for the start of a connection
+    description: Explicit indicator for the start of a connection.
     group: general
     data:
       10:
         name: Device Type
-        description: Type of device, relates to the SN prefix
+        description: |
+          Type of device, relates to the serial number prefix.
+          Primarily used by inter processor communication to identify the type of device.
         type: uint8
   12:
     name: Close

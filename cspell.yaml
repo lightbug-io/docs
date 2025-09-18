@@ -29,6 +29,7 @@ words:
   - vuetify
   - vitepress
   - markdownit
+  - jsyaml
 
   # Lightbug device names
   - Enviro
