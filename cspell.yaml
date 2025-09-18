@@ -30,6 +30,7 @@ words:
   - vitepress
   - markdownit
   - jsyaml
+  - highlightjs
 
   # Lightbug device names
   - Enviro

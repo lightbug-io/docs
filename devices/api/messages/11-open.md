@@ -4,7 +4,6 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
@@ -30,4 +29,4 @@ These pages can be seen as a view of what is to come later this year.
 
 For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="11"/>
+<GenerateConsts :messageId="11" :yaml-data="protocolData"/>
