@@ -71,7 +71,7 @@ header:
   5:
     name: Method
     description: Request a service to be perform an action
-    type: uint
+    type: uint8
     values:
       1:
         name: SET
@@ -659,10 +659,25 @@ messages:
         name: Pattern
         description: Pattern of haptics [1-3]
         type: uint8
+        values:
+          1:
+            name: Fade
+            description: Default
+          2:
+            name: Pulse
+          3:
+            name: Drop
       2:
         name: Intensity
-        description: Intensity of haptics [0-2], 0 = low, 1 = medium, 2 = high
+        description: Intensity of haptics [0-2]
         type: uint8
+        values:
+          0:
+            name: Low
+          1:
+            name: Medium
+          2:
+            name: High
   41:
     name: Temperature
     description: Temperature information
@@ -1115,9 +1130,6 @@ messages:
         type: ascii
       103:
         name: Line 4
-        type: ascii
-      104:
-        name: Line 5
         type: ascii
   10010:
     name: Menu Page
