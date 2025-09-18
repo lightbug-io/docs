@@ -13,6 +13,7 @@ import { attrs } from "@mdit/plugin-attrs";
 import { align } from "@mdit/plugin-align";
 import { include } from "@mdit/plugin-include";
 import { withSidebar, generateSidebar } from 'vitepress-sidebar';
+import yamlEmbed from '../utils/markdownit-yaml-plugin.js';
 
 
 // Load protocol messages from YAML file
@@ -191,6 +192,9 @@ export default withMermaid(defineConfig({
       md.use(figure)
       md.use(attrs)
       md.use(align)
+      // Embed YAML values from files during markdown parsing to avoid Vue
+      // interpolation errors for `{{yaml:...}}` tokens.
+      md.use(yamlEmbed, { baseDir: path.resolve(__dirname, '..', 'public', 'files') })
       md.use(include,{
         currentPath: () => {
           return path.resolve(__dirname, '..', 'index.md');

@@ -28,6 +28,7 @@ words:
   - Klick
   - vuetify
   - vitepress
+  - markdownit
 
   # Lightbug device names
   - Enviro
