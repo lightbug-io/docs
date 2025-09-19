@@ -21,7 +21,7 @@ On successful account creation, you will be directed to the login page.
 
 After creating your main account, you can add sub accounts to share device access with others from the admin portal.
 
-For more details, see [adding new users to devices](/apps/admin/devices#add-new-user).
+For more details, see [adding new users to devices](/apps/admin/devices/users#add-new-user).
 
 ## Logging In
 
@@ -53,6 +53,6 @@ Different permissions will reveal different interfaces in the side bar, as well 
 
 | Page | user | trackerAdmin |Description |
 | -- | -- | -- | -- |
-| [Devices](./devices.html) | ✅ | ✅ |List all devices on the account|
+| [Devices](/apps/admin/devices/) | ✅ | ✅ |List all devices on the account|
 | [Configs](./configs.html) | |✅  |Manage `config pages` that can be applied to devices|
 | [Users](./users.html) | |✅ |Manage sub users of your account|

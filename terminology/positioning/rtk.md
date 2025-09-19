@@ -15,7 +15,7 @@ By using a fixed base station with a known location, RTK can provide centimeter-
 
 ## Devices (Rovers)
 
-The [RH2](/devices/rtk/handheld) and [VTRTK](/devices/rtk/vehicle) support RTK positioning, and support both rover and base station modes.
+The [RH2](/devices/rtk/handheld/) and [VTRTK](/devices/rtk/vehicle) support RTK positioning, and support both rover and base station modes.
 
 In the past, we also offered the RH1, the first Lightbug device to support RTK, which is now discontinued.
 
