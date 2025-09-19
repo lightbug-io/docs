@@ -75,6 +75,7 @@ ACK message, acknowledging a message with type `32` and ID `234`
     byteString="3 18 0 5 0 0 0 2 0 1 2 2 32 0 1 234 14 66"
     :boldPositions="[3,12,15]"
     :allowCollapse="true" defaultCollapsed="true"
+    :yaml-data="protocolData"
 />
 
 
@@ -86,6 +87,7 @@ In the case that a message ID is not known, the field can be omitted.
     byteString="3 15 0 5 0 0 0 1 0 1 2 32 0 164 69"
     :boldPositions="[3,11]"
     :allowCollapse="true" defaultCollapsed="true"
+    :yaml-data="protocolData"
 />
 
 ## Code

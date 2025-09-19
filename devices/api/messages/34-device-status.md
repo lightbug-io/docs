@@ -38,6 +38,7 @@ If you wanted to GET all possible fields from the device.
 byteString="3 17 0 34 0 2 0 5 1 1 2 1 51 0 0 206 243"
 :boldPositions="[3,12]"
 :allowCollapse="false"
+ :yaml-data="protocolData"
 />
 
 <!-- The device would then respond with a message of type 34, with the fields filled in.
@@ -46,6 +47,7 @@ byteString="3 17 0 34 0 2 0 5 1 1 2 1 51 0 0 206 243"
 byteString="76 66 3 29 0 34 0 3 0 3 4 1 1 51 1 1 1 12 3 0 1 2 3 1 47 1 100 1 0 196 29"
 :boldPositions="[3,24,26,28]"
 :allowCollapse="false"
+ :yaml-data="protocolData"
 />
 
 TODO update with more fields..

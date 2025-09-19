@@ -43,6 +43,7 @@ If the request could not be fulfilled, the response status would be 2 (NOT OK), 
 byteString="0"
 :boldPositions="[3,12,15,16]"
 :allowCollapse="false"
+:yaml-data="protocolData"
 />
 
 </template>

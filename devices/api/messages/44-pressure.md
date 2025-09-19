@@ -29,7 +29,8 @@ These pages can be seen as a view of what is to come later this year.
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
-
+:allowCollapse="false"
+:yaml-data="protocolData"
 If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
 
 </template>
@@ -41,6 +42,7 @@ If the request could not be fulfilled, the response status would be 2 (NOT OK), 
 byteString="0"
 :boldPositions="[3,12,15,16]"
 :allowCollapse="false"
+ :yaml-data="protocolData"
 />
 
 </template>

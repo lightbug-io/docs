@@ -44,6 +44,7 @@ Basic heartbeat message.
     byteString="3 15 0 13 0 1 0 1 2 55 2 0 0 41 1"
     :boldPositions="[3]"
     :allowCollapse="true" defaultCollapsed="true"
+    :yaml-data="protocolData"
 />
 
 ## Code

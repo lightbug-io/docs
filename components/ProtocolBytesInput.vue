@@ -5,7 +5,7 @@
         @input="updateByteString"
         density="compact"
     />
-    <ProtocolBytes :byteString="processedByteString" showValidation/>
+    <ProtocolBytes :byteString="processedByteString" showValidation :yaml-data="yamlData"/>
 </template>
 
 <script lang="ts">
@@ -21,6 +21,10 @@ export default defineComponent({
         byteString: {
             type: String,
             default: ''
+        }
+        ,yamlData: {
+            type: Object,
+            default: () => ({})
         }
     },
     emits: ['update'],

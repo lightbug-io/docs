@@ -38,6 +38,7 @@ If you wanted to GET the ID from a device, you would send a GET message with the
 byteString="3 17 0 35 0 2 0 1 5 1 234 1 2 0 0 164 245"
 :boldPositions="[3,12]"
 :allowCollapse="false"
+:yaml-data="protocolData"
 />
 
 <!-- The device would then respond with a message of type 35, with the ID field filled in if known.

@@ -42,6 +42,7 @@ As an example empty message including prefix (with no additional header or paylo
 <ProtocolBytes
     byteString="76 66 3 11 0 1 0 0 0 0 0 75 190"
     :allowCollapse="false"
+    :yaml-data="protocolData"
 ></ProtocolBytes>
 
 ## Example Message
@@ -56,6 +57,7 @@ An example [prefixed](structure#prefix) and minimal message might look as follow
 <ProtocolBytes
     byteString="76 66 3 11 0 1 0 0 0 0 0 75 190"
     :allowCollapse="false"
+    :yaml-data="protocolData"
 ></ProtocolBytes>
 
 ::: info

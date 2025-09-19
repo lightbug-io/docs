@@ -39,6 +39,7 @@ These pages can be seen as a view of what is to come later this year.
 byteString="0"
 :boldPositions="[3,12,15,16]"
 :allowCollapse="false"
+:yaml-data="protocolData"
 />
 
 </template>

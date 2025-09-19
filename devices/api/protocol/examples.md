@@ -20,6 +20,7 @@ import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 <ProtocolBytes
     byteString="76 66 3 11 0 1 0 0 0 0 0 75 190"
     :defaultCollapsed="true"
+:yaml-data="protocolData"
 ></ProtocolBytes>
 
 ### Type 6, header (1:1), data empty
@@ -27,6 +28,7 @@ import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 <ProtocolBytes
     byteString="3 14 0 6 0 1 0 1 1 1 0 0 217 95"
     :defaultCollapsed="true"
+:yaml-data="protocolData"
 ></ProtocolBytes>
 
 ### Type 6, header (1:9), data empty

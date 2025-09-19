@@ -44,8 +44,9 @@ If you wanted to send the arbitrary data `foo` as ascii bytes to the cloud, you 
 
 <ProtocolBytes
 byteString="3 22 0 30 0 2 0 5 1 1 4 1 131 1 0 2 3 102 111 111 180 28"
-:boldPositions="[3,15,17]"
 :allowCollapse="false"
+:allowCollapse="false"
+:yaml-data="protocolData"
 />
 
 The message device will respond with an ACK, as the action is not immediate.
@@ -55,8 +56,9 @@ Later upon data transmission, the device will respond with a message of type 30,
 <ProtocolBytes
 byteString="3 20 0 30 0 3 0 3 4 1 1 131 1 1 1 92 0 0 84 149"
 :boldPositions="[11,13]"
-:allowCollapse="false"
 />
+:allowCollapse="false"
+:yaml-data="protocolData"
 
 </template>
 </SplitColumnView>
