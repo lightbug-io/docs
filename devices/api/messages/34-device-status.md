@@ -8,6 +8,7 @@ import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -25,7 +26,7 @@ Used to GET the general status of the device.
 
 ### Payload
 
-<PayloadTable :messageId="34" headerText="" headerMarginTop="0px" />
+<PayloadTable :messageId="34" headerText="" headerMarginTop="0px" :yaml-data="protocolData" />
 
 </template>
 <template #right>
@@ -57,4 +58,4 @@ TODO update with more fields..
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="34"/>
+<GenerateConsts :messageId="34" :yaml-data="protocolData"/>

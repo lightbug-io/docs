@@ -4,6 +4,7 @@ outline: [1,3]
 
 <script setup>
 import GenerateConsts from '../../../components/GenerateConsts.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 # Headers
@@ -127,4 +128,4 @@ Reserved for future use.
 
 ## Code generation
 
-<GenerateConsts :dataName="'MH'" :dataPath="'header'"/>
+<GenerateConsts :dataName="'MH'" :dataPath="'header'" :yaml-data="protocolData"/>

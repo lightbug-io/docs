@@ -9,6 +9,7 @@ import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import HeaderTable from '../../../components/HeaderTable.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 # 5: ACK
@@ -59,7 +60,7 @@ If the message being ACKed has a message ID, it should be included in the `Respo
 
 If a message is sent with no ID, then you may simply receive an ACK with the previous message type in the payload.
 
-<PayloadTable :messageId="5" headerText="" headerMarginTop="0px" />
+<PayloadTable :messageId="5" headerText="" headerMarginTop="0px" :yaml-data="protocolData" />
 
 </template>
 </SplitColumnView>
@@ -91,4 +92,4 @@ In the case that a message ID is not known, the field can be omitted.
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="5"/>
+<GenerateConsts :messageId="5" :yaml-data="protocolData"/>

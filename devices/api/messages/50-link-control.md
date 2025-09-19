@@ -5,9 +5,10 @@ outline: false
 
 <script setup>
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue';
+import SplitColumnView from '../../../components/SplitColumnView.vue'
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -28,7 +29,7 @@ Once initiated, messages can be forwarded to the link directly using the forward
 </template>
 <template #right>
 
-<PayloadTable :messageId="50" headerText="Payload" headerMarginTop="0px" />
+<PayloadTable :messageId="50" headerText="Payload" headerMarginTop="0px" :yaml-data="protocolData" />
 
 </template>
 </SplitColumnView>
@@ -41,4 +42,4 @@ TODO
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="50"/>
+<GenerateConsts :messageId="50" :yaml-data="protocolData"/>

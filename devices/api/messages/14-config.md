@@ -5,9 +5,10 @@ outline: false
 
 <script setup>
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue';
+import SplitColumnView from '../../../components/SplitColumnView.vue'
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -26,7 +27,7 @@ TODO...
 </template>
 <template #right>
 
-<PayloadTable :messageId="14" headerText="Payload" headerMarginTop="0px" />
+<PayloadTable :messageId="14" headerText="Payload" headerMarginTop="0px" :yaml-data="protocolData" />
 
 </template>
 </SplitColumnView>
@@ -35,4 +36,4 @@ TODO...
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="14"/>
+<GenerateConsts :messageId="14" :yaml-data="protocolData"/>

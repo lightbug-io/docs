@@ -6,8 +6,9 @@ outline: false
 <script setup>
 import EinkText from '../../../components/EinkText.vue';
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue';
+import SplitColumnView from '../../../components/SplitColumnView.vue'
 import GenerateConsts from '../../../components/GenerateConsts.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -85,4 +86,4 @@ Only a partial redraw will be performed in order to add the new line, and the ex
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="10009"/>
+<GenerateConsts :messageId="10009" :yaml-data="protocolData"/>

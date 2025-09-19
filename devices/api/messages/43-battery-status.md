@@ -5,8 +5,9 @@ outline: false
 
 <script setup>
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue';
+import SplitColumnView from '../../../components/SplitColumnView.vue'
 import GenerateConsts from '../../../components/GenerateConsts.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -60,4 +61,4 @@ byteString="3 32 0 43 0 2 0 3 1 4 99 0 0 0 4 36 0 0 0 2 0 2 1 1 100 4 223 79 141
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="43"/>
+<GenerateConsts :messageId="43" :yaml-data="protocolData"/>
