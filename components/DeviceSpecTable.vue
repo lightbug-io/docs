@@ -80,8 +80,8 @@ const displaySpecs = ref({})
 const deviceTitle = ref('Device Specification')
 const genericSections = ref([])
 
-// An allowed list of keys to use from the YAML for now..
-const sectionKeys = ['physical','integrations','connectivity','battery','positioning','sensors','charging','user interface','components']
+// An allowed list of keys to use from the YAML for now.. (and order)
+const sectionKeys = ['physical','integrations','user interface','connectivity','positioning','sensors','battery','charging','components']
 
 function normalizePhrase(str) {
   if (!str) return ''
