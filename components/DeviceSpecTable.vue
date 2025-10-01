@@ -10,7 +10,6 @@
       </div>
     </div>
   <DownloadPdfButton :get-pdf-data="getPdfData" label="Spec PDF"/>
-  <DownloadYamlButton :get-yaml-data="() => props.yamlText" :filename="(specs && specs.product && (specs.product.sku ? specs.product.sku + '.yaml' : specs.product.name + '.yaml')) || 'spec.yaml'" label="Spec YAML" />
   <DownloadBookletButton v-if="specs && specs.product && specs.product.booklet" :url="specs.product.booklet" />
 
   <h3>Overview</h3>
