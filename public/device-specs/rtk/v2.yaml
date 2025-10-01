@@ -15,7 +15,7 @@ product:
       dimensions_mm:
        - without_antenna: "95 x 72.6 x 30"
        - with_antenna: "129.7 x 72.6 x 49.75"
-      weight_g: 220
+      weight_g: 240
     certifications:
       CE: "yes"
     rating:
