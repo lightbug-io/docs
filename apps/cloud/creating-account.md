@@ -10,14 +10,14 @@ First, [navigate to the login page](https://lightbug.cloud/#/auth/login).
 
 :::tabs
 == Desktop
-<v-img src="https://i.imgur.com/h3AUXJJ.png" style="max-height:400px"/>
+![](https://i.imgur.com/h3AUXJJ.png)
 == Mobile
-<v-img src="https://i.imgur.com/o9kao3O.png" style="max-height:400px"/>
+![](https://i.imgur.com/o9kao3O.png)
 :::
 
 Click `SIGN UP`.
 
-<v-img src="https://i.imgur.com/8OL5n0e.png" style="max-height:40px"/>
+![](https://i.imgur.com/8OL5n0e.png){.center}
 
 And the registration form will appear.
 
@@ -25,9 +25,9 @@ Enter your details in the registration form.
 
 :::tabs
 == Desktop
-<v-img src="https://i.imgur.com/srFc6e8.png" style="max-height:400px"/>
+![](https://i.imgur.com/srFc6e8.png)
 == Mobile
-<v-img src="https://i.imgur.com/ECuZlD9.png" style="max-height:400px"/>
+![](https://i.imgur.com/ECuZlD9.png)
 :::
 
 And click `REGISTER`.
@@ -44,9 +44,9 @@ It will guide you through the steps of adding your first device to your account.
 
 :::tabs
 == Desktop
-<v-img src="https://i.imgur.com/3iaxLSz.png" style="max-height:400px"/>
+![](https://i.imgur.com/3iaxLSz.png)
 == Mobile
-<v-img src="https://i.imgur.com/omtoo0k.png" style="max-height:400px"/>
+![](https://i.imgur.com/omtoo0k.png)
 :::
 
 Swipe the screen, or click the `NEXT` button to proceed through the onboarding process.
@@ -55,9 +55,9 @@ The first screen tells you some useful initial information about a core device.
 
 :::tabs
 == Desktop
-<v-img src="https://i.imgur.com/FSWJ39v.png" style="max-height:400px"/>
+![](https://i.imgur.com/FSWJ39v.png)
 == Mobile
-<v-img src="https://i.imgur.com/pyLGodN.png" style="max-height:400px"/>
+![](https://i.imgur.com/pyLGodN.png)
 :::
 
 Swipe the screen, or click the `NEXT` button to proceed through the onboarding process.
@@ -66,9 +66,9 @@ The second screen allows you to add your first device.
 
 :::tabs
 == Desktop
-<v-img src="https://i.imgur.com/X1CFB33.png" style="max-height:400px"/>
+![](https://i.imgur.com/X1CFB33.png)
 == Mobile
-<v-img src="https://i.imgur.com/funMDW2.png" style="max-height:400px"/>
+![](https://i.imgur.com/funMDW2.png)
 :::
 
 Enter the serial number of your device into the input field, and click `REGISTER`.
@@ -81,9 +81,9 @@ You will then be asked to select a currency for your account, before you can cho
 
 :::tabs
 == Desktop
-<v-img src="https://i.imgur.com/ZNdAxeT.png" style="max-height:400px"/>
+![](https://i.imgur.com/ZNdAxeT.png)
 == Mobile
-<v-img src="https://i.imgur.com/JQbqZTl.png" style="max-height:400px"/>
+![](https://i.imgur.com/JQbqZTl.png)
 :::
 
 After selecting a currency, you can choose a plan for your device.
@@ -92,33 +92,34 @@ You can find details of each plan, and also buy them in bulk via a [sales enquir
 
 :::tabs
 == Desktop
-<v-img src="https://i.imgur.com/wpopzKd.png" style="max-height:400px"/>
+![](https://i.imgur.com/wpopzKd.png)
 == Mobile
-<v-img src="https://i.imgur.com/ElW4Bok.png" style="max-height:400px"/>
+![](https://i.imgur.com/ElW4Bok.png)
 :::
 
 If your account already has purchased plans assigned to it, you'll be able to select one of those plans.
 
 They will be displayed in this list, showing how many months have been paid for.
 
-<v-img src="https://i.imgur.com/qSNZwZW.png" style="max-height:120px"/>
+
+![=450x](https://i.imgur.com/qSNZwZW.png){.center}
 
 After selecting a plan, if payment details are not yet attached to your account, you will be asked to enter them.
 
 :::tabs
 == Desktop
-<v-img src="https://i.imgur.com/LZku5SU.png" style="max-height:400px"/>
+![](https://i.imgur.com/LZku5SU.png)
 == Mobile
-<v-img src="https://i.imgur.com/H9Td6jM.png" style="max-height:400px"/>
+![](https://i.imgur.com/H9Td6jM.png)
 :::
 
 Successful payment and plan activation will take you to the last page of the onboarding process.
 
 :::tabs
 == Desktop
-<v-img src="https://i.imgur.com/byxRofc.png" style="max-height:400px"/>
+![](https://i.imgur.com/byxRofc.png)
 == Mobile
-<v-img src="https://i.imgur.com/S8BKfUl.png" style="max-height:400px"/>
+![](https://i.imgur.com/S8BKfUl.png)
 :::
 
 Follow the instructions on the screen to complete the onboarding process and activate your device.
@@ -129,31 +130,31 @@ Once a device has been added to the account, you'll be taken to the main interfa
 
 ### Device & Search
 
-<v-img src="https://i.imgur.com/B7g28C5.png" style="max-height:250px"/>
+![](https://i.imgur.com/B7g28C5.png)
 
 ### Device Information
 
-<v-img src="https://i.imgur.com/B33edbG.png" style="max-height:250px"/>
+![](https://i.imgur.com/B33edbG.png)
 
 ### History List
 
-<v-img src="https://i.imgur.com/CmKEheK.png" style="max-height:250px"/>
+![](https://i.imgur.com/CmKEheK.png)
 
 ### Date selection
 
-<v-img src="https://i.imgur.com/nYaTX1q.png" style="max-height:200px"/>
+![](https://i.imgur.com/nYaTX1q.png)
 
 ### Data & Playback
 
-<v-img src="https://i.imgur.com/K6FwXmo.png" style="max-height:200px"/>
+![](https://i.imgur.com/K6FwXmo.png)
 
 ### Page select
 
-<v-img src="https://i.imgur.com/58mlwp9.png" style="max-height:200px"/>
+![](https://i.imgur.com/58mlwp9.png)
 
 ### Ready to go
 
-<v-img src="https://i.imgur.com/7WRMdfm.png" style="max-height:250px"/>
+![](https://i.imgur.com/7WRMdfm.png)
 
 ## Map
 

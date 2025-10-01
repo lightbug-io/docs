@@ -1,3 +1,7 @@
+---
+aside: false
+---
+
 <script setup>
 import DeviceSpecTable from '../../components/DeviceSpecTable.vue'
 import spec from '../../public/device-specs/zero/v2.yaml?raw'

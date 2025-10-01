@@ -9,6 +9,7 @@ import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import HeaderTable from '../../../components/HeaderTable.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -25,4 +26,4 @@ Used to explicitly close communication.
 
 For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="12"/>
+<GenerateConsts :messageId="12" :yaml-data="protocolData"/>

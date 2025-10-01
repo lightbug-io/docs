@@ -163,7 +163,6 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch } from 'vue';
-import jsyaml from 'js-yaml';
 import crc16xmodem from 'crc/calculators/crc16xmodem';
 import ProtocolBytes from './ProtocolBytes.vue';
 import Float32Utils from './../utils/Float32Utils';
@@ -174,7 +173,13 @@ export default defineComponent({
     components: {
         ProtocolBytes
     },
-    setup() {
+    props: {
+        yamlData: {
+            type: Object as PropType<any>,
+            default: () => ({})
+        }
+    },
+    setup(props) {
         const urlLoaded = ref(false);
         const shouldWatchForChanges = ref(false);
         const includePrefix = ref(false);
@@ -186,13 +191,12 @@ export default defineComponent({
         const payloadValues = ref({});
         const customHeaders = ref([]);
         const customPayloads = ref([]);
-        const protocolData = ref<any>({});
-        const headers = computed(() => protocolData.value.header || {});
+        const headers = computed(() => props.yamlData.header || {});
         const messageOptions = computed(() => {
-            return Object.keys(protocolData.value.messages || {}).map(key => {
+            return Object.keys(props.yamlData.messages || {}).map(key => {
                 return {
                     id: key,
-                    name: key + ": " + protocolData.value.messages[key].name,
+                    name: key + ": " + props.yamlData.messages[key].name,
                 };
             });
         });
@@ -201,7 +205,7 @@ export default defineComponent({
         });
         const selectedMessageData = computed(() => {
             if (!selectedMessage.value || selectedMessage.value === 'custom') return {};
-            return protocolData.value.messages?.[selectedMessage.value]?.data || {};
+            return props.yamlData.messages?.[selectedMessage.value]?.data || {};
         });
         const typeOptions = [
             { key: 'uint8', name: 'uint8' },
@@ -217,16 +221,6 @@ export default defineComponent({
             { key: 'int32', name: 'int32' }
         ];
 
-        const loadProtocolData = async () => {
-            try {
-                const response = await fetch('/files/protocol-v3.yaml');
-                const yamlData = await response.text();
-                protocolData.value = jsyaml.load(yamlData);
-            } catch (error) {
-                console.error('Error loading YAML file:', error);
-            }
-        };
-
         const convertToBytes = (value: string, type: string): number[] => {
             if (type.includes('int') && value === '') {
                 value = '0';
@@ -237,20 +231,20 @@ export default defineComponent({
                     if ( num <= 255 ) {
                         return [num];
                     } else if ( num <= 65535 ) {
-                        return intTouint16LE(num);
+                        return intToInt16LE(num);
                     } else if ( num <= 4294967295 ) {
-                        return intTouint32LE(num);
+                        return intToUint32LE(num);
                     } else {
-                        return intTouint64LE(BigInt(value));
+                        return intToUint64LE(BigInt(value));
                     }
                 case 'uint8':
                     return [parseInt(value, 10)];
                 case 'uint16':
-                    return intTouint16LE(parseInt(value, 10));
+                    return intToInt16LE(parseInt(value, 10));
                 case 'uint32':
-                    return intTouint32LE(parseInt(value, 10));
+                    return intToUint32LE(parseInt(value, 10));
                 case 'uint64':
-                    return intTouint64LE(BigInt(value));
+                    return intToUint64LE(BigInt(value));
                 case 'ascii':
                     return value.split('').map(char => char.charCodeAt(0));
                 case '[]uint8':
@@ -291,10 +285,10 @@ export default defineComponent({
             b.push(255);
             if (selectedMessage.value !== null) {
                 const messageType = selectedMessage.value === 'custom' ? parseInt(customMessageType.value, 10) : selectedMessage.value;
-                b.push(...intTouint16LE(messageType));
+                b.push(...intToInt16LE(messageType));
             }
 
-            b.push(...intTouint16LE(selectedHeaders.value.length + customHeaders.value.filter(header => header.enabled).length));
+            b.push(...intToInt16LE(selectedHeaders.value.length + customHeaders.value.filter(header => header.enabled).length));
             selectedHeaders.value.forEach((headerIndex) => {
                 b.push(headerIndex);
             });
@@ -322,7 +316,7 @@ export default defineComponent({
                 }
             });
 
-            b.push(...intTouint16LE(selectedPayload.value.length + customPayloads.value.filter(payload => payload.enabled).length));
+            b.push(...intToInt16LE(selectedPayload.value.length + customPayloads.value.filter(payload => payload.enabled).length));
             selectedPayload.value.forEach((payloadIndex) => {
                 b.push(payloadIndex);
             });
@@ -359,7 +353,7 @@ export default defineComponent({
             b[2] = (length >> 8) & 0xff;
             let csumHex = calculateChecksum(b);
             let csumNum = parseInt(csumHex, 16);
-            b.push(...intTouint16LE(csumNum));
+            b.push(...intToInt16LE(csumNum));
 
             if (includePrefix.value) {
                 b.unshift(0x42);
@@ -390,19 +384,19 @@ export default defineComponent({
             return generatedMessage.value.join(' ');
         });
 
-        const intTouint16LE = (value: number) => {
+        const intToInt16LE = (value: number) => {
             const buffer = Buffer.alloc(2);
             buffer.writeUInt16LE(value);
             return Array.from(buffer);
         };
 
-        const intTouint32LE = (value: number) => {
+        const intToUint32LE = (value: number) => {
             const buffer = Buffer.alloc(4);
             buffer.writeUInt32LE(value);
             return Array.from(buffer);
         };
 
-        const intTouint64LE = (value: BigInt) => {
+        const intToUint64LE = (value: BigInt) => {
             console.log(value);
             const buffer = Buffer.alloc(8);
             buffer.writeBigUInt64LE(value);
@@ -576,8 +570,7 @@ export default defineComponent({
             }
         });
 
-        onMounted(async () => {
-            await loadProtocolData();
+        onMounted(() => {
             loadFromUrl();
         });
 

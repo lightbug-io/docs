@@ -8,7 +8,7 @@ outline: [1,3]
 
 To change the Map view settings, click on the layer icon in the top right corner.
 
-![Map View Layer button](https://i.imgur.com/L49Owzb.png)
+![Map View Layer button](https://i.imgur.com/L49Owzb.png){.center}
 
 This will open a panel where you can change the map view settings.
 
@@ -26,7 +26,7 @@ The two sections allow choice of tile set and layers to be displayed.
 | Tile set| Description |
 | --- | --- |
 | Street | Mapbox provided OSM tiles |
-| Satellite | Mapbox provided satellite tiles (maxar) |
+| Satellite | Mapbox provided satellite tiles (Maxar) |
 | Hybrid | A combination of Street and Satellite tiles |
 | Traffic | Street tiles with traffic information |
 
@@ -56,7 +56,7 @@ Devices are always shown on the map, but you can choose how they are displayed, 
 
 | Clustered                                     | Not Clustered                                     |
 | --------------------------------------------- | ------------------------------------------------- |
-| ![Clustered](https://i.imgur.com/N7tKJIC.png) | ![Not Clustered](https://i.imgur.com/oo3aNqQ.png) |
+| ![Clustered](https://i.imgur.com/N7tKJIC.png){.center} | ![Not Clustered](https://i.imgur.com/oo3aNqQ.png){.center} |
 | Clusters show the number of devices within an area | Each device is shown individually on the map, [optionally with the name](/apps/cloud/account/preferences) |
 
 Clicking on a cluster will zoom in to show the individual devices, or smaller clusters.

@@ -1,11 +1,11 @@
 <template>
   <div class="pdf-btn-wrapper">
-    <button @click="downloadPdf" class="pdf-download-btn">PDF Download</button>
+    <button @click="downloadPdf" class="pdf-download-btn">{{ props.label }}</button>
   </div>
 </template>
 
 <script setup>
-import { onMounted, defineProps } from 'vue';
+import { onMounted } from 'vue';
 let jsPDFLoaded = false;
 
 // Text sizes
@@ -29,7 +29,11 @@ const borderColor = [221, 221, 221]; // #ddd (keep for subtle borders)
 const subsectionBg = [252, 232, 220]; // light orange tint for subsections
 
 const props = defineProps({
-  getPdfData: Function
+  getPdfData: Function,
+  label: {
+    type: String,
+    default: 'Download PDF'
+  }
 });
 
 function loadScript(src) {
@@ -60,6 +64,134 @@ onMounted(async () => {
     jsPDFLoaded = true;
   }
 });
+
+/**
+ * Parse HTML text and extract links for PDF rendering with clickable links.
+ * @param {string} html - HTML string that may contain anchor tags
+ * @returns {Array} Array of text segments with link information
+ */
+function parseHtmlForPdfLinks(html) {
+  if (!html || typeof html !== 'string') return [{ text: html || '', isLink: false }];
+
+  const segments = [];
+  const anchorRe = /<a\s+[^>]*href=(?:"|')([^"']*)(?:"|')[^>]*>(.*?)<\/a>/gi;
+  let lastIndex = 0;
+  let match;
+
+  while ((match = anchorRe.exec(html)) !== null) {
+    // Add text before the link
+    if (match.index > lastIndex) {
+      const beforeText = html.substring(lastIndex, match.index);
+      const cleanBefore = beforeText.replace(/<[^>]+>/g, '');
+      if (cleanBefore) {
+        segments.push({ text: cleanBefore, isLink: false });
+      }
+    }
+
+    // Add the link
+    const href = match[1];
+    const linkText = match[2].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+    segments.push({ text: linkText, isLink: true, url: href });
+
+    lastIndex = anchorRe.lastIndex;
+  }
+
+  // Add remaining text after last link
+  if (lastIndex < html.length) {
+    const remainingText = html.substring(lastIndex);
+    const cleanRemaining = remainingText.replace(/<[^>]+>/g, '');
+    if (cleanRemaining) {
+      segments.push({ text: cleanRemaining, isLink: false });
+    }
+  }
+
+  // If no links found, return the cleaned HTML
+  if (segments.length === 0) {
+    const cleanText = html.replace(/<[^>]+>/g, '');
+    return [{ text: cleanText, isLink: false }];
+  }
+
+  return segments;
+}
+
+/**
+ * Render text with clickable links in PDF
+ * @param {object} doc - jsPDF document
+ * @param {Array} segments - Array of text segments from parseHtmlForPdfLinks
+ * @param {number} x - Starting x position
+ * @param {number} y - Y position
+ * @param {number} maxWidth - Maximum width for text wrapping
+ * @returns {number} Height used by the rendered text
+ */
+function renderTextWithLinks(doc, segments, x, y, maxWidth) {
+  let currentX = x;
+  let currentY = y;
+  const lineHeight = doc.getLineHeight() * 0.352778; // convert pt to mm
+  let usedHeight = lineHeight;
+
+  for (const segment of segments) {
+    if (!segment.text) continue;
+
+    // Split text into words for proper wrapping
+    const words = segment.text.split(/\s+/);
+
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      const wordWidth = doc.getTextWidth(word + ' ');
+
+      // Check if we need to wrap to next line
+      if (currentX + wordWidth > x + maxWidth && currentX > x) {
+        currentX = x;
+        currentY += lineHeight;
+        usedHeight += lineHeight;
+      }
+
+      // Render the word
+      if (segment.isLink) {
+        // Make absolute URLs for relative links
+        let fullUrl = segment.url;
+        if (fullUrl.startsWith('/')) {
+          fullUrl = window.location.origin + fullUrl;
+        }
+        doc.textWithLink(word, currentX, currentY, { url: fullUrl });
+      } else {
+        doc.text(word, currentX, currentY);
+      }
+
+      currentX += wordWidth;
+
+      // Add space after word (except for last word)
+      if (i < words.length - 1) {
+        const spaceWidth = doc.getTextWidth(' ');
+        currentX += spaceWidth;
+      }
+    }
+  }
+
+  return usedHeight;
+}
+
+/**
+ * Convert HTML anchor tags to plain text "label (href)" and strip other HTML tags.
+ * @param {string} html - HTML string that may contain anchor tags
+ * @returns {string} Plain text with links converted to "text (href)" format
+ */
+function htmlAnchorsToPlainText(html) {
+  if (!html || typeof html !== 'string') return html;
+
+  // Replace anchor tags with 'text (href)'
+  const anchorRe = /<a\s+[^>]*href=(?:"|')([^"']*)(?:"|')[^>]*>(.*?)<\/a>/gi;
+  let out = html.replace(anchorRe, (match, href, text) => {
+    // Clean up the text content and decode basic HTML entities
+    const cleanText = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+    return `${cleanText} (${href})`;
+  });
+
+  // Strip any remaining HTML tags
+  out = out.replace(/<[^>]+>/g, '');
+
+  return out;
+}
 
 /**
  * Crops an image to the specified rectangle and returns a PNG data URL.
@@ -138,8 +270,12 @@ async function downloadPdf() {
   if (data.description) {
     doc.setFontSize(textSize);
     doc.setTextColor(60, 60, 60);
-    doc.text(doc.splitTextToSize(data.description, 180), textSize, y);
-    y += 10 + 5 * (doc.splitTextToSize(data.description, 180).length - 1);
+
+    // Parse description for links and render with clickable links
+    const descSegments = parseHtmlForPdfLinks(data.description);
+    const descHeight = renderTextWithLinks(doc, descSegments, textSize, y, 180);
+    y += descHeight + 10;
+
     doc.setTextColor(0, 0, 0);
   }
 
@@ -240,7 +376,13 @@ async function downloadPdf() {
     for (const [attr, val] of Object.entries(data.mainTable)) {
       if (val) {
         const attrLines = doc.splitTextToSize(`${attr}:`, 50 - 2 * cellPadding);
-        const valLines = doc.splitTextToSize(val, 130 - 2 * cellPadding);
+
+        // Parse value for links
+        const valSegments = parseHtmlForPdfLinks(String(val));
+
+        // For now, estimate height using plain text method for layout
+        const cleanVal = typeof val === 'string' ? htmlAnchorsToPlainText(val) : String(val);
+        const valLines = doc.splitTextToSize(cleanVal, 130 - 2 * cellPadding);
         const lineCount = Math.max(attrLines.length, valLines.length);
         // Calculate height based on font size and line count
         const lineHeightPt = doc.getLineHeight();
@@ -255,7 +397,10 @@ async function downloadPdf() {
         doc.setFont(undefined, 'bold');
         doc.text(attrLines, 12, y + cellPadding + lineHeight * 0.75, { maxWidth: 50 - 2 * cellPadding });
         doc.setFont(undefined, 'normal');
-        doc.text(valLines, 62, y + cellPadding + lineHeight * 0.75, { maxWidth: 130 - 2 * cellPadding });
+
+        // Render value with clickable links
+        renderTextWithLinks(doc, valSegments, 62, y + cellPadding + lineHeight * 0.75, 130 - 2 * cellPadding);
+
         y += thisRowHeight;
       }
     }
@@ -302,8 +447,14 @@ async function downloadPdf() {
         y += rowHeight;
         for (const row of subsection.rows) {
           const attrLines = doc.splitTextToSize(`${row.label}:`, 50 - 2 * cellPadding);
-          const valText = String(row.value).replace(/<br\s*\/??\s*>/gi, '\n');
-          const valLines = doc.splitTextToSize(valText, 130 - 2 * cellPadding);
+
+          // Convert HTML links and preserve line breaks, then parse for links
+          const valRaw = String(row.value).replace(/<br\s*\/?\s*>/gi, '\n');
+          const valSegments = parseHtmlForPdfLinks(valRaw);
+
+          // For layout estimation, use plain text
+          const cleanVal = htmlAnchorsToPlainText(valRaw);
+          const valLines = doc.splitTextToSize(cleanVal, 130 - 2 * cellPadding);
           const lineCount = Math.max(attrLines.length, valLines.length);
           // Calculate height based on font size and line count
           const lineHeightPt = doc.getLineHeight();
@@ -331,7 +482,10 @@ async function downloadPdf() {
           doc.setFont(undefined, 'bold');
           doc.text(attrLines, 12, y + cellPadding + lineHeight * 0.75, { maxWidth: 50 - 2 * cellPadding });
           doc.setFont(undefined, 'normal');
-          doc.text(valLines, 62, y + cellPadding + lineHeight * 0.75, { maxWidth: 130 - 2 * cellPadding });
+
+          // Render value with clickable links
+          renderTextWithLinks(doc, valSegments, 62, y + cellPadding + lineHeight * 0.75, 130 - 2 * cellPadding);
+
           y += thisRowHeight;
         }
       }
@@ -363,22 +517,29 @@ async function downloadPdf() {
 
 <style scoped>
 .pdf-btn-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  margin: 16px 0 24px 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 12px 0 16px 0;
 }
 .pdf-download-btn {
+  display: inline-block;
+  min-width: 120px;
+  max-width: 320px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   background: var(--vp-c-bg-alt, #f5f7fa);
   color: var(--vp-c-text-1, #222);
   border: 1px solid var(--vp-c-divider, #d1d5db);
   border-radius: 6px;
-  padding: 10px 22px;
-  font-size: 1rem;
+  padding: 8px 14px;
+  font-size: 0.95rem;
   font-weight: 500;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
   cursor: pointer;
   transition: background 0.2s, border 0.2s;
+  text-align: center;
 }
 .pdf-download-btn:hover {
   background: var(--vp-c-bg, #e6eaf1);

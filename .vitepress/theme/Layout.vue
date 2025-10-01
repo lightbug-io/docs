@@ -17,6 +17,8 @@ const redirects = Object.entries({
   '/devices/api/generate': '/devices/api/tools/generate',
   '/apps/admin/creating-account': '/apps/admin/authentication#creating-an-account',
   '/apps/admin/permissions': '/apps/admin/authentication#permissions',
+  '/devices/api/structure': '/devices/api/protocol',
+  '/devices/api/headers': '/devices/api/protocol/headers',
 })
 
 watch(

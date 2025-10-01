@@ -96,7 +96,6 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch } from 'vue';
-import jsyaml from 'js-yaml';
 
 export default defineComponent({
     name: 'GenerateConsts',
@@ -105,6 +104,11 @@ export default defineComponent({
         messageId: {
             type: Number,
             required: false
+        },
+        // Pre-loaded YAML data
+        yamlData: {
+            type: Object,
+            required: true
         },
         // Label for the message name text field
         messageNameLabel: {
@@ -152,6 +156,12 @@ export default defineComponent({
             return `${line}${padding}// ${comment}`;
         };
 
+        const formatDescription = (description: string) => {
+            if (!description) return '';
+            const lines = description.split('\n').filter(line => line.trim());
+            return lines.map(line => `// ${line.trim()}`).join('\n');
+        };
+
         const getMaxLengthPlusOne = (lines: string[]) => {
             return Math.max(...lines.map(line => line.length)) + 1;
         };
@@ -162,54 +172,39 @@ export default defineComponent({
 
         const computedGoConstantsIndividual = computed(() => {
             let goConstants = '';
-            const lines = [];
             if (props.messageId) {
-                lines.push(`const ${messageName.value} = ${props.messageId}`);
-            }
-            for (const key in constants.value) {
-                const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`const ${formatConstantName(dataName.value, name)} = ${key}`);
-            }
-            const maxLength = getMaxLengthPlusOne(lines);
-            if (props.messageId) {
-                let line = `const ${messageName.value} = ${props.messageId}`;
-                goConstants += `${line}\n`;
+                goConstants += `const ${messageName.value} = ${props.messageId}\n`;
             }
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                let line = `const ${formatConstantName(dataName.value, name)} = ${key}`;
-                if (showComments.value) {
-                    line = alignComment(line, description, maxLength);
+                if (showComments.value && description) {
+                    goConstants += `${formatDescription(description)}\n`;
                 }
-                goConstants += `${line}\n`;
+                goConstants += `const ${formatConstantName(dataName.value, name)} = ${key}\n`;
+                if (showComments.value && description) {
+                    goConstants += '\n'; // Add extra line after block comment
+                }
             }
             return goConstants;
         });
 
         const computedGoConstantsGrouped = computed(() => {
             let goConstants = 'const (\n';
-            const lines = [];
             if (props.messageId) {
-                lines.push(`    ${messageName.value} = ${props.messageId}`);
-            }
-            for (const key in constants.value) {
-                const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`    ${formatConstantName(dataName.value, name)} = ${key}`);
-            }
-            const maxLength = getMaxLengthPlusOne(lines);
-            if (props.messageId) {
-                let line = `    ${messageName.value} = ${props.messageId}`;
-                goConstants += `${line}\n`;
+                goConstants += `    ${messageName.value} = ${props.messageId}\n`;
             }
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                let line = `    ${formatConstantName(dataName.value, name)} = ${key}`;
-                if (showComments.value) {
-                    line = alignComment(line, description, maxLength);
+                if (showComments.value && description) {
+                    const formattedDesc = formatDescription(description).replace(/\/\/ /g, '    // ');
+                    goConstants += `${formattedDesc}\n`;
                 }
-                goConstants += `${line}\n`;
+                goConstants += `    ${formatConstantName(dataName.value, name)} = ${key}\n`;
+                if (showComments.value && description) {
+                    goConstants += '\n'; // Add extra line after block comment
+                }
             }
             goConstants += ')';
             return goConstants;
@@ -217,18 +212,15 @@ export default defineComponent({
 
         const computedCppConstants = computed(() => {
             let cppConstants = ``
-            const lines = [];
-
-            // TODO at some point fix comment indenting..
 
             // Generate a group for the message type
             if (props.messageId) {
                 cppConstants += `enum ${messageGroupName.value} : uint8_t {\n`;
-                lines.push(`    ${messageName.value} = ${props.messageId}`);
                 let line = `    ${messageName.value} = ${props.messageId},`;
                 const messageDescription = message.value.description || '';
                 if (showComments.value && messageDescription) {
-                    line = alignComment(line, messageDescription, getMaxLengthPlusOne(lines));
+                    const formattedDesc = formatDescription(messageDescription).replace(/\/\/ /g, '    // ');
+                    cppConstants += `${formattedDesc}\n`;
                 }
                 cppConstants += `${line}\n`;
                 cppConstants += '};\n\n';
@@ -240,12 +232,15 @@ export default defineComponent({
             headerKeys.forEach((key, index) => {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                let line = `    ${formatConstantName(dataName.value, name)} = ${key},`;
-                lines.push(line);
-                if (showComments.value) {
-                    line = alignComment(line, description, getMaxLengthPlusOne(lines));
+                if (showComments.value && description) {
+                    const formattedDesc = formatDescription(description).replace(/\/\/ /g, '    // ');
+                    cppConstants += `${formattedDesc}\n`;
                 }
+                let line = `    ${formatConstantName(dataName.value, name)} = ${key},`;
                 cppConstants += `${line}\n`;
+                if (showComments.value && description && index < headerKeys.length - 1) {
+                    cppConstants += '\n'; // Add extra line after block comment (except for last item)
+                }
             });
             cppConstants += '};';
 
@@ -254,53 +249,38 @@ export default defineComponent({
 
         const computedTsConstants = computed(() => {
             let tsConstants = '';
-            const lines = [];
             if (props.messageId) {
-                lines.push(`export const ${messageName.value} = ${props.messageId};`);
-            }
-            for (const key in constants.value) {
-                const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`export const ${formatConstantName(dataName.value, name)} = ${key};`);
-            }
-            const maxLength = getMaxLengthPlusOne(lines);
-            if (props.messageId) {
-                let line = `export const ${messageName.value} = ${props.messageId};`;
-                tsConstants += `${line}\n`;
+                tsConstants += `export const ${messageName.value} = ${props.messageId};\n`;
             }
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                let line = `export const ${formatConstantName(dataName.value, name)} = ${key};`;
-                if (showComments.value) {
-                    line = alignComment(line, description, maxLength);
+                if (showComments.value && description) {
+                    tsConstants += `${formatDescription(description)}\n`;
                 }
-                tsConstants += `${line}\n`;
+                tsConstants += `export const ${formatConstantName(dataName.value, name)} = ${key};\n`;
+                if (showComments.value && description) {
+                    tsConstants += '\n'; // Add extra line after block comment
+                }
             }
             return tsConstants;
         });
 
         const computedToitConstants = computed(() => {
             let toitConstants = '';
-            const lines = []; // Collect lines first, so we know how long they get
-            if (props.messageId){
-                lines.push(`${messageName.value} /int ::= ${props.messageId}`);
-            }
-            for (const key in constants.value) {
-                const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
-                lines.push(`${formatConstantName(dataName.value, name)} /int ::= ${key}`);
-            }
-            const maxLength = getMaxLengthPlusOne(lines);
             if (props.messageId){
                 toitConstants += `${messageName.value} /int ::= ${props.messageId}\n`;
             }
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                let line = `${formatConstantName(dataName.value, name)} /int ::= ${key}`;
-                if (showComments.value) {
-                    line = alignComment(line, description, maxLength);
+                if (showComments.value && description) {
+                    toitConstants += `${formatDescription(description)}\n`;
                 }
-                toitConstants += `${line}\n`;
+                toitConstants += `${formatConstantName(dataName.value, name)} /int ::= ${key}\n`;
+                if (showComments.value && description) {
+                    toitConstants += '\n'; // Add extra line after block comment
+                }
             }
             return toitConstants;
         });
@@ -316,24 +296,25 @@ export default defineComponent({
             for (const key in constants.value) {
                 const name = constants.value[key].name.toUpperCase().replace(/ /g, '_');
                 const description = constants.value[key].description || '';
-                let line = `    public const int ${name} = ${key};`;
-                if (showComments.value) {
-                    line = alignComment(line, description, getMaxLengthPlusOne([line]));
+                if (showComments.value && description) {
+                    const formattedDesc = formatDescription(description).replace(/\/\/ /g, '    // ');
+                    csConstants += `${formattedDesc}\n`;
                 }
-                csConstants += `${line}\n`;
+                csConstants += `    public const int ${name} = ${key};\n`;
+                if (showComments.value && description) {
+                    csConstants += '\n'; // Add extra line after block comment
+                }
             }
             csConstants += '}';
             return csConstants;
         });
 
-        const loadConstants = async () => {
+        const loadConstants = () => {
             try {
-                const response = await fetch('/files/protocol-v3.yaml');
-                const yamlData = await response.text();
-                let parsedData = jsyaml.load(yamlData);
                 // Get the data from the path within the parsed data
-                const dataPath = props.dataPath || `messages/${props.messageId}/data`;
-                dataPath.split('/').forEach((key) => {
+                const dataPath = props.dataPath || `messages.${props.messageId}.data`;
+                let parsedData = props.yamlData;
+                dataPath.split('.').forEach((key) => {
                     parsedData = parsedData[key]
                 });
                 // Apply prefix to constants
@@ -346,19 +327,17 @@ export default defineComponent({
                 }
                 constants.value = prefixedConstants;
             } catch (error) {
-                console.error('Error loading YAML file:', error);
+                console.error('Error loading constants from YAML data:', error);
             }
         };
 
-        const loadMessage = async () => {
+        const loadMessage = () => {
             if (!props.messageId) return;
             try {
-                const response = await fetch('/files/protocol-v3.yaml');
-                const yamlData = await response.text();
-                let parsedData = jsyaml.load(yamlData);
                 // Get the message from the path within the parsed data
-                const messagePath = `messages/${props.messageId}`;
-                messagePath.split('/').forEach((key) => {
+                const messagePath = `messages.${props.messageId}`;
+                let parsedData = props.yamlData;
+                messagePath.split('.').forEach((key) => {
                     parsedData = parsedData[key]
                 })
                 message.value = parsedData;
@@ -368,7 +347,7 @@ export default defineComponent({
                     dataName.value = `MD_${message.value.name.toUpperCase().replace(/ /g, '_')}`;
                 }
             } catch (error) {
-                console.error('Error loading YAML file:', error);
+                console.error('Error loading message from YAML data:', error);
             }
         };
 

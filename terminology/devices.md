@@ -61,4 +61,4 @@ Every tag has a name and a value, such as `location: office`, or `group: John`.
 
 Tags can be used to filter devices in the platform, and are useful for grouping devices together.
 
-Tags are exposed in both the [Cloud](/apps/cloud/device-settings/tags) and [Admin](/apps/admin/devices#tags) portals.
+Tags are exposed in both the [Cloud](/apps/cloud/device-settings/tags) and [Admin](/apps/admin/devices/) portals.

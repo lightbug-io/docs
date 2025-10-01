@@ -8,6 +8,7 @@ import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue';
 import PayloadTable from '../../../components/PayloadTable.vue';
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -24,7 +25,7 @@ These pages can be seen as a view of what is to come later this year.
 <SplitColumnView>
 <template #left>
 
-<PayloadTable :messageId="48" headerText="Payload" headerMarginTop="0px" />
+<PayloadTable :messageId="48" headerText="Payload" headerMarginTop="0px" :yaml-data="protocolData" />
 
 </template>
 <template #right>
@@ -35,4 +36,4 @@ These pages can be seen as a view of what is to come later this year.
 
 For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="48"/>
+<GenerateConsts :messageId="48" :yaml-data="protocolData"/>

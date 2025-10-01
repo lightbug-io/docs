@@ -5,8 +5,9 @@ outline: false
 
 <script setup>
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue';
+import SplitColumnView from '../../../components/SplitColumnView.vue'
 import GenerateConsts from '../../../components/GenerateConsts.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -47,4 +48,4 @@ byteString="3 14 0 24 39 1 0 1 1 126 0 0 25 55"
 
 ## Code
 
-<GenerateConsts :messageId="10008"/>
+<GenerateConsts :messageId="10008" :yaml-data="protocolData"/>

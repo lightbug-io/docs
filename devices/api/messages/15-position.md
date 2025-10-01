@@ -5,9 +5,10 @@ outline: false
 
 <script setup>
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue';
+import SplitColumnView from '../../../components/SplitColumnView.vue'
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -26,7 +27,7 @@ These pages can be seen as a view of what is to come later this year.
 
 Used to interact with the devices position.
 
-<PayloadTable :messageId="15" headerText="Payload" headerMarginTop="0px" />
+<PayloadTable :messageId="15" headerText="Payload" headerMarginTop="0px" :yaml-data="protocolData" />
 
 </template>
 <template #right>
@@ -46,4 +47,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="15"/>
+<GenerateConsts :messageId="15" :yaml-data="protocolData"/>

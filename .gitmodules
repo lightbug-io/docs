@@ -1,0 +1,6 @@
+[submodule "ext/toit-lightbug"]
+	path = ext/toit-lightbug
+	url = https://github.com/lightbug-io/toit-lightbug.git
+[submodule "ext/toit-ide-tools"]
+	path = ext/toit-ide-tools
+	url = https://github.com/toitware/ide-tools

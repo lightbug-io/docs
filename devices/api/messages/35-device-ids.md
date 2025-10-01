@@ -8,6 +8,7 @@ import ProtocolBytes from '../../../components/ProtocolBytes.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -25,7 +26,7 @@ Used to GET the various IDs of the device.
 
 ### Payload
 
-<PayloadTable :messageId="35" headerText="" headerMarginTop="0px" />
+<PayloadTable :messageId="35" headerText="" headerMarginTop="0px" :yaml-data="protocolData" />
 
 </template>
 <template #right>
@@ -37,6 +38,7 @@ If you wanted to GET the ID from a device, you would send a GET message with the
 byteString="3 17 0 35 0 2 0 1 5 1 234 1 2 0 0 164 245"
 :boldPositions="[3,12]"
 :allowCollapse="false"
+:yaml-data="protocolData"
 />
 
 <!-- The device would then respond with a message of type 35, with the ID field filled in if known.
@@ -56,4 +58,4 @@ TODO example with more ids...-->
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="35"/>
+<GenerateConsts :messageId="35" :yaml-data="protocolData"/>

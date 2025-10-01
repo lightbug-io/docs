@@ -1,11 +1,17 @@
 
 # Getting started
 
+::: warning ⚠️ main branch documentation
+This documentation is currently for the `main` branch of the Toit SDK, which is under active development.
+
+There are pinned early releases available, but they may be out of date in comparison to this documentation.
+:::
+
 ### 1. Get an ESP32 enabled device
 
-ESP32s are being introduced on some Lightbug devices.
+ESP32s are being introduced on some Lightbug devices, such as the [RTK handheld (RH2)](/devices/rtk/).
 
-You'll need one of these devices to run Toit on a Lightbug device.
+You'll need one of these devices to run Toit code on.
 
 ### 2. Install Jaguar
 
@@ -14,16 +20,16 @@ You'll need one of these devices to run Toit on a Lightbug device.
 Install Jaguar, [following step 2](https://docs.toit.io/getstarted/device/#2-install-jaguar) in the Toit getting started guide.
 
 ::: info
-We currently require `v1.50.3`+ of Jaguar, which bundles at least `v2.0.0-alpha.179` of Toit.
+We currently recommend `v1.55.0`+ of Jaguar, which bundles at least `v2.0.0-alpha.188` of Toit.
 :::
 
 Once installed, you should be able to run the version command:
 
 ```sh
 jag version
-Version:         v1.50.3
-SDK version:     v2.0.0-alpha.179
-Build date:      2025-04-31T10:10:10Z
+Version:         v1.55.0
+SDK version:     v2.0.0-alpha.188
+Build date:      2025-08-20T08:35:24Z
 ```
 
 ### 3. Flash the ESP
@@ -43,6 +49,38 @@ It's possible to configure default WiFi credentials, see the [Toit guide](https:
 After flashing, your device boots up and starts the Toit virtual machine. The Jaguar service on the device starts a small HTTP server that listens for incoming requests.
 
 You can see what the ESP is doing by monitoring the serial output of the device with the `jag monitor` command.
+
+<details>
+<summary>Click to see example `jag monitor` output</summary>
+
+```
+Starting serial monitor of port 'COM22' ...
+[wifi] DEBUG: connected
+ESP-ROM:esp32c6-20220919
+Build:Sep 19 2022
+rst:0x15 (USB_UART_HPSYS),boot:0x6f (SPI_FAST_FLASH_BOOT)
+Saved PC:0x4081306a
+SPIWP:0xee
+mode:DIO, clock dESP-ROM:esp32c6-20220919
+Build:Sep 19 2022
+rst:0x15 (USB_UART_HPSYS),boot:0x6f (SPI_FAST_FLASH_BOOT)
+Saved PC:0x400294a2
+SPIWP:0xee
+mode:DIO, clock div:2
+load:0x40875720,len:0x9c
+load:0x4086c110,len:0xb94
+load:0x4086e610,len:0x2534
+entry 0x4086c110
+[toit] INFO: starting <v2.0.0-alpha.188>
+[toit] DEBUG: clearing RTC memory: powered on by hardware source
+[toit] INFO: running on ESP32C6 - revision 0.1
+[wifi] DEBUG: connecting
+[wifi] DEBUG: connected
+[wifi] INFO: network address dynamically assigned through dhcp {ip: 192.168.68.50}
+[wifi] INFO: dns server address dynamically assigned through dhcp {ip: [8.8.8.8, 1.1.1.1]}
+[jaguar.http] INFO: running Jaguar device 'long-expert' (id: '736b8804-dcdf-4d96-890a-8785c1bfa31d') on 'http://192.168.68.50:9000'
+```
+</details>
 
 ::: tip
 Leave the terminal with `jag monitor` running open, as it will show you the output of the device, and will also show you the output of the code you run on the device.
@@ -65,10 +103,10 @@ VERSION=$(jag pkg search lightbug-io/toit-lightbug | awk '{print $3}')
 jag pkg install github.com/lightbug-io/toit-lightbug@$VERSION
 ```
 
-You can copy the example [eink based Hello World application](https://github.com/lightbug-io/toit-lightbug/blob/main/examples/eink.toit) for the RTK Handheld 2 device into your project with the following command:
+You can copy the example [eink based Hello World application](https://github.com/lightbug-io/toit-lightbug/blob/main/examples/modules/eink/element-box-text.toit) into your project with the following command:
 
 ```sh
-cp ./.packages/github.com/lightbug-io/toit-lightbug/$VERSION/examples/eink.toit ./main.toit
+cp ./.packages/github.com/lightbug-io/toit-lightbug/$VERSION/examples/modules/eink/element-box-text.toit ./main.toit
 ```
 
 ### 6. Run the code
@@ -84,14 +122,19 @@ If your device can not be found automatically, you can specify the device IP add
 Once the code is running, you should see some output through the `monitor` command you ran earlier.
 
 ```
-[jaguar] INFO: program cf533602-d549-c9bd-34a3-3ae1093bda51 started
-[lb-comms] INFO: Comms starting
-[lb-comms] INFO: Comms started
-💬 Sending text page to device
-💬 Text page sent
-Waiting on message latch
-✅ Text page ACKed
-Latch response: Message type: 5 length: 40 response-to: 3405447839
+[jaguar] INFO: program 970dfee5-ec68-d8ad-ade5-06b62aaad39b started
+💬 Sending text to device
 ```
 
-And you should see the device screen update
+And you should see the device screen update, saying `Lightbug...` in the top left.
+
+:::tabs
+== Graphic
+![](https://i.imgur.com/8QP1022.png)
+== Photo
+![](https://i.imgur.com/7ca0Nda.png){width=500}
+:::
+
+:::tip
+You can also see this code [under the examples section](/devices/api/sdks/toit/examples/screen-text).
+:::

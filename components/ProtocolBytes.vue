@@ -4,7 +4,6 @@
 <script lang="ts">
 import FancyBytes from './FancyBytes.vue';
 import { defineComponent, ref, PropType, computed, onMounted } from 'vue';
-import jsyaml from 'js-yaml';
 import crc16 from 'crc/crc16xmodem';
 import Float32Utils from '../utils/Float32Utils';
 import {Buffer} from 'buffer';
@@ -27,6 +26,10 @@ export default defineComponent({
             type: String,
             required: true
         },
+        yamlData: {
+            type: Object as PropType<any>,
+            default: () => ({})
+        },
         boldPositions: {
             type: Array as PropType<number[]>,
             default: () => []
@@ -48,30 +51,21 @@ export default defineComponent({
         FancyBytes
     },
     setup(props) {
-        const protocolData = ref<any>({});
-        const loadProtocolData = async () => {
-            try {
-                const response = await fetch('/files/protocol-v3.yaml');
-                const yamlData = await response.text();
-                protocolData.value = jsyaml.load(yamlData);
-            } catch (error) {
-                console.error('Error loading YAML file:', error);
-            }
-        };
+        // Use preloaded YAML data provided by the caller via `yamlData` prop.
 
-        const uint16LEtoUInt = (byte1, byte2): number => {
+        const uint16LEtoUInt = (byte1: number, byte2: number): number => {
             return ((byte2 << 8) | byte1) >>> 0;
         };
 
-        const uint32LEtoUInt = (byte1, byte2, byte3, byte4): number => {
+        const uint32LEtoUInt = (byte1: number, byte2: number, byte3: number, byte4: number): number => {
             return ((byte4 << 24) | (byte3 << 16) | (byte2 << 8) | byte1) >>> 0;
         };
 
-        const uint64LEtoUInt = (byte1, byte2, byte3, byte4, byte5, byte6, byte7, byte8): number => {
+        const uint64LEtoUInt = (byte1: number, byte2: number, byte3: number, byte4: number, byte5: number, byte6: number, byte7: number, byte8: number): number => {
             return ((byte8 << 56) | (byte7 << 48) | (byte6 << 40) | (byte5 << 32) | (byte4 << 24) | (byte3 << 16) | (byte2 << 8) | byte1) >>> 0;
         };
 
-        const typedBytesToString = (type: string, bytes: number[], fieldType?: number, isMessageType?: any): string => {
+    const typedBytesToString = (type: string, bytes: number[], fieldType?: number, isMessageType?: any): string => {
             if (bytes.length === 0) {
                 return '';
             }
@@ -112,7 +106,7 @@ export default defineComponent({
             }
 
             if (fieldType !== undefined) {
-                const fieldValues = protocolData.value?.header?.[fieldType]?.values || protocolData.value?.messages?.[fieldType]?.values;
+                const fieldValues = props.yamlData?.header?.[fieldType]?.values || props.yamlData?.messages?.[fieldType]?.values;
                 if (fieldValues && fieldValues[result]) {
                     result += ` (${fieldValues[result].name})`;
                 }
@@ -120,7 +114,7 @@ export default defineComponent({
 
             // Add message type names in some specific cases
             if (isMessageType !== undefined && isMessageType && type === 'uint16') {
-                const messageName = protocolData.value?.messages?.[result]?.name;
+                const messageName = props.yamlData?.messages?.[result]?.name;
                 if (messageName) {
                     result += ` (${messageName})`;
                 }
@@ -130,11 +124,11 @@ export default defineComponent({
         };
 
         const computeByteDefinition = (byteString: string): ByteDefinition[] => {
-            const byteArray = byteString.split(' ')
+            const byteArray = byteString.split(' ').map(s => parseInt(s, 10));
             const byteDefinition: ByteDefinition[] = [];
             let msgStart = 0;
             // Check if the byte string has a prefix, of [ 76, 66 ], if so, the first 2 bytes are the prefix
-            if (byteArray.length > 2 && byteArray[0] === '76' && byteArray[1] === '66') {
+            if (byteArray.length > 2 && byteArray[0] === 76 && byteArray[1] === 66) {
                 byteDefinition.push({
                     pos: 0,
                     len: 2,
@@ -160,14 +154,14 @@ export default defineComponent({
                     }
                 }
             }
-            const protocolValue = parseInt(byteArray[msgStart], 10);
+            const protocolValue = byteArray[msgStart];
             byteDefinition.push({
                 pos: msgStart,
                 len: 1,
                 name: 'Meta',
                 desc: 'Protocol',
                 type: 'uint8',
-                value: byteArray[msgStart],
+                value: String(byteArray[msgStart]),
                 valueParsed: protocolAsString,
                 bold: props.boldPositions.includes(msgStart)
             });
@@ -197,11 +191,11 @@ export default defineComponent({
                 desc: 'Type',
                 type: 'uint16',
                 value: byteArray.slice(msgStart + 3, msgStart + 5).join(' '),
-                valueParsed: typedBytesToString('uint16', byteArray.slice(msgStart + 3, msgStart + 5),null,1),
+                valueParsed: typedBytesToString('uint16', byteArray.slice(msgStart + 3, msgStart + 5), undefined, 1),
                 bold: props.boldPositions.includes(msgStart + 3)
             });
             const messageType = uint16LEtoUInt(byteArray[msgStart + 3], byteArray[msgStart + 4]);
-            const messageData = protocolData.value?.messages?.[messageType]?.data || {};
+            const messageData = props.yamlData?.messages?.[messageType]?.data || {};
             // Then the number of headers as uint16 little endian
             byteDefinition.push({
                 pos: msgStart + 5,
@@ -214,7 +208,7 @@ export default defineComponent({
                 bold: props.boldPositions.includes(msgStart + 5)
             });
             // then we should have the header field types
-            const numHeaderFields = parseInt(byteArray.slice(msgStart + 5, msgStart + 7).reverse().join(''));
+            const numHeaderFields = uint16LEtoUInt(byteArray[msgStart + 5], byteArray[msgStart + 6]);
             const headerFieldStart = msgStart + 7;
             const headerFieldTypes = byteArray.slice(headerFieldStart, headerFieldStart + numHeaderFields).join(' ');
             byteDefinition.push({
@@ -231,17 +225,17 @@ export default defineComponent({
             let headerDataStart = initialHeaderDataStart;
             // Then we should have the header data, each header has a length byte, then the raw bytes
             for (let i = 0; i < numHeaderFields; i++) {
-                const headerLength = parseInt(byteArray[headerDataStart]);
-                const headerFieldType = parseInt(byteArray[headerFieldStart + i]);
-                const headerFieldName = protocolData.value?.header?.[headerFieldType]?.name || 'Header ' + headerFieldType;
-                const headerFieldValueType = protocolData.value?.header?.[headerFieldType]?.type || props.customHeaderTypes[headerFieldType] || 'undefined';
+                const headerLength = byteArray[headerDataStart];
+                const headerFieldType = byteArray[headerFieldStart + i];
+                const headerFieldName = props.yamlData?.header?.[headerFieldType]?.name || 'Header ' + headerFieldType;
+                const headerFieldValueType = props.yamlData?.header?.[headerFieldType]?.type || props.customHeaderTypes[headerFieldType] || 'undefined';
                 byteDefinition.push({
                     pos: headerDataStart,
                     len: 1,
                     name: 'Header ' + (i+1),
                     desc: headerFieldName + '('+headerFieldType+')' + ' Length',
                     type: 'uint8',
-                    value: byteArray[headerDataStart],
+                    value: String(byteArray[headerDataStart]),
                     valueParsed: typedBytesToString('uint8', byteArray.slice(headerDataStart, headerDataStart + 1)),
                     bold: props.boldPositions.includes(headerDataStart)
                 });
@@ -269,7 +263,7 @@ export default defineComponent({
                 bold: props.boldPositions.includes(headerDataStart)
             });
             // then we should have the payload field types
-            const numPayloadFields = parseInt(byteArray.slice(headerDataStart, headerDataStart + 2).reverse().join(''));
+            const numPayloadFields = uint16LEtoUInt(byteArray[headerDataStart], byteArray[headerDataStart + 1]);
             let payloadFieldStart = headerDataStart + 2;
             const payloadFieldTypes = byteArray.slice(payloadFieldStart, payloadFieldStart + numPayloadFields).join(' ');
             byteDefinition.push({
@@ -285,8 +279,8 @@ export default defineComponent({
             // Then we should have the payload data, each payload has a length byte, then the raw bytes
             let payloadDataStart = payloadFieldStart + numPayloadFields;
             for (let i = 0; i < numPayloadFields; i++) {
-                const payloadLength = parseInt(byteArray[payloadDataStart], 10);
-                const payloadFieldType = parseInt(byteArray[payloadFieldStart + i]);
+                const payloadLength = byteArray[payloadDataStart];
+                const payloadFieldType = byteArray[payloadFieldStart + i];
                 const payloadFieldName = messageData[payloadFieldType]?.name || 'Payload ' + (i + 1);
                 const payloadFieldValueType = messageData[payloadFieldType]?.type || props.customPayloadTypes[payloadFieldType] || 'undefined';
                 byteDefinition.push({
@@ -295,7 +289,7 @@ export default defineComponent({
                     name: payloadFieldName,
                     desc: payloadFieldName + ' ('+payloadFieldType+')' + ' Length',
                     type: 'uint8',
-                    value: byteArray[payloadDataStart],
+                    value: String(byteArray[payloadDataStart]),
                     valueParsed: typedBytesToString('uint8', byteArray.slice(payloadDataStart, payloadDataStart + 1)),
                     bold: props.boldPositions.includes(payloadDataStart)
                 });
@@ -319,7 +313,7 @@ export default defineComponent({
             }
             // The last 2 bytes are the checksum
             const providedCRCString = typedBytesToString('uint16', byteArray.slice(payloadDataStart, payloadDataStart + 2))
-            const expectedCRC = crc16(new Uint8Array(byteArray.slice(msgStart, payloadDataStart)));
+            const expectedCRC = crc16(Buffer.from(byteArray.slice(msgStart, payloadDataStart)));
             const isValid = parseInt(providedCRCString) === expectedCRC;
             let checksumValueParsedString = ''
             if (providedCRCString != '') {
@@ -338,8 +332,6 @@ export default defineComponent({
             return byteDefinition;
         };
         const computedByteDefinition = computed(() => computeByteDefinition(props.byteString));
-
-        onMounted(loadProtocolData);
 
         return {
             computedByteDefinition

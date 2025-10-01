@@ -5,9 +5,10 @@ outline: false
 
 <script setup>
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue';
+import SplitColumnView from '../../../components/SplitColumnView.vue'
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -30,7 +31,7 @@ Devices currently default to sending a heartbeat every 15 seconds.
 </template>
 <template #right>
 
-<PayloadTable :messageId="13" headerText="Payload" headerMarginTop="0px" />
+<PayloadTable :messageId="13" headerText="Payload" headerMarginTop="0px" :yaml-data="protocolData" />
 
 </template>
 </SplitColumnView>
@@ -43,10 +44,11 @@ Basic heartbeat message.
     byteString="3 15 0 13 0 1 0 1 2 55 2 0 0 41 1"
     :boldPositions="[3]"
     :allowCollapse="true" defaultCollapsed="true"
+    :yaml-data="protocolData"
 />
 
 ## Code
 
 For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="13"/>
+<GenerateConsts :messageId="13" :yaml-data="protocolData"/>

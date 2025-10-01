@@ -5,8 +5,9 @@ outline: false
 
 <script setup>
 import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue';
+import SplitColumnView from '../../../components/SplitColumnView.vue'
 import GenerateConsts from '../../../components/GenerateConsts.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -28,7 +29,8 @@ These pages can be seen as a view of what is to come later this year.
 
 | Field | Name       | Description                      | Type   | Example | Actual |
 | ----- | ---------- | -------------------------------- | ------ | ------- | - |
-
+:allowCollapse="false"
+:yaml-data="protocolData"
 If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
 
 </template>
@@ -40,6 +42,7 @@ If the request could not be fulfilled, the response status would be 2 (NOT OK), 
 byteString="0"
 :boldPositions="[3,12,15,16]"
 :allowCollapse="false"
+ :yaml-data="protocolData"
 />
 
 </template>
@@ -49,4 +52,4 @@ byteString="0"
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="44"/>
+<GenerateConsts :messageId="44" :yaml-data="protocolData"/>

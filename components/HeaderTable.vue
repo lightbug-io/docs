@@ -24,7 +24,6 @@
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, PropType } from 'vue';
-import jsyaml from 'js-yaml';
 
 export default defineComponent({
   name: 'HeaderTable',
@@ -32,6 +31,10 @@ export default defineComponent({
     headerIds: {
       type: Array as PropType<number[]>,
       default: () => []
+    },
+    yamlData: {
+      type: Object as PropType<any>,
+      default: () => ({})
     },
     headerText: {
       type: String,
@@ -45,21 +48,12 @@ export default defineComponent({
   setup(props) {
     const fields = ref<any>({});
 
-    const loadProtocolData = async () => {
-      try {
-        const response = await fetch('/files/protocol-v3.yaml');
-        const yamlData = await response.text();
-        const protocolData = jsyaml.load(yamlData);
-        fields.value = {};
-        (props.headerIds as number[]).forEach((headerId: number) => {
-          fields.value[headerId] = protocolData.header[headerId] || [];
-        });
-      } catch (error) {
-        console.error('Error loading YAML file:', error);
-      }
-    };
-
-    onMounted(loadProtocolData);
+    onMounted(() => {
+      fields.value = {};
+      (props.headerIds as number[]).forEach((headerId: number) => {
+        fields.value[headerId] = props.yamlData.header?.[headerId] || [];
+      });
+    });
 
     return {
       fields

@@ -8,15 +8,17 @@
           <img v-for="(img, idx) in specs.product.images" :key="img" :src="img.startsWith('https://lightbug.io/') ? `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(img)}` : img" :alt="`Device image ${idx+1}`" class="device-image" />
         </div>
       </div>
-      <DownloadPdfButton :get-pdf-data="getPdfData" />
     </div>
-    <h3>Overview</h3>
+  <DownloadPdfButton :get-pdf-data="getPdfData" label="Spec PDF"/>
+  <DownloadBookletButton v-if="specs && specs.product && specs.product.booklet" :url="specs.product.booklet" />
+
+  <h3>Overview</h3>
     <span v-if="specs && specs.product && specs.product.description">{{ specs.product.description }}</span>
-    <table v-if="specs">
+  <table v-if="specs">
       <tbody>
         <tr v-for="(value, key) in displaySpecs" :key="key">
           <th>{{ key }}</th>
-          <td>{{ value }}</td>
+      <td v-html="value"></td>
         </tr>
       </tbody>
     </table>
@@ -48,11 +50,27 @@
 import { ref, watchEffect } from 'vue'
 import yaml from 'js-yaml'
 import DownloadPdfButton from './DownloadPdfButton.vue'
+import DownloadYamlButton from './DownloadYamlButton.vue'
+import DownloadBookletButton from './DownloadBookletButton.vue'
 
 const props = defineProps({
   yamlText: {
     type: String,
     required: true
+  }
+  ,
+  // Optional override for the device title. If provided, this will be used
+  // instead of the title extracted from the YAML.
+  deviceTitle: {
+    type: String,
+    required: false
+  }
+  ,
+  // Optional mapping from term -> url. Allows overriding where terms link to.
+  termLinkMap: {
+    type: Object,
+    required: false,
+    default: () => ({})
   }
 })
 
@@ -61,8 +79,8 @@ const displaySpecs = ref({})
 const deviceTitle = ref('Device Specification')
 const genericSections = ref([])
 
-// An allowed list of keys to use from the YAML for now..
-const sectionKeys = ['physical','integrations','connectivity','battery','positioning','sensors','charging','user interface','components']
+// An allowed list of keys to use from the YAML for now.. (and order)
+const sectionKeys = ['physical','integrations','user interface','connectivity','positioning','sensors','battery','charging','components']
 
 function normalizePhrase(str) {
   if (!str) return ''
@@ -74,6 +92,33 @@ function normalizePhrase(str) {
   phrase = phrase.replace(/Bluetooth Le/gi, 'Bluetooth LE')
   phrase = phrase.replace(/ Mah/gi, ' mAh')
   return phrase
+}
+
+const defaultTermLinkMap = {
+  rtk: '/terminology/positioning/rtk',
+  gnss: '/terminology/positioning/gnss',
+  "Wi-Fi AP scanning": '/terminology/positioning/wifi',
+}
+
+function linkTerms(text) {
+  if (!text || typeof text !== 'string') return text
+  const map = { ...defaultTermLinkMap, ...props.termLinkMap }
+  // Sort keys by length desc to avoid partial matches (e.g., 'gps' inside other words)
+  const keys = Object.keys(map).sort((a, b) => b.length - a.length)
+  let out = text
+  for (const key of keys) {
+    const url = map[key]
+    const re = new RegExp('\\b' + key.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&') + '\\b', 'gi')
+    out = out.replace(re, match => `<a href="${url}" class="term-link">${match}</a>`)
+  }
+  return out
+}
+
+function linkUrls(text) {
+  if (!text || typeof text !== 'string') return text
+  // Simple URL regex (http/https). Keep it conservative.
+  const urlRe = /https?:\/\/[^\s"'<>]+/g
+  return text.replace(urlRe, url => `<a href="${url}" target="_blank" rel="noopener">${url}</a>`)
 }
 
 function formatValueForDisplay(val) {
@@ -97,15 +142,20 @@ watchEffect(() => {
     genericSections.value = []
     if (specs.value && specs.value.product) {
       const p = specs.value.product
-      deviceTitle.value = p.sku ? `${p.name} (${p.sku})` : p.name
+      // Prefer the explicit prop if provided, otherwise derive from YAML
+      if (props.deviceTitle) {
+        deviceTitle.value = props.deviceTitle
+      } else {
+        deviceTitle.value = p.sku ? `${p.name} (${p.sku})` : p.name
+      }
       // Main table (excluding sectionKeys)
       displaySpecs.value = {
-        'Name': p.name,
+        'Name': linkUrls(linkTerms(p.name)),
         'Version': p.version,
         'Serial prefix': p.prefix,
-        'Connectivity': p.connectivity ? Object.keys(p.connectivity).join(', ') : '',
-        'Positioning': p.positioning ? Object.keys(p.positioning).join(', ') : '',
-        'Sensors': p.sensors ? Object.keys(p.sensors).join(', ') : '',
+        'Connectivity': p.connectivity ? linkUrls(linkTerms(Object.keys(p.connectivity).join(', '))) : '',
+        'Positioning': p.positioning ? linkUrls(linkTerms(Object.keys(p.positioning).join(', '))) : '',
+        'Sensors': p.sensors ? linkUrls(linkTerms(Object.keys(p.sensors).join(', '))) : '',
       }
       // Generic section rendering
       for (const sectionKey of sectionKeys) {
@@ -162,6 +212,10 @@ watchEffect(() => {
                     .join('<br>')
                 }
                 displayValue = formatValueForDisplay(v)
+                if (typeof displayValue === 'string') {
+                  displayValue = linkTerms(displayValue)
+                  displayValue = linkUrls(displayValue)
+                }
                 if (displayValue !== undefined && displayValue !== null && displayValue !== '' && displayValue !== '[]' && displayValue !== '{}') {
                   rows.push({ label: normalizePhrase(k), value: displayValue })
                 }

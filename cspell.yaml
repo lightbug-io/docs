@@ -1,0 +1,112 @@
+# cspell configuration in YAML so maintainers can add comments
+version: "0.2"
+
+# Paths and files cspell should ignore. Glob patterns are supported.
+ignorePaths:
+  - cSpell_dict.txt
+  - package-lock.json
+  - package.json
+  - .github/workflows/*.yml
+  - public/device-specs/**/*.yaml
+  - public/swagger/v1.json
+  - public/files/protocol-v3.yaml
+  - .vitepress/theme/index.ts
+
+# Custom dictionary definitions (none used currently)
+dictionaryDefinitions: []
+
+# Dictionaries to enable (none enabled by default)
+dictionaries: []
+
+# Word list: add project-specific or domain-specific tokens here.
+words:
+  # Company and product names
+  - Lightbug
+  - Espressif
+  - Maxar
+  - Mapbox
+  - Klick
+  - vuetify
+  - vitepress
+  - markdownit
+  - jsyaml
+  - highlightjs
+
+  # Lightbug device names
+  - Enviro
+  - enviro
+  - VTRTK
+
+  # Lightbug terms
+  # Acronyms, initialisms, technical terms
+  - RTCM
+  - UART
+  - OBDII
+  - Quadband
+  - GLONASS
+  - BEIDOU
+  - QZSS
+  - EEPROM
+  - RSSI
+  - DGNSS
+  - NMEA
+  - WCDMA
+  - NTRIP
+  - GPRS
+  - iccid
+  - imei
+
+  # OK abbreviations
+  - csum
+  - Csum
+  - onprem
+  - codegen
+
+  # domains
+  - trycloudflare
+
+  # Misc
+  - Geofences
+  - Toit
+  - toit
+  - eink
+  - rgba
+  - geofencelists
+  - Geofence
+  - Datapoints
+  - datapoints
+  - sendreason
+  - alerttype
+  - behaviour
+  - modecontrol
+  - overvoltage
+  - Julet
+  - xmodem
+  - msgb
+  - Dont
+  - Bitfield
+  - bitfield
+  - bitfields
+  - optimisation
+  - Optimisations
+  - initialised
+  - multipath
+  - microcontroller
+  - HPSYS
+  - SPIWP
+  - acking
+  - actioned
+  - centi
+  - hectopascals
+  - pseudorange
+  - Centimetre
+  - microcontrollers
+  - wght
+  - mdit
+  - integ
+
+# Words to ignore (none configured)
+ignoreWords: []
+
+# Imported configuration files (none configured)
+import: []

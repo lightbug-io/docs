@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 v-if="headerText" :style="{ marginTop: headerMarginTop }">{{ headerText }}</h3>
+    <h3 v-if="showHeader && headerText" :style="{ marginTop: headerMarginTop }">{{ headerText }}</h3>
     <table>
       <thead>
         <tr>
@@ -17,7 +17,7 @@
             <td>{{ field.name }}</td>
             <td>
               <template v-if="field.description">
-                {{ field.description }}
+                <span v-html="field.description.replace(/\n/g, '<br>')"></span>
               </template>
               <template v-if="field.values">
                 <template v-if="field.description">
@@ -43,14 +43,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, PropType } from 'vue';
-import jsyaml from 'js-yaml';
+import { defineComponent, computed } from 'vue';
 
 export default defineComponent({
   name: 'PayloadTable',
   props: {
     messageId: {
       type: Number,
+      required: true
+    },
+    yamlData: {
+      type: Object,
       required: true
     },
     headerText: {
@@ -60,23 +63,19 @@ export default defineComponent({
     headerMarginTop: {
       type: String,
       default: '0px'
+    },
+    showHeader: {
+      type: Boolean,
+      default: true
     }
   },
   setup(props) {
-    const payloadFields = ref<any[]>([]);
-
-    const loadProtocolData = async () => {
-      try {
-        const response = await fetch('/files/protocol-v3.yaml');
-        const yamlData = await response.text();
-        const protocolData = jsyaml.load(yamlData);
-        payloadFields.value = protocolData.messages[props.messageId]?.data || [];
-      } catch (error) {
-        console.error('Error loading YAML file:', error);
+    const payloadFields = computed(() => {
+      if (!props.yamlData || !props.yamlData.messages) {
+        return [];
       }
-    };
-
-    onMounted(loadProtocolData);
+      return props.yamlData.messages[props.messageId]?.data || [];
+    });
 
     return {
       payloadFields,

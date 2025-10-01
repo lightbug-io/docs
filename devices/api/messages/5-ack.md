@@ -9,13 +9,8 @@ import SplitColumnView from '../../../components/SplitColumnView.vue';
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import HeaderTable from '../../../components/HeaderTable.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
-
-::: danger ⚠️ Not yet public
-The Device API currently in development and is not yet accessible on production devices.
-
-These pages can be seen as a view of what is to come later this year.
-:::
 
 # 5: ACK
 
@@ -30,7 +25,7 @@ flowchart LR
     B -->|ACK| A
 ```
 
-The [Response Message ID](./../headers#_3-response-message-id) field in the header can be used in place of an ACK if an immediate response is being sent.
+The [Response Message ID](../protocol/headers#_3-response-message-id) field in the header can be used in place of an ACK if an immediate response is being sent.
 
 In such cases the response will not have an ACK message type, instead it will have the message type of the response (often the same as the request).
 
@@ -65,7 +60,7 @@ If the message being ACKed has a message ID, it should be included in the `Respo
 
 If a message is sent with no ID, then you may simply receive an ACK with the previous message type in the payload.
 
-<PayloadTable :messageId="5" headerText="" headerMarginTop="0px" />
+<PayloadTable :messageId="5" headerText="" headerMarginTop="0px" :yaml-data="protocolData" />
 
 </template>
 </SplitColumnView>
@@ -80,6 +75,7 @@ ACK message, acknowledging a message with type `32` and ID `234`
     byteString="3 18 0 5 0 0 0 2 0 1 2 2 32 0 1 234 14 66"
     :boldPositions="[3,12,15]"
     :allowCollapse="true" defaultCollapsed="true"
+    :yaml-data="protocolData"
 />
 
 
@@ -91,10 +87,11 @@ In the case that a message ID is not known, the field can be omitted.
     byteString="3 15 0 5 0 0 0 1 0 1 2 32 0 164 69"
     :boldPositions="[3,11]"
     :allowCollapse="true" defaultCollapsed="true"
+    :yaml-data="protocolData"
 />
 
 ## Code
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="5"/>
+<GenerateConsts :messageId="5" :yaml-data="protocolData"/>

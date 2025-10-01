@@ -1,6 +1,7 @@
-<script setup>
-import DeviceSpecTable from '../../components/DeviceSpecTable.vue'
-import spec from '../../public/device-specs/rtk/v2.yaml?raw'
-</script>
+---
+title: RTK
+layout: full
+fullWidth: true
+---
 
-<DeviceSpecTable :yamlText="spec" />
+# RTK

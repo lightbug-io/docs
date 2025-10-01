@@ -7,6 +7,13 @@ import { loadSpec } from '../swagger/load';
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 import { pagefindPlugin } from 'vitepress-plugin-pagefind';
 import { withMermaid } from "vitepress-plugin-mermaid";
+import { imgSize } from "@mdit/plugin-img-size";
+import { figure } from "@mdit/plugin-figure";
+import { attrs } from "@mdit/plugin-attrs";
+import { align } from "@mdit/plugin-align";
+import { include } from "@mdit/plugin-include";
+import { withSidebar, generateSidebar } from 'vitepress-sidebar';
+import yamlEmbed from '../utils/markdownit-yaml-plugin.js';
 
 
 // Load protocol messages from YAML file
@@ -46,20 +53,85 @@ const protocolMenuItems = Object.keys(protocolGroups)
 // Ability to generate other collections of side bar entries
 const sidebarItemsFromDir = (dir) => {
   const files = fs.readdirSync(dir)
-  return files
-    .filter(file => file !== 'index.md')
-    .map(file => {
-      const name = file.replace('.md', '')
-      const displayName = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
-      return {
-        text: displayName,
-        link: `${dir}/${name}`
+    .filter(file => file !== 'index.md' && file.endsWith('.md'))
+
+  const items = files.map(file => {
+    const fullPath = path.resolve(dir, file);
+    let order = 100;
+    try {
+      const content = fs.readFileSync(fullPath, 'utf8');
+      // simple frontmatter parse: look for leading --- yaml --- block
+      const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+      if (fmMatch) {
+        const fm = yaml.load(fmMatch[1]);
+        if (fm && typeof fm.order === 'number') {
+          order = fm.order;
+        }
       }
-    })
+    } catch (e) {
+      // ignore and use default order
+    }
+
+    const name = file.replace('.md', '')
+    const displayName = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
+    return {
+      text: displayName,
+      link: `${dir}/${name}`,
+      order,
+    }
+  })
+
+  // sort by order, then by text
+  items.sort((a, b) => {
+    if (a.order !== b.order) return a.order - b.order;
+    return a.text.localeCompare(b.text);
+  });
+
+  // remove the temporary order field before returning
+  return items.map(({ order, ...rest }) => rest)
 }
 
 const sidebarSpec1 = useSidebar({ spec: loadSpec(1) });
 const sidebarSpec2 = useSidebar({ spec: loadSpec(2) });
+
+// Generate Admin Actions sidebar automatically using vitepress-sidebar
+const generateAdminDevicesSidebar = () => {
+  // Helper function to fix links recursively
+  const fixLinks = (items, prefix = '/apps/admin/devices') => {
+    return items.map(item => {
+      const newItem = { ...item };
+
+      // Fix the link if it exists and doesn't already start with the prefix
+      if (newItem.link && !newItem.link.startsWith(prefix)) {
+        newItem.link = prefix + (newItem.link.startsWith('/') ? '' : '/') + newItem.link;
+      }
+
+      // Recursively fix nested items
+      if (newItem.items) {
+        newItem.items = fixLinks(newItem.items, prefix);
+      }
+
+      return newItem;
+    });
+  };
+
+  // Use vitepress-sidebar to auto-generate the entire devices section
+  const devicesSidebar = generateSidebar({
+    documentRootPath: '/',
+    scanStartPath: 'apps/admin/devices',
+    hyphenToSpace: true,
+    capitalizeFirst: true,
+    useTitleFromFrontmatter: true,
+    sortMenusByFrontmatterOrder: true,
+    frontmatterOrderDefaultValue: 100,
+    includeRootIndexFile: false,
+    includeFolderIndexFile: false,
+    useFolderLinkFromIndexFile: true,
+  });
+
+  const fixedSidebar = Array.isArray(devicesSidebar) ? fixLinks(devicesSidebar) : devicesSidebar;
+  return fixedSidebar as any;
+};
 
 // Function to make a sidebar group be collapsed
 function collapse(group) {
@@ -94,6 +166,9 @@ export default withMermaid(defineConfig({
   description: "home for everything Lightbug",
   lang: 'en-GB',
   cleanUrls: true,
+  sitemap: {
+    hostname: process.env.DEPLOYMENT_NAME === 'Production' ? 'https://docs.lightbug.io' : 'https://docs-next.lightbug.io'
+  },
   rewrites: {
     '/onprem/' : '/silos/',
   },
@@ -113,7 +188,35 @@ export default withMermaid(defineConfig({
   markdown: {
     config: (md) => {
       md.use(tabsMarkdownPlugin)
+      md.use(imgSize)
+      md.use(figure)
+      md.use(attrs)
+      md.use(align)
+      // Embed YAML values from files during markdown parsing to avoid Vue
+      // interpolation errors for `{{yaml:...}}` tokens.
+      md.use(yamlEmbed, { baseDir: path.resolve(__dirname, '..', 'public', 'files') })
+      md.use(include,{
+        currentPath: () => {
+          return path.resolve(__dirname, '..', 'index.md');
+        },
+      })
     },
+    languages: (() => {
+      try {
+        const toitGrammar = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../ext/toit-ide-tools/vscode/syntaxes/toit.tmLanguage.json'), 'utf8'));
+
+        const toitLang = {
+          ...toitGrammar,
+          id: 'toit',
+          aliases: ['toit']
+        };
+
+        return [toitLang];
+      } catch (error) {
+        console.error('Error loading Toit grammar:', error);
+        return [];
+      }
+    })(),
     container: {
       tipLabel: '⚡ Tip',
       warningLabel: '⚠️ Warning',
@@ -138,6 +241,23 @@ export default withMermaid(defineConfig({
       gtag('js', new Date());
       gtag('config', '${process.env.PUBLIC_GOOGLE_ANALYTICS}');`
     ]
+    ,
+    [
+      'link',
+      { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }
+    ],
+    [
+      'link',
+      { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32x32.png' }
+    ],
+    [
+      'link',
+      { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/favicon-16x16.png' }
+    ],
+    [
+      'link',
+      { rel: 'manifest', href: '/site.webmanifest' }
+    ],
   ],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -190,8 +310,17 @@ export default withMermaid(defineConfig({
             {
               text: 'General',
               items: [
+                {
+                  text: 'Positioning',
+                  link: '/terminology/positioning/',
+                  items: [
+                    { text: 'GNSS', link: '/terminology/positioning/gnss' },
+                    { text: 'RTK', link: '/terminology/positioning/rtk' },
+                    { text: 'WiFi', link: '/terminology/positioning/wifi' },
+                    { text: 'Cellular', link: '/terminology/positioning/cellular' },
+                  ]
+                },
                 { text: 'IoT', link: '/terminology/iot' },
-                { text: 'Positioning', link: '/terminology/positioning' },
                 { text: 'Observability', link: '/terminology/observability' },
               ]
             },
@@ -241,10 +370,23 @@ export default withMermaid(defineConfig({
                   text: 'Enviro',
                   link: '/devices/enviro/',
                 },
+              ]
+            },
+            {
+              text: 'RTK',
+              items: [
                 {
-                  text: 'RTK',
-                  link: '/devices/rtk/',
+                  text: 'Handheld',
+                  link: '/devices/rtk/handheld/',
+                  collapsed: true,
+                  items: [
+                    { text: 'External', link: '/devices/rtk/handheld/external' },
+                    { text: 'Screen', link: '/devices/rtk/handheld/screen' },
+                    { text: 'ESP32', link: '/devices/rtk/handheld/esp32' },
+                    { text: 'Accessories', link: '/devices/rtk/handheld/accessories' },
+                  ]
                 },
+                { text: 'Vehicle', link: '/devices/rtk/vehicle' },
               ]
             },
             {
@@ -257,7 +399,7 @@ export default withMermaid(defineConfig({
             },
             {
               text: 'Lineage',
-              link: '/devices/history',
+              link: '/devices/history/',
               collapsed: true,
               items: [
                 { text: 'VT2', link: '/devices/history/VT2' },
@@ -288,33 +430,47 @@ export default withMermaid(defineConfig({
               link: '/devices/api/glossary',
             },
             {
-              text: 'Structure',
-              collapsed: true,
-              link: '/devices/api/structure',
+              text: 'Toit',
+              link: '/devices/api/sdks/toit/',
               items: [
-                {
-                  text: 'Prefix',
-                  link: '/devices/api/structure#prefix',
-                },
-                {
-                  text: 'Message',
-                  link: '/devices/api/structure#message',
-                },
+                { text: 'Getting Started', link: '/devices/api/sdks/toit/getting-started' },
                 {
                   text: 'Examples',
-                  link: '/devices/api/structure#examples',
+                  link: '/devices/api/sdks/toit/examples/',
+                  items: sidebarItemsFromDir('devices/api/sdks/toit/examples')
                 },
-              ]
-            },
-            {
-              text: 'Headers',
-              link: '/devices/api/headers',
+              ],
             },
             {
               text: 'Messages',
-              collapsed: true,
               link: '/devices/api/messages',
               items: protocolMenuItems,
+            },
+            {
+              text: 'Protocol',
+              link: '/devices/api/protocol/',
+              items: [
+                {
+                  text: 'Prefix',
+                  link: '/devices/api/protocol/prefix',
+                },
+                {
+                  text: 'Stop',
+                  link: '/devices/api/protocol/stop',
+                },
+                {
+                  text: 'Structure',
+                  link: '/devices/api/protocol/structure',
+                },
+                {
+                  text: 'Headers',
+                  link: '/devices/api/protocol/headers',
+                },
+                {
+                  text: 'Examples',
+                  link: '/devices/api/protocol/examples',
+                },
+              ]
             },
             {
               text: 'Tools',
@@ -331,26 +487,6 @@ export default withMermaid(defineConfig({
                 {
                   text: 'Screen',
                   link: '/devices/api/tools/screen',
-                },
-              ]
-            },
-            {
-              text: 'SDKs',
-              collapsed: true,
-              items: [
-                {
-                  text: 'Toit',
-                  link: '/devices/api/sdks/toit/',
-                  items: [
-                    { text: 'Getting Started', link: '/devices/api/sdks/toit/getting-started' },
-                    {
-                      text: 'Examples',
-                      link: '/devices/api/sdks/toit/examples/',
-                      items: [
-                        { text: 'EInk Hello World', link: '/devices/api/sdks/toit/examples/eink' },
-                      ]
-                    },
-                  ],
                 },
               ]
             },
@@ -630,12 +766,7 @@ export default withMermaid(defineConfig({
               ]
             },
             { text: 'Devices', link: '/apps/admin/devices', // No ending /, as the sub items are not sub pages
-              items: [
-                { text: 'Actions', link: '/apps/admin/devices#actions' },
-                { text: 'Metrics', link: '/apps/admin/devices#metric-summary' },
-                { text: 'Timeline', link: '/apps/admin/devices#timeline' },
-              ]
-
+              items: generateAdminDevicesSidebar()
             },
             { text: 'Configs', link: '/apps/admin/configs' },
             { text: 'Users', link: '/apps/admin/users' },

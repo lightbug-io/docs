@@ -9,6 +9,8 @@ import * as directives from 'vuetify/directives'
 import { createVuetify } from 'vuetify'
 import { VStepperVertical } from 'vuetify/labs/VStepperVertical'
 import '@mdi/font/css/materialdesignicons.css' // Ensure you are using css-loader
+import 'eva-icons/style/eva-icons.css'
+import * as eva from 'eva-icons'
 import { createVCodeBlock } from '@wdns/vue-code-block';
 
 import 'vitepress-openapi/dist/style.css'
@@ -38,10 +40,15 @@ export default {
 
         enhanceAppWithTabs(app)
 
+        // Initialize Eva Icons
+        if (typeof window !== 'undefined') {
+            eva.replace()
+        }
+
         // Setup Theme
         const themeConfig = useTheme()
         themeConfig.setI18nConfig({ locale: 'en' })
         themeConfig.setResponseCodeSelector('select')
-        theme.enhanceApp({ app })
+        theme.enhanceApp({ app, router, siteData })
     }
 } satisfies Theme
