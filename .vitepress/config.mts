@@ -203,7 +203,7 @@ export default withMermaid(defineConfig({
     },
     languages: (() => {
       try {
-        const toitGrammar = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../ext/toit-ide-tools/vscode/syntaxes/toit.tmLanguage.json'), 'utf8'));
+        const toitGrammar = JSON.parse(fs.readFileSync(path.resolve(__dirname, './ext/toit-ide-tools/vscode/syntaxes/toit.tmLanguage.json'), 'utf8'));
 
         const toitLang = {
           ...toitGrammar,

@@ -15,7 +15,7 @@ This is an example of sending a [M35 Device IDs](/devices/api/messages/35-device
 ### Code
 
 ```toit
-<!-- @include: ext/toit-lightbug/examples/messages/m35_device_ids.toit-->
+<!-- @include: .vitepress/ext/toit-lightbug/examples/messages/m35_device_ids.toit-->
 ```
 
 ### Output

@@ -11,7 +11,7 @@ Use the `eink` module to display some text on the screen.
 ## Code
 
 ```toit
-<!-- @include: ext/toit-lightbug/examples/modules/eink/element-box-text.toit-->
+<!-- @include: .vitepress/ext/toit-lightbug/examples/modules/eink/element-box-text.toit-->
 ```
 
 ## Output

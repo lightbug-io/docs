@@ -13,7 +13,7 @@ Send a simple GET message to the Lightbug device.
 ### Code
 
 ```toit
-<!-- @include: ext/toit-lightbug/examples/messages/m49_cpu1_reset.toit-->
+<!-- @include: .vitepress/ext/toit-lightbug/examples/messages/m49_cpu1_reset.toit-->
 ```
 
 ### Output
