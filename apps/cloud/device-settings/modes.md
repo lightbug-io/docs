@@ -10,11 +10,11 @@ There are 3 modes available for configuring your device, all selectable from the
 
  :::tabs
  === Easy mode
-<v-img src="https://i.imgur.com/UWFmUsz.png" alt="Easy mode selected" width="300px"></v-img>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/UWFmUsz.png" alt="Easy mode selected" width="300px"></v-img>
 === Flexible mode
-<v-img src="https://i.imgur.com/Sgwa26p.png" alt="Flexible mode selected" width="300px"></v-img>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/Sgwa26p.png" alt="Flexible mode selected" width="300px"></v-img>
 === Advanced mode
-<v-img src="https://i.imgur.com/s7NSZRE.png" alt="Advanced mode selected" width="300px"></v-img>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/s7NSZRE.png" alt="Advanced mode selected" width="300px"></v-img>
 :::
 
 ## Easy

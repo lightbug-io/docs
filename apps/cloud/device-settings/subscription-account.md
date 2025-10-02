@@ -4,7 +4,7 @@ The account panel will show you the current account status, and allow you to set
 
 You will see one of two screens depending on whether you have billing details set up or not.
 
-<v-img src="https://i.imgur.com/4quvZzt.png" style="height:250px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/4quvZzt.png" style="height:250px"/>
 
 ## Set up billing details
 
@@ -12,13 +12,13 @@ To set up billing details, click the `Set up billing details` button.
 
 Doing so will prompt you to enter your billing details.
 
-<v-img src="https://i.imgur.com/nU6wEO6.png" style="height:250px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/nU6wEO6.png" style="height:250px"/>
 
 ## Modify billing details
 
 If you already have billing details setup, they will be displayed.
 
-<v-img src="https://i.imgur.com/RF3NOEY.png" style="height:250px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/RF3NOEY.png" style="height:250px"/>
 
 Selecting `Update card details` will prompt you to enter your new card details.
 
@@ -30,11 +30,11 @@ To add a new device, click the `Add a new device` button.
 
 Doing so will prompt you to enter the device's serial number.
 
-<v-img src="https://i.imgur.com/xDZvAuC.png" style="height:250px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/xDZvAuC.png" style="height:250px"/>
 
 You'll then be prompted to select a plan for the device, setting billing details if required, and then the device will be activated.
 
-<v-img src="https://i.imgur.com/zSSs8BK.png" style="height:350px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/zSSs8BK.png" style="height:350px"/>
 
 If you have no billing details set up, you will be prompted to enter them before the device will then be activated and the plan consumed.
 
@@ -44,8 +44,8 @@ The Purchased Plans section will show you the plans you have purchased, that are
 
 If you have no pre purchased plans, you will see a message indicating that you have no plans.
 
-<v-img src="https://i.imgur.com/gCVftY9.png" style="height:250px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/gCVftY9.png" style="height:250px"/>
 
 Otherwise you will see a breakdown of the unused plans you have available.
 
-<v-img src="https://i.imgur.com/KLXZ64D.png" style="height:250px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/KLXZ64D.png" style="height:250px"/>

@@ -8,15 +8,15 @@ The device list provides an overview of all the devices on your account.
 
 In order to see the device list, you need to expand the sidebar by using the arrow.
 
-![](https://i.imgur.com/2umqTRF.png){.center}
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/2umqTRF.png){.center}
 
 The List will expand, and you will see all the devices on your account that have been active in the last 90 days including various information about each device.
 
 :::tabs
 == Desktop
-![](https://i.imgur.com/bv8vapO.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/bv8vapO.png)
 == Mobile
-![](https://i.imgur.com/Ei8Nqvk.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/Ei8Nqvk.png)
 :::
 
 ::: warning
@@ -42,14 +42,14 @@ Here are some examples of what the device rows can look like:
 
 | Image | Description |
 | --- | --- |
-| ![](https://i.imgur.com/6iKfpTu.png){.center} | An active device, that has just transmitted data, and was charging on last transmit |
-| ![](https://i.imgur.com/yeynpZl.png){.center} | An active device, that transmitted data 3 minutes ago, and was charging on last transmit
-| ![](https://i.imgur.com/0Ws7yNs.png){.center} | An active device, that has not connected since 29 August 2024, and had very little battery on last transmitted |
-| ![](https://i.imgur.com/ZYZseSF.png){.center} | A deactivated device, that last reported being on 72% battery |
-| ![](https://i.imgur.com/MrymS6o.png){.center} | A deactivated device, that last reported being on 74% battery, and in the "Bristol area" zone. |
-| ![](https://i.imgur.com/KND4U7x.png){.center} | A deactivated device, that last reported being on 100% battery, and in the "Bristol area" zone, and has a [tag](/apps/cloud/device-settings/tags.html) |
-| ![](https://i.imgur.com/eVBH9OQ.png){.center} | When using wired trackers, Battery % will not be shown, Powered status (ignition) will be shown |
-| ![](https://i.imgur.com/MEhzqHR.png){.center} | An active device, that has just transmitted data, and is in battery saver mode at 13% |
-| ![](https://i.imgur.com/u3glJ6q.png){.center} | A bluetooth beacon that has been added to the account |
+| ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/6iKfpTu.png){.center} | An active device, that has just transmitted data, and was charging on last transmit |
+| ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/yeynpZl.png){.center} | An active device, that transmitted data 3 minutes ago, and was charging on last transmit
+| ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/0Ws7yNs.png){.center} | An active device, that has not connected since 29 August 2024, and had very little battery on last transmitted |
+| ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/ZYZseSF.png){.center} | A deactivated device, that last reported being on 72% battery |
+| ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/MrymS6o.png){.center} | A deactivated device, that last reported being on 74% battery, and in the "Bristol area" zone. |
+| ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/KND4U7x.png){.center} | A deactivated device, that last reported being on 100% battery, and in the "Bristol area" zone, and has a [tag](/apps/cloud/device-settings/tags.html) |
+| ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/eVBH9OQ.png){.center} | When using wired trackers, Battery % will not be shown, Powered status (ignition) will be shown |
+| ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/MEhzqHR.png){.center} | An active device, that has just transmitted data, and is in battery saver mode at 13% |
+| ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/u3glJ6q.png){.center} | A bluetooth beacon that has been added to the account |
 
 Clicking on a device row, will focus the map on that device, and open the device information panel.

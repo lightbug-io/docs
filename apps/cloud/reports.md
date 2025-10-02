@@ -2,7 +2,7 @@
 
 A core feature of the cloud interface, reports allow you to view and download detailed information about your devices.
 
-![](https://i.imgur.com/mwffaBW.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/mwffaBW.png)
 
 All reports are generated instantly and for any custom time period, and for any set of devices.
 

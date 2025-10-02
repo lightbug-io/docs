@@ -2,7 +2,7 @@
 
 Quick overview of current device status. Includes last connection, battery, latest position and more.
 
-![](https://i.imgur.com/bybNIVh.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/bybNIVh.png)
 
 ## Export
 

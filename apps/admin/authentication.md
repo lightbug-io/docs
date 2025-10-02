@@ -9,13 +9,13 @@ You can now create a Lightbug account directly through the admin portal.
 
 To get started, open the admin portal, navigate to the [registration page](https://admin.lightbug.cloud/#/auth/register) and follow the account creation steps.
 
-![Lightbug Admin portal account creation](https://i.imgur.com/7Fu00NW.png)
+![Lightbug Admin portal account creation](https://upload.r2.lb.chasm.cloud/2025/10/imgur/7Fu00NW.png)
 
 There are various password requirements to ensure account security, including minimum length, character variety, and a previous breach checker.
 
 On successful account creation, you will be directed to the login page.
 
-![Lightbug Admin portal account creation success](https://i.imgur.com/kYbF1jb.png)
+![Lightbug Admin portal account creation success](https://upload.r2.lb.chasm.cloud/2025/10/imgur/kYbF1jb.png)
 
 ### Sub Accounts
 
@@ -29,11 +29,11 @@ To log in to your Lightbug account, use the credentials you created during accou
 
 First starting with the email address you registered with.
 
-![Lightbug Admin portal login](https://i.imgur.com/xUAhQvi.png)
+![Lightbug Admin portal login](https://upload.r2.lb.chasm.cloud/2025/10/imgur/xUAhQvi.png)
 
 Once your email is entered, available login options will be displayed, most commonly password login.
 
-![Lightbug Admin portal login options](https://i.imgur.com/s3yYBaN.png)
+![Lightbug Admin portal login options](https://upload.r2.lb.chasm.cloud/2025/10/imgur/s3yYBaN.png)
 
 Select your preferred login method, and complete the login process.
 
@@ -41,7 +41,7 @@ Select your preferred login method, and complete the login process.
 
 If you choose password login, enter your password and click "Login".
 
-![Lightbug Admin portal password login](https://i.imgur.com/gUHmrhg.png)
+![Lightbug Admin portal password login](https://upload.r2.lb.chasm.cloud/2025/10/imgur/gUHmrhg.png)
 
 If you have forgotten your password, click the "[Forgot Password?](https://admin.lightbug.cloud/#/auth/request-password)" link to initiate a password reset.
 

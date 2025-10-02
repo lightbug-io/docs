@@ -4,18 +4,18 @@ The subscription panel will summarize the current subscription state for the sel
 
 :::tabs
 == Single device (deactivated)
-![](https://i.imgur.com/X0Wz0Cp.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/X0Wz0Cp.png)
 == Single device (activated)
-![](https://i.imgur.com/cwmqVeZ.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/cwmqVeZ.png)
 == Multiple devices
-![](https://i.imgur.com/2ME23K2.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/2ME23K2.png)
 :::
 
 Basic device information will be displayed, such as name, serial number, and subscription status.
 
 ## Plans
 
-The plan plan state for deach device will be displayed.
+The plan state for each device will be displayed.
 
 | Plan        | Description |
 | ----------- | ----------- |
@@ -41,8 +41,8 @@ Depending on the subscription state of the device, you may be able to perform on
 
 | Action | Description |
 | --- | --- |
-| <v-img src="https://i.imgur.com/mwJlnMG.png" alt="Activate" style="width:95px"/> | A device that has no subscription, will give you the option to add activate it. |
-| <v-img src="https://i.imgur.com/4O5zUpW.png" alt="Change plan" style="width:120px"/> | An active device may give you the option to change the plan. |
-| <v-img src="https://i.imgur.com/En2fAwG.png" alt="Deactivate" style="width:140px"/> | An active device may give you the option to cancel the plan. |
+| <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/mwJlnMG.png" alt="Activate" style="width:95px"/> | A device that has no subscription, will give you the option to add activate it. |
+| <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/4O5zUpW.png" alt="Change plan" style="width:120px"/> | An active device may give you the option to change the plan. |
+| <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/En2fAwG.png" alt="Deactivate" style="width:140px"/> | An active device may give you the option to cancel the plan. |
 
 You can use the per device buttons here to manage the subscription for each device.

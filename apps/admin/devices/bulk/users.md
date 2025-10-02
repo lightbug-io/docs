@@ -5,4 +5,4 @@ outline: shallow
 
 Allows bulk adding or removing of users from the selected devices.
 
-![](https://i.imgur.com/KIweB1w.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/KIweB1w.png)

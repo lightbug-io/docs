@@ -10,10 +10,10 @@ Below we see an example account with 17 devices.
 </v-tabs>
 <v-tabs-items v-model="tab">
   <v-tab-item value="mobile">
-    <!-- <v-img src="https://i.imgur.com/2NMm8Zo.png" style="height:600px"/> -->
+    <!-- <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/2NMm8Zo.png" style="height:600px"/> -->
   </v-tab-item>
   <v-tab-item value="desktop">
-    <v-img src="https://i.imgur.com/XWPqXVX.png"/>
+    <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/XWPqXVX.png"/>
   </v-tab-item>
 </v-tabs-items>
 
@@ -35,10 +35,10 @@ Clicking the drop down arrow will list all devices on the account, including bas
 </v-tabs>
 <v-tabs-items v-model="tab">
   <v-tab-item value="mobile">
-    <!-- <v-img src="https://i.imgur.com/2NMm8Zo.png" style="height:600px"/> -->
+    <!-- <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/2NMm8Zo.png" style="height:600px"/> -->
   </v-tab-item>
   <v-tab-item value="desktop">
-    <v-img src="https://i.imgur.com/mhjxEKH.png" style="height:400px"/>
+    <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/mhjxEKH.png" style="height:400px"/>
   </v-tab-item>
 </v-tabs-items>
 
@@ -56,10 +56,10 @@ Clicking on a device in this list will:
 </v-tabs>
 <v-tabs-items v-model="tab">
   <v-tab-item value="mobile">
-    <!-- <v-img src="https://i.imgur.com/2NMm8Zo.png" style="height:600px"/> -->
+    <!-- <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/2NMm8Zo.png" style="height:600px"/> -->
   </v-tab-item>
   <v-tab-item value="desktop">
-    <v-img src="https://i.imgur.com/ha3wvuP.png"/>
+    <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/ha3wvuP.png"/>
   </v-tab-item>
 </v-tabs-items>
 

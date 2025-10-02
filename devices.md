@@ -33,7 +33,7 @@ Our core products have been rigorously tested in the field since and iterated on
   </div>
   <div class="device-item">
     <a href="/devices/enviro/">
-      <img src="https://i.imgur.com/DlyOzj4.png" alt="Enviro GPS Tracker" />
+      <img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/DlyOzj4.png" alt="Enviro GPS Tracker" />
     </a>
     <p><strong>Enviro</strong> - Like a pro, but with high accuracy built-in sensors for monitoring temperature, humidity and absolute pressure.</p>
   </div>
@@ -46,7 +46,7 @@ Our RTK products are designed for high accuracy applications, down to the centim
 <div class="device-gallery rtk-gallery">
   <div class="device-item">
     <a href="/devices/rtk/handheld">
-      <img src="https://i.imgur.com/5EtRBMH.png" alt="RTK GPS Tracker" />
+      <img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/5EtRBMH.png" alt="RTK GPS Tracker" />
     </a>
     <p><strong>RTK</strong> - Our high accuracy indoor and outdoor capable tracker.</p>
   </div>

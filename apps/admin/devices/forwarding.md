@@ -6,7 +6,7 @@ order: 8
 
 Forwarding allows you to forward data from your devices to other services, currently webhooks and MQTT.
 
-![](https://i.imgur.com/zkPvShs.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/zkPvShs.png)
 
 This will replace similar messaging based on Notifications, which is only accessible via API or the [Cloud app](/apps/cloud/account/notifications).
 

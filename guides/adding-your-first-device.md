@@ -21,4 +21,4 @@ You'll then be shown a small guide of the Map and interface, as documented in [I
 
 You are done! Your device is now added to your account and you can start tracking.
 
-![Lightbug Cloud Map](https://i.imgur.com/L6u6FgG.png)
+![Lightbug Cloud Map](https://upload.r2.lb.chasm.cloud/2025/10/imgur/L6u6FgG.png)

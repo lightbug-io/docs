@@ -6,16 +6,16 @@ The device view focuses in on a single device point, and shows detailed informat
 
 :::tabs
 == Desktop
-![](https://i.imgur.com/sIVl24t.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/sIVl24t.png)
 == Mobile
-![](https://i.imgur.com/xJ3sqRC.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/xJ3sqRC.png)
 :::
 
 ## Details
 
 In the top left of the device view, you will see the device name, color, as well as information about the last transmission.
 
-![](https://i.imgur.com/rSNOeNC.png){.center}
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/rSNOeNC.png){.center}
 
 <!-- TODO clicking the info bar, opens Device Information -->
 
@@ -25,7 +25,7 @@ Clicking the dropdown will open the [History list](#history-list) for the device
 
 The time range that is currently being used is displayed at the bottom of the map.
 
-![](https://i.imgur.com/5BTlmMJ.png){.center}
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/5BTlmMJ.png){.center}
 
 By default, the map view time range selection is set to midnight yesterday, to the current time today.
 
@@ -35,9 +35,9 @@ Clicking on the time range selector will open a panel where you can change the t
 
 :::tabs
 == Desktop
-![](https://i.imgur.com/NMijD9C.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/NMijD9C.png)
 == Mobile
-![](https://i.imgur.com/ku85nHB.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/ku85nHB.png)
 :::
 
 The time range selector allows you to choose a custom time range, or one of the predefined options.
@@ -52,13 +52,13 @@ The time range selector can only be used to show at most 90 days of data at once
 
 Next to the time range selector, you will see a playback button.
 
-![](https://i.imgur.com/5BTlmMJ.png){.center}
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/5BTlmMJ.png){.center}
 
 Clicking this will open the playback panel at the bottom of the page.
 
 Mousing over the graph will displays data names and values.
 
-![](https://i.imgur.com/EEb61bj.png){.center}
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/EEb61bj.png){.center}
 
 :::tip
 This is best viewed on a desktop, as the playback panel is quite large.
@@ -72,7 +72,7 @@ Within the selected time range, you can use the playback controls (direction key
 
 You can also choose to drag the playback slider to a specific point in time.
 
-![](https://i.imgur.com/yzEEsvE.png){.center}
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/yzEEsvE.png){.center}
 
 
 ### Options {#data-playback-options}
@@ -82,7 +82,7 @@ Clicking the menu icon in the top left of the playback panel will open a menu wi
 - Show and hide various data lines
 - Export the visualized data as a PNG, PDF or CSV
 
-![](https://i.imgur.com/nmZCKGB.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/nmZCKGB.png)
 
 Example CSV data might look like this:
 
@@ -98,9 +98,9 @@ The history list can be accessed by clicking the dropdown in the top left of the
 
 :::tabs
 == Desktop
-![](https://i.imgur.com/vjZFWL4.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/vjZFWL4.png)
 == Mobile
-![](https://i.imgur.com/vnZ9r0p.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/vnZ9r0p.png)
 :::
 
 The list shows all the locations transmitted by the in the given [time range](#time-range).
@@ -113,7 +113,7 @@ You can click on any of the locations to, zoom to the location.
 
 ## Dot
 
-![](https://i.imgur.com/rCwVSve.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/rCwVSve.png)
 
 <!-- TODO add all the dots.. -->
 

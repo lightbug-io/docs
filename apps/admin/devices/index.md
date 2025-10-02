@@ -10,7 +10,7 @@ From here you can view device status, location, and other information. You can a
 
 A variety of individual and bulk actions are available.
 
-![Lightbug Admin device list](https://i.imgur.com/pHBzHGL.png)
+![Lightbug Admin device list](https://upload.r2.lb.chasm.cloud/2025/10/imgur/pHBzHGL.png)
 
 ## Fields
 
@@ -41,4 +41,4 @@ Filters can be used to narrow down the list of devices.
 
 Such as all `ZeroN` devices.
 
-![](https://i.imgur.com/JkdXTz6.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/JkdXTz6.png)

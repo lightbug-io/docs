@@ -130,9 +130,9 @@ And you should see the device screen update, saying `Lightbug...` in the top lef
 
 :::tabs
 == Graphic
-![](https://i.imgur.com/8QP1022.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/8QP1022.png)
 == Photo
-![](https://i.imgur.com/7ca0Nda.png){width=500}
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/7ca0Nda.png){width=500}
 :::
 
 :::tip
