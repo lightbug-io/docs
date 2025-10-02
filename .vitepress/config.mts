@@ -230,6 +230,10 @@ export default withMermaid(defineConfig({
   },
   head: [
     [
+      'link',
+      { rel: 'dns-prefetch', href: 'https://upload.r2.lb.chasm.cloud' }
+    ],
+    [
       'script',
       { async: '', src: `https://www.googletagmanager.com/gtag/js?id=${process.env.PUBLIC_GOOGLE_ANALYTICS}` }
     ],
@@ -240,8 +244,7 @@ export default withMermaid(defineConfig({
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', '${process.env.PUBLIC_GOOGLE_ANALYTICS}');`
-    ]
-    ,
+    ],
     [
       'link',
       { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' }

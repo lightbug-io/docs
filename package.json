@@ -19,6 +19,8 @@
     "dev": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress dev",
     "dev-public": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress dev --host",
     "build": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress build",
+    "build:production": "cross-env DEPLOYMENT_NAME=Production PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress build",
+    "build:next": "cross-env DEPLOYMENT_NAME=Next PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress build",
     "preview": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress preview",
     "test": "jest"
   },
