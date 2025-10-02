@@ -65,6 +65,21 @@ words:
   # domains
   - trycloudflare
 
+  # british spellings?
+  - behaviour
+  - colour
+  - utilisation
+  - utilising
+  - travelled
+  - travelling
+  - kilometres
+  - Customise
+  - optimisation
+  - Optimisations
+  - initialised
+  - actioned
+  - Centimetre
+
   # Misc
   - Geofences
   - Toit
@@ -77,7 +92,11 @@ words:
   - datapoints
   - sendreason
   - alerttype
-  - behaviour
+  - notif
+  - notifSent
+  - geofencing
+  - hdop
+  - USKQLU
   - modecontrol
   - overvoltage
   - Julet
@@ -87,19 +106,14 @@ words:
   - Bitfield
   - bitfield
   - bitfields
-  - optimisation
-  - Optimisations
-  - initialised
   - multipath
   - microcontroller
   - HPSYS
   - SPIWP
   - acking
-  - actioned
   - centi
   - hectopascals
   - pseudorange
-  - Centimetre
   - microcontrollers
   - wght
   - mdit

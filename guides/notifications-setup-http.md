@@ -24,7 +24,7 @@ You must configure your account with the URL endpoint.
 
 You can do this via the [Notifications](/apps/cloud/account/notifications) page in the Cloud app, or via the API (link coming soon).
 
-![](https://i.imgur.com/48NqjQj.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/48NqjQj.png)
 
 When API Push notifications are enabled, you can set up the URL where you would like to receive the notifications.
 

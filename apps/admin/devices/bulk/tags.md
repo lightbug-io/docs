@@ -7,15 +7,15 @@ Allows bulk adding or removing of tags from the selected devices.
 
 Devices with no tags will allow you to add new tags.
 
-![](https://i.imgur.com/KjnS0iT.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/KjnS0iT.png)
 
 Changes can be reviewed before they are applied.
 
-![](https://i.imgur.com/lE4YthQ.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/lE4YthQ.png)
 
 If selected devices have a mixture of tags, they will be shown differently in the existing tags list.
 
-![](https://i.imgur.com/ES7HrLi.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/ES7HrLi.png)
 
 Tags can be:
  - Removed from all devices, using the bin icon.

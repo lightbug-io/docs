@@ -2,8 +2,8 @@
 
 Report of device motion relative to ignition and working hours.
 
-![](https://i.imgur.com/V8iplvL.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/V8iplvL.png)
 
 The `Show Log` button will also summarize the activity through the time period selected.
 
-![](https://i.imgur.com/d6w5Y46.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/d6w5Y46.png)

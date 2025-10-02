@@ -4,7 +4,7 @@ The Lightbug cloud app targets individual users and small businesses.
 
 It provides an intuitive interface to manage devices, view their status, and configure their settings.
 
-![](https://i.imgur.com/Hb86sI2.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/Hb86sI2.png)
 
 The Lightbug App is available on the web, Android and iOS.
 

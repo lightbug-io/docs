@@ -4,7 +4,7 @@ Schedule is a feature that allows you to configure device behaviour based on tim
 
 Typical use cases include triggering a location update at specific times, disabling motion detection during off hours, or locking the device in wake mode during work hours.
 
-![](https://i.imgur.com/qKvsRBe.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/qKvsRBe.png)
 
 ## Triggers
 
@@ -25,6 +25,6 @@ A time in [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time) can al
 
 Use the `Add Rule` button to add the first rule to the schedule.
 
-![](https://i.imgur.com/Cj8MgT0.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/Cj8MgT0.png)
 
 Once configured, hit `Save` and the rule will be added to the schedule of the device, on the next device update.

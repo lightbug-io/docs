@@ -2,7 +2,7 @@
 
 Here you can control how things are displayed on your App and Portal.
 
-![](https://i.imgur.com/bYsiZQs.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/bYsiZQs.png)
 
  - **Use Imperial Units:** Changes distance and speed units from
 kilometres to miles.

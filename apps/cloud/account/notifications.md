@@ -2,7 +2,7 @@
 
 Customise how you would like to receive notifications for your account.
 
-![](https://i.imgur.com/XCb9yCi.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/XCb9yCi.png)
 
 
 ## API Push
@@ -22,7 +22,7 @@ If you have installed the app on multiple devices with the same account login, a
 
 Mobile push notifications will look something like this.
 
-![](https://i.imgur.com/4merDoi.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/4merDoi.png)
 
 ## Email
 
@@ -32,9 +32,9 @@ Notifications will look something like this.
 
 :::tabs
 == Low battery
-![](https://i.imgur.com/teZScXJ.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/teZScXJ.png)
 == Entering zone
-![](https://i.imgur.com/kUBZYaK.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/kUBZYaK.png)
 :::
 
 ## Notification Log

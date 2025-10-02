@@ -37,7 +37,7 @@ This is compulsory for a high level of accuracy.
 
 If you have known GPS coordinates select Fixed Position to green and input Altitude, and, Latitude & Longitude coordinates.
 
-![](https://i.imgur.com/URMQxLP.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/URMQxLP.png)
 
 ### Survey
 
@@ -45,4 +45,4 @@ Survey mode allows the base station to determine its own position.
 
 ## Rover
 
-![](https://i.imgur.com/QP5Im8F.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/QP5Im8F.png)

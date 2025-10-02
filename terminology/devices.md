@@ -14,7 +14,7 @@ Every Lightbug device has e a single unique serial number.
 
 You should find this printed on a sticker on your device, along with a QR code that can be scanned.
 
-![](https://i.imgur.com/Sfi9Org.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/Sfi9Org.png)
 
 ::: warning
 On older Lightbug products, a barcode might be on the outside of the device, instead of a QR code, and may show the device ID, rather than serial number.

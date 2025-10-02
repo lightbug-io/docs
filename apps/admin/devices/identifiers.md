@@ -6,4 +6,4 @@ order: 1
 
 Click the `(more)` link in the identifiers column to reveal the ICCID and IMEI of the device.
 
-![](https://i.imgur.com/xoTN8ga.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/xoTN8ga.png)

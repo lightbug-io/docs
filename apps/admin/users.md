@@ -2,7 +2,7 @@
 
 Manage the sub users of your account.
 
-![](https://i.imgur.com/zWIxCof.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/zWIxCof.png)
 
 Here you can:
 
@@ -14,7 +14,7 @@ Here you can:
 
 Selecting `Change permissions` will present you with some options for specific permissions, and also the ability to reset the permissions to default.
 
-![](https://i.imgur.com/UYMroSr.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/UYMroSr.png)
 
 | Name | Description |
 | --- | --- |

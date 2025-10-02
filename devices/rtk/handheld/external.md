@@ -10,7 +10,7 @@ Dimensions:
 
 :::tabs
 == Diagram
-![Front view of the RH2 including dimensions, with and without the antenna](https://i.imgur.com/bzeb1TX.png)
+![Front view of the RH2 including dimensions, with and without the antenna](https://upload.r2.lb.chasm.cloud/2025/10/imgur/bzeb1TX.png)
 == Render
 ![](https://lightbug.io/raw-renders/2025-07-01/RH2_w-front+angle.png)
 :::
@@ -29,7 +29,7 @@ The device features two difference sets of RGB LEDs:
 
 :::tabs
 == Diagram
-![Side view of the RH2 including dimensions, and antenna details](https://i.imgur.com/YHljkZW.png)
+![Side view of the RH2 including dimensions, and antenna details](https://upload.r2.lb.chasm.cloud/2025/10/imgur/YHljkZW.png)
 == Render
 ![](https://lightbug.io/raw-renders/2025-07-01/RH2_w-side.png)
 :::
@@ -38,7 +38,7 @@ The device features two difference sets of RGB LEDs:
 
 :::tabs
 == Diagram
-![Back view of the RH2, including details of the siren, mount and versatile connector](https://i.imgur.com/0bJYs3Y.png)
+![Back view of the RH2, including details of the siren, mount and versatile connector](https://upload.r2.lb.chasm.cloud/2025/10/imgur/0bJYs3Y.png)
 == Render
 ![](https://lightbug.io/raw-renders/2025-07-01/RH2_w-back.png)
 :::
@@ -53,5 +53,5 @@ Versatile connector for charging, data, analog I/O, and more, suitable for docki
 
 :::tabs
 == Diagram
-![Top and bottom view of the RH2](https://i.imgur.com/acrCaFV.png)
+![Top and bottom view of the RH2](https://upload.r2.lb.chasm.cloud/2025/10/imgur/acrCaFV.png)
 :::

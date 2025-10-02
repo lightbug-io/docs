@@ -13,7 +13,7 @@ If you purchase a vehicle tracker today, you will receive the VT3 device.
 
 You will likely need the following tools to complete installation:
 
-![](https://i.imgur.com/rKFNxsu.png){width=300 style="float:right"}
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/rKFNxsu.png){width=300 style="float:right"}
 
  - Long Nose Pliers
  - Wire cutters or strippers
@@ -37,7 +37,7 @@ The below pictorial representation shows only one particular scenario, but they 
 <v-row>
     <v-col>
         <v-img
-            src='https://i.imgur.com/xvugmzY.png'
+            src='https://upload.r2.lb.chasm.cloud/2025/10/imgur/xvugmzY.png'
             alt='Example diagram of fusebox locations'
             max-width="250px"
         />
@@ -82,7 +82,7 @@ The VT3 device wires come with a removable insulation end which should suffice f
 
 If you need more wire exposed, you can use wire cutters to strip the wire.
 
-![Wire stripping](https://i.imgur.com/F2ROuT5.png)
+![Wire stripping](https://upload.r2.lb.chasm.cloud/2025/10/imgur/F2ROuT5.png)
 
 ### Step 2: Access fuse box
 
@@ -100,7 +100,7 @@ If the tester shows current while the vehicle is turned off, it is a “direct�
 
 If the tester shows current only when the vehicle is turned on, it is an “ignition” connection fuse.
 
-![](https://i.imgur.com/D3d4c4K.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/D3d4c4K.png)
 
 ::: info
 Always try to use fuses with a low current - eg 5A, 7.5A, 10A, & 15A.
@@ -110,17 +110,17 @@ Always try to use fuses with a low current - eg 5A, 7.5A, 10A, & 15A.
 
 Remove the chosen “direct” fuse using the nose pliers.
 
-![](https://i.imgur.com/xubSP5V.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/xubSP5V.png)
 
 Connect the red wire to one of the fuse legs.
 
-![](https://i.imgur.com/iafp2W9.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/iafp2W9.png)
 
 Using the tester, test both pins from the fuse holder to identify which side has the current.
 
 Return the fuse to the same slot ensuring that the leg with the red wire attached, is inserted to the side that holds no current.
 
-![](https://i.imgur.com/jFVRuv3.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/jFVRuv3.png)
 
 ### Step 5: Connect to ignition current
 
@@ -138,7 +138,7 @@ Connect the black wire to a grounded metal part of the vehicle.
 
 This can be done by removing a screw, placing the wire and screwing it back in.
 
-![](https://i.imgur.com/qSuXSXQ.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/qSuXSXQ.png)
 
 ### Step 7: Connect the tracker
 
@@ -148,7 +148,7 @@ The vehicle tracker can now be connected via the 3 pin connector.
 Ensure the plug is correctly oriented and aligned with the socket before pushing it in.
 :::
 
-<!-- ![](https://i.imgur.com/c7zaNPd.png) TODO update image of cable connection for VT3 -->
+<!-- ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/c7zaNPd.png) TODO update image of cable connection for VT3 -->
 
 
 ### Step 8: Check functionality
@@ -165,7 +165,7 @@ If you are satisfied with the connections and that the tracker is behaving norma
 
 Fold and tie all the connecting cables neatly, using cable ties and insulation tape.
 
-![](https://i.imgur.com/SaDkRZw.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/SaDkRZw.png)
 
 Locate a suitable place for mounting the tracker.
 
@@ -179,8 +179,8 @@ Please be aware that some vehicles do have metal in the windscreen, this can obs
 
 Use cable ties to mount the tracker to the vehicle.
 
-![](https://i.imgur.com/Kp9WmiA.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/Kp9WmiA.png)
 
 Ensure that the device and cables are firmly fastened to the vehicle and will not shake loose, and so that there are no irritating vibrations nor sound when the vehicle is moving.
 
-![](https://i.imgur.com/qhWL4qk.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/qhWL4qk.png)

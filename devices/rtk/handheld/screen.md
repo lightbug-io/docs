@@ -33,11 +33,11 @@ In this state the device is not attempting to get a GNSS fix or report its locat
 
 :::tabs
 == Visualization
-![](https://i.imgur.com/lGxzg9U.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/lGxzg9U.png)
 == Wide Photo
-![](https://i.imgur.com/dF5X5Qn.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/dF5X5Qn.png)
 == Zoom Photo
-![](https://i.imgur.com/42e4q6P.jpeg)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/42e4q6P.jpeg)
 :::
 
 The center button can be used to arm the device (See [armed](#armed) below).
@@ -54,11 +54,11 @@ Information above the status of this process will be shown on the screen.
 
 :::tabs
 == Visualization
-![](https://i.imgur.com/C05HoGx.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/C05HoGx.png)
 == Wide Photo
-![](https://i.imgur.com/gnhrnfH.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/gnhrnfH.png)
 == Zoom Photo
-![](https://i.imgur.com/1hVj0c0.jpeg)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/1hVj0c0.jpeg)
 :::
 
 
@@ -73,11 +73,11 @@ The menu allows selection of:
 
 :::tabs
 == Visualization
-![](https://i.imgur.com/pZ22H5j.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/pZ22H5j.png)
 == Wide Photo
-![](https://i.imgur.com/D0PxTPE.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/D0PxTPE.png)
 == Zoom Photo
-![](https://i.imgur.com/a0mwlDn.jpeg)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/a0mwlDn.jpeg)
 :::
 
 ## Custom

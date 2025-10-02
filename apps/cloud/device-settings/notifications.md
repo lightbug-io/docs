@@ -2,7 +2,7 @@
 
 The notifications section of device settings allows you to manage events trigger notifications for a device.
 
-![](https://i.imgur.com/XLqc2we.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/XLqc2we.png)
 
 ## Delivery
 
@@ -10,7 +10,7 @@ To update how you are notified, you will need to go to the Account tab.
 
 There you can enable mobile push notifications, email alerts and API push notifications.
 
-![](https://i.imgur.com/3Nj7E61.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/3Nj7E61.png)
 
 ## Status Notifications
 
@@ -18,7 +18,7 @@ Low Battery alert will trigger when the battery level reaches 30%.
 
 You can also trigger this when the battery level is 15%.
 
-![](https://i.imgur.com/9AZ3jrk.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/9AZ3jrk.png)
 
 ## Motion Notifications
 
@@ -28,13 +28,13 @@ You can also trigger this when the battery level is 15%.
  - **A fall is detected** alert will trigger when the tracker has been dropped.
  - **Tampering is detected** alert will trigger when possible device tampering is detected.
 
-![](https://i.imgur.com/PZm66bJ.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/PZm66bJ.png)
 
 ## Zone Notifications
 
 To set various geofencing alerts, you will need to go to the Geofence Editor Section in the Account tab
 
-![](https://i.imgur.com/JO9EzeN.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/JO9EzeN.png)
 
 ::: info
 A Geofence (sometimes called a GPS safe-zone) is a virtual border around a specific area.

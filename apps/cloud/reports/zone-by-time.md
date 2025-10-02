@@ -1,8 +1,8 @@
 # Zones by Time Report
 
-![](https://i.imgur.com/TpJVhha.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/TpJVhha.png)
 
-![](https://i.imgur.com/QseO5c9.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/QseO5c9.png)
 
 ## Export
 

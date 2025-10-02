@@ -76,7 +76,7 @@ Device B was activated part way through the current month, and needs some credit
 
 Assuming a price of $13 for 1 month of the unlimited plan, the invoice was credited $2.86, which covers this 22%.
 
-![](https://i.imgur.com/sKw7mQ7.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/sKw7mQ7.png)
 
 ### 2. Post Pay
 
@@ -90,4 +90,4 @@ The invoice for the month would summarize this information, and show the total a
 
 Any additional information about which plans were used by which devices, and when they were activated, is available in the plans section of the admin portal.
 
-![](https://i.imgur.com/aEESGKE.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/aEESGKE.png)

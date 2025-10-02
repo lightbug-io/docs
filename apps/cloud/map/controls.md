@@ -8,15 +8,15 @@ outline: [1,3]
 
 To change the Map view settings, click on the layer icon in the top right corner.
 
-![Map View Layer button](https://i.imgur.com/L49Owzb.png){.center}
+![Map View Layer button](https://upload.r2.lb.chasm.cloud/2025/10/imgur/L49Owzb.png){.center}
 
 This will open a panel where you can change the map view settings.
 
 :::tabs
 == Desktop
-<v-img src="https://i.imgur.com/MyNO8SA.png" style="max-height:400px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/MyNO8SA.png" style="max-height:400px"/>
 == Mobile
-<v-img src="https://i.imgur.com/MGsCDkH.png" style="max-height:400px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/MGsCDkH.png" style="max-height:400px"/>
 :::
 
 The two sections allow choice of tile set and layers to be displayed.
@@ -32,13 +32,13 @@ The two sections allow choice of tile set and layers to be displayed.
 
 :::tabs
 == Street
-<v-img src="https://i.imgur.com/ldqnhzg.png" style="max-height:400px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/ldqnhzg.png" style="max-height:400px"/>
 == Satellite
-<v-img src="https://i.imgur.com/iswsEo0.png" style="max-height:400px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/iswsEo0.png" style="max-height:400px"/>
 == Hybrid
-<v-img src="https://i.imgur.com/nAfcXxf.png" style="max-height:400px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/nAfcXxf.png" style="max-height:400px"/>
 == Traffic
-<v-img src="https://i.imgur.com/PdynzXc.png" style="max-height:400px"/>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/PdynzXc.png" style="max-height:400px"/>
 :::
 
 ### Layer choices
@@ -56,7 +56,7 @@ Devices are always shown on the map, but you can choose how they are displayed, 
 
 | Clustered                                     | Not Clustered                                     |
 | --------------------------------------------- | ------------------------------------------------- |
-| ![Clustered](https://i.imgur.com/N7tKJIC.png){.center} | ![Not Clustered](https://i.imgur.com/oo3aNqQ.png){.center} |
+| ![Clustered](https://upload.r2.lb.chasm.cloud/2025/10/imgur/N7tKJIC.png){.center} | ![Not Clustered](https://upload.r2.lb.chasm.cloud/2025/10/imgur/oo3aNqQ.png){.center} |
 | Clusters show the number of devices within an area | Each device is shown individually on the map, [optionally with the name](/apps/cloud/account/preferences) |
 
 Clicking on a cluster will zoom in to show the individual devices, or smaller clusters.

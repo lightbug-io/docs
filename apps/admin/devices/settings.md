@@ -8,4 +8,4 @@ Settings allows you to change device settings. From the devices list you can ope
 
 See also: bulk settings page for applying settings to multiple devices.
 
-![](https://i.imgur.com/MTQGSiH.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/MTQGSiH.png)

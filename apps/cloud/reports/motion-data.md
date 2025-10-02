@@ -30,7 +30,7 @@ A fall will be detected if the tilt is greater than 30 degrees and or a shock of
 
 To enable the report, you must enable the `Advanced Accelerometer Data` setting in the advanced device settings.
 
-![](https://i.imgur.com/a0GmMTN.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/a0GmMTN.png)
 
 You must then reset the device twice for the changes to take effect with 10 minutes between resets.
 
@@ -52,16 +52,16 @@ If you want to change the baseline position of the device in the future, you wil
 
 ## Examples
 
-![](https://i.imgur.com/8zOtUfm.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/8zOtUfm.png)
 
 ### Tilting
 
 <v-row>
     <v-col class="d-flex child-flex" cols="6">
-    <v-img src="https://i.imgur.com/tozxkKh.png" style="max-height:400px"></v-img>
+    <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/tozxkKh.png" style="max-height:400px"></v-img>
     </v-col>
     <v-col class="d-flex child-flex" cols="6">
-    <v-img src="https://i.imgur.com/AEdy391.png" style="max-height:400px"></v-img>
+    <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/AEdy391.png" style="max-height:400px"></v-img>
     </v-col>
 </v-row>
 
@@ -69,10 +69,10 @@ If you want to change the baseline position of the device in the future, you wil
 
 <v-row>
     <v-col class="d-flex child-flex" cols="6">
-    <v-img src="https://i.imgur.com/lQfejFG.png" style="max-height:400px"></v-img>
+    <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/lQfejFG.png" style="max-height:400px"></v-img>
     </v-col>
     <v-col class="d-flex child-flex" cols="6">
-    <v-img src="https://i.imgur.com/WsCxuqd.png" style="max-height:400px"></v-img>
+    <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/WsCxuqd.png" style="max-height:400px"></v-img>
     </v-col>
 </v-row>
 
@@ -80,10 +80,10 @@ If you want to change the baseline position of the device in the future, you wil
 
 <v-row>
     <v-col class="d-flex child-flex" cols="6">
-    <v-img src="https://i.imgur.com/mWzM7tg.png" style="max-height:400px"></v-img>
+    <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/mWzM7tg.png" style="max-height:400px"></v-img>
     </v-col>
     <v-col class="d-flex child-flex" cols="6">
-    <v-img src="https://i.imgur.com/65kXSME.png" style="max-height:400px"></v-img>
+    <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/65kXSME.png" style="max-height:400px"></v-img>
     </v-col>
 </v-row>
 
@@ -91,9 +91,9 @@ If you want to change the baseline position of the device in the future, you wil
 
 <v-row>
     <v-col class="d-flex child-flex" cols="6">
-    <v-img src="https://i.imgur.com/bHaInm2.png" style="max-height:400px"></v-img>
+    <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/bHaInm2.png" style="max-height:400px"></v-img>
     </v-col>
     <v-col class="d-flex child-flex" cols="6">
-    <v-img src="https://i.imgur.com/NG1jDYQ.png" style="max-height:400px"></v-img>
+    <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/NG1jDYQ.png" style="max-height:400px"></v-img>
     </v-col>
 </v-row>

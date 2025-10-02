@@ -8,7 +8,7 @@ RTK (Real-Time Kinematic) is a technique used to enhance the precision of positi
 
 By using a fixed base station with a known location, RTK can provide centimeter-level accuracy.
 
-![](https://i.imgur.com/OzhNfJ2.png){width="400"}
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/OzhNfJ2.png){width="400"}
 
 
 **Reading** [Wikipedia: Real-time kinematic positioning](https://en.wikipedia.org/wiki/Real-time_kinematic_positioning)

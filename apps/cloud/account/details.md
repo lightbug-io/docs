@@ -1,6 +1,6 @@
 # Details
 
-![](https://i.imgur.com/8o0Z4Uf.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/8o0Z4Uf.png)
 
 If you wish to update your email address, you will need to
 contact us directly.

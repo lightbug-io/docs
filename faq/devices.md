@@ -13,7 +13,7 @@ If you no longer need the device, you can cancel your subscription at any time a
 
 There are other forms of control accessible via APIs, such as the ability to lock the device in sleep mode for up to 24 hours, which will temporarily disable location updates when moving. Or the ability to put a device in deep sleep, there is will need to be put on charge or button pressed to wake it up.
 
-## How long will the battery last? ![](https://i.imgur.com/107HL9y.png){width=100 style="float:right"}
+## How long will the battery last? ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/107HL9y.png){width=100 style="float:right"}
 
 The battery life of the device depends on your required settings.
 
@@ -43,7 +43,7 @@ The devices arrive **ready to use**, there is no assembly required; however, you
 
 You'll possibly find the [adding my first device guide](/guides/adding-your-first-device) useful if this is your first time using a Lightbug device.
 
-## What comes in the box? ![](https://i.imgur.com/CaCDdWV.png){width=220 style="float:right"}
+## What comes in the box? ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/CaCDdWV.png){width=220 style="float:right"}
 
 The contents of the box will vary depending on the device you have ordered.
 

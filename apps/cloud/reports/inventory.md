@@ -10,12 +10,12 @@ This report shows you which group of zones "has it" and which group of zones "ha
 
 Clicking on a certain segment of the bar chart lets you drill down into where your biggest collections of assets are.
 
-![](https://i.imgur.com/gqVPX6q.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/gqVPX6q.png)
 
 Each group of zones can be broken down into the zones within.
 
-![](https://i.imgur.com/DcKHkck.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/DcKHkck.png)
 
 Clicking on a chart segment for example then just shows you all matching trackers on the map
 
-<v-img src="https://i.imgur.com/K6hrX9t.png" style="max-height:400px"></v-img>
+<v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/K6hrX9t.png" style="max-height:400px"></v-img>

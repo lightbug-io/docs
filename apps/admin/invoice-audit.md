@@ -10,7 +10,7 @@ It will likely be removed in the future.
 
 The invoice audit page allows you to see the number of devices activated and deactivated on your account in a given month.
 
-![](https://i.imgur.com/xC0cMVi.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/xC0cMVi.png)
 
 You can also download a CSV export of the data.
 

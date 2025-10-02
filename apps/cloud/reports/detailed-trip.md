@@ -4,7 +4,7 @@ A more detailed version of the [Trip Summary report](./trip-summary.html) showin
 
 An extract of the detailed trip report is shown below:
 
-![](https://i.imgur.com/6tmM48C.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/6tmM48C.png)
 
 ## Export
 

@@ -6,29 +6,29 @@ Tags appear in the device list, and can be used to filter devices, as well as ap
 
 Some are provided by default.
 
-![](https://i.imgur.com/STjaikd.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/STjaikd.png)
 
 ## User tags
 
 User tags are tags that are set by the user, and can be anything you like (within reason).
 
-![](https://i.imgur.com/x6Vq0gm.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/x6Vq0gm.png)
 
 To add a tag, type in the empty `Tag name` and `Tag Value` fields.
 
 A summary of your tag changes will be shown.
 
-![](https://i.imgur.com/yup6WYH.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/yup6WYH.png)
 
 Clicking on `Save` will save the tags to the device.
 
-![](https://i.imgur.com/pZ7ZDlp.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/pZ7ZDlp.png)
 
 ## Auto-Generated tags
 
 The auto-generated tags are tags that are set by the system, and cannot be changed.
 
-![](https://i.imgur.com/8ZA0ajA.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/8ZA0ajA.png)
 
 Common auto-generated tags include:
 
@@ -41,7 +41,7 @@ Common auto-generated tags include:
 | warning | Is the device in a warning state, `LowBattery` or `NoConnection`|
 | LastSeen| The time category the device was last seen in `<24H`, `<3D`, `<7D` |
 | ignition | Is the device's ignition on or off (for devices that support this) |
-| state | The devices current mode, `Trracking`, `Sleep`, `Alert`, `Flight Mode`... |
+| state | The devices current mode, `Tracking`, `Sleep`, `Alert`, `Flight Mode`... |
 | zone | Zones that the device is currently in |
 | SafeZone| Is the device `inside` or `outside` a safe zone |
 | lastZoneList | see inventory reporting... |

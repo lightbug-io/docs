@@ -27,7 +27,7 @@ You should see text drawn on the screen.
 
 :::tabs
 == Graphic
-![](https://i.imgur.com/8QP1022.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/8QP1022.png)
 == Photo
-![](https://i.imgur.com/7ca0Nda.png){width=500}
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/7ca0Nda.png){width=500}
 :::
