@@ -1,6 +1,6 @@
 product:
-  name: "RTK"
-  description: "Our highest accuracy device with both indoor and outdoor positioning capabilities."
+  name: "RH2 RTK Handheld"
+  description: "Our centimeter level accuracy tracking device with both indoor and outdoor positioning capabilities."
   sku: RH2
   prefix: 43
   version: 2
@@ -15,7 +15,7 @@ product:
       dimensions_mm:
        - without_antenna: "95 x 72.6 x 30"
        - with_antenna: "129.7 x 72.6 x 49.75"
-      weight_g: 155
+      weight_g: 240
     certifications:
       CE: "yes"
     rating:
@@ -29,8 +29,8 @@ product:
         - "UV-stable"
     connectors:
       antenna: "IP67 SMA"
-      versitile:
-       - "Power + Data In/Out + Analogue input"
+      data_and_power:
+       - "5 pin Power + Data In/Out + Analogue input"
        - "Suitable for docking & permanent wiring"
       mount:
         - "KickFast (wide range of attachments)"
@@ -116,10 +116,10 @@ product:
   positioning:
     gnss:
       typical_accuracy_meters: "0.01-1"
-      chipset: "Quectel LC29H (L1/L5)"
+      chipset: "Quectel LC29H(EA) (L1/L5)"
       chipset_options:
-        - "AG3335A (L1/L5)"
-        - "ZEDF9P (L1/L5)"
+        - "Ublox ZEDF9P (L1/L5)"
+      supported_update_rate: "1-10 Hz"
       technologies:
         - "RTK"
         - "GPS"
@@ -147,9 +147,8 @@ product:
           bands:
             B1I: 1561.098
             B2a: 1176.45
-    rtk:
     uwb:
-      typical_accuracy_meters: "0.1-1"
+      typical_accuracy_meters: "0.1-3"
       notes: "Typical indoor accuracy; compatible with most UWB TDoA or TWR systems"
     wifi:
       typical_accuracy_meters: "2-20"
@@ -160,6 +159,8 @@ product:
   sensors:
     accelerometer:
       typical_accuracy_g: 0.01
+      range_g_force: "±2g/±4g/±8g/±16g"
+      range_gyro: "±125/±250/±500/±1000/±2000 dps"
       modules:
         - "6D Accelerometer + Gyroscope (available to ESP32)"
         - "3D Accelerometer (main CPU)"
@@ -169,6 +170,8 @@ product:
       - "Shock and Vibration detection"
     magnetometer:
       description: "3D Magnetometer (Compass)"
+      range: ±50 gauss magnetic dynamic range"
+      resolution: "16-bit"
     pressure:
       description: "Barometric pressure sensor"
       altitude_resolution_cm: 13
@@ -181,7 +184,7 @@ product:
   charging:
     inputs:
       voltage_range_v: "4-14"
-      current_limit_a: 3.0
+      current_limit_a: "0.1 to 3.25"
     features:
       fast_charge: "Configurable up to 3A input"
       configurable: "Configurable draw and charge rates"
@@ -198,20 +201,16 @@ product:
         - "User control"
         - "User subscribable via ESP32"
     leds:
-      "RGB Status":
+      "RGB Status (corner)":
         - "RGB LED x2"
         - "Used to display device status (chargins etc.)."
         - "Is user controllable"
-      "RGB Strobe":
-        - "RGB LED x2"
-        - "Fully configurable high brightness RGB LED dome"
+      "RGB Strobe (central)":
+        - "High Brightness RGB LED x2"
+        - "Fully configurable RGB LED dome"
         - "Is user controllable"
-      "Debug (hidden)":
-        - "Single Color LED x4"
-        - "Indicates device status and debug infomation (battery level, charging, connected, etc.)"
-        - "Hidden behind eink, but visible for maintenance"
     haptics:
-      type: "Vibration Motor"
+      type: "Powerful Vibration Motor"
       purpose: "Haptic feedback for user interface"
     siren:
       decibel: 82
@@ -220,60 +219,81 @@ product:
     display:
       type: "2.13\" E-Paper"
       front_light: "yes"
-      controllable_via: "ESP32 (user controllable)"
+      controllable_via: 
+        - "ESP32 (user controllable)"
+        - Remote Server (UDP)
   components:
     cellular:
-      manufacturer: "SIMCom Wireless Solutions Limited"
-      model: "SIM7000G"
-      specifications:
+      manufacturer: SIMCom Wireless Solutions Limited
+      model: A7672G
+      platform: ASR1603 platfom
+    specifications:
         supported_technologies:
-        - "LTE CAT-M1"
-        - "LTE NB-IoT"
+        - "LTE CAT-1 (bis)"
         - "GPRS"
         - "EDGE"
-        frequency_bands:
-          gsm:
-            bands: "850/900/1800/1900MHz"
-            egsm_900mhz:
-              transmit_frequency_mhz: "880-915"
-              receive_frequency_mhz: "925-960"
-            dcs_1800mhz:
-              transmit_frequency_mhz: "1710-1785"
-              receive_frequency_mhz: "1805-1880"
-          lte_cat_m1:
-            bands: "B1/B2/B3/B4/B5/B8/B12/B13/B18/B19/B20/B26/B28/B39"
-          lte_nb_iot:
-            bands: "B1/B2/B3/B5/B8/B12/B13/B17/B18/B19/B20/B26/B28"
-        data_transfer_rates_kbps:
-          cat_m_dl: 300
-          cat_m_ul: 375
-          cat_nb_dl: 34
-          cat_nb_ul: 66
-          egprs_dl: 85.6
-          egprs_ul: 85.6
-          edge_dl_ul: 236.8
-          gprs_dl_ul: 85.6
-        supply_voltage_range_v: "3.0 ~ 4.3"
-        power_consumption_typical:
-          power_off_ua: 7
-          psm_ua: 9
-          sleep_ma: 1
-          idle_ma: 11
-        temperature_range_c: "-40 ~ +85"
-        certifications:
-        - "FCC"
-        - "IC"
-        - "CE"
-        - "3C"
-        - "GCF"
-        - "RoHS"
-        - "REACH"
-        - "RCM"
-        - "PTCRB"
+    frequency_bands:
+      gsm:
+        bands: "850/900/1800/1900MHz"
+        egsm_900mhz:
+          transmit_frequency_mhz: "880-915"
+          receive_frequency_mhz: "925-960"
+        dcs_1800mhz:
+          transmit_frequency_mhz: "1710-1785"
+          receive_frequency_mhz: "1805-1880"        
+      lte_fdd:
+        - B1
+        - B2
+        - B3
+        - B4
+        - B5
+        - B7
+        - B8
+        - B12
+        - B13
+        - B18
+        - B19
+        - B20
+        - B25
+        - B26
+        - B28
+        - B66
+      lte_tdd:
+        - B38
+        - B39
+        - B40
+        - B41
+
+      data_transfer_rates_kbps:
+      
+        lte_downlink: 10000
+        lte_uplink: 5000
+        edge_dl_ul: 236.8
+        gprs_dl_ul: 85.6
+
+    
+      electrical_and_environmental:
+        supply_voltage_v: 3.4 ~ 4.2
+        temperature_range_c: -40 ~ +85
+        sim_card_support_v: 1.8/3.0
+
+        optional_functions:
+          - Jamming Detection
+          - TTS (Text To Speech)
+          - Embedded AT
+        firmware_management:
+          - Firmware Upgrade (USB/FOTA)
+        
+      certifications:
+        - RoHS
+        - REACH
+        - CE-RED
+        - FCC
+        - Anatel* (under developing/on-going/planning)
     P1 & LORA:
       manufacturer: "STMicroelectronics"
-      model: "STM32WL55xx"
-      datasheet: "https://www.st.com/resource/en/datasheet/stm32wl55cc.pdf"
+      model: "STM32WLE5xx"
+      # incorrect datasheet: "https://www.st.com/resource/en/datasheet/stm32wl55cc.pdf"
       specifications:
         chip_type: "Multiprotocol wireless 32-bit MCU, Arm® Cortex-M4 with FPU + Cortex-M0+ for real-time radio tasks"
         radio_features:
@@ -302,7 +322,7 @@ product:
             LoRa_125kHz_20dBm: "87 mA"
     gnss:
       manufacturer: "Quectel"
-      model: "LC29HEA"
+      model: "LC29H(EA)"
       specifications:
         gnss_systems:
           - "GPS"
@@ -356,7 +376,7 @@ product:
         power_consumption_active_ma:
           typical_receive: ~71-82
           typical_transmit_max: ~354
-    accelerometer:
+    accelerometer_1:
       manufacturer: "STMicroelectronics"
       model: "LIS3DHTR"
       specifications:
@@ -366,6 +386,26 @@ product:
         supply_voltage_v: "1.71 to 3.6"
         operating_temperature_c: "-40 to +85"
         power_consumption_ulp_ua: "down to 2 (normal mode at 1 Hz ODR)"
+    accelerometer_2:
+      manufacturer: "STMicroelectronics"
+      model: "LSM6DS3TR" 
+      specifications:
+        device_type: "iNEMO inertial module: always-on 3D accelerometer and 3D gyroscope"
+        sensing_elements:
+          - "3D digital accelerometer"
+          - "3D digital gyroscope"
+        full_scale_range_accelerometer: "±2g/±4g/±8g/±16g (dynamically selectable)"
+        full_scale_range_gyroscope: "±125/±250/±500/±1000/±2000 dps (dynamically selectable)"
+        output_data_rate_accelerometer_hz: "1.6, 12.5, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664"
+        output_data_rate_gyroscope_hz: "12.5, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664"
+        supply_voltage_v:
+          analog: "1.71 to 3.6 V"
+          io_independent: "1.62 V (min)"
+        operating_temperature_c: "-40 to +85"
+        power_consumption_high_performance:
+            combo_mode_ma: "0.90 mA (in combo high-performance mode, ODR = 1.6 kHz)"
+            accelerometer_low_power_ua: "9 μA (at ODR = 12.5 Hz)"
+            power_down_ua: "3 μA (gyroscope and accelerometer current consumption)"
     charger:
       manufacturer: "Texas Instruments"
       model: "BQ25890H"
@@ -398,7 +438,7 @@ product:
     cells:
       type: 18650
       spec:
-        model: "18650 3300mAh"
+        model: "18650 3350mAh"
         type: "Li-ion Cell"
         nominal_voltage_v: 3.6
         nominal_capacity_mah: 3350

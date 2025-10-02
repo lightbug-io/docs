@@ -10,7 +10,6 @@
       </div>
     </div>
   <DownloadPdfButton :get-pdf-data="getPdfData" label="Spec PDF"/>
-  <DownloadYamlButton :get-yaml-data="() => props.yamlText" :filename="(specs && specs.product && (specs.product.sku ? specs.product.sku + '.yaml' : specs.product.name + '.yaml')) || 'spec.yaml'" label="Spec YAML" />
   <DownloadBookletButton v-if="specs && specs.product && specs.product.booklet" :url="specs.product.booklet" />
 
   <h3>Overview</h3>
@@ -80,8 +79,8 @@ const displaySpecs = ref({})
 const deviceTitle = ref('Device Specification')
 const genericSections = ref([])
 
-// An allowed list of keys to use from the YAML for now..
-const sectionKeys = ['physical','integrations','connectivity','battery','positioning','sensors','charging','user interface','components']
+// An allowed list of keys to use from the YAML for now.. (and order)
+const sectionKeys = ['physical','integrations','user interface','connectivity','positioning','sensors','battery','charging','components']
 
 function normalizePhrase(str) {
   if (!str) return ''
