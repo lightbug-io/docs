@@ -6,10 +6,10 @@ product:
   version: 2
   booklet: "https://lightbug.io/rh2_rtk_handheld_booklet.pdf"
   images:
-  - "https://lightbug.io/raw-renders/2025-07-01/RH2_w-front angle.png?x=600&y=0&w=600&h=1000"
-  - "https://lightbug.io/raw-renders/2025-07-01/RH2_w-top side.png?x=600&y=0&w=600&h=1000"
-  - "https://lightbug.io/raw-renders/2025-07-01/RH2_w-back.png?x=650&y=0&w=600&h=1000"
-  - "https://lightbug.io/raw-renders/2025-07-01/RH2_w-side.png?x=700&y=70&w=600&h=1000"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-front angle.png?x=600&y=0&w=600&h=1000"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-top side.png?x=600&y=0&w=600&h=1000"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-back.png?x=650&y=0&w=600&h=1000"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-side.png?x=700&y=70&w=600&h=1000"
   physical:
     size:
       dimensions_mm:
@@ -219,7 +219,7 @@ product:
     display:
       type: "2.13\" E-Paper"
       front_light: "yes"
-      controllable_via: 
+      controllable_via:
         - "ESP32 (user controllable)"
         - Remote Server (UDP)
   components:
@@ -240,7 +240,7 @@ product:
           receive_frequency_mhz: "925-960"
         dcs_1800mhz:
           transmit_frequency_mhz: "1710-1785"
-          receive_frequency_mhz: "1805-1880"        
+          receive_frequency_mhz: "1805-1880"
       lte_fdd:
         - B1
         - B2
@@ -265,13 +265,13 @@ product:
         - B41
 
       data_transfer_rates_kbps:
-      
+
         lte_downlink: 10000
         lte_uplink: 5000
         edge_dl_ul: 236.8
         gprs_dl_ul: 85.6
 
-    
+
       electrical_and_environmental:
         supply_voltage_v: 3.4 ~ 4.2
         temperature_range_c: -40 ~ +85
@@ -283,7 +283,7 @@ product:
           - Embedded AT
         firmware_management:
           - Firmware Upgrade (USB/FOTA)
-        
+
       certifications:
         - RoHS
         - REACH
@@ -388,7 +388,7 @@ product:
         power_consumption_ulp_ua: "down to 2 (normal mode at 1 Hz ODR)"
     accelerometer_2:
       manufacturer: "STMicroelectronics"
-      model: "LSM6DS3TR" 
+      model: "LSM6DS3TR"
       specifications:
         device_type: "iNEMO inertial module: always-on 3D accelerometer and 3D gyroscope"
         sensing_elements:

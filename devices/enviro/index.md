@@ -14,7 +14,7 @@ onMounted(async () => {
 })
 </script>
 
-<DeviceSpecTable v-if="yamlText" :yaml-text="yamlText" :image-url="'https://lightbug.io/raw-renders/2025-07-01/enviro-front angle.png'" />
+<DeviceSpecTable v-if="yamlText" :yaml-text="yamlText" :image-url="'https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/enviro-front angle.png'" />
 
 ## Specification
 
