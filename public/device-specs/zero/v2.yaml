@@ -6,10 +6,10 @@ product:
   prefix: 19
   version: 2
   images:
-  - "https://lightbug.io/raw-renders/2025-07-01/lightbug-zero-front angle.png?x=600&y=400&w=600&h=500"
-  - "https://lightbug.io/raw-renders/2025-07-01/lightbug-zero-top side.png?x=600&y=400&w=600&h=500"
-  - "https://lightbug.io/raw-renders/2025-07-01/lightbug-zero-back.png?x=650&y=400&w=600&h=500"
-  - "https://lightbug.io/raw-renders/2025-07-01/lightbug-zero-side.png?x=700&y=570&w=600&h=500"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/lightbug-zero-front angle.png?x=600&y=400&w=600&h=500"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/lightbug-zero-top side.png?x=600&y=400&w=600&h=500"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/lightbug-zero-back.png?x=650&y=400&w=600&h=500"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/lightbug-zero-side.png?x=700&y=570&w=600&h=500"
   physical:
     size:
       dimensions_mm: "56 x 37 x 12.9"

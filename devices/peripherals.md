@@ -21,10 +21,10 @@ If you are interested in further bluetooth compatibility or sensors, please [con
 <v-row>
     <v-col
         v-for="(image, index) in [
-            'https://lightbug.io/images/shop/LB-ACC-MS1.webp',
-            'https://lightbug.io/images/shop/LB-ACC-ME2.webp',
-            'https://lightbug.io/images/shop/LB-ACC-MI7.webp',
-            'https://lightbug.io/images/shop/LB-ACC-C10.webp',
+            'https://upload.r2.lb.chasm.cloud/2025/10/shop/LB-ACC-MS1.webp',
+            'https://upload.r2.lb.chasm.cloud/2025/10/shop/LB-ACC-ME2.webp',
+            'https://upload.r2.lb.chasm.cloud/2025/10/shop/LB-ACC-MI7.webp',
+            'https://upload.r2.lb.chasm.cloud/2025/10/shop/LB-ACC-C10.webp',
         ]"
         :key="index"
         class="d-flex child-flex"

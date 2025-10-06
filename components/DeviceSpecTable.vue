@@ -253,7 +253,7 @@ watchEffect(() => {
 function getPdfData() {
   // Use CORS proxy for images if needed
   const images = (specs.value?.product?.images || []).map(img =>
-    img.startsWith('https://lightbug.io/')
+    img.startsWith('https://lightbug.io/') || img.startsWith('https://lightbug.cloud/')  || img.startsWith('https://upload.r2.lb.chasm.cloud/')
       ? `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(img)}`
       : img
   );

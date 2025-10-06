@@ -6,10 +6,10 @@ product:
   prefix: 26
   version: 2
   images:
-  - "https://lightbug.io/raw-renders/2025-07-01/enviro-front angle.png?x=600&y=300&w=600&h=700"
-  - "https://lightbug.io/raw-renders/2025-07-01/enviro-top side.png?x=600&y=200&w=600&h=700"
-  - "https://lightbug.io/raw-renders/2025-07-01/enviro-back.png?x=650&y=200&w=600&h=700"
-  - "https://lightbug.io/raw-renders/2025-07-01/enviro-side.png?x=700&y=370&w=600&h=700"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/enviro-front angle.png?x=600&y=300&w=600&h=700"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/enviro-top side.png?x=600&y=200&w=600&h=700"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/enviro-back.png?x=650&y=200&w=600&h=700"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/enviro-side.png?x=700&y=370&w=600&h=700"
   physical:
     size:
       dimensions_mm: "85 x 44 x 28.4"

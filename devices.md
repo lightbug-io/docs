@@ -15,19 +15,19 @@ Our core products have been rigorously tested in the field since and iterated on
 <div class="device-gallery core-gallery">
   <div class="device-item">
     <a href="/devices/zero/">
-      <img src="https://lightbug.io/images/product-front/LB-DEV-ZE2_hu4ff3455ecb7f322eb1f00907f166ea0e_177507_600x900_fit_q95_h2_box_2.webp" alt="Zero GPS Tracker" />
+      <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-ZE2.png" alt="Zero GPS Tracker" />
     </a>
     <p><strong>Zero</strong> - Our smallest GPS tracking device, and indeed one of the smallest in the world.</p>
   </div>
   <div class="device-item">
     <a href="/devices/pro/">
-      <img src="https://lightbug.io/images/product-front/LB-DEV-PR2_hu128f0c9381f6a9afd4c494ea04934e0d_235936_600x900_fit_q95_h2_box_2.webp" alt="Pro GPS Tracker" />
+      <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-PR2.png" alt="Pro GPS Tracker" />
     </a>
     <p><strong>Pro</strong> - Our larger, industrial grade tracker.</p>
   </div>
   <div class="device-item">
     <a href="/devices/vehicle/">
-      <img src="https://lightbug.io/images/product-front/LB-DEV-VT3_hu6c96dd0084ad7c7254ad7ef44efd2a3c_296576_600x900_fit_q95_h2_box_2.webp" alt="Vehicle GPS Tracker" />
+      <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-VT3.png" alt="Vehicle GPS Tracker" />
     </a>
     <p><strong>Vehicle</strong> - Our wired tracker, designed for use where a power source is available.</p>
   </div>
@@ -52,7 +52,7 @@ Our RTK products are designed for high accuracy applications, down to the centim
   </div>
   <div class="device-item">
     <a href="/devices/rtk/vehicle">
-      <img src="https://lightbug.io/images/product-front/LB-DEV-VT3_hu6c96dd0084ad7c7254ad7ef44efd2a3c_296576_600x900_fit_q95_h2_box_2.webp" alt="RTK GPS Vehicle Tracker" />
+      <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-VT3.png" alt="RTK Vehicle GPS Tracker" />
     </a>
     <p><strong>RTK</strong> - Our high accuracy indoor and outdoor capable tracker, with wired power.</p>
   </div>
