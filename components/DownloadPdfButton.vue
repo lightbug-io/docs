@@ -231,8 +231,8 @@ async function downloadPdf() {
   const pageHeight = doc.internal.pageSize.getHeight();
 
   // Add Lightbug logo to top right
-  let logoUrl = 'https://lightbug.io/images/logo-orange_hudcdce2ead9cbe2715b5cf652e648439f_53864_100x200_fit_q100_h2_box_2.webp';
-  if (logoUrl.startsWith('https://lightbug.io/')) {
+  let logoUrl = 'https://lightbug.cloud/assets/logo.png';
+  if (logoUrl.startsWith('https://lightbug.io/') || logoUrl.startsWith('https://lightbug.cloud/')  || logoUrl.startsWith('https://upload.r2.lb.chasm.cloud/')) {
     logoUrl = `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(logoUrl)}`;
   }
   let logoHeight = 0;
