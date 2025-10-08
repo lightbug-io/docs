@@ -14,6 +14,7 @@ import { align } from "@mdit/plugin-align";
 import { include } from "@mdit/plugin-include";
 import { withSidebar, generateSidebar } from 'vitepress-sidebar';
 import yamlEmbed from '../utils/markdownit-yaml-plugin.js';
+import container from 'markdown-it-container';
 
 
 // Load protocol messages from YAML file
@@ -200,6 +201,20 @@ export default withMermaid(defineConfig({
           return path.resolve(__dirname, '..', 'index.md');
         },
       })
+      md.use(container, 'alpha', {
+        render(tokens, idx) {
+          const token = tokens[idx];
+          const info = token.info.trim().slice('alpha'.length).trim();
+          if (token.nesting === 1) {
+            const title = '🧪 Alpha' + (info ? ` ${info}` : '');
+            // opening tag
+            return `<div class="custom-block alpha"><p class="custom-block-title">${title}</p>\n`;
+          } else {
+            // closing tag
+            return '</div>\n';
+          }
+        }
+      });
     },
     languages: (() => {
       try {
