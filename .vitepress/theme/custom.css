@@ -5,6 +5,11 @@
     --vp-c-brand-3: #e37039;
 }
 
+/* Also make the pages with aside take the full width */
+.VPDoc.has-aside .content-container {
+  max-width: 100vw !important;
+}
+
 /* Tweaks to the open api side bar appearance */
 .OASidebarItem-badge {
     font-size: 0.60rem;
