@@ -398,6 +398,7 @@ export default withMermaid(defineConfig({
                   link: '/devices/rtk/handheld/',
                   collapsed: true,
                   items: [
+                    { text: 'Application', link: '/devices/rtk/handheld/application' },
                     { text: 'External', link: '/devices/rtk/handheld/external' },
                     { text: 'Screen', link: '/devices/rtk/handheld/screen' },
                     { text: 'ESP32', link: '/devices/rtk/handheld/esp32' },
