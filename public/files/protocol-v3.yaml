@@ -82,9 +82,6 @@ header:
       3:
         name: SUBSCRIBE
         description: Subscribe to a value or values. If no payload types are provided, all available values will be subscribed to. If a value changes, the service will send a message with the new value
-      4:
-        name: DO
-        description: Perform an action.
       5:
         name: UNSUBSCRIBE
         description: Unsubscribe from some previously subscribed to data
@@ -143,6 +140,7 @@ header:
   15:
     name: Storage Level
     description: Defines the behaviour for messages that have not been ACKed. The default is None, i.e. failed messages will not be retried. Devices have limited storage, if using retries and when storage is full, the oldest messages will be overwritten. Future iterations may support "In Order" which will require messages to be sent and ACKed in timestamp order.
+    type: uint8
     values:
       0:
         name: None
@@ -156,6 +154,7 @@ header:
   16:
     name: Message Level
     description: Loosely analogous to log levels (trace, debug, info, warning, etc.) in that you must define the lowest level of interest. Message Levels can be used with timeouts on subscriptions - if a message of the requested level is not available within the specified time, the subscription will be abandoned. Currently you may only define one subscription per message type - requesting multiple levels will result in existing subscriptions being modified to the new level. Future iterations will support "Changes Only" and "Critical" and may support multiple concurrent subscriptions with varying levels
+    type: uint8
     values:
       1:
         name: Info-Watch
@@ -166,6 +165,10 @@ header:
       10:
         name: Valid
         description: Activate the relevant hardware but only receive valid data. May be used with subscription timeout feature to request usable data without leaving the hardware on indefinitely
+  100:
+    name: Received time
+    description: Time the message was received. Particularly useful for messages that are sent to cloud systems, and further processed or forwarded on.
+    type: uint64
 messages:
   5:
     name: ACK
@@ -177,14 +180,12 @@ messages:
         type: uint16
   11:
     name: Open
-    description: Explicit indicator for the start of a connection.
+    description: Explicit indicator for the start of a connection
     group: general
     data:
       10:
         name: Device Type
-        description: |
-          Type of device, relates to the serial number prefix.
-          Primarily used by inter processor communication to identify the type of device.
+        description: Type of device, relates to the SN prefix
         type: uint8
   12:
     name: Close
@@ -411,8 +412,6 @@ messages:
         name: Priority
         description: 0 - 1
         type: uint8
-    methods:
-      DO: null
   31:
     name: GSM Control
     group: gsm
@@ -833,8 +832,6 @@ messages:
         name: Wake on Event
         description: Should CPU1 wake up CPU2 on new events / messages
         type: bool
-    methods:
-      DO: null
   48:
     name: Power Profile
     description: See how much power is being used by the device. Total power is reset to zero when a new subscription is requested.
@@ -857,8 +854,6 @@ messages:
   49:
     name: CPU1 Reset
     group: ungrouped
-    methods:
-      DO: null
   50:
     name: Link Control
     description: Control a link to the internet to send and receive messages
@@ -876,6 +871,9 @@ messages:
         name: Enable
         description: Enable or disable the link
         type: bool
+    methods:
+      GET: null
+      SET: null
   53:
     name: Protection Level
     description: Get information about the protection level - i.e. 95% confidence accuracy ellipse. Only supported on RTK enabled products.
@@ -1009,7 +1007,6 @@ messages:
         type: uint
         readonly: true
     methods:
-      DO: null
       GET: null
       NONE: null
       SET: null
@@ -1151,6 +1148,9 @@ messages:
       4:
         name: Page Title
         type: ascii
+      30:
+        name: Item count
+        type: uint8
       31:
         name: Selected item
         description: Optionally select a specific item, else the first will be used

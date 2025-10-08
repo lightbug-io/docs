@@ -4,6 +4,7 @@ outline: [1,3]
 
 <script setup>
 import ProtocolGenerate from '../../../components/ProtocolGenerate.vue'
+import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -16,4 +17,4 @@ These pages can be seen as a view of what is to come later this year.
 
 You can generate your own messages online using the this tool.
 
-<ProtocolGenerate/>
+<ProtocolGenerate :yaml-data="protocolData"/>
