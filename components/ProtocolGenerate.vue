@@ -176,7 +176,7 @@ export default defineComponent({
     props: {
         yamlData: {
             type: Object as PropType<any>,
-            default: () => ({})
+            required: true
         }
     },
     setup(props) {
