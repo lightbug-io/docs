@@ -293,9 +293,10 @@ export default withMermaid(defineConfig({
       {
         text: 'Cloud',
         items: [
-          { text: 'Cloud App', link: '/apps/cloud/' },
-          { text: 'Admin App', link: '/apps/admin/' },
-          { text: 'Web APIs', link: '/apis/' },
+          { text: 'Cloud App <small>lightbug.cloud</small>', link: '/apps/cloud/' },
+          { text: 'Admin App <small>admin.lightbug.cloud</small>', link: '/apps/admin/' },
+          { text: 'Web APIs <small>api.lightbug.cloud</small>', link: '/apis/' },
+          { text: "Chasm Share <small>share.chasm.cloud</small>", link: '/apps/chasm/share' },
         ],
       },
       {

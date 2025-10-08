@@ -5,7 +5,7 @@ outline: [2,3]
 
 The RH2 comes pre loaded with fully featured application for RTK data collection as an RTK rover, or as a base station for other rovers, tracking location at 1Hz, 2Hz or 10Hz.
 
-When tracking, by default, data will be sent to the Lightbug Cloud. You can access the data sent to the cloud by API. The Cloud can also be configured to store data, [forward it to other services](/apps/admin/devices/forwarding), or publicly share snapshots of the data.
+When tracking, by default, data will be sent to the Lightbug Cloud. You can access the data sent to the cloud by API. The Cloud can also be configured to store data, [forward it to other services](/apps/admin/devices/forwarding), or [publicly share snapshots of the data](/apps/chasm/share/).
 
 :::alpha
 The cloud connection, or link can also be configured to point to a private UDP server, that would receive messages directly from the device, via the [device communication protocol](/devices/api/protocol/).
