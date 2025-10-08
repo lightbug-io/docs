@@ -12,7 +12,7 @@ Dimensions:
 == Diagram
 ![Front view of the RH2 including dimensions, with and without the antenna](https://upload.r2.lb.chasm.cloud/2025/10/imgur/bzeb1TX.png)
 == Render
-![](https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-front+angle.png)
+![](https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-front%20angle.png)
 :::
 
 [2.13" monochrome e-ink display with a resolution of 250x122 pixels](screen), which is visible in direct sunlight and has a very low power consumption.
