@@ -77,7 +77,7 @@ const sidebarItemsFromDir = (dir) => {
     const displayName = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
     return {
       text: displayName,
-      link: `${dir}/${name}`,
+      link: `/${dir}/${name}`,
       order,
     }
   })
