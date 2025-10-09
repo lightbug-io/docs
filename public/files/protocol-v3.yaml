@@ -246,8 +246,16 @@ messages:
     group: general
   13:
     name: Heartbeat
-    description: A message to keep the connection alive. Arbitrary fields can be added in fields 200+
+    description: |
+      A message sent to let the receiver know the sender is still active/alive.
+      Can also be used to check if a connection is still active, as the message should be ACKed.
+
+      Devices currently default to sending a heartbeat every 15 seconds on open links.
+      Arbitrary fields can be added in fields 200+
     group: general
+    examples:
+      - name: Basic Heartbeat, with message ID 567
+        bytes: 3 15 0 13 0 1 0 1 2 55 2 0 0 41 1
   14:
     name: Config
     group: ungrouped
@@ -1188,9 +1196,6 @@ messages:
     description: Draw or change a menu
     group: screen
     data:
-      2:
-        name: Item count
-        type: uint8
       3:
         name: Page ID
         description: |

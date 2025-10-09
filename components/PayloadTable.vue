@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="hasPayloadFields">
     <h3 v-if="showHeader && headerText" :style="{ marginTop: headerMarginTop }">{{ headerText }}</h3>
     <table>
       <thead>
@@ -77,8 +77,14 @@ export default defineComponent({
       return props.yamlData.messages[props.messageId]?.data || [];
     });
 
+    const hasPayloadFields = computed(() => {
+      const fields = payloadFields.value;
+      return fields && typeof fields === 'object' && Object.keys(fields).length > 0;
+    });
+
     return {
       payloadFields,
+      hasPayloadFields,
       headerText: props.headerText,
       headerMarginTop: props.headerMarginTop
     };

@@ -5,51 +5,38 @@ outline: false
 
 <script setup>
 import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue'
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
+import { computed } from 'vue'
+
+const messageId = 13
+const messageData = computed(() => protocolData?.messages?.[messageId])
+const examples = computed(() => messageData.value?.examples || [])
 </script>
-
-::: danger ⚠️ Not yet public
-The Device API currently in development and is not yet accessible on production devices.
-
-These pages can be seen as a view of what is to come later this year.
-:::
 
 # 13: Heartbeat
 
-<SplitColumnView>
-<template #left>
+<span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-Sent from a device over an open connection to let the receiver know that the connection is still active.
-
-Can also be used to check if a connection is still active, as the message would be ACKed.
-
-Devices currently default to sending a heartbeat every 15 seconds.
-
-</template>
-<template #right>
-
-<PayloadTable :messageId="13" headerText="Payload" headerMarginTop="0px" :yaml-data="protocolData" />
-
-</template>
-</SplitColumnView>
+<PayloadTable
+    :messageId="messageId"
+    headerText="Payload"
+    :yaml-data="protocolData"
+/>
 
 ## Examples
 
-### Basic Heartbeat Message
+<div v-for="(example, index) in examples" :key="index">
 
-This example shows a basic heartbeat message with a single header field (Message ID).
+##### {{ example.name }}
 
-<ProtocolBytes2
-    byteString="3 15 0 13 0 1 0 1 2 55 2 0 0 41 1"
-    :yaml-data="protocolData"
-    :defaultCollapsed="false"
-/>
+<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
+
+</div>
 
 ## Code
 
 For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="13" :yaml-data="protocolData"/>
+<GenerateConsts :messageId="messageId" :yaml-data="protocolData"/>

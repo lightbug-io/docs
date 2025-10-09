@@ -141,6 +141,8 @@
 <script lang="ts">
 import { defineComponent, ref, computed, PropType } from 'vue';
 import { readTypedData } from '../src/protocol/base.gen';
+import crc16 from 'crc/crc16xmodem';
+import { Buffer } from 'buffer';
 
 interface ByteSection {
     label: string;
@@ -165,6 +167,10 @@ export default defineComponent({
             default: false
         },
         showGeneratorLink: {
+            type: Boolean,
+            default: true
+        },
+        showValidation: {
             type: Boolean,
             default: true
         }
@@ -217,9 +223,17 @@ export default defineComponent({
 
             // Length
             const length = readUint16LE(bytes[index], bytes[index + 1]);
+            let lengthValue = `${length} bytes`;
+            if (props.showValidation) {
+                const expectedLength = bytes.length;
+                const isValidLength = length === expectedLength;
+                lengthValue = isValidLength
+                    ? `${length} bytes ✅`
+                    : `${length} bytes ❌ (expected ${expectedLength})`;
+            }
             sections.push({
                 label: 'Length',
-                value: `${length} bytes`,
+                value: lengthValue,
                 bytes: byteArray.value.slice(index, index + 2)
             });
             index += 2;
@@ -228,7 +242,7 @@ export default defineComponent({
             const messageType = readUint16LE(bytes[index], bytes[index + 1]);
             const messageName = props.yamlData?.messages?.[messageType]?.name || 'Unknown';
             sections.push({
-                label: 'Message Type',
+                label: 'Type',
                 value: `${messageType} (${messageName})`,
                 bytes: byteArray.value.slice(index, index + 2)
             });
@@ -237,7 +251,7 @@ export default defineComponent({
             // Header field count
             const numHeaderFields = readUint16LE(bytes[index], bytes[index + 1]);
             sections.push({
-                label: 'Header Field Count',
+                label: 'Header Count',
                 value: String(numHeaderFields),
                 bytes: byteArray.value.slice(index, index + 2)
             });
@@ -247,7 +261,7 @@ export default defineComponent({
             if (numHeaderFields > 0) {
                 const headerTypesIndex = index;
                 sections.push({
-                    label: 'Header Field Types',
+                    label: 'Header Types',
                     value: bytes.slice(index, index + numHeaderFields).join(', '),
                     bytes: byteArray.value.slice(index, index + numHeaderFields)
                 });
@@ -283,7 +297,7 @@ export default defineComponent({
             // Payload field count
             const numPayloadFields = readUint16LE(bytes[index], bytes[index + 1]);
             sections.push({
-                label: 'Payload Field Count',
+                label: 'Payload Count',
                 value: String(numPayloadFields),
                 bytes: byteArray.value.slice(index, index + 2)
             });
@@ -293,7 +307,7 @@ export default defineComponent({
             if (numPayloadFields > 0) {
                 const payloadTypesIndex = index;
                 sections.push({
-                    label: 'Payload Field Types',
+                    label: 'Payload Types',
                     value: bytes.slice(index, index + numPayloadFields).join(', '),
                     bytes: byteArray.value.slice(index, index + numPayloadFields)
                 });
@@ -327,10 +341,22 @@ export default defineComponent({
             }
 
             // Checksum
+            const checksumStartIndex = index;
             const crc = readUint16LE(bytes[index], bytes[index + 1]);
+
+            // Calculate expected CRC for validation
+            let checksumValue = String(crc);
+            if (props.showValidation) {
+                const expectedCRC = crc16(Buffer.from(bytes.slice(0, checksumStartIndex)));
+                const isValid = crc === expectedCRC;
+                checksumValue = isValid
+                    ? `${crc} ✅`
+                    : `${crc} ❌ (expected ${expectedCRC})`;
+            }
+
             sections.push({
-                label: 'Checksum (CRC16)',
-                value: String(crc),
+                label: 'Checksum',
+                value: checksumValue,
                 bytes: byteArray.value.slice(index, index + 2)
             });
 
