@@ -21,19 +21,29 @@ groups:
 header:
   1:
     name: Message ID
-    description: ID that can be used by receiver to ACK, and client to track for various responses, or re-sends. Max 4,294,967,295.
+    description: |
+      ID identifying the message.
+      Can be used by a receiver to ACK, respond to, deduplicate, resend or otherwise track messages.
+      Some clients and services may require or desire an incrementing message ID for each message sent, acting as a sequence number.
     type: uint32
   2:
     name: Client ID
-    description: ID of the client sending the message. Must be uint32 or uint64 for Lightbug cloud services.
+    description: |
+      ID of the client sending the message.
+      May mean different things in different contexts.
+      Must be uint32 or uint64 for Lightbug cloud services.
     type: uint
   3:
     name: Response to
-    description: ID of the message that is being responded to (Message ID of the request or subscription)
+    description: |
+      ID of the message that is being responded to
+      (Message ID of the request or subscription)
     type: uint32
   4:
     name: Status
-    description: Status of the message. If omitted, assume OK?
+    description: |
+      Status of the message.
+      If omitted, assume the message is OK
     type: uint8
     values:
       0:
@@ -60,6 +70,7 @@ header:
         description: If the receiver does not support the requested action or method
       8:
         name: Failed Will Retry
+        description: Currently only used for tx now
       9:
         name: Failed Permanently
       10:
@@ -75,31 +86,52 @@ header:
     values:
       1:
         name: SET
-        description: Set one or more values that are provided in the message payload
+        description: |
+          Set one or more values that are provided in the message payload.
       2:
         name: GET
-        description: Get one or more values that have their types provided in the message payload. If no payload types are provided, all available values are returned
+        description: |
+          Get values for the associated message type.
       3:
         name: SUBSCRIBE
-        description: Subscribe to a value or values. If no payload types are provided, all available values will be subscribed to. If a value changes, the service will send a message with the new value
+        description: |
+          Subscribe to values for the associated message type.
+          Should be used in conjunction with other header fields to define the subscription parameters, such as Interval, Duration and Timeout.
       5:
         name: UNSUBSCRIBE
-        description: Unsubscribe from some previously subscribed to data
+        description: Unsubscribe from a previous subscription.
   6:
     name: Interval
-    description: Interval in ms. To be used with the SUBSCRIBE method
+    description: |
+      To be used with the SUBSCRIBE method.
     type: uint32
+    unit: ms
   7:
     name: Duration
-    description: Time in ms. For subscriptions this defines a duration to keep the subscription active for. 0 = no time limit.  An ACK with EXPIRED status code will be sent if the subscription duration elapses without being renewed (with a new subscription request). For actions that can be timed, this defines how long the action should go on for.
+    description: |
+      To be used with the SUBSCRIBE method, or actions that can be timed.
+
+      When used with a timed action:
+        This defines how long the action should go on for.
+
+      When used with the SUBSCRIBE method:
+        This defines a duration to keep the subscription active for.
+        A value of 0 means the subscription is indefinite until explicitly unsubscribed.
+        An ACK with EXPIRED status code will be sent if the subscription duration elapses without being renewed with a new subscription request.
     type: uint32
+    unit: ms
   8:
     name: Timeout
-    description: Timeout in ms. When requesting data or services that can take time to acquire (such as a GPS fix), timeout defines how long to try for before abandoning the action. An ACK with ABANDONED status code will be sent in this case. For actions that support it, timeout defines how long to wait before performing the action.
+    description: |
+      When requesting data or services that can take time to acquire (such as a GPS fix), this defines how long to try for before abandoning the action.
+      An ACK with ABANDONED status code will be sent in this case.
+      For actions that support it, timeout instead defines how long to wait before performing the action.
     type: uint32
+    unit: ms
   9:
     name: Forward For Type
     description: 'FOR FUTURE USE: Type of client that the message is being forwarded for.'
+    alpha: Forwarding is currently a new feature, and may not be perfectly documented
     values:
       1:
         name: LoRa
@@ -113,16 +145,19 @@ header:
   10:
     name: Forwarded For
     description: ID of the client sending the original message that is being forwarded. Forward for type alters the meaning of this field
+    type: uint
+    alpha: Forwarding is currently a new feature, and may not be perfectly documented
   11:
     name: Forwarded RSSI
-    description: RSSI of forwarded message
+    description: RSSI of forwarded message, when forwarded over radio
   12:
     name: Forwarded SNR
-    description: SNR of forwarded message
+    description: SNR of forwarded message, when forwarded over radio
   13:
     name: Forwarding To Type
-    description: 'INTERNAL FUTURE USE ONLY: Type of client to forward the message to.'
+    description: Type of client to forward the message to.
     type: uint
+    alpha: Forwarding is currently a new feature, and may not be perfectly documented
     values:
       1:
         name: LoRa
@@ -135,12 +170,20 @@ header:
         description: Message is being forwarded for a cloud link. Typically used when cloud messages are being forwarded to the ESP32 co-processor.
   14:
     name: Forward To
-    description: INTERNAL USE - ID of the client to forward the message to. Forwarding to type alters the meaning of this field
+    description: |
+      ID of the client to forward the message to.
+      Forwarding to type alters the meaning of this field.
     type: uint8
+    alpha: Forwarding is currently a new feature, and may not be perfectly documented
   15:
     name: Storage Level
-    description: Defines the behaviour for messages that have not been ACKed. The default is None, i.e. failed messages will not be retried. Devices have limited storage, if using retries and when storage is full, the oldest messages will be overwritten. Future iterations may support "In Order" which will require messages to be sent and ACKed in timestamp order.
+    description: |
+      Defines the behaviour for messages that have not been ACKed.
+      The default is None, i.e. failed messages will not be retried.
+      Devices have limited storage, if using retries and when storage is full, the oldest messages will be overwritten.
+      Future iterations may support "In Order" which will require messages to be sent and ACKed in timestamp order.
     type: uint8
+    alpha: New feature, subject to alterations
     values:
       0:
         name: None
@@ -153,8 +196,14 @@ header:
         description: Keep the messages until they are ACKed or overwritten
   16:
     name: Message Level
-    description: Loosely analogous to log levels (trace, debug, info, warning, etc.) in that you must define the lowest level of interest. Message Levels can be used with timeouts on subscriptions - if a message of the requested level is not available within the specified time, the subscription will be abandoned. Currently you may only define one subscription per message type - requesting multiple levels will result in existing subscriptions being modified to the new level. Future iterations will support "Changes Only" and "Critical" and may support multiple concurrent subscriptions with varying levels
+    description: |
+      Loosely analogous to log levels (trace, debug, info, warning, etc.) in that you must define the lowest level of interest.
+      Message Levels can be used with timeouts on subscriptions - if a message of the requested level is not available within the specified time,
+      the subscription will be abandoned.
+      Currently you may only define one subscription per message type - requesting multiple levels will result in existing subscriptions being modified to the new level.
+      Future iterations will support "Changes Only" and "Critical" and may support multiple concurrent subscriptions with varying levels
     type: uint8
+    alpha: New feature, subject to alterations
     values:
       1:
         name: Info-Watch
@@ -167,8 +216,12 @@ header:
         description: Activate the relevant hardware but only receive valid data. May be used with subscription timeout feature to request usable data without leaving the hardware on indefinitely
   100:
     name: Received time
-    description: Time the message was received. Particularly useful for messages that are sent to cloud systems, and further processed or forwarded on.
+    description: |
+      Time the message was received.
+      Cloud systems may add this to messages they receive.
+      Particularly useful for messages that are further processed, queued or forwarded on.
     type: uint64
+    unit: ms since epoch
 messages:
   5:
     name: ACK
