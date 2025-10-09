@@ -457,11 +457,6 @@ export default withMermaid(defineConfig({
               link: '/devices/api/glossary',
             },
             {
-              text: 'Messages',
-              link: '/devices/api/messages',
-              items: protocolMenuItems,
-            },
-            {
               text: 'Protocol',
               link: '/devices/api/protocol/',
               items: [
@@ -486,6 +481,11 @@ export default withMermaid(defineConfig({
                   link: '/devices/api/protocol/examples',
                 },
               ]
+            },
+            {
+              text: 'Messages',
+              link: '/devices/api/messages',
+              items: protocolMenuItems,
             },
             {
               text: 'Tools',
