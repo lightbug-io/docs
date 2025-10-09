@@ -4,7 +4,7 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes from '../../../components/ProtocolBytes.vue';
+import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
 import SplitColumnView from '../../../components/SplitColumnView.vue'
 import GenerateConsts from '../../../components/GenerateConsts.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
@@ -38,13 +38,14 @@ Devices currently default to sending a heartbeat every 15 seconds.
 
 ## Examples
 
-Basic heartbeat message.
+### Basic Heartbeat Message
 
-<ProtocolBytes
+This example shows a basic heartbeat message with a single header field (Message ID).
+
+<ProtocolBytes2
     byteString="3 15 0 13 0 1 0 1 2 55 2 0 0 41 1"
-    :boldPositions="[3]"
-    :allowCollapse="true" defaultCollapsed="true"
     :yaml-data="protocolData"
+    :defaultCollapsed="false"
 />
 
 ## Code
