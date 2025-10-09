@@ -1,10 +1,12 @@
 product:
   name: "RH2 RTK Handheld"
+  tagline: "Wearable Precise Positioning"
   description: "Our centimeter level accuracy tracking device with both indoor and outdoor positioning capabilities."
   sku: RH2
   prefix: 43
   version: 2
   booklet: "https://lightbug.io/rh2_rtk_handheld_booklet.pdf"
+  booklet_preview: "https://upload.r2.lb.chasm.cloud/2025/10/chrome_9nTix9gswA.png"
   images:
   - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-front angle.png?x=600&y=0&w=600&h=1000"
   - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-top side.png?x=600&y=0&w=600&h=1000"

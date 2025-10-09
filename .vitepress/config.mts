@@ -286,8 +286,9 @@ export default withMermaid(defineConfig({
       {
         text: 'Hardware',
         items: [
-          { text: 'Devices', link: '/devices/' },
-          { text: 'APIs', link: '/devices/api/' },
+          { text: 'Core Devices', link: '/devices/#core' },
+          { text: 'RTK Devices', link: '/devices/#rtk' },
+          { text: 'Device APIs', link: '/devices/api/' },
         ],
       },
       {
@@ -399,6 +400,7 @@ export default withMermaid(defineConfig({
                   link: '/devices/rtk/handheld/',
                   collapsed: true,
                   items: [
+                    { text: 'Specification', link: '/devices/rtk/handheld/specification' },
                     { text: 'Application', link: '/devices/rtk/handheld/application' },
                     { text: 'External', link: '/devices/rtk/handheld/external' },
                     { text: 'Screen', link: '/devices/rtk/handheld/screen' },

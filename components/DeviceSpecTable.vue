@@ -4,13 +4,20 @@
       <div>
         <h1>{{ deviceTitle }}</h1>
         <span v-if="specs && specs.product && specs.product.description">{{ specs.product.description }}</span>
-        <div v-if="specs && specs.product && specs.product.images && specs.product.images.length" class="device-image-row">
-          <img v-for="(img, idx) in specs.product.images" :key="img" :src="img.startsWith('https://lightbug.io/') ? `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(img)}` : img" :alt="`Device image ${idx+1}`" class="device-image" />
-        </div>
+      </div>
+      <div style="align-self: flex-start;">
+        <DownloadPdfButton :get-pdf-data="getPdfData" label="Download PDF"/>
       </div>
     </div>
-  <DownloadPdfButton :get-pdf-data="getPdfData" label="Spec PDF"/>
-  <DownloadBookletButton v-if="specs && specs.product && specs.product.booklet" :url="specs.product.booklet" />
+
+  <h3 v-if="specs && specs.product && specs.product.images && specs.product.images.length">Images</h3>
+  <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+    <div>
+      <div v-if="specs && specs.product && specs.product.images && specs.product.images.length" class="device-image-row">
+        <img v-for="(img, idx) in specs.product.images" :key="img" :src="img.startsWith('https://lightbug.io/') ? `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(img)}` : img" :alt="`Device image ${idx+1}`" class="device-image" />
+      </div>
+    </div>
+  </div>
 
   <h3>Overview</h3>
     <span v-if="specs && specs.product && specs.product.description">{{ specs.product.description }}</span>
@@ -50,8 +57,6 @@
 import { ref, watchEffect } from 'vue'
 import yaml from 'js-yaml'
 import DownloadPdfButton from './DownloadPdfButton.vue'
-import DownloadYamlButton from './DownloadYamlButton.vue'
-import DownloadBookletButton from './DownloadBookletButton.vue'
 
 const props = defineProps({
   yamlText: {
