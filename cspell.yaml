@@ -56,6 +56,9 @@ words:
   - iccid
   - imei
 
+  # Other tech / code terms
+  - noopener
+
   # OK abbreviations
   - csum
   - Csum
