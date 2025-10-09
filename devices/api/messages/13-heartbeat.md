@@ -5,7 +5,7 @@ outline: false
 
 <script setup>
 import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
-import GenerateConsts from '../../../components/GenerateConsts.vue'
+import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
 import { computed } from 'vue'
@@ -39,4 +39,4 @@ const examples = computed(() => messageData.value?.examples || [])
 
 For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="messageId" :yaml-data="protocolData"/>
+<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>
