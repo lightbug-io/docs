@@ -289,6 +289,7 @@ export default withMermaid(defineConfig({
           { text: 'Core Devices', link: '/devices/#core' },
           { text: 'RTK Devices', link: '/devices/#rtk' },
           { text: 'Device APIs', link: '/devices/api/' },
+          { text: 'Toit SDK', link: '/devices/api/sdks/toit/' },
         ],
       },
       {
@@ -433,6 +434,10 @@ export default withMermaid(defineConfig({
           text: 'API',
           link : '/devices/api/',
         },
+        {
+          text: 'Toit',
+          link : '/devices/api/sdks/toit',
+        },
       ],
       '/devices/api/': [
         {
@@ -450,18 +455,6 @@ export default withMermaid(defineConfig({
             {
               text: 'Glossary',
               link: '/devices/api/glossary',
-            },
-            {
-              text: 'Toit',
-              link: '/devices/api/sdks/toit/',
-              items: [
-                { text: 'Getting Started', link: '/devices/api/sdks/toit/getting-started' },
-                {
-                  text: 'Examples',
-                  link: '/devices/api/sdks/toit/examples/',
-                  items: sidebarItemsFromDir('devices/api/sdks/toit/examples')
-                },
-              ],
             },
             {
               text: 'Messages',
@@ -513,6 +506,32 @@ export default withMermaid(defineConfig({
               ]
             },
           ]
+        },
+        {
+          text: 'Toit',
+          link : '/devices/api/sdks/toit/',
+        },
+      ],
+      '/devices/api/sdks/toit/': [
+        {
+          text: 'Devices',
+          link : '/devices',
+        },
+        {
+          text: 'API',
+          link : '/devices/api/',
+        },
+        {
+          text: 'Toit',
+          link : '/devices/api/sdks/toit/',
+          items: [
+                { text: 'Getting Started', link: '/devices/api/sdks/toit/getting-started' },
+                {
+                  text: 'Examples',
+                  link: '/devices/api/sdks/toit/examples/',
+                  items: sidebarItemsFromDir('devices/api/sdks/toit/examples')
+                },
+              ]
         },
       ],
       '/apis': [
