@@ -4,7 +4,7 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
+import Message from '../../../components/Protocol/Message.vue';
 import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
@@ -42,7 +42,7 @@ Initially the best available time will be provided. Moving forward we will be ab
 
 ##### {{ example.name }}
 
-<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
+<Message :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
 
 </div>
 

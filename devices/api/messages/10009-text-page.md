@@ -4,7 +4,7 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
+import Message from '../../../components/Protocol/Message.vue';
 import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import EinkText from '../../../components/EinkText.vue';
@@ -66,7 +66,7 @@ v-if="index === 1"
 />
 -->
 
-<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="true"/>
+<Message :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="true"/>
 
 </div>
 

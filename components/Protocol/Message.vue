@@ -168,7 +168,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, PropType } from 'vue';
-import { readTypedData } from '../src/protocol/base.gen';
+import { readTypedData } from '../../src/protocol/base.gen';
 import crc16 from 'crc/crc16xmodem';
 import { Buffer } from 'buffer';
 
@@ -183,7 +183,7 @@ interface ByteSection {
 }
 
 export default defineComponent({
-    name: 'ProtocolBytes2',
+    name: 'Message',
     props: {
         byteString: {
             type: String,

@@ -5,11 +5,11 @@
         @input="updateByteString"
         density="compact"
     />
-    <ProtocolBytes2 :byteString="processedByteString" showValidation :yaml-data="yamlData"/>
+    <Message :byteString="processedByteString" showValidation :yaml-data="yamlData"/>
 </template>
 
 <script lang="ts">
-import ProtocolBytes2 from './ProtocolBytes2.vue';
+import Message from './Protocol/Message.vue';
 import { defineComponent, ref, computed } from 'vue';
 
 export default defineComponent({

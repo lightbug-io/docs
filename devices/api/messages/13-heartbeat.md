@@ -4,7 +4,7 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
+import Message from '../../../components/Protocol/Message.vue';
 import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
@@ -29,7 +29,7 @@ const examples = computed(() => messageData.value?.examples || [])
 
 <span v-if="example.description" style="white-space: pre-line;">{{ example.description }}</span>
 
-<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false" :realDeviceInfo="example.real"/>
+<Message :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false" :realDeviceInfo="example.real"/>
 
 </div>
 
