@@ -1,55 +1,75 @@
 ---
-outline: [1,3]
+outline: [2,3]
 ---
 
-::: danger ⚠️ Not yet public
-The Device API currently in development and is not yet accessible on production devices.
-
-These pages can be seen as a view of what is to come later this year.
-:::
-
 <script setup>
-import ProtocolBytesInput from '../../../components/ProtocolBytesInput.vue';
-import { ref, watch } from 'vue';
+import ParseInput from '../../../components/Protocol/ParseInput.vue';
+import { data as protocolData } from '../../../yaml-data.data.ts'
 
-const urlParams = new URLSearchParams(window.location.search);
-const bytes = ref(urlParams.get('bytes') || '');
-
-const updateUrl = (newBytes) => {
-    const sanitizedBytes = newBytes.replace(/ {2,}/g, ' ');
-    const url = new URL(window.location);
-    url.searchParams.set('bytes', sanitizedBytes);
-    window.history.replaceState({}, '', url);
-};
-
-const handleInputEvent = (event) => {
-    if (event.target && event.target.value) {
-        const newBytes = event.target.value.trim();
-        bytes.value = newBytes;
-        updateUrl(newBytes);
-    }
-};
-
-const parseBytes = (input) => {
-    return input.toLowerCase().split(/[\s,]+/).map(byte => {
-        if (byte.startsWith('0x')) {
-            return parseInt(byte, 16);
-        } else if (/^[0-9a-fA-F]+$/.test(byte)) {
-            return parseInt(byte, 16);
-        } else {
-            return parseInt(byte, 10);
-        }
-    }).filter(byte => !isNaN(byte)).join(' ');
-};
-
-watch(bytes, (newBytes) => {
-    const parsedBytes = parseBytes(newBytes);
-    updateUrl(parsedBytes);
-});
+const createExampleUrl = (bytes) => {
+  const url = new URL(window.location.href);
+  url.searchParams.set('bytes', bytes);
+  url.hash = 'parser';
+  return url.toString();
+}
 </script>
 
 # Parse
 
 You can parse messages online using the tool below.
 
-<ProtocolBytesInput :byteString="bytes" @update="handleInputEvent" />
+Enter bytes in any format (decimal integers, hex, 0x notation, comma or space separated), and the tool will automatically detect and display any valid protocol messages found in the byte stream, and tell you information about them.
+
+You can find some example byte streams [below](#examples) to try out.
+
+## Parser
+
+<ParseInput :yaml-data="protocolData" />
+
+## Examples
+
+Click any example below to load it into the parser:
+
+<div class="example-buttons">
+  <a :href="createExampleUrl('3 14 0 13 0 0 0 1 0 6 1 84 103 57 3 14 0 13 0 0 0 1 0 6 1 84 103 57')" class="example-btn">2 Heartbeats</a>
+  <a :href="createExampleUrl('1 8 6 55 3 14 0 13 0 0 0 1 0 6 1 84 103 57 0 0 1 2 3 3 14 0 13 0 0 0 1 0 6 1 84 103 57 9 8 7 6 ')" class="example-btn">2 Heartbeats, with some noise</a>
+</div>
+
+<style scoped>
+.example-buttons {
+  display: flex;
+  gap: 12px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+}
+
+.example-btn {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.example-btn:hover {
+  background-color: #3eaf7c;
+  color: white;
+  border-color: #3eaf7c;
+}
+
+.dark .example-btn {
+  background-color: #2a2a2a;
+  border-color: #555;
+  color: #ddd;
+}
+
+.dark .example-btn:hover {
+  background-color: #3eaf7c;
+  color: white;
+  border-color: #3eaf7c;
+}
+</style>

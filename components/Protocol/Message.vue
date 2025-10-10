@@ -107,46 +107,96 @@
                 </div>
             </div>
             <div class="byte-controls">
-                <v-icon @click="toggleBytesCollapsed" class="control-icon" :title="isBytesCollapsed ? 'Show information' : 'Hide information'">
-                    {{ isBytesCollapsed ? 'mdi-chevron-down' : 'mdi-chevron-up' }}
-                </v-icon>
-                <v-icon @click="toggleCogModal" class="control-icon" title="Copy Options">mdi-cog</v-icon>
-                <v-icon v-if="showGeneratorLink" @click="navigateToGenerate" class="control-icon" title="Edit in Generator">mdi-pencil</v-icon>
-                <v-icon @click="copyToClipboard" class="control-icon" title="Copy to Clipboard">mdi-content-copy</v-icon>
+                <v-btn
+                    size="x-small"
+                    variant="text"
+                    icon
+                    @click="toggleBytesCollapsed"
+                    class="control-btn"
+                    :title="isBytesCollapsed ? 'Show information' : 'Hide information'"
+                >
+                    <v-icon size="small">{{ isBytesCollapsed ? 'mdi-chevron-down' : 'mdi-chevron-up' }}</v-icon>
+                </v-btn>
+                <v-btn
+                    size="x-small"
+                    variant="text"
+                    icon
+                    @click="toggleCogModal"
+                    class="control-btn"
+                    title="Copy Options"
+                >
+                    <v-icon size="small">mdi-cog</v-icon>
+                </v-btn>
+                <v-btn
+                    v-if="showGeneratorLink"
+                    size="x-small"
+                    variant="text"
+                    icon
+                    @click="navigateToGenerate"
+                    class="control-btn"
+                    title="Edit in Generator"
+                >
+                    <v-icon size="small">mdi-pencil</v-icon>
+                </v-btn>
+                <v-btn
+                    size="x-small"
+                    variant="text"
+                    icon
+                    @click="copyToClipboard"
+                    class="control-btn"
+                    title="Copy to Clipboard"
+                >
+                    <v-icon size="small">mdi-content-copy</v-icon>
+                </v-btn>
             </div>
         </div>
 
         <!-- Settings Modal -->
-        <v-dialog v-model="isCogModalVisible" max-width="300px">
-            <v-card>
-                <v-card-title>Copy Options</v-card-title>
-                <v-card-text>
-                    <h1>Format</h1>
-                    <v-radio-group v-model="byteDisplayType" row>
-                        <v-radio label="Ints (1 7 255)" value="ints"></v-radio>
-                        <v-radio label="Hex (01 07 FF)" value="hex"></v-radio>
-                        <v-radio label="Hex with 0x (0x01 0x07 0xFF)" value="hex0x"></v-radio>
-                        <v-radio label="Printf ('\\x01' '\\x07' '\\xFF')" value="printf" title="printf, ignores space and comma selections"></v-radio>
-                    </v-radio-group>
-                    <v-checkbox
-                        v-model="byteUpperCase"
-                        label="Uppercase"
-                        density="compact"
-                    ></v-checkbox>
-                    <h1>Separators</h1>
-                    <v-checkbox
-                        v-model="byteCopySpaces"
-                        label="Spaces (1 2 3)"
-                        density="compact"
-                    ></v-checkbox>
-                    <v-checkbox
-                        v-model="byteCopyCommas"
-                        label="Commas (1, 2, 3)"
-                        density="compact"
-                    ></v-checkbox>
+        <v-dialog v-model="isCogModalVisible" max-width="400px">
+            <v-card class="copy-options-modal">
+                <v-card-title class="modal-title">Copy Options</v-card-title>
+                <v-card-text class="modal-content">
+                    <div class="option-section">
+                        <h3 class="section-label">Format</h3>
+                        <v-radio-group v-model="byteDisplayType" class="format-radio-group">
+                            <v-radio label="Decimal Integers (1 7 255)" value="ints" density="compact"></v-radio>
+                            <v-radio label="Hexadecimal (01 07 FF)" value="hex" density="compact"></v-radio>
+                            <v-radio label="Hex with Prefix (0x01 0x07 0xFF)" value="hex0x" density="compact"></v-radio>
+                            <v-radio label="Printf Style ('\\x01' '\\x07' '\\xFF')" value="printf" density="compact"></v-radio>
+                        </v-radio-group>
+                    </div>
+                    <v-divider class="section-divider"></v-divider>
+                    <div class="option-section">
+                        <h3 class="section-label">Options</h3>
+                        <v-checkbox
+                            v-model="byteUpperCase"
+                            label="Uppercase hex letters (A-F vs a-f)"
+                            density="compact"
+                            hide-details
+                        ></v-checkbox>
+                    </div>
+                    <v-divider class="section-divider"></v-divider>
+                    <div class="option-section">
+                        <h3 class="section-label">Separators</h3>
+                        <div class="separator-note">Note: Printf format ignores separator settings</div>
+                        <v-checkbox
+                            v-model="byteCopySpaces"
+                            label="Spaces between bytes (1 2 3)"
+                            density="compact"
+                            hide-details
+                        ></v-checkbox>
+                        <v-checkbox
+                            v-model="byteCopyCommas"
+                            label="Commas between bytes (1, 2, 3)"
+                            density="compact"
+                            hide-details
+                            class="mt-2"
+                        ></v-checkbox>
+                    </div>
                 </v-card-text>
-                <v-card-actions>
-                    <v-btn @click="toggleCogModal">Close</v-btn>
+                <v-card-actions class="modal-actions">
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" variant="elevated" @click="toggleCogModal">Done</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -905,25 +955,26 @@ export default defineComponent({
 
 .byte-controls {
     display: flex;
-    gap: 8px;
+    gap: 0px;
 }
 
-.control-icon {
-    cursor: pointer;
+.control-btn {
     color: #666;
-    transition: color 0.2s;
+    transition: all 0.2s;
 }
 
-.control-icon:hover {
+.control-btn:hover {
     color: #3eaf7c;
+    background-color: rgba(62, 175, 124, 0.1);
 }
 
-.dark .control-icon {
+.dark .control-btn {
     color: #aaa;
 }
 
-.dark .control-icon:hover {
+.dark .control-btn:hover {
     color: #3eaf7c;
+    background-color: rgba(62, 175, 124, 0.15);
 }
 
 .annotation-value-container {
@@ -1022,5 +1073,68 @@ export default defineComponent({
     border-left-color: #8b9cf6;
     border-top-color: #444;
     color: #a0aec0;
+}
+
+/* Modal Styling */
+.copy-options-modal .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    padding: 20px 24px 16px;
+    background: grey;
+    color: white;
+}
+
+.copy-options-modal .modal-content {
+    padding: 24px;
+}
+
+.option-section {
+    margin-bottom: 8px;
+}
+
+.section-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+.dark .section-label {
+    color: #aaa;
+}
+
+.section-divider {
+    margin: 20px 0;
+}
+
+.format-radio-group {
+    margin-top: 8px;
+}
+
+.separator-note {
+    font-size: 0.75rem;
+    color: #999;
+    font-style: italic;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    border-left: 3px solid #ffc107;
+}
+
+.dark .separator-note {
+    background-color: #2a2a2a;
+    color: #aaa;
+}
+
+.modal-actions {
+    padding: 16px 24px;
+    background-color: #f8f9fa;
+}
+
+.dark .modal-actions {
+    background-color: #2a2a2a;
 }
 </style>
