@@ -39,6 +39,10 @@
             <span v-if="foundMessages.length > 0 && byteStatistics.ignoredBytes > 0" class="stat-item stat-muted">
                 <strong>{{ byteStatistics.ignoredBytes }}</strong> bytes ignored
             </span>
+            <span v-if="parserTimedOut" class="stat-item stat-error">
+                <v-icon size="small" color="error">mdi-alert-circle</v-icon>
+                Parser timeout - results may be incomplete
+            </span>
         </div>
 
         <!-- Byte Visualization with Highlights -->
@@ -138,11 +142,12 @@
 
         <!-- Found Messages -->
         <div v-if="foundMessages.length > 0" class="found-messages">
-            <h2 id="found-messages">Found Messages</h2>
+            <h2 id="found-messages">Messages</h2>
             <div
                 v-for="(msg, index) in foundMessages"
                 :key="index"
                 class="message-wrapper"
+                :class="{ 'message-partial': msg.isPartial }"
                 @mouseenter="hoveredMessageIndex = index"
                 @mouseleave="hoveredMessageIndex = null"
             >
@@ -152,6 +157,18 @@
                         <span v-if="msg.messageTypeName" class="message-type-name">{{ msg.messageTypeName }}</span>
                         <span v-if="msg.messageType !== undefined" class="message-type-id">({{ msg.messageType }})</span>
                         <span class="message-range">bytes {{ msg.startIndex }} - {{ msg.endIndex }}</span>
+                        <span v-if="msg.isPartial" class="message-partial-badge">
+                            <v-icon size="small" color="warning">mdi-alert-circle</v-icon>
+                            PARTIAL
+                        </span>
+                    </span>
+                </div>
+                <div v-if="msg.isPartial" class="message-warning">
+                    <v-icon size="small" color="warning">mdi-alert</v-icon>
+                    <span class="warning-text">{{ msg.partialReason }}</span>
+                    <span v-if="msg.checksumError && msg.expectedChecksum !== undefined" class="checksum-details">
+                        Expected: 0x{{ msg.expectedChecksum.toString(16).padStart(4, '0').toUpperCase() }},
+                        Got: 0x{{ msg.actualChecksum?.toString(16).padStart(4, '0').toUpperCase() }}
                     </span>
                 </div>
                 <Message
@@ -177,6 +194,11 @@ interface FoundMessage {
     byteString: string;
     messageType?: number;
     messageTypeName?: string;
+    isPartial?: boolean;
+    partialReason?: string;
+    checksumError?: boolean;
+    expectedChecksum?: number;
+    actualChecksum?: number;
 }
 
 export default defineComponent({
@@ -199,6 +221,7 @@ export default defineComponent({
         const hoveredByteIndex = ref<number | null>(null);
         const hoveredMessageIndex = ref<number | null>(null);
         const byteDisplayFormat = ref<'ints' | 'hex' | 'hex0x' | 'printf'>('ints');
+        const parserTimedOut = ref(false);
 
         // Byte stream copy settings
         const streamCopySpaces = ref(true);
@@ -272,13 +295,29 @@ export default defineComponent({
         const foundMessages = computed(() => {
             const bytes = processedBytes.value;
             const messages: FoundMessage[] = [];
+            parserTimedOut.value = false;
 
             if (bytes.length < 10) {
                 return messages; // Minimum message size
             }
 
-            // Try to find messages at each position
+            const startTime = Date.now();
+            const MAX_PARSE_TIME_MS = 3000; // 3 second timeout
+            const usedByteRanges: Set<number> = new Set();
+
+            // First pass: Find all complete, valid messages
             for (let i = 0; i < bytes.length - 9; i++) {
+                if (Date.now() - startTime > MAX_PARSE_TIME_MS) {
+                    console.warn('Parser timeout - stopping search');
+                    parserTimedOut.value = true;
+                    break;
+                }
+
+                // Skip if this byte is already part of a found message
+                if (usedByteRanges.has(i)) {
+                    continue;
+                }
+
                 try {
                     // Check for optional LB prefix
                     let startOffset = 0;
@@ -306,9 +345,9 @@ export default defineComponent({
                         continue;
                     }
 
-                    // Check if we have enough bytes
+                    // Check if we have enough bytes for a complete message
                     if (msgStartIndex + length > bytes.length) {
-                        continue;
+                        continue; // Don't process incomplete messages in first pass
                     }
 
                     // Extract the full message
@@ -321,7 +360,7 @@ export default defineComponent({
                                      (messageBytes[messageBytes.length - 1] << 8);
 
                     if (expectedCRC !== actualCRC) {
-                        continue; // Invalid CRC, not a valid message
+                        continue; // Don't include invalid CRC in first pass
                     }
 
                     // Try to parse the message structure
@@ -331,18 +370,27 @@ export default defineComponent({
                         // Get message type name from yaml data
                         const messageTypeName = props.yamlData?.messages?.[parsedMessage.messageType]?.name;
 
-                        // If we got here, it's a valid message!
+                        // Valid message found!
+                        const messageStart = i;
+                        const messageEnd = i + startOffset + length - 1;
+
                         messages.push({
-                            startIndex: i,
-                            endIndex: i + startOffset + length - 1,
-                            bytes: bytes.slice(i, i + startOffset + length),
-                            byteString: bytes.slice(i, i + startOffset + length).join(' '),
+                            startIndex: messageStart,
+                            endIndex: messageEnd,
+                            bytes: bytes.slice(messageStart, messageEnd + 1),
+                            byteString: bytes.slice(messageStart, messageEnd + 1).join(' '),
                             messageType: parsedMessage.messageType,
-                            messageTypeName: messageTypeName
+                            messageTypeName: messageTypeName,
+                            isPartial: false
                         });
 
-                        // Skip past this message to avoid overlapping detections
-                        i += startOffset + length - 1;
+                        // Mark these bytes as used
+                        for (let j = messageStart; j <= messageEnd; j++) {
+                            usedByteRanges.add(j);
+                        }
+
+                        // Skip past this message
+                        i = messageEnd;
                     } catch (parseError) {
                         // Not a valid message structure
                         continue;
@@ -353,18 +401,169 @@ export default defineComponent({
                 }
             }
 
+            // Second pass: Look for partial messages in unused byte ranges
+            for (let i = 0; i < bytes.length - 9; i++) {
+                if (Date.now() - startTime > MAX_PARSE_TIME_MS) {
+                    console.warn('Parser timeout - stopping partial message search');
+                    parserTimedOut.value = true;
+                    break;
+                }
+
+                // Skip if this byte is already part of a found message
+                if (usedByteRanges.has(i)) {
+                    continue;
+                }
+
+                try {
+                    // Check for optional LB prefix
+                    let startOffset = 0;
+                    if (i + 1 < bytes.length && bytes[i] === 0x4c && bytes[i + 1] === 0x42) {
+                        startOffset = 2;
+                    }
+
+                    const msgStartIndex = i + startOffset;
+
+                    // Need at least: version(1) + length(2) + msg type(2) + header count(2) + payload count(2) + crc(2) = 11 bytes
+                    if (msgStartIndex + 11 > bytes.length) {
+                        continue;
+                    }
+
+                    // Check protocol version (should be 3)
+                    if (bytes[msgStartIndex] !== 3) {
+                        continue;
+                    }
+
+                    // Read length
+                    const length = bytes[msgStartIndex + 1] | (bytes[msgStartIndex + 2] << 8);
+
+                    // Validate length is reasonable
+                    if (length < 11 || length > 1000) {
+                        continue;
+                    }
+
+                    // Track partial message detection
+                    let isPartial = false;
+                    let partialReason = '';
+                    let messageEndIndex = msgStartIndex + length;
+
+                    // Check if we have enough bytes
+                    if (msgStartIndex + length > bytes.length) {
+                        isPartial = true;
+                        partialReason = 'Message is truncated (incomplete)';
+                        messageEndIndex = bytes.length;
+                    }
+
+                    // Extract available message bytes
+                    const messageBytes = bytes.slice(msgStartIndex, messageEndIndex);
+
+                    // Check CRC if we have the full message
+                    let checksumError = false;
+                    let expectedCRC: number | undefined;
+                    let actualCRC: number | undefined;
+
+                    if (!isPartial) {
+                        const dataForCRC = messageBytes.slice(0, -2);
+                        expectedCRC = calculateCRC16XMODEM(dataForCRC);
+                        actualCRC = messageBytes[messageBytes.length - 2] |
+                                   (messageBytes[messageBytes.length - 1] << 8);
+
+                        if (expectedCRC !== actualCRC) {
+                            checksumError = true;
+                            isPartial = true;
+                            partialReason = 'Invalid checksum';
+                        }
+                    }
+
+                    // Try to parse the message structure
+                    let parsedMessage: any = null;
+                    let parseError = false;
+
+                    try {
+                        parsedMessage = parseRawMessage(messageBytes);
+                    } catch (err) {
+                        parseError = true;
+                        if (!isPartial) {
+                            isPartial = true;
+                            partialReason = 'Message structure is malformed';
+                        }
+                    }
+
+                    // Only include partial messages (we already got the valid ones)
+                    if (isPartial) {
+                        // Get message type name from yaml data
+                        let messageTypeName: string | undefined;
+                        let messageType: number | undefined;
+
+                        if (parsedMessage) {
+                            messageType = parsedMessage.messageType;
+                            messageTypeName = props.yamlData?.messages?.[parsedMessage.messageType]?.name;
+                        } else if (messageBytes.length >= 5) {
+                            // Try to at least extract message type even if parsing failed
+                            messageType = messageBytes[3] | (messageBytes[4] << 8);
+                            messageTypeName = props.yamlData?.messages?.[messageType]?.name;
+                        }
+
+                        const messageStart = i;
+                        const messageEnd = i + startOffset + messageEndIndex - msgStartIndex - 1;
+
+                        messages.push({
+                            startIndex: messageStart,
+                            endIndex: messageEnd,
+                            bytes: bytes.slice(messageStart, messageEnd + 1),
+                            byteString: bytes.slice(messageStart, messageEnd + 1).join(' '),
+                            messageType: messageType,
+                            messageTypeName: messageTypeName,
+                            isPartial: isPartial,
+                            partialReason: partialReason,
+                            checksumError: checksumError,
+                            expectedChecksum: expectedCRC,
+                            actualChecksum: actualCRC
+                        });
+
+                        // Mark these bytes as used
+                        for (let j = messageStart; j <= messageEnd; j++) {
+                            usedByteRanges.add(j);
+                        }
+
+                        // Skip past this partial message
+                        i = messageEnd;
+                    }
+                } catch (error) {
+                    // Skip this position
+                    continue;
+                }
+            }
+
+            // Sort messages by start index
+            messages.sort((a, b) => a.startIndex - b.startIndex);
+
             return messages;
         });
 
         // Calculate statistics about bytes used vs ignored
         const byteStatistics = computed(() => {
             const totalBytes = processedBytes.value.length;
-            let usedBytes = 0;
+            const usedByteSet = new Set<number>();
 
+            // First, mark all bytes used by valid messages
             foundMessages.value.forEach(msg => {
-                usedBytes += msg.bytes.length;
+                if (!msg.isPartial) {
+                    for (let i = msg.startIndex; i <= msg.endIndex; i++) {
+                        usedByteSet.add(i);
+                    }
+                }
             });
 
+            // Then, mark bytes used by partial messages (only if not already used)
+            foundMessages.value.forEach(msg => {
+                if (msg.isPartial) {
+                    for (let i = msg.startIndex; i <= msg.endIndex; i++) {
+                        usedByteSet.add(i);
+                    }
+                }
+            });
+
+            const usedBytes = usedByteSet.size;
             const ignoredBytes = totalBytes - usedBytes;
             const usagePercentage = totalBytes > 0 ? ((usedBytes / totalBytes) * 100).toFixed(1) : 0;
 
@@ -381,9 +580,28 @@ export default defineComponent({
             const classes: string[] = [];
 
             // Check if this byte is part of a found message
-            const messageIndex = foundMessages.value.findIndex(
-                msg => index >= msg.startIndex && index <= msg.endIndex
-            );
+            // Prioritize valid messages over partial ones by checking valid messages first
+            let messageIndex = -1;
+
+            // First, look for valid (non-partial) messages
+            for (let i = 0; i < foundMessages.value.length; i++) {
+                const msg = foundMessages.value[i];
+                if (!msg.isPartial && index >= msg.startIndex && index <= msg.endIndex) {
+                    messageIndex = i;
+                    break;
+                }
+            }
+
+            // If not in a valid message, check partial messages
+            if (messageIndex === -1) {
+                for (let i = 0; i < foundMessages.value.length; i++) {
+                    const msg = foundMessages.value[i];
+                    if (msg.isPartial && index >= msg.startIndex && index <= msg.endIndex) {
+                        messageIndex = i;
+                        break;
+                    }
+                }
+            }
 
             if (messageIndex >= 0) {
                 classes.push('byte-in-message');
@@ -502,6 +720,18 @@ export default defineComponent({
 
             // Listen for popstate events (browser back/forward)
             window.addEventListener('popstate', loadFromUrl);
+
+            // If there's a hash in the URL and bytes were loaded, scroll to it after messages are parsed
+            if (typeof window !== 'undefined' && window.location.hash && inputByteString.value) {
+                // Use nextTick to ensure the DOM is updated before scrolling
+                setTimeout(() => {
+                    const hash = window.location.hash;
+                    const element = document.querySelector(hash);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100);
+            }
         });
 
         // Watch for changes to update URL
@@ -520,6 +750,7 @@ export default defineComponent({
             byteDisplayFormat,
             streamCopySpaces,
             streamCopyCommas,
+            parserTimedOut,
             getByteClass,
             handleInputChange,
             clearInput,
@@ -581,6 +812,14 @@ export default defineComponent({
 
 .dark .stat-muted {
     color: #666;
+}
+
+.stat-error {
+    color: #dc3545;
+}
+
+.dark .stat-error {
+    color: #f87171;
 }
 
 .stat-percentage {
@@ -820,12 +1059,28 @@ export default defineComponent({
     border-color: #3eaf7c;
 }
 
+.message-wrapper.message-partial {
+    border-color: #ffc107;
+}
+
+.message-wrapper.message-partial:hover {
+    border-color: #ff9800;
+}
+
 .dark .message-wrapper {
     border-color: #444;
 }
 
 .dark .message-wrapper:hover {
     border-color: #3eaf7c;
+}
+
+.dark .message-wrapper.message-partial {
+    border-color: #fbbf24;
+}
+
+.dark .message-wrapper.message-partial:hover {
+    border-color: #f59e0b;
 }
 
 .message-header-bar {
@@ -887,5 +1142,51 @@ export default defineComponent({
 
 .dark .message-range {
     color: #777;
+}
+
+.message-partial-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background-color: #fff3cd;
+    color: #856404;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.dark .message-partial-badge {
+    background-color: #664d03;
+    color: #ffc107;
+}
+
+.message-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: #fff3cd;
+    border-bottom: 1px solid #ffc107;
+    color: #856404;
+    font-size: 13px;
+}
+
+.dark .message-warning {
+    background-color: #664d03;
+    border-bottom-color: #ffc107;
+    color: #ffc107;
+}
+
+.warning-text {
+    flex: 1;
+    font-weight: 500;
+}
+
+.checksum-details {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 12px;
+    opacity: 0.9;
 }
 </style>

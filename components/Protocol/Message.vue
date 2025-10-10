@@ -258,6 +258,13 @@ export default defineComponent({
                 description?: string;
             } | null>,
             default: null
+        },
+        customFieldTypes: {
+            type: Object as PropType<{
+                headers?: Record<number, string>;
+                payload?: Record<number, string>;
+            }>,
+            default: () => ({})
         }
     },
     setup(props) {
@@ -316,11 +323,13 @@ export default defineComponent({
             const bytes = props.byteString.split(' ').map(s => parseInt(s, 10));
             const sections: ByteSection[] = [];
             let index = 0;
+            let hasPrefix = false;
 
             const readUint16LE = (b1: number, b2: number): number => ((b2 << 8) | b1) >>> 0;
 
             // Check for LB prefix
             if (bytes.length > 2 && bytes[0] === 76 && bytes[1] === 66) {
+                hasPrefix = true;
                 sections.push({
                     label: 'Prefix',
                     value: 'LB',
@@ -343,7 +352,8 @@ export default defineComponent({
             const length = readUint16LE(bytes[index], bytes[index + 1]);
             let lengthValue = `${length} bytes`;
             if (props.showValidation) {
-                const expectedLength = bytes.length;
+                // Expected length is total bytes minus prefix (if present)
+                const expectedLength = hasPrefix ? bytes.length - 2 : bytes.length;
                 const isValidLength = length === expectedLength;
                 lengthValue = isValidLength
                     ? `${length} bytes ✅`
@@ -389,24 +399,71 @@ export default defineComponent({
                 for (let i = 0; i < numHeaderFields; i++) {
                     const headerLength = bytes[index];
                     const headerType = bytes[headerTypesIndex + i];
-                    const headerName = props.yamlData?.header?.[headerType]?.name || `Header ${headerType}`;
-                    const headerValueType = props.yamlData?.header?.[headerType]?.type || 'uint8';
-                    const headerValue = readTypedData(bytes.slice(index + 1, index + 1 + headerLength), headerValueType);
+                    const headerFieldDef = props.yamlData?.header?.[headerType];
+                    const customHeaderType = props.customFieldTypes?.headers?.[headerType];
+                    const headerName = headerFieldDef?.name || `Header ${headerType}`;
 
-                    // Check if there's a value mapping for this header field
-                    const headerValueMapping = props.yamlData?.header?.[headerType]?.values?.[headerValue];
-                    let displayValue = headerValueMapping?.name
-                        ? `${headerValue} (${headerValueMapping.name})`
-                        : String(headerValue);
+                    const dataBytes = bytes.slice(index + 1, index + 1 + headerLength);
+                    let displayValue: string;
+                    let isUndefined = false;
+                    let parseAs = 'bytes';
 
-                    // Validate byte length against expected type size
-                    if (props.showValidation) {
-                        const expectedSize = getExpectedByteSize(headerValueType);
-                        if (expectedSize !== null && headerLength !== expectedSize) {
-                            displayValue += ` ❌ (expected ${expectedSize} bytes, got ${headerLength})`;
-                        } else if (expectedSize === null && headerLength > 255) {
-                            // Variable-length fields have a max of 255 bytes
-                            displayValue += ` ❌ (exceeds max length of 255 bytes)`;
+                    // If field is defined in spec, parse and validate it
+                    if (headerFieldDef) {
+                        const headerValueType = headerFieldDef.type || 'uint8';
+                        const headerValue = readTypedData(dataBytes, headerValueType);
+
+                        // Check if there's a value mapping for this header field
+                        const headerValueMapping = headerFieldDef.values?.[headerValue];
+                        displayValue = headerValueMapping?.name
+                            ? `${headerValue} (${headerValueMapping.name})`
+                            : String(headerValue);
+
+                        // Validate byte length against expected type size
+                        if (props.showValidation) {
+                            const expectedSize = getExpectedByteSize(headerValueType);
+                            if (expectedSize !== null && headerLength !== expectedSize) {
+                                displayValue += ` ❌ (expected ${expectedSize} bytes, got ${headerLength})`;
+                            } else if (expectedSize === null && headerLength > 255) {
+                                // Variable-length fields have a max of 255 bytes
+                                displayValue += ` ❌ (exceeds max length of 255 bytes)`;
+                            }
+                        }
+                    } else if (customHeaderType) {
+                        // Custom field with known type - parse and validate it
+                        try {
+                            const headerValue = readTypedData(dataBytes, customHeaderType);
+                            displayValue = String(headerValue);
+
+                            // Validate byte length against expected type size
+                            if (props.showValidation) {
+                                const expectedSize = getExpectedByteSize(customHeaderType);
+                                if (expectedSize !== null && headerLength !== expectedSize) {
+                                    displayValue += ` ❌ (expected ${expectedSize} bytes, got ${headerLength})`;
+                                } else if (expectedSize === null && headerLength > 255) {
+                                    displayValue += ` ❌ (exceeds max length of 255 bytes)`;
+                                }
+                            }
+                        } catch (e) {
+                            displayValue = `(parse error as ${customHeaderType})`;
+                        }
+                    } else {
+                        // Unknown/custom field - allow user to choose parsing
+                        isUndefined = true;
+                        const sectionIndex = sections.length; // Will be the index after push
+                        parseAs = sectionParseOverrides.value[sectionIndex] || 'bytes';
+
+                        if (parseAs === 'bytes') {
+                            displayValue = '(bytes)';
+                        } else if (parseAs === 'ascii') {
+                            displayValue = String.fromCharCode(...dataBytes);
+                        } else {
+                            try {
+                                const parsedValue = readTypedData(dataBytes, parseAs);
+                                displayValue = String(parsedValue);
+                            } catch (e) {
+                                displayValue = '(parse error)';
+                            }
                         }
                     }
 
@@ -417,7 +474,10 @@ export default defineComponent({
                         structure: [
                             { label: 'len', count: 1 },
                             { label: 'data', count: headerLength }
-                        ]
+                        ],
+                        isUndefined,
+                        parseAs,
+                        rawBytes: dataBytes
                     });
                     index += 1 + headerLength;
                 }
@@ -447,6 +507,7 @@ export default defineComponent({
                     const payloadLength = bytes[index];
                     const payloadType = bytes[payloadTypesIndex + i];
                     const payloadFieldDef = props.yamlData?.messages?.[messageType]?.data?.[payloadType];
+                    const customPayloadType = props.customFieldTypes?.payload?.[payloadType];
                     const payloadName = payloadFieldDef?.name || `Field ${payloadType}`;
 
                     const dataBytes = bytes.slice(index + 1, index + 1 + payloadLength);
@@ -454,26 +515,8 @@ export default defineComponent({
                     let isUndefined = false;
                     let parseAs = 'bytes';
 
-                    // If field is not defined in spec, allow user to choose parsing
-                    if (!payloadFieldDef) {
-                        isUndefined = true;
-                        // Check if user has selected a parse type for this section
-                        const sectionIndex = sections.length; // Will be the index after push
-                        parseAs = sectionParseOverrides.value[sectionIndex] || 'bytes';
-
-                        if (parseAs === 'bytes') {
-                            displayValue = '(bytes)';
-                        } else if (parseAs === 'ascii') {
-                            displayValue = String.fromCharCode(...dataBytes);
-                        } else {
-                            try {
-                                const parsedValue = readTypedData(dataBytes, parseAs);
-                                displayValue = String(parsedValue);
-                            } catch (e) {
-                                displayValue = '(parse error)';
-                            }
-                        }
-                    } else {
+                    // If field is defined in spec, parse and validate it
+                    if (payloadFieldDef) {
                         const payloadValueType = payloadFieldDef.type || 'uint8';
                         const payloadValue = readTypedData(dataBytes, payloadValueType);
 
@@ -491,6 +534,43 @@ export default defineComponent({
                             } else if (expectedSize === null && payloadLength > 255) {
                                 // Variable-length fields have a max of 255 bytes
                                 displayValue += ` ❌ (exceeds max length of 255 bytes)`;
+                            }
+                        }
+                    } else if (customPayloadType) {
+                        // Custom field with known type - parse and validate it
+                        try {
+                            const payloadValue = readTypedData(dataBytes, customPayloadType);
+                            displayValue = String(payloadValue);
+
+                            // Validate byte length against expected type size
+                            if (props.showValidation) {
+                                const expectedSize = getExpectedByteSize(customPayloadType);
+                                if (expectedSize !== null && payloadLength !== expectedSize) {
+                                    displayValue += ` ❌ (expected ${expectedSize} bytes, got ${payloadLength})`;
+                                } else if (expectedSize === null && payloadLength > 255) {
+                                    displayValue += ` ❌ (exceeds max length of 255 bytes)`;
+                                }
+                            }
+                        } catch (e) {
+                            displayValue = `(parse error as ${customPayloadType})`;
+                        }
+                    } else {
+                        // If field is not defined in spec and no custom type, allow user to choose parsing
+                        isUndefined = true;
+                        // Check if user has selected a parse type for this section
+                        const sectionIndex = sections.length; // Will be the index after push
+                        parseAs = sectionParseOverrides.value[sectionIndex] || 'bytes';
+
+                        if (parseAs === 'bytes') {
+                            displayValue = '(bytes)';
+                        } else if (parseAs === 'ascii') {
+                            displayValue = String.fromCharCode(...dataBytes);
+                        } else {
+                            try {
+                                const parsedValue = readTypedData(dataBytes, parseAs);
+                                displayValue = String(parsedValue);
+                            } catch (e) {
+                                displayValue = '(parse error)';
                             }
                         }
                     }
@@ -515,10 +595,12 @@ export default defineComponent({
             const checksumStartIndex = index;
             const crc = readUint16LE(bytes[index], bytes[index + 1]);
 
-            // Calculate expected CRC for validation
+            // Calculate expected CRC for validation (never includes prefix bytes)
             let checksumValue = String(crc);
             if (props.showValidation) {
-                const expectedCRC = crc16(Buffer.from(bytes.slice(0, checksumStartIndex)));
+                // CRC is calculated from protocol version onwards, excluding prefix
+                const checksumBytes = hasPrefix ? bytes.slice(2, checksumStartIndex) : bytes.slice(0, checksumStartIndex);
+                const expectedCRC = crc16(Buffer.from(checksumBytes));
                 const isValid = crc === expectedCRC;
                 if (isValid) {
                     checksumValue = `${crc} ✅`;
@@ -578,7 +660,7 @@ export default defineComponent({
 
         const navigateToGenerate = (event: MouseEvent) => {
             const url = new URL(window.location.href);
-            url.pathname = '/devices/api/generate';
+            url.pathname = '/devices/api/tools/generate';
             url.searchParams.set('bytes', props.byteString);
             if (event.ctrlKey || event.metaKey) {
                 window.open(url.toString(), '_blank');

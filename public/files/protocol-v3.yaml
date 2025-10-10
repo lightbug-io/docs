@@ -333,6 +333,8 @@ messages:
   15:
     name: Position
     group: location
+    header:
+      - 5
     data:
       1:
         name: Timestamp
@@ -444,6 +446,8 @@ messages:
   16:
     name: Satellite Data
     group: location
+    header:
+      - 5
     data:
       1:
         name: SNR Average
@@ -544,6 +548,8 @@ messages:
   31:
     name: GSM Control
     group: gsm
+    header:
+      - 5
     data:
       1:
         name: Enable Flight mode
@@ -567,6 +573,8 @@ messages:
     name: GSM Request Ownership
     description: Only available for implant modules that expose modem control over usb to a host directly
     group: gsm
+    header:
+      - 5
     data:
       2:
         name: Duration
@@ -579,9 +587,11 @@ messages:
       GET: null
       SET: null
   33:
-    name: Change SIM settings
+    name: SIM settings
     description: For devices that have dual-sim functionality, control which SIM is active and set APN parameters for SIM2
     group: gsm
+    header:
+      - 5
     data:
       1:
         name: Active SIM
@@ -613,6 +623,8 @@ messages:
     description: |
       Used to GET the general status of the device.
     group: info
+    header:
+      - 5
     data:
       1:
         name: Battery
@@ -668,6 +680,8 @@ messages:
     description: |
       Used to GET the various IDs of the device.
     group: info
+    header:
+      - 5
     data:
       1:
         name: ID
@@ -690,6 +704,8 @@ messages:
     name: Device Time
     description: Device time information, if known
     group: info
+    header:
+      - 5
     data:
       1:
         name: Unix Time
@@ -729,6 +745,8 @@ messages:
     name: Button Press
     description: Press of a device button
     group: ungrouped
+    header:
+      - 5
     data:
       1:
         name: Button ID
@@ -747,6 +765,8 @@ messages:
       Used to interact with the device GPS service.
       Currently only accessible from Viper devices.
     group: location
+    header:
+      - 5
     data:
       1:
         name: GPS is on
@@ -822,6 +842,8 @@ messages:
     name: Temperature
     description: Temperature information
     group: info
+    header:
+      - 5
     data:
       1:
         name: Temperature
@@ -877,6 +899,8 @@ messages:
     description: |
       Get the battery status of a device
     group: info
+    header:
+      - 5
     data:
       1:
         name: Voltage
@@ -899,6 +923,8 @@ messages:
     name: Pressure
     description: Pressure information
     group: info
+    header:
+      - 5
     data:
       1:
         name: Pressure
@@ -981,6 +1007,8 @@ messages:
     name: Power Profile
     description: See how much power is being used by the device. Total power is reset to zero when a new subscription is requested.
     group: ungrouped
+    header:
+      - 5
     data:
       3:
         name: Total power
@@ -1006,6 +1034,8 @@ messages:
       Used to control a remote device link, such as connecting to a UDP server, and using the V3 messaging protocol to communicate with it.
       Once initiated, messages can be forwarded to the link directly using the forwarding headers.
     group: gsm
+    header:
+      - 5
     data:
       1:
         name: IP Address
@@ -1028,6 +1058,8 @@ messages:
       Get information about the protection level - i.e. 95% confidence accuracy ellipse. Only supported on RTK enabled products.
       Used to retrieve ublox protection level information, on devices that have it.
     group: location
+    header:
+      - 5
     data:
       1:
         name: Valid
@@ -1054,6 +1086,8 @@ messages:
     name: Charger Settings
     description: For products with configurable charge settings (notably NOT Vehicle RTK), get and define charging parameters
     group: location
+    header:
+      - 5
     data:
       1:
         name: Input Current Limit
@@ -1076,6 +1110,8 @@ messages:
   55:
     name: WiFi Scan
     group: scan
+    header:
+      - 5
     data:
       1:
         name: SSID
@@ -1098,6 +1134,8 @@ messages:
   56:
     name: BLE Scan
     group: scan
+    header:
+      - 5
     data:
       1:
         name: Advertising Data
@@ -1118,6 +1156,8 @@ messages:
       Interaction with LORA.
       Used to interact with LORA on the device.
     group: ungrouped
+    header:
+      - 5
     data:
       2:
         name: Payload
