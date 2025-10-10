@@ -47,6 +47,8 @@ line3="Third"
 
 ##### {{ example.name }}
 
+<span v-if="example.description" style="white-space: pre-line;">{{ example.description }}</span>
+
 <!--
 <EinkText
 title="Page Title"

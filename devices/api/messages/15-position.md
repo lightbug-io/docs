@@ -40,7 +40,10 @@ Used to interact with the devices position.
 
 ##### {{ example.name }}
 
-<Message :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
+<span v-if="example.description" style="white-space: pre-line;">{{ example.description }}</span>
+
+<Message :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false" :realDeviceInfo="example.real"/>
+
 
 </div>
 

@@ -20,6 +20,14 @@ const examples = computed(() => messageData.value?.examples || [])
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
+## Lightbug comms
+
+This applies to Lightbug devices, SDKs, apps and services.
+
+ - ACKs will be sent when a message has an ID in the header field.
+ - If an ID is not present, then no ACK will be sent because it is assumed the sender is not tracking successes/failures.
+ - ACKs may always be sent for open and close messages (with type only) <!-- Currently the case for P1 comms-->
+
 ## Header
 
 <HeaderTable :messageId="messageId" headerText="" :yaml-data="protocolData"/>
@@ -36,6 +44,8 @@ const examples = computed(() => messageData.value?.examples || [])
 <div v-for="(example, index) in examples" :key="index">
 
 ##### {{ example.name }}
+
+<span v-if="example.description" style="white-space: pre-line;">{{ example.description }}</span>
 
 <Message :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false" :realDeviceInfo="example.real"/>
 

@@ -31,7 +31,7 @@ header:
     description: |
       ID of the client sending the message.
       May mean different things in different contexts.
-      Must be uint32 or uint64 for Lightbug cloud services.
+      Must be uint32 or uint64 for Lightbug cloud services, and relate to a Lightbug Device ID.
     type: uint
   3:
     name: Response to
@@ -254,24 +254,51 @@ messages:
           description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, in response to a heartbeat message that was sent by the ESP.
           date: "2025-10-09"
       - name: Message ID
-        bytes: 3 18 0 5 0 0 0 2 0 1 2 2 32 0 1 234 14 66
+        bytes: 3 17 0 5 0 1 0 3 4 234 0 0 0 0 0 222 59
       - name: Message ID and type
-        bytes: 3 18 0 5 0 0 0 2 0 1 2 2 32 0 1 234 14 66
+        bytes: 3 21 0 5 0 1 0 3 4 234 0 0 0 1 0 1 2 32 0 86 231
       - name: Message type only
-        bytes: 3 15 0 5 0 0 0 1 0 1 2 32 0 164 69
+        bytes: 3 15 0 5 0 0 0 1 0 1 2 11 0 184 159
   11:
     name: Open
-    description: Explicit indicator for the start of a connection
+    description: |
+      Explicit indicator for the start of a connection.
     group: general
     data:
+      1:
+        name: Flags
+        description: For future use, if used should currently always be 0
+        type: uint32
       10:
         name: Device Type
         description: Type of device, relates to the SN prefix
         type: uint8
+    examples:
+      - name: Open with device and message IDs, and flags field
+        description: An open sent from device 12335216, using message ID 1001, and an empty flags field
+        bytes: 3 33 0 11 0 2 0 1 2 4 233 3 0 0 8 112 56 188 0 0 0 0 0 1 0 1 4 0 0 0 0 122 156
+        real:
+          description: This example is captured from an Viper device as part of normal communications over Cloud link
+          date: "2025-10-10"
+          generator: Viper P1 v2255
+      - name: Basic
+        bytes: 3 11 0 11 0 0 0 0 0 73 56
   12:
     name: Close
-    description: Explicit indicator for a connection about to close. Can be used to differentiate between deliberate and accidental disconnections.
+    description: |
+      Explicit indicator for a connection about to close.
+      Can be used to differentiate between deliberate and accidental disconnections.
     group: general
+    examples:
+      - name: Close with device and message IDs
+        description: A close sent from device 123456, using message ID 1002
+        bytes: 3 27 0 12 0 2 0 1 2 4 234 3 0 0 8 64 226 1 0 0 0 0 0 0 0 151 174
+        real:
+          description: This example is captured from an Viper device as part of normal communications over Cloud link
+          date: "2025-10-10"
+          generator: Viper P1 v2255
+      - name: Basic
+        bytes: 3 11 0 12 0 0 0 0 0 8 240
   13:
     name: Heartbeat
     description: |
@@ -750,7 +777,7 @@ messages:
     data:
       1:
         name: Button ID
-        description: ID of the button, 0 indexed. Check device spec for button numbering
+        description: ID of the button, 0 indexed.
         type: uint8
       2:
         name: Duration
@@ -759,6 +786,21 @@ messages:
     methods:
       SUBSCRIBE: null
       UNSUBSCRIBE: null
+    examples:
+      - name: Subscribe to button events
+        description: A client might subscribe to the button press events of a Lightbug Device forever (or until unsubscribing).
+        bytes: 3 23 0 38 0 3 0 5 15 1 1 3 1 10 4 240 205 250 100 0 0 200 53
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 has subscribed to button events from the RH2.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit
+      - name: Button 2 press event of 255ms
+        description: At the end of a button press, the device will send a message with the button ID and duration of the press.
+        bytes: 3 26 0 38 0 1 0 1 4 2 0 0 0 2 0 1 2 1 2 4 255 0 0 0 215 92
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, after button events were subscribed to, and the right button was pressed.
+          date: "2025-10-10"
+          generator: RH2 P1 v3387
   39:
     name: GPS Control
     description: |
