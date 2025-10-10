@@ -146,7 +146,7 @@
         </small>
     </div>
     <h5>Bytes</h5>
-    <ProtocolBytes
+    <ProtocolBytes2
         :byteString="generatedInts"
         showValidation
         :showGeneratorLink="false"
@@ -164,14 +164,14 @@
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import crc16xmodem from 'crc/calculators/crc16xmodem';
-import ProtocolBytes from './ProtocolBytes.vue';
+import ProtocolBytes2 from './ProtocolBytes2.vue';
 import Float32Utils from './../utils/Float32Utils';
 import {Buffer} from 'buffer';
 
 export default defineComponent({
     name: 'ProtocolGenerate',
     components: {
-        ProtocolBytes
+        ProtocolBytes2
     },
     props: {
         yamlData: {

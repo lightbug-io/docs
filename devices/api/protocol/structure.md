@@ -3,7 +3,7 @@ outline: [2,3]
 ---
 
 <script setup>
-import ProtocolBytes from '../../../components/ProtocolBytes.vue';
+import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
 </script>
 
 # Structure

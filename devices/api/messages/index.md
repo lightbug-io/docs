@@ -1,8 +1,3 @@
-<script setup>
-import GenerateConsts from '../../../components/GenerateConsts.vue'
-import ProtocolBytes from '../../../components/ProtocolBytes.vue'
-</script>
-
 # Messages
 
 Messages are the core building blocks of the protocol, allowing you to send and receive data and commands to and from devices.

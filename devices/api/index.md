@@ -2,10 +2,6 @@
 outline: deep
 ---
 
-<script setup>
-import ProtocolBytes from '../../components/ProtocolBytes.vue';
-</script>
-
 # Device API
 
 The device API is a messaging system for communicating with Lightbug devices. It allows you to send and receive [messages](/devices/api/messages/) to and from the device, enabling control and data exchange.

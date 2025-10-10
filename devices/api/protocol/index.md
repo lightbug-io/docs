@@ -4,6 +4,7 @@ outline: [1,3]
 
 <script setup>
 import GenerateConsts from '../../../components/GenerateConsts.vue'
+import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue'
 </script>
 
 # Protocol
@@ -39,11 +40,11 @@ All integers are in [little-endian](https://en.wikipedia.org/wiki/Endianness) fo
 
 As an example empty message including prefix (with no additional header or payload data):
 
-<ProtocolBytes
+<ProtocolBytes2
     byteString="76 66 3 11 0 1 0 0 0 0 0 75 190"
     :allowCollapse="false"
     :yaml-data="protocolData"
-></ProtocolBytes>
+></ProtocolBytes2>
 
 ## Example Message
 
@@ -54,11 +55,11 @@ An example [prefixed](structure#prefix) and minimal message might look as follow
 | Bytes  | 76 66 3 11 0 1 0 0 0 0 0 75 190 |
 | Hex | `4c 42 03 0b 00 01 00 00 00 00 00 4b be` |
 
-<ProtocolBytes
+<ProtocolBytes2
     byteString="76 66 3 11 0 1 0 0 0 0 0 75 190"
     :allowCollapse="false"
     :yaml-data="protocolData"
-></ProtocolBytes>
+></ProtocolBytes2>
 
 ::: info
 All integers are in [little-endian](https://en.wikipedia.org/wiki/Endianness) format eg. (uint16 `1` is represented as `0x01 0x00`).
@@ -77,7 +78,7 @@ The general structure of a message is as follows:
 
 So the full above example would be:
 
-<ProtocolBytes
+<ProtocolBytes2
     byteString="3 11 0 1 0 0 0 0 0 75 190"
     :allowCollapse="false"
-></ProtocolBytes>
+></ProtocolBytes2>
