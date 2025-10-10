@@ -4,10 +4,15 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue'
-import GenerateConsts from '../../../components/GenerateConsts.vue'
+import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
+import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
+import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
+import { computed } from 'vue'
+
+const messageId = 43
+const messageData = computed(() => protocolData?.messages?.[messageId])
+const examples = computed(() => messageData.value?.examples || [])
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -18,47 +23,26 @@ These pages can be seen as a view of what is to come later this year.
 
 # 43: Battery Status
 
-<SplitColumnView>
-<template #left>
+<span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-Get the battery status of a device
+<PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
 
-### Payload
+<div v-if="examples.length > 0">
 
+## Examples
 
-| Field | Name       | Description                      | Type   | Example | Actual |
-| ----- | ---------- | -------------------------------- | ------ | ------- | - |
-| 1     | Voltage | | float32  |   |  |
-| 2     | Percent | | uint8  |   |  |
+<div v-for="(example, index) in examples" :key="index">
 
-If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
+##### {{ example.name }}
 
-</template>
-<template #right>
+<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
 
-### Example
+</div>
 
-Request battery status (all fields)
-
-<ProtocolBytes
-byteString="3 17 0 43 0 2 0 5 1 1 2 1 99 0 0 221 181"
-:boldPositions="[3]"
-:allowCollapse="false"
-/>
-
-Receive an OK response with `100` % battery and `4.4` volts.
-
-<ProtocolBytes
-byteString="3 32 0 43 0 2 0 3 1 4 99 0 0 0 4 36 0 0 0 2 0 2 1 1 100 4 223 79 141 64 210 80"
-:boldPositions="[3,24,26]"
-:allowCollapse="false"
-/>
-
-</template>
-</SplitColumnView>
+</div>
 
 ## Code
 
-For convenience, the following constants can be used to reference the payload fields.
+For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="43" :yaml-data="protocolData"/>
+<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>

@@ -4,94 +4,79 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue';
-import GenerateConsts from '../../../components/GenerateConsts.vue'
+import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
+import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import HeaderTable from '../../../components/HeaderTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
+import { computed } from 'vue'
+
+const messageId = 5
+const messageData = computed(() => protocolData?.messages?.[messageId])
+const examples = computed(() => messageData.value?.examples || [])
 </script>
 
 # 5: ACK
 
-<SplitColumnView>
-<template #left>
+<span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-Used to acknowledge a previously sent message.
+## Header
 
-```mermaid
-flowchart LR
-    A[Sender] -->|Message| B(Receiver)
-    B -->|ACK| A
-```
+<HeaderTable :messageId="messageId" headerText="" :yaml-data="protocolData"/>
 
-The [Response Message ID](../protocol/headers#_3-response-message-id) field in the header can be used in place of an ACK if an immediate response is being sent.
+<small>This is an extract of header fields that are relevant to this message type, you can find them all documented in the [Headers](../protocol/headers.md) section.
+</small>
 
-In such cases the response will not have an ACK message type, instead it will have the message type of the response (often the same as the request).
+## Payload
 
-
-```mermaid
-flowchart LR
-    A[Sender] -->|Message| B(Receiver)
-    B -->|Response| A
-```
-
-If a sender does not receive an ACK or response, it may resend the message.
-
-
-```mermaid
-flowchart LR
-    A[Sender] -->|Message| B(Receiver)
-    A[Sender] -->|Message repeat| B(Receiver)
-```
-
-ACKs should not themselves be ACKed.
-
-</template>
-<template #right>
-
-<h3>Header</h3>
-
-If the message being ACKed has a message ID, it should be included in the `Response to message ID` header field.
-
-<HeaderTable :headerIds="[3]" headerMarginTop="0px" />
-
-<h3>Payload</h3>
-
-If a message is sent with no ID, then you may simply receive an ACK with the previous message type in the payload.
-
-<PayloadTable :messageId="5" headerText="" headerMarginTop="0px" :yaml-data="protocolData" />
-
-</template>
-</SplitColumnView>
+<PayloadTable :messageId="messageId" headerText="" :yaml-data="protocolData"/>
 
 ## Examples
 
-### ID and Type known
+<div v-for="(example, index) in examples" :key="index">
 
-ACK message, acknowledging a message with type `32` and ID `234`
+##### {{ example.name }}
 
-<ProtocolBytes
-    byteString="3 18 0 5 0 0 0 2 0 1 2 2 32 0 1 234 14 66"
-    :boldPositions="[3,12,15]"
-    :allowCollapse="true" defaultCollapsed="true"
-    :yaml-data="protocolData"
-/>
+<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false" :realDeviceInfo="example.real"/>
 
+</div>
 
-### Only type known
+## Sequence
 
-In the case that a message ID is not known, the field can be omitted.
+##### Simple ACK
 
-<ProtocolBytes
-    byteString="3 15 0 5 0 0 0 1 0 1 2 32 0 164 69"
-    :boldPositions="[3,11]"
-    :allowCollapse="true" defaultCollapsed="true"
-    :yaml-data="protocolData"
-/>
+The simple case is that a sender sends a message, and the receiver responds with an ACK message.
+
+```mermaid
+flowchart LR
+    A[Sender] -->|Message type 123| B(Receiver)
+    B -->|ACK typ 5| A
+```
+
+##### Response
+
+The [Response Message ID](../protocol/headers#_3-response-message-id) field in the header can be used in place of an ACK if an immediate response is being sent, with a specific message type.
+
+In such cases the response will not have an ACK message type, instead it will have the message type of the response (often the same as the request).
+
+```mermaid
+flowchart LR
+    A[Sender] -->|Message type 123| B(Receiver)
+    B -->|Response type 123| A
+```
+
+##### Retries
+
+If a sender does not receive an ACK or response, it may resend the message.
+
+```mermaid
+flowchart LR
+    A[Sender] -->|Message id 56| B(Receiver)
+    A[Sender] -->|Message id 56| B(Receiver)
+```
 
 ## Code
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<GenerateConsts :messageId="5" :yaml-data="protocolData"/>
+<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>

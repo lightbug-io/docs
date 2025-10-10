@@ -4,11 +4,15 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue'
-import GenerateConsts from '../../../components/GenerateConsts.vue'
+import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
+import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
+import { computed } from 'vue'
+
+const messageId = 50
+const messageData = computed(() => protocolData?.messages?.[messageId])
+const examples = computed(() => messageData.value?.examples || [])
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -19,27 +23,26 @@ These pages can be seen as a view of what is to come later this year.
 
 # 50: Link Control
 
-<SplitColumnView>
-<template #left>
+<span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-Used to control a remote device link, such as connecting to a UDP server, and using the V3 messaging protocol to communicate with it.
+<PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
 
-Once initiated, messages can be forwarded to the link directly using the forwarding headers.
-
-</template>
-<template #right>
-
-<PayloadTable :messageId="50" headerText="Payload" headerMarginTop="0px" :yaml-data="protocolData" />
-
-</template>
-</SplitColumnView>
+<div v-if="examples.length > 0">
 
 ## Examples
 
-TODO
+<div v-for="(example, index) in examples" :key="index">
+
+##### {{ example.name }}
+
+<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
+
+</div>
+
+</div>
 
 ## Code
 
-For convenience, the following constants can be used to reference the payload fields.
+For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="50" :yaml-data="protocolData"/>
+<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>

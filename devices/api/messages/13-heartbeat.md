@@ -19,11 +19,7 @@ const examples = computed(() => messageData.value?.examples || [])
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-<PayloadTable
-    :messageId="messageId"
-    headerText="Payload"
-    :yaml-data="protocolData"
-/>
+<PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
 
 ## Examples
 
@@ -31,7 +27,9 @@ const examples = computed(() => messageData.value?.examples || [])
 
 ##### {{ example.name }}
 
-<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
+<span v-if="example.description" style="white-space: pre-line;">{{ example.description }}</span>
+
+<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false" :realDeviceInfo="example.real"/>
 
 </div>
 

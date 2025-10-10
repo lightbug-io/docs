@@ -4,10 +4,15 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue'
-import GenerateConsts from '../../../components/GenerateConsts.vue'
+import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
+import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
+import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
+import { computed } from 'vue'
+
+const messageId = 41
+const messageData = computed(() => protocolData?.messages?.[messageId])
+const examples = computed(() => messageData.value?.examples || [])
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -18,37 +23,26 @@ These pages can be seen as a view of what is to come later this year.
 
 # 41: Temperature
 
-::: danger Not yet documented
-:::
+<span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-<SplitColumnView>
-<template #left>
+<PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
 
-### Payload
+<div v-if="examples.length > 0">
 
+## Examples
 
-| Field | Name       | Description                      | Type   | Example | Actual |
-| ----- | ---------- | -------------------------------- | ------ | ------- | - |
+<div v-for="(example, index) in examples" :key="index">
 
+##### {{ example.name }}
 
-	:yaml-data="protocolData"
-</template>
-<template #right>
+<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
 
-### Example
+</div>
 
-<ProtocolBytes
-byteString="0"
-:boldPositions="[3,12,15,16]"
-:allowCollapse="false"
-:yaml-data="protocolData"
-/>
-
-</template>
-</SplitColumnView>
+</div>
 
 ## Code
 
-For convenience, the following constants can be used to reference the payload fields.
+For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="41" :yaml-data="protocolData"/>
+<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>

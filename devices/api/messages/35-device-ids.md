@@ -4,11 +4,15 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue';
-import GenerateConsts from '../../../components/GenerateConsts.vue'
+import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
+import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
+import { computed } from 'vue'
+
+const messageId = 35
+const messageData = computed(() => protocolData?.messages?.[messageId])
+const examples = computed(() => messageData.value?.examples || [])
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -17,45 +21,28 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 35: ID
+# 35: Device IDs
 
-<SplitColumnView>
-<template #left>
+<span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-Used to GET the various IDs of the device.
+<PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
 
-### Payload
+<div v-if="examples.length > 0">
 
-<PayloadTable :messageId="35" headerText="" headerMarginTop="0px" :yaml-data="protocolData" />
+## Examples
 
-</template>
-<template #right>
+<div v-for="(example, index) in examples" :key="index">
 
-### Example
-If you wanted to GET the ID from a device, you would send a GET message with the ID field requested (length 0).
+##### {{ example.name }}
 
-<ProtocolBytes
-byteString="3 17 0 35 0 2 0 1 5 1 234 1 2 0 0 164 245"
-:boldPositions="[3,12]"
-:allowCollapse="false"
-:yaml-data="protocolData"
-/>
+<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
 
-<!-- The device would then respond with a message of type 35, with the ID field filled in if known.
+</div>
 
-<ProtocolBytes
-byteString="76 66 3 26 0 35 0 3 0 3 4 1 1 234 1 1 1 6 1 0 1 4 240 209 132 0 2 242"
-:boldPositions="[3,20]"
-:allowCollapse="false"
-/>
-
-TODO example with more ids...-->
-
-</template>
-</SplitColumnView>
+</div>
 
 ## Code
 
-For convenience, the following constants can be used to reference the payload fields.
+For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="35" :yaml-data="protocolData"/>
+<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>

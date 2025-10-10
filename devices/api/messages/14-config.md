@@ -4,11 +4,15 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue'
-import GenerateConsts from '../../../components/GenerateConsts.vue'
+import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
+import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
+import { computed } from 'vue'
+
+const messageId = 14
+const messageData = computed(() => protocolData?.messages?.[messageId])
+const examples = computed(() => messageData.value?.examples || [])
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -17,23 +21,28 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 14: Config Update
+# 14: Config
 
-<SplitColumnView>
-<template #left>
+<span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-TODO...
+<PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
 
-</template>
-<template #right>
+<div v-if="examples.length > 0">
 
-<PayloadTable :messageId="14" headerText="Payload" headerMarginTop="0px" :yaml-data="protocolData" />
+## Examples
 
-</template>
-</SplitColumnView>
+<div v-for="(example, index) in examples" :key="index">
+
+##### {{ example.name }}
+
+<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
+
+</div>
+
+</div>
 
 ## Code
 
-For convenience, the following constants can be used to reference the payload fields.
+For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="14" :yaml-data="protocolData"/>
+<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>

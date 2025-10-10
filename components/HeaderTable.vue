@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h3 v-if="headerText" :style="{ marginTop: headerMarginTop }">{{ headerText }}</h3>
+  <div v-if="hasHeaderFields">
+    <h3 v-if="showHeader && headerText" :style="{ marginTop: headerMarginTop }">{{ headerText }}</h3>
     <table>
       <thead>
         <tr>
@@ -11,52 +11,89 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(field, index) in fields" :key="index">
-          <td>{{ index }}</td>
-          <td>{{ field.name }}</td>
-          <td>{{ field.description }}</td>
-          <td>{{ field.type }}</td>
-        </tr>
+        <template v-for="fieldId in headerFieldIds" :key="fieldId">
+          <tr v-if="headerFieldData[fieldId]">
+            <td>{{ fieldId }}</td>
+            <td>{{ headerFieldData[fieldId].name }}</td>
+            <td>
+              <template v-if="headerFieldData[fieldId].description">
+                <span v-html="headerFieldData[fieldId].description.replace(/\n/g, '<br>')"></span>
+              </template>
+              <template v-if="headerFieldData[fieldId].values">
+                <template v-if="headerFieldData[fieldId].description">
+                  <br />
+                </template>
+                <span style="font-size: 0.95em; color: #555;">
+                  <strong>Possible values:</strong>
+                  <ul style="margin: 0 0 0 1.2em; padding: 0; list-style-type: disc;">
+                    <li v-for="([key, val]) in Object.entries(headerFieldData[fieldId].values)" :key="key">
+                      <span style="font-family: monospace;">{{ key }}</span>: <strong>{{ (val as any).name }}</strong>
+                      <span v-if="(val as any).description">— {{ (val as any).description }}</span>
+                    </li>
+                  </ul>
+                </span>
+              </template>
+            </td>
+            <td>{{ headerFieldData[fieldId].type }}</td>
+          </tr>
+        </template>
       </tbody>
     </table>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, onMounted, PropType } from 'vue';
+import { defineComponent, computed } from 'vue';
 
 export default defineComponent({
   name: 'HeaderTable',
   props: {
-    headerIds: {
-      type: Array as PropType<number[]>,
-      default: () => []
+    messageId: {
+      type: Number,
+      required: true
     },
     yamlData: {
-      type: Object as PropType<any>,
-      default: () => ({})
+      type: Object,
+      required: true
     },
     headerText: {
       type: String,
-      default: ''
+      default: 'Header Fields'
     },
     headerMarginTop: {
       type: String,
       default: '0px'
+    },
+    showHeader: {
+      type: Boolean,
+      default: true
     }
   },
   setup(props) {
-    const fields = ref<any>({});
+    const headerFieldIds = computed(() => {
+      if (!props.yamlData || !props.yamlData.messages) {
+        return [];
+      }
+      return props.yamlData.messages[props.messageId]?.header || [];
+    });
 
-    onMounted(() => {
-      fields.value = {};
-      (props.headerIds as number[]).forEach((headerId: number) => {
-        fields.value[headerId] = props.yamlData.header?.[headerId] || [];
-      });
+    const headerFieldData = computed(() => {
+      if (!props.yamlData || !props.yamlData.header) {
+        return {};
+      }
+      return props.yamlData.header;
+    });
+
+    const hasHeaderFields = computed(() => {
+      return headerFieldIds.value && headerFieldIds.value.length > 0;
     });
 
     return {
-      fields
+      headerFieldIds,
+      headerFieldData,
+      hasHeaderFields,
+      headerText: props.headerText,
+      headerMarginTop: props.headerMarginTop
     };
   }
 });

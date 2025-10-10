@@ -43,12 +43,35 @@
                                     Length: {{ section.structure[1].count }}
                                 </span>
                                 <span
-                                    class="annotation-detail"
+                                    class="annotation-detail annotation-value-container"
                                     :class="{ 'annotation-highlight': isAnnotationHighlighted(sectionIndex, 'value') }"
                                     @mouseenter="setHoverAnnotation(sectionIndex, 'value', -1)"
                                     @mouseleave="clearHoverAnnotation()"
                                 >
                                     Value: {{ section.value }}
+                                    <span
+                                        v-if="section.isUndefined"
+                                        class="parse-selector-trigger"
+                                        @click.stop="toggleParseSelector(sectionIndex)"
+                                        title="Click to parse as different type"
+                                    >
+                                        ⚙️
+                                    </span>
+                                    <div
+                                        v-if="section.isUndefined && activeParseSelectorIndex === sectionIndex"
+                                        class="parse-selector-dropdown"
+                                        @click.stop
+                                    >
+                                        <div
+                                            v-for="type in parseTypes"
+                                            :key="type"
+                                            class="parse-option"
+                                            :class="{ 'parse-option-selected': section.parseAs === type }"
+                                            @click="changeParseType(sectionIndex, type)"
+                                        >
+                                            {{ type }}
+                                        </div>
+                                    </div>
                                 </span>
                             </template>
                             <span
@@ -135,6 +158,11 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <div v-if="realDeviceInfo" class="real-device-footer" :class="{ 'real-device-footer-collapsed': isBytesCollapsed }">
+            📡 Real example from  {{ realDeviceInfo.generator }} <template v-if="!isBytesCollapsed"> on {{ realDeviceInfo.date }}</template>
+            <span v-if="realDeviceInfo.description && !isBytesCollapsed" class="real-device-description">{{ realDeviceInfo.description }}</span>
+        </div>
     </div>
 </template>
 
@@ -149,6 +177,9 @@ interface ByteSection {
     value?: string;
     bytes: string[];
     structure?: Array<{ label: string; count: number }>;
+    isUndefined?: boolean;
+    parseAs?: string;
+    rawBytes?: number[];
 }
 
 export default defineComponent({
@@ -173,6 +204,14 @@ export default defineComponent({
         showValidation: {
             type: Boolean,
             default: true
+        },
+        realDeviceInfo: {
+            type: Object as PropType<{
+                generator: string;
+                date: string;
+                description?: string;
+            } | null>,
+            default: null
         }
     },
     setup(props) {
@@ -187,11 +226,44 @@ export default defineComponent({
         const hoveredByte = ref<{ section: number; byte: number } | null>(null);
         const hoveredAnnotation = ref<{ section: number; part: string; valueIndex: number } | null>(null);
 
+        // Parse type selector state
+        const activeParseSelectorIndex = ref<number | null>(null);
+        const parseTypes = ['bytes', 'ascii', 'uint8', 'uint16', 'uint32', 'int8', 'int16', 'int32', 'float32'];
+        const sectionParseOverrides = ref<Record<number, string>>({});
+
         const byteArray = computed(() => {
             return props.byteString.trim() ? props.byteString.trim().split(' ') : [];
         });
 
         const allBytes = computed(() => byteArray.value);
+
+        // Helper function to get expected byte size for a type
+        const getExpectedByteSize = (type: string): number | null => {
+            switch (type.toLowerCase()) {
+                case 'uint8':
+                case 'int8':
+                    return 1;
+                case 'uint16':
+                case 'int16':
+                    return 2;
+                case 'uint32':
+                case 'int32':
+                case 'float32':
+                    return 4;
+                case 'uint64':
+                case 'int64':
+                case 'float64':
+                    return 8;
+                case 'uint':
+                case 'int':
+                case 'bytes':
+                case 'ascii':
+                case 'string':
+                    return null; // Variable length
+                default:
+                    return null;
+            }
+        };
 
         // Create annotated byte sections for display
         const byteSections = computed(() => {
@@ -277,9 +349,20 @@ export default defineComponent({
 
                     // Check if there's a value mapping for this header field
                     const headerValueMapping = props.yamlData?.header?.[headerType]?.values?.[headerValue];
-                    const displayValue = headerValueMapping?.name
+                    let displayValue = headerValueMapping?.name
                         ? `${headerValue} (${headerValueMapping.name})`
                         : String(headerValue);
+
+                    // Validate byte length against expected type size
+                    if (props.showValidation) {
+                        const expectedSize = getExpectedByteSize(headerValueType);
+                        if (expectedSize !== null && headerLength !== expectedSize) {
+                            displayValue += ` ❌ (expected ${expectedSize} bytes, got ${headerLength})`;
+                        } else if (expectedSize === null && headerLength > 255) {
+                            // Variable-length fields have a max of 255 bytes
+                            displayValue += ` ❌ (exceeds max length of 255 bytes)`;
+                        }
+                    }
 
                     sections.push({
                         label: headerName,
@@ -317,15 +400,54 @@ export default defineComponent({
                 for (let i = 0; i < numPayloadFields; i++) {
                     const payloadLength = bytes[index];
                     const payloadType = bytes[payloadTypesIndex + i];
-                    const payloadName = props.yamlData?.messages?.[messageType]?.data?.[payloadType]?.name || `Field ${payloadType}`;
-                    const payloadValueType = props.yamlData?.messages?.[messageType]?.data?.[payloadType]?.type || 'uint8';
-                    const payloadValue = readTypedData(bytes.slice(index + 1, index + 1 + payloadLength), payloadValueType);
+                    const payloadFieldDef = props.yamlData?.messages?.[messageType]?.data?.[payloadType];
+                    const payloadName = payloadFieldDef?.name || `Field ${payloadType}`;
 
-                    // Check if there's a value mapping for this payload field
-                    const payloadValueMapping = props.yamlData?.messages?.[messageType]?.data?.[payloadType]?.values?.[payloadValue];
-                    const displayValue = payloadValueMapping?.name
-                        ? `${payloadValue} (${payloadValueMapping.name})`
-                        : String(payloadValue);
+                    const dataBytes = bytes.slice(index + 1, index + 1 + payloadLength);
+                    let displayValue: string;
+                    let isUndefined = false;
+                    let parseAs = 'bytes';
+
+                    // If field is not defined in spec, allow user to choose parsing
+                    if (!payloadFieldDef) {
+                        isUndefined = true;
+                        // Check if user has selected a parse type for this section
+                        const sectionIndex = sections.length; // Will be the index after push
+                        parseAs = sectionParseOverrides.value[sectionIndex] || 'bytes';
+
+                        if (parseAs === 'bytes') {
+                            displayValue = '(bytes)';
+                        } else if (parseAs === 'ascii') {
+                            displayValue = String.fromCharCode(...dataBytes);
+                        } else {
+                            try {
+                                const parsedValue = readTypedData(dataBytes, parseAs);
+                                displayValue = String(parsedValue);
+                            } catch (e) {
+                                displayValue = '(parse error)';
+                            }
+                        }
+                    } else {
+                        const payloadValueType = payloadFieldDef.type || 'uint8';
+                        const payloadValue = readTypedData(dataBytes, payloadValueType);
+
+                        // Check if there's a value mapping for this payload field
+                        const payloadValueMapping = payloadFieldDef.values?.[payloadValue];
+                        displayValue = payloadValueMapping?.name
+                            ? `${payloadValue} (${payloadValueMapping.name})`
+                            : String(payloadValue);
+
+                        // Validate byte length against expected type size
+                        if (props.showValidation) {
+                            const expectedSize = getExpectedByteSize(payloadValueType);
+                            if (expectedSize !== null && payloadLength !== expectedSize) {
+                                displayValue += ` ❌ (expected ${expectedSize} bytes, got ${payloadLength})`;
+                            } else if (expectedSize === null && payloadLength > 255) {
+                                // Variable-length fields have a max of 255 bytes
+                                displayValue += ` ❌ (exceeds max length of 255 bytes)`;
+                            }
+                        }
+                    }
 
                     sections.push({
                         label: payloadName,
@@ -334,7 +456,10 @@ export default defineComponent({
                         structure: [
                             { label: 'len', count: 1 },
                             { label: 'data', count: payloadLength }
-                        ]
+                        ],
+                        isUndefined,
+                        parseAs,
+                        rawBytes: dataBytes
                     });
                     index += 1 + payloadLength;
                 }
@@ -349,9 +474,14 @@ export default defineComponent({
             if (props.showValidation) {
                 const expectedCRC = crc16(Buffer.from(bytes.slice(0, checksumStartIndex)));
                 const isValid = crc === expectedCRC;
-                checksumValue = isValid
-                    ? `${crc} ✅`
-                    : `${crc} ❌ (expected ${expectedCRC})`;
+                if (isValid) {
+                    checksumValue = `${crc} ✅`;
+                } else {
+                    // Show expected CRC with individual bytes in little-endian format
+                    const expectedLowByte = expectedCRC & 0xFF;
+                    const expectedHighByte = (expectedCRC >> 8) & 0xFF;
+                    checksumValue = `${crc} ❌ (expected ${expectedCRC} [${expectedLowByte} ${expectedHighByte}])`;
+                }
             }
 
             sections.push({
@@ -441,6 +571,29 @@ export default defineComponent({
         const parseCommaSeparatedList = (value: string): string[] => {
             return value.split(',').map((v, i, arr) => i < arr.length - 1 ? v + ',' : v);
         };
+
+        const toggleParseSelector = (sectionIndex: number) => {
+            if (activeParseSelectorIndex.value === sectionIndex) {
+                activeParseSelectorIndex.value = null;
+            } else {
+                activeParseSelectorIndex.value = sectionIndex;
+            }
+        };
+
+        const changeParseType = (sectionIndex: number, parseType: string) => {
+            sectionParseOverrides.value[sectionIndex] = parseType;
+            activeParseSelectorIndex.value = null;
+        };
+
+        // Close dropdown when clicking outside
+        const closeParseSelector = () => {
+            activeParseSelectorIndex.value = null;
+        };
+
+        // Add click listener to close dropdown when clicking outside
+        if (typeof document !== 'undefined') {
+            document.addEventListener('click', closeParseSelector);
+        }
 
         const isByteHighlighted = (section: number, byte: number): boolean => {
             // Highlight if this byte is directly hovered
@@ -567,7 +720,11 @@ export default defineComponent({
             isByteHighlighted,
             isAnnotationHighlighted,
             isCommaSeparatedList,
-            parseCommaSeparatedList
+            parseCommaSeparatedList,
+            activeParseSelectorIndex,
+            parseTypes,
+            toggleParseSelector,
+            changeParseType
         };
     }
 });
@@ -577,7 +734,7 @@ export default defineComponent({
 .protocol-bytes-container {
     border: 1px solid #e0e0e0;
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible;
     margin: 20px 0;
 }
 
@@ -592,6 +749,7 @@ export default defineComponent({
     padding: 16px;
     background-color: #fafafa;
     gap: 16px;
+    overflow: visible;
 }
 
 .dark .byte-header {
@@ -601,12 +759,14 @@ export default defineComponent({
 .byte-visualization-wrapper {
     flex: 1;
     min-width: 0;
+    overflow: visible;
 }
 
 .byte-visualization {
     display: flex;
     flex-wrap: wrap;
     gap: 12px 8px;
+    overflow: visible;
 }
 
 .byte-visualization-collapsed {
@@ -722,6 +882,69 @@ export default defineComponent({
     font-weight: 700;
 }
 
+.annotation-value-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.parse-selector-trigger {
+    cursor: pointer;
+    font-size: 12px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+    user-select: none;
+}
+
+.parse-selector-trigger:hover {
+    opacity: 1;
+}
+
+.parse-selector-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 100px;
+    overflow: hidden;
+}
+
+.dark .parse-selector-dropdown {
+    background: #2d2d2d;
+    border-color: #555;
+}
+
+.parse-option {
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 11px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    transition: background-color 0.2s ease;
+}
+
+.parse-option:hover {
+    background-color: #f5f5f5;
+}
+
+.dark .parse-option:hover {
+    background-color: #3a3a3a;
+}
+
+.parse-option-selected {
+    background-color: #3eaf7c;
+    color: white;
+}
+
+.parse-option-selected:hover {
+    background-color: #35946a;
+}
+
 .color-0 {
     background-color: #f0f8ff;
 }
@@ -791,5 +1014,103 @@ export default defineComponent({
 
 .dark .control-icon:hover {
     color: #3eaf7c;
+}
+
+.annotation-value-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.parse-selector-trigger {
+    cursor: pointer;
+    font-size: 12px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+    user-select: none;
+}
+
+.parse-selector-trigger:hover {
+    opacity: 1;
+}
+
+.parse-selector-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 100px;
+    overflow: hidden;
+}
+
+.dark .parse-selector-dropdown {
+    background: #2a2a2a;
+    border-color: #555;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.parse-option {
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 11px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    transition: background-color 0.2s;
+}
+
+.parse-option:hover {
+    background-color: #f0f0f0;
+}
+
+.dark .parse-option:hover {
+    background-color: #3a3a3a;
+}
+
+.parse-option-selected {
+    background-color: #e8f5e9;
+    font-weight: 600;
+}
+
+.dark .parse-option-selected {
+    background-color: #2e4f2e;
+}
+
+.real-device-footer {
+    background-color: #f0f4ff;
+    border-left: 3px solid #667eea;
+    border-top: 1px solid #e0e0e0;
+    color: #4a5568;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 400;
+    margin-top: -1px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    transition: padding 0.2s ease;
+}
+
+.real-device-footer-collapsed {
+    padding: 4px 8px;
+    font-size: 11px;
+}
+
+.real-device-description {
+    display: block;
+    margin-top: 3px;
+    font-size: 11px;
+    opacity: 0.85;
+    font-style: italic;
+}
+
+.dark .real-device-footer {
+    background-color: #1a1f2e;
+    border-left-color: #8b9cf6;
+    border-top-color: #444;
+    color: #a0aec0;
 }
 </style>

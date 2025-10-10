@@ -11,6 +11,7 @@ ignorePaths:
   - public/swagger/v1.json
   - public/files/protocol-v3.yaml
   - .vitepress/theme/index.ts
+  - src/protocol/*.gen.ts
 
 # Custom dictionary definitions (none used currently)
 dictionaryDefinitions: []
@@ -55,6 +56,12 @@ words:
   - GPRS
   - iccid
   - imei
+  - PARTIALREDRAW
+  - FULLREDRAW
+  - BUFFERONLY
+  - FULLREDRAWWITHOUTCLEAR
+  - CLEARDONTDRAW
+  - TEXTALIGN
 
   # Other tech / code terms
   - noopener

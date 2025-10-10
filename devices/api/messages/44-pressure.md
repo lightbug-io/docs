@@ -4,10 +4,15 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue'
-import GenerateConsts from '../../../components/GenerateConsts.vue'
+import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
+import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
+import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
+import { computed } from 'vue'
+
+const messageId = 44
+const messageData = computed(() => protocolData?.messages?.[messageId])
+const examples = computed(() => messageData.value?.examples || [])
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -18,38 +23,26 @@ These pages can be seen as a view of what is to come later this year.
 
 # 44: Pressure
 
-::: danger Not yet documented
-:::
+<span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-<SplitColumnView>
-<template #left>
+<PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
 
-### Payload
+<div v-if="examples.length > 0">
 
+## Examples
 
-| Field | Name       | Description                      | Type   | Example | Actual |
-| ----- | ---------- | -------------------------------- | ------ | ------- | - |
-:allowCollapse="false"
-:yaml-data="protocolData"
-If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
+<div v-for="(example, index) in examples" :key="index">
 
-</template>
-<template #right>
+##### {{ example.name }}
 
-### Example
+<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
 
-<ProtocolBytes
-byteString="0"
-:boldPositions="[3,12,15,16]"
-:allowCollapse="false"
- :yaml-data="protocolData"
-/>
+</div>
 
-</template>
-</SplitColumnView>
+</div>
 
 ## Code
 
-For convenience, the following constants can be used to reference the payload fields.
+For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="44" :yaml-data="protocolData"/>
+<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>

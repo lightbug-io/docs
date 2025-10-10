@@ -4,10 +4,15 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue'
-import GenerateConsts from '../../../components/GenerateConsts.vue'
+import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
+import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
+import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
+import { computed } from 'vue'
+
+const messageId = 10008
+const messageData = computed(() => protocolData?.messages?.[messageId])
+const examples = computed(() => messageData.value?.examples || [])
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -16,36 +21,28 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 10008: Preset Page
+# 10008: Base Page
 
-Displays a preset page that is hardcoded in the device.
+<span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-<SplitColumnView>
-<template #left>
+<PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
 
-### Payload
+<div v-if="examples.length > 0">
 
-Currently there is only a single home page programmed per device.
+## Examples
 
-In the future a payload field will be included to decide what page is shows, defaulting to the home page. Additional fields may be used to configure the preset pages.
+<div v-for="(example, index) in examples" :key="index">
 
-| Field | Name       | Description                      | Type   | Example | Actual |
-| ----- | ---------- | -------------------------------- | ------ | ------- | - |
+##### {{ example.name }}
 
-</template>
-<template #right>
+<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
 
-### Example
+</div>
 
-<ProtocolBytes
-byteString="3 14 0 24 39 1 0 1 1 126 0 0 25 55"
-:boldPositions="[3]"
-:allowCollapse="false"
-/>
-
-</template>
-</SplitColumnView>
+</div>
 
 ## Code
 
-<GenerateConsts :messageId="10008" :yaml-data="protocolData"/>
+For convenience, the following constants can be referring to this message type.
+
+<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>

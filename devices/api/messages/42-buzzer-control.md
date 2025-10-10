@@ -4,10 +4,15 @@ outline: false
 ---
 
 <script setup>
-import ProtocolBytes from '../../../components/ProtocolBytes.vue';
-import SplitColumnView from '../../../components/SplitColumnView.vue'
-import GenerateConsts from '../../../components/GenerateConsts.vue'
+import ProtocolBytes2 from '../../../components/ProtocolBytes2.vue';
+import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
+import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
+import { computed } from 'vue'
+
+const messageId = 42
+const messageData = computed(() => protocolData?.messages?.[messageId])
+const examples = computed(() => messageData.value?.examples || [])
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -16,40 +21,28 @@ The Device API currently in development and is not yet accessible on production 
 These pages can be seen as a view of what is to come later this year.
 :::
 
-# 42: Buzzer
+# 42: Buzzer Control
 
-::: danger Not yet documented
-:::
+<span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-<SplitColumnView>
-<template #left>
+<PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
 
-Control the devices buzzer
+<div v-if="examples.length > 0">
 
-### Payload
+## Examples
 
+<div v-for="(example, index) in examples" :key="index">
 
-| Field | Name       | Description                      | Type   | Example | Actual |
-| ----- | ---------- | -------------------------------- | ------ | ------- | - |
+##### {{ example.name }}
 
-If the request could not be fulfilled, the response status would be 2 (NOT OK), all header fields would also be returned, but the payload should not be expected.
+<ProtocolBytes2 :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false"/>
 
-</template>
-<template #right>
+</div>
 
-### Example
-
-<ProtocolBytes
-byteString="0"
-:boldPositions="[3,12,15,16]"
-:allowCollapse="false"
-/>
-
-</template>
-</SplitColumnView>
+</div>
 
 ## Code
 
-For convenience, the following constants can be used to reference the payload fields.
+For convenience, the following constants can be referring to this message type.
 
-<GenerateConsts :messageId="42" :yaml-data="protocolData"/>
+<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>

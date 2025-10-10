@@ -225,12 +225,40 @@ header:
 messages:
   5:
     name: ACK
+    description: |
+      Used to acknowledge a previously sent message.
+
+      Empty ACKs are useless and should not be sent.
+      Either the Response Message ID field, or the ACK Type field should be populated.
+      Multiple fields can be populated if desired.
+      The Header status field can be used to indicate OK, or an error condition.
+
+      In the case that a response is being sent immediately, an ACK is not required.
+      But the response should contain the Response Message ID header field.
+
+      If a sender does not receive an ACK or response, it may resend the message.
+
+      ACKs should not themselves be ACKed.
     group: general
+    header:
+      - 3
     data:
       1:
         name: ACK Type
         description: Type of previous message being ACKed
         type: uint16
+    examples:
+      - name: ACKing a heartbeat message type 13, ID 567, with an OK status
+        bytes: 3 24 0 5 0 2 0 3 4 4 55 2 0 0 1 0 1 0 1 2 13 0 201 198
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, in response to a heartbeat message that was sent by the ESP.
+          date: "2025-10-09"
+      - name: Message ID
+        bytes: 3 18 0 5 0 0 0 2 0 1 2 2 32 0 1 234 14 66
+      - name: Message ID and type
+        bytes: 3 18 0 5 0 0 0 2 0 1 2 2 32 0 1 234 14 66
+      - name: Message type only
+        bytes: 3 15 0 5 0 0 0 1 0 1 2 32 0 164 69
   11:
     name: Open
     description: Explicit indicator for the start of a connection
@@ -251,11 +279,39 @@ messages:
       Can also be used to check if a connection is still active, as the message should be ACKed.
 
       Devices currently default to sending a heartbeat every 15 seconds on open links.
-      Arbitrary fields can be added in fields 200+
+      Arbitrary fields can be added in fields payload 200+
     group: general
+    data:
+      6:
+        name: Battery Percent
+        description: Devices send battery percentage in heartbeats
+        type: uint8
     examples:
-      - name: Basic Heartbeat, with message ID 567
-        bytes: 3 15 0 13 0 1 0 1 2 55 2 0 0 41 1
+      - name: Basic
+        description: |
+          The most basic heartbeat to keep a connection active.
+          It has no header fields and no payload fields.
+        bytes: 3 11 0 13 0 0 0 0 0 168 181
+      - name: Including battery %
+        description: Devices will automatically add battery % to heartbeats
+        bytes: 3 14 0 13 0 0 0 1 0 6 1 84 103 57
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor
+          date: "2025-10-09"
+          generator: RH2 P1 v2287
+      - name: With message ID 2456632031
+        description: Message IDs can be added to heartbeats to increase traceability, but they are not required
+        bytes: 3 17 0 13 0 1 0 1 4 223 58 109 146 0 0 16 255
+        real:
+          description: This example is captured from an RH2 device, where Toit on the ESP32 co-processor is sending a heartbeat to the RH2 over I2C
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit
+      - name: With arbitrary data in payload field 202
+        description: |
+          If you are sending a heartbeat between systems you control
+          You can add arbitrary data in payload fields 200 and above,
+          Such as these additional bytes, which are "hello" in ascii.
+        bytes: 3 18 0 13 0 0 0 1 0 202 5 104 101 108 108 111 145 78
   14:
     name: Config
     group: ungrouped
@@ -455,11 +511,18 @@ messages:
       UNSUBSCRIBE: null
   30:
     name: Transmit Now
-    description: Transmit data immediately over GSM
+    description: |
+      Send arbitrary data over GSM to the Lightbug cloud as a sensorReading of type `uart_blob`.
+
+      The message will initially be ACKed indicating the device has received the message.
+      When the data is sent to the cloud, or the send fails, a response will be sent with the status 1 (OK), 2 (NOT OK).
     group: gsm
     data:
       1:
         name: GPS Search
+        description: |
+          0 = no gps fix required
+          1 = wait for GPS lock (or timeout) before send
         type: bool
       2:
         name: Payload
@@ -467,12 +530,17 @@ messages:
         type: bytes
       3:
         name: Retries
-        description: 0 - 10
+        description: Number of retries [0-10]. Exponential backoff (10 = 25h)
         type: uint8
       4:
         name: Priority
         description: 0 - 1
         type: uint8
+    examples:
+      - name: Send the arbitrary data 'foo' as ascii bytes to the cloud
+        bytes: 3 22 0 30 0 2 0 5 1 1 4 1 131 1 0 2 3 102 111 111 180 28
+      - name: Response from device showing status of transmission
+        bytes: 3 20 0 30 0 3 0 3 4 1 1 131 1 1 1 92 0 0 84 149
   31:
     name: GSM Control
     group: gsm
@@ -542,7 +610,8 @@ messages:
       SET: null
   34:
     name: Device Status
-    description: Device status information
+    description: |
+      Used to GET the general status of the device.
     group: info
     data:
       1:
@@ -591,9 +660,13 @@ messages:
         type: uint8
     methods:
       GET: null
+    examples:
+      - name: GET all possible fields from the device
+        bytes: 3 17 0 34 0 2 0 5 1 1 2 1 51 0 0 206 243
   35:
     name: Device IDs
-    description: Device ID information
+    description: |
+      Used to GET the various IDs of the device.
     group: info
     data:
       1:
@@ -610,6 +683,9 @@ messages:
         type: ascii
     methods:
       GET: null
+    examples:
+      - name: GET the ID from a device
+        bytes: 3 17 0 35 0 2 0 1 5 1 234 1 2 0 0 164 245
   36:
     name: Device Time
     description: Device time information, if known
@@ -667,7 +743,9 @@ messages:
       UNSUBSCRIBE: null
   39:
     name: GPS Control
-    description: Control the GPS of the device
+    description: |
+      Used to interact with the device GPS service.
+      Currently only accessible from Viper devices.
     group: location
     data:
       1:
@@ -796,7 +874,8 @@ messages:
         type: float32
   43:
     name: Battery Status
-    description: Battery status information
+    description: |
+      Get the battery status of a device
     group: info
     data:
       1:
@@ -811,6 +890,11 @@ messages:
         unit: '%'
     methods:
       GET: null
+    examples:
+      - name: Request battery status (all fields)
+        bytes: 3 17 0 43 0 2 0 5 1 1 2 1 99 0 0 221 181
+      - name: Receive an OK response with 100% battery and 4.4 volts
+        bytes: 3 32 0 43 0 2 0 3 1 4 99 0 0 0 4 36 0 0 0 2 0 2 1 1 100 4 223 79 141 64 210 80
   44:
     name: Pressure
     description: Pressure information
@@ -917,7 +1001,10 @@ messages:
     group: ungrouped
   50:
     name: Link Control
-    description: Control a link to the internet to send and receive messages
+    description: |
+      Control a link to the internet to send and receive messages.
+      Used to control a remote device link, such as connecting to a UDP server, and using the V3 messaging protocol to communicate with it.
+      Once initiated, messages can be forwarded to the link directly using the forwarding headers.
     group: gsm
     data:
       1:
@@ -937,7 +1024,9 @@ messages:
       SET: null
   53:
     name: Protection Level
-    description: Get information about the protection level - i.e. 95% confidence accuracy ellipse. Only supported on RTK enabled products.
+    description: |
+      Get information about the protection level - i.e. 95% confidence accuracy ellipse. Only supported on RTK enabled products.
+      Used to retrieve ublox protection level information, on devices that have it.
     group: location
     data:
       1:
@@ -977,7 +1066,7 @@ messages:
         type: uint16
         unit: mA
       3:
-        name: Charge Termination Volgate
+        name: Charge Termination Voltage
         description: Target charge voltage for the battery. Typically 4.25V for lithium ion batteries.
         type: uint16
         unit: mV
@@ -1025,7 +1114,9 @@ messages:
       SUBSCRIBE: null
   1004:
     name: LORA
-    description: Interaction with LORA
+    description: |
+      Interaction with LORA.
+      Used to interact with LORA on the device.
     group: ungrouped
     data:
       2:
@@ -1088,7 +1179,10 @@ messages:
         - toit
   10008:
     name: Base Page
-    description: Draw a base page
+    description: |
+      Draw a base page.
+      Displays a preset page that is hardcoded in the device.
+      Currently there is only a single home page programmed per device.
     group: screen
     data:
       3:
@@ -1137,9 +1231,14 @@ messages:
           5:
             name: ClearDontDraw
             description: Clear the screen buffer (always), but don't redraw. Similar to BufferOnly, but always clears the buffer.
+    examples:
+      - name: Display the preset home page
+        bytes: 3 14 0 24 39 1 0 1 1 126 0 0 25 55
   10009:
     name: Text Page
-    description: Display or change a text page
+    description: |
+      Display or alter a text page on the device screen, with up to 5 lines of text.
+      A text page can have a title, and an optional status bar.
     group: screen
     data:
       3:
@@ -1191,9 +1290,16 @@ messages:
       103:
         name: Line 4
         type: ascii
+    examples:
+      - name: Display a 3 line text page, with ID 200, and a title 'Page Title'
+        bytes: 3 61 0 25 39 1 0 1 1 233 5 0 3 4 100 101 102 1 200 10 80 97 103 101 32 84 105 116 108 101 10 70 105 114 115 116 32 76 105 110 101 11 83 101 99 111 110 100 32 76 105 110 101 5 84 104 105 114 100 106 149
+      - name: Add a 4th line to the same page ID 200, with the text '4th', by providing the same page ID, and only the new text field
+        bytes: 3 22 0 25 39 1 0 1 1 200 2 0 3 103 1 200 3 52 116 104 245 201
   10010:
     name: Menu Page
-    description: Draw or change a menu
+    description: |
+      Draw or change a menu.
+      Display or alter a menu page on the device screen.
     group: screen
     data:
       3:
@@ -1273,6 +1379,11 @@ messages:
       119:
         name: Item 20
         type: ascii
+    examples:
+      - name: Display a menu page with 2 options
+        bytes: 3 32 0 26 39 1 0 1 1 186 4 0 3 100 101 2 1 102 4 111 112 116 49 4 111 112 116 50 1 2 31 14
+      - name: Add a third option
+        bytes: 3 26 0 26 39 1 0 1 1 187 3 0 3 2 102 1 102 1 3 4 111 112 116 51 203 164
   10011:
     name: Draw Element
     description: Draw an element
