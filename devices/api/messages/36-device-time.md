@@ -15,24 +15,19 @@ const messageData = computed(() => protocolData?.messages?.[messageId])
 const examples = computed(() => messageData.value?.examples || [])
 </script>
 
-::: danger ⚠️ Not yet public
-The Device API currently in development and is not yet accessible on production devices.
-
-These pages can be seen as a view of what is to come later this year.
-:::
-
 # 36: Device Time
-
-::: danger Not yet documented
-:::
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-Used to GET the time from the device.
-
-Initially the best available time will be provided. Moving forward we will be able to provide different times (GPS, GSM etc.)
-
 <PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
+
+::: warning ⚠️ Possible future change
+We are considering changing the unix time to be in milliseconds instead of seconds.
+
+This would allow for more precise timekeeping, especially when combined with GNSS time.
+
+This may happen in a future firmware update.
+:::
 
 <div v-if="examples.length > 0">
 

@@ -8,6 +8,7 @@
           <th>Name</th>
           <th>Description</th>
           <th>Type</th>
+          <th>Unit</th>
         </tr>
       </thead>
       <tbody>
@@ -35,6 +36,22 @@
               </template>
             </td>
             <td>{{ field.type }}</td>
+            <td>
+              <template v-if="field['raw-unit'] && field.conversion && field.unit">
+                <span style="font-size: 0.9em;">
+                  {{ field['raw-unit'] }}<br />
+                  × {{ field.conversion }} = {{ field.unit }}
+                </span>
+              </template>
+              <template v-else-if="field.conversion && field.unit">
+                <span style="font-size: 0.9em;">
+                  × {{ field.conversion }} = {{ field.unit }}
+                </span>
+              </template>
+              <template v-else-if="field.unit">
+                {{ field.unit }}
+              </template>
+            </td>
           </tr>
         </template>
       </tbody>

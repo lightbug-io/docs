@@ -365,7 +365,9 @@ messages:
     data:
       1:
         name: Timestamp
-        description: Timestamp of when the position was taken, may be invalid if the GPS has not locked in yet (Type will be set to 'invalid' in this scenario)
+        description: |
+          Timestamp of when the position was taken
+          May be invalid if the GPS has not locked in yet (when type is 'invalid')
         raw-description: Unix timestamp in ms (number of milliseconds since 1 Jan 1970)
         type: uint64
         readonly: true
@@ -470,6 +472,13 @@ messages:
       GET: null
       SUBSCRIBE: null
       UNSUBSCRIBE: null
+    examples:
+      - name: RTK fix position (1cm accuracy)
+        bytes: 0352000f0002000201084966b7000000000004650200000c000102030405060708090a0b0c08a03124ab9901000004b8252d1604657e5fb704c467010002010002983a020000013a012b010501010114c133
+        real:
+          description: This example is captured from an RV1 device as part of normal communications with the cloud, somewhere in California.
+          date: "2025-10-03"
+          generator: RV1 P1 v2287
   16:
     name: Satellite Data
     group: location
@@ -540,6 +549,13 @@ messages:
       GET: null
       SUBSCRIBE: null
       UNSUBSCRIBE: null
+    examples:
+      - name: RTK fix satellite data
+        bytes: 034e01100002000201084966b70000000000043e0b00000d0001020304050a0b0c0d0e0f1011012a0118013401430139290a01378d310235703103229c2a041880280a0e3729190619191a0b46191c3821321f40462f201a1c2e210801378d3303229c2e0418802f0a0e372f190619241a0b46281c382131201a1c2825094134053242249430481020314a13132c4b222f304c0c4c295125992a5204a91d582a723401002d0b0b247f2b0e158e26153c1234161228261a1b4e28221c712b240c152b28079d282a2d96302b1a8e2a2d252c2c2509153c12331612282b1a1b4e32221c712a240c152b28079d282a2d96322b1a8e2d2d252c2b290a04400e3406499732093483320a2e57300b436c2e0c18512e130b1c1c1500001b1708322a24299b2e290a04400e2e064997300934832f0a2e572d0b436c290c185122130b1c1e150000191708321824299b2b84de
+        real:
+          description: This example is captured from an RV1 device as part of normal communications with the cloud, somewhere in California.
+          date: "2025-10-03"
+          generator: RV1 P1 v2287
   30:
     name: Transmit Now
     description: |
@@ -648,7 +664,7 @@ messages:
   34:
     name: Device Status
     description: |
-      Used to GET the general status of the device.
+      General status of the device.
     group: info
     header:
       - 5
@@ -686,22 +702,43 @@ messages:
             name: LTE (4G)
       5:
         name: Network MNC
+        description: |
+          MNC of the currently connected network.
+          Can be 0 if not connected.
+          See <a href="https://mcc-mnc.net/" target="_blank">mcc-mnc.net</a>
         type: uint16
       6:
         name: Network MCC
+        description: |
+          MCC of the currently connected network.
+          Can be 0 if not connected.
+          See <a href="https://mcc-mnc.net/" target="_blank">mcc-mnc.net</a>
         type: uint16
       7:
         name: Firmware Version
+        description: Firmware version as a single integer, e.g. 2287
         type: uint32
       10:
         name: Device Type
-        description: Type of device, relates to the SN prefix
+        description: |
+          Type of device, relates to the SN prefix.
+          For devices released from 2025 onwards, this is documented on the device specification page.
         type: uint8
     methods:
       GET: null
     examples:
-      - name: GET all possible fields from the device
-        bytes: 3 17 0 34 0 2 0 5 1 1 2 1 51 0 0 206 243
+      - name: GET request for device status
+        bytes: 3 20 0 34 0 2 0 5 1 1 2 4 32 98 132 62 0 0 194 229
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit
+      - name: Device status response
+        bytes: 3 49 0 34 0 2 0 3 4 4 32 98 132 62 1 0 8 0 1 3 7 10 2 4 5 6 1 88 1 0 4 239 8 0 0 1 48 1 64 1 0 2 0 0 2 0 0 108 94
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where P1 responses to a request from Toit on the ESP32.
+          date: "2025-10-10"
+          generator: RH2 P1 v2287
   35:
     name: Device IDs
     description: |
@@ -712,7 +749,9 @@ messages:
     data:
       1:
         name: ID
-        description: Unique ID for the device which is used in the cloud API. uint32 or uint64 only
+        description: |
+          Unique ID for the device which is used in the cloud API.
+          uint32 or uint64 only
         type: uint
       2:
         name: IMEI
@@ -725,11 +764,24 @@ messages:
     methods:
       GET: null
     examples:
-      - name: GET the ID from a device
-        bytes: 3 17 0 35 0 2 0 1 5 1 234 1 2 0 0 164 245
+      - name: GET request for device ids
+        bytes: 3 20 0 35 0 2 0 5 1 1 2 4 31 187 53 226 0 0 191 169
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit
+      - name: Device IDs response
+        bytes: 3 65 0 35 0 2 0 3 4 4 31 187 53 226 1 0 3 0 1 2 3 4 3 109 161 0 15 56 54 52 57 53 48 48 54 48 50 49 50 53 56 55 20 56 57 52 53 55 51 48 48 48 48 48 48 50 50 50 49 52 56 48 54 6 251
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where P1 responses to a request from Toit on the ESP32.
+          date: "2025-10-10"
+          generator: RH2 P1 v2287
   36:
     name: Device Time
-    description: Device time information, if known
+    description: |
+      Device time information, if known.
+      Currently the best available time will be provided.
+      Moving forward we will be able to provide different times (GPS, GSM etc.)
     group: info
     header:
       - 5
@@ -737,7 +789,10 @@ messages:
       1:
         name: Unix Time
         description: Unix time
+        raw-description: Unix timestamp in s (number of seconds since 1 Jan 1970)
         type: uint32
+        unit: s since epoch
+        parser: timestamp
       2:
         name: Year
         description: Year
@@ -768,6 +823,19 @@ messages:
         type: uint8
     methods:
       GET: null
+    examples:
+      - name: GET request for device time
+        bytes: 3 20 0 36 0 2 0 5 1 1 2 4 95 144 132 158 0 0 127 117
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit
+      - name: Device Time response
+        bytes: 03 48 00 36 00 02 00 03 04 04 95 144 132 158 01 00 08 00 01 02 03 04 05 06 07 08 04 01 82 233 104 02 233 07 01 10 01 10 01 00 01 18 01 35 01 45 131 230
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where P1 responses to a request from Toit on the ESP32.
+          date: "2025-10-10"
+          generator: RH2 P1 v2287
   38:
     name: Button Press
     description: Press of a device button
@@ -800,7 +868,7 @@ messages:
         real:
           description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, after button events were subscribed to, and the right button was pressed.
           date: "2025-10-10"
-          generator: RH2 P1 v3387
+          generator: RH2 P1 v2287
   39:
     name: GPS Control
     description: |
@@ -894,6 +962,19 @@ messages:
         unit: C
     methods:
       GET: null
+    examples:
+      - name: GET request for device temperature
+        bytes: 03 20 00 41 00 02 00 05 01 01 02 04 47 152 218 214 00 00 168 67
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit
+      - name: Device temperature response
+        bytes: 3 26 0 41 0 2 0 3 4 4 47 152 218 214 1 0 1 0 1 4 102 102 210 65 133 40
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where P1 responses to a request from Toit on the ESP32.
+          date: "2025-10-10"
+          generator: RH2 P1 v2287
   42:
     name: Buzzer Control
     description: Control the buzzer. Either pass duration and frequency, Or all fields without frequency.
@@ -957,10 +1038,18 @@ messages:
     methods:
       GET: null
     examples:
-      - name: Request battery status (all fields)
-        bytes: 3 17 0 43 0 2 0 5 1 1 2 1 99 0 0 221 181
-      - name: Receive an OK response with 100% battery and 4.4 volts
-        bytes: 3 32 0 43 0 2 0 3 1 4 99 0 0 0 4 36 0 0 0 2 0 2 1 1 100 4 223 79 141 64 210 80
+      - name: Request battery status
+        bytes: 03 20 00 43 00 02 00 05 01 01 02 04 127 63 240 189 00 00 42 07
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit
+      - name: Receive a battery status, at 86% and 4.2v
+        bytes: 3 29 0 43 0 2 0 3 4 4 127 63 240 189 1 0 2 0 2 1 1 86 4 33 176 134 64 229 139
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where P1 responses to a request from Toit on the ESP32.
+          date: "2025-10-10"
+          generator: RH2 P1 v2287
   44:
     name: Pressure
     description: Pressure information
@@ -975,6 +1064,13 @@ messages:
         unit: hPa
     methods:
       GET: null
+    examples:
+      - name: GET request for device pressure
+        bytes: 03 20 00 44 00 02 00 05 01 01 02 04 79 138 208 210 00 00 76 221
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit
   45:
     name: Alarm
     description: Trigger an alarm, using buzzer, haptics, strobe and optional prompt. Use header fields for timing control - Duration = time the alert is played for - Timeout = time the prompt is shown for

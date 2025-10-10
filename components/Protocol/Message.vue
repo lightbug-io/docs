@@ -67,6 +67,15 @@
                                         </div>
                                     </div>
                                 </span>
+                                <span
+                                    v-if="section.unit"
+                                    class="annotation-detail annotation-unit"
+                                    :class="{ 'annotation-highlight': isAnnotationHighlighted(sectionIndex, 'unit') }"
+                                    @mouseenter="setHoverAnnotation(sectionIndex, 'unit', -1)"
+                                    @mouseleave="clearHoverAnnotation()"
+                                >
+                                    Unit: {{ section.unit }}
+                                </span>
                             </template>
                             <span
                                 v-else-if="section.value"
@@ -223,6 +232,9 @@ interface ByteSection {
     isUndefined?: boolean;
     parseAs?: string;
     rawBytes?: number[];
+    unit?: string;
+    rawUnit?: string;
+    conversion?: number | string;
 }
 
 export default defineComponent({
@@ -285,10 +297,78 @@ export default defineComponent({
         const sectionParseOverrides = ref<Record<number, string>>({});
 
         const byteArray = computed(() => {
-            return props.byteString.trim() ? props.byteString.trim().split(' ') : [];
+            const trimmed = props.byteString.trim();
+            if (!trimmed) return [];
+
+            // Check if it's a solid hex string (no spaces, even length, valid hex chars)
+            if (!trimmed.includes(' ') && trimmed.length % 2 === 0 && /^[0-9a-fA-F]+$/.test(trimmed)) {
+                // Parse as hex pairs
+                const bytes: string[] = [];
+                for (let i = 0; i < trimmed.length; i += 2) {
+                    const hexPair = trimmed.substr(i, 2);
+                    const decimal = parseInt(hexPair, 16);
+                    bytes.push(decimal.toString());
+                }
+                return bytes;
+            } else {
+                // Parse as space-separated decimal values (original behavior)
+                return trimmed.split(' ');
+            }
         });
 
         const allBytes = computed(() => byteArray.value);
+
+        // Helper function to format timestamp
+        const formatTimestamp = (timestampMs: number): string => {
+            const date = new Date(timestampMs);
+            return date.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC');
+        };
+
+        // Helper function to apply conversion to a value
+        const applyConversion = (value: number, conversion: number | string): number => {
+            const conversionFactor = typeof conversion === 'string' ? parseFloat(conversion) : conversion;
+            return value / conversionFactor;
+        };
+
+        // Helper function to format a number, removing trailing zeros but keeping at least 1 decimal place
+        const formatNumber = (value: number): string => {
+            // Format with enough precision to capture the value
+            const formatted = value.toFixed(10);
+            // Remove trailing zeros, but keep at least one decimal place
+            return formatted.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '.0');
+        };
+
+        // Helper function to format a value with parser and conversion
+        const formatValue = (value: number | string | bigint, parser?: string, conversion?: number | string, unit?: string): string => {
+            // Handle timestamp parser - convert BigInt to number if needed
+            if (parser === 'timestamp') {
+
+                let timestampValue = typeof value === 'bigint' ? Number(value) : (typeof value === 'number' ? value : parseInt(String(value)));
+
+                if (!isNaN(timestampValue)) {
+                    // Check if the timestamp is in seconds or milliseconds based on the unit
+                    // If unit contains "s since epoch" (not "ms since epoch"), it's in seconds
+                    const isSeconds = unit && unit.includes('s since epoch') && !unit.includes('ms since epoch');
+
+                    if (isSeconds) {
+                        // Convert seconds to milliseconds for formatTimestamp
+                        timestampValue = timestampValue * 1000;
+                    }
+
+                    const result = formatTimestamp(timestampValue);
+                    return result;
+                }
+            }
+
+            // Handle numeric conversions
+            if ((typeof value === 'number' || typeof value === 'bigint') && conversion) {
+                const numericValue = typeof value === 'bigint' ? Number(value) : value;
+                const converted = applyConversion(numericValue, conversion);
+                return formatNumber(converted);
+            }
+
+            return String(value);
+        };
 
         // Helper function to get expected byte size for a type
         const getExpectedByteSize = (type: string): number | null => {
@@ -320,7 +400,7 @@ export default defineComponent({
 
         // Create annotated byte sections for display
         const byteSections = computed(() => {
-            const bytes = props.byteString.split(' ').map(s => parseInt(s, 10));
+            const bytes = byteArray.value.map(s => parseInt(s, 10));
             const sections: ByteSection[] = [];
             let index = 0;
             let hasPrefix = false;
@@ -407,17 +487,39 @@ export default defineComponent({
                     let displayValue: string;
                     let isUndefined = false;
                     let parseAs = 'bytes';
+                    let unit: string | undefined;
+                    let rawUnit: string | undefined;
+                    let conversion: number | string | undefined;
 
                     // If field is defined in spec, parse and validate it
                     if (headerFieldDef) {
                         const headerValueType = headerFieldDef.type || 'uint8';
                         const headerValue = readTypedData(dataBytes, headerValueType);
 
+                        // Get unit information from field definition
+                        const parser = headerFieldDef.parser;
+                        const fieldUnit = headerFieldDef.unit;
+                        rawUnit = headerFieldDef['raw-unit'];
+                        conversion = headerFieldDef.conversion;
+
+                        // Format the value with conversion/parser if applicable
+                        // Pass the unit to formatValue so it can determine seconds vs milliseconds for timestamps
+                        const formattedValue = formatValue(headerValue, parser, conversion, fieldUnit);
+
+                        // Don't show unit label for timestamp parser (it's already human-readable)
+                        if (parser === 'timestamp') {
+                            unit = undefined;
+                        } else {
+                            unit = fieldUnit;
+                        }
+
                         // Check if there's a value mapping for this header field
                         const headerValueMapping = headerFieldDef.values?.[headerValue];
-                        displayValue = headerValueMapping?.name
-                            ? `${headerValue} (${headerValueMapping.name})`
-                            : String(headerValue);
+                        if (headerValueMapping?.name) {
+                            displayValue = `${formattedValue} (${headerValueMapping.name})`;
+                        } else {
+                            displayValue = formattedValue;
+                        }
 
                         // Validate byte length against expected type size
                         if (props.showValidation) {
@@ -477,7 +579,10 @@ export default defineComponent({
                         ],
                         isUndefined,
                         parseAs,
-                        rawBytes: dataBytes
+                        rawBytes: dataBytes,
+                        unit,
+                        rawUnit,
+                        conversion
                     });
                     index += 1 + headerLength;
                 }
@@ -514,17 +619,39 @@ export default defineComponent({
                     let displayValue: string;
                     let isUndefined = false;
                     let parseAs = 'bytes';
+                    let unit: string | undefined;
+                    let rawUnit: string | undefined;
+                    let conversion: number | string | undefined;
 
                     // If field is defined in spec, parse and validate it
                     if (payloadFieldDef) {
                         const payloadValueType = payloadFieldDef.type || 'uint8';
                         const payloadValue = readTypedData(dataBytes, payloadValueType);
 
+                        // Get unit information from field definition
+                        const parser = payloadFieldDef.parser;
+                        const fieldUnit = payloadFieldDef.unit;
+                        rawUnit = payloadFieldDef['raw-unit'];
+                        conversion = payloadFieldDef.conversion;
+
+                        // Format the value with conversion/parser if applicable
+                        // Pass the unit to formatValue so it can determine seconds vs milliseconds for timestamps
+                        const formattedValue = formatValue(payloadValue, parser, conversion, fieldUnit);
+
+                        // Don't show unit label for timestamp parser (it's already human-readable)
+                        if (parser === 'timestamp') {
+                            unit = undefined;
+                        } else {
+                            unit = fieldUnit;
+                        }
+
                         // Check if there's a value mapping for this payload field
                         const payloadValueMapping = payloadFieldDef.values?.[payloadValue];
-                        displayValue = payloadValueMapping?.name
-                            ? `${payloadValue} (${payloadValueMapping.name})`
-                            : String(payloadValue);
+                        if (payloadValueMapping?.name) {
+                            displayValue = `${formattedValue} (${payloadValueMapping.name})`;
+                        } else {
+                            displayValue = formattedValue;
+                        }
 
                         // Validate byte length against expected type size
                         if (props.showValidation) {
@@ -585,7 +712,10 @@ export default defineComponent({
                         ],
                         isUndefined,
                         parseAs,
-                        rawBytes: dataBytes
+                        rawBytes: dataBytes,
+                        unit,
+                        rawUnit,
+                        conversion
                     });
                     index += 1 + payloadLength;
                 }
@@ -750,8 +880,8 @@ export default defineComponent({
                     } else if (part === 'length') {
                         // Highlight length when hovering length bytes
                         return byte < lengthByteCount;
-                    } else if (part === 'value') {
-                        // Highlight value when hovering data bytes
+                    } else if (part === 'value' || part === 'unit') {
+                        // Highlight value and unit when hovering data bytes
                         return byte >= lengthByteCount && byte < lengthByteCount + dataByteCount;
                     }
                 }
@@ -799,7 +929,7 @@ export default defineComponent({
                     } else if (part === 'length') {
                         // Highlight length bytes
                         return Array.from({ length: lengthByteCount }, (_, i) => i);
-                    } else if (part === 'value') {
+                    } else if (part === 'value' || part === 'unit') {
                         // Highlight data bytes
                         return Array.from({ length: dataByteCount }, (_, i) => i + lengthByteCount);
                     }
@@ -965,6 +1095,15 @@ export default defineComponent({
 
 .dark .annotation-detail {
     color: #aaa;
+}
+
+.annotation-unit {
+    color: #6b46c1;
+    font-weight: 500;
+}
+
+.dark .annotation-unit {
+    color: #9f7aea;
 }
 
 .annotation-highlight {

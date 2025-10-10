@@ -15,16 +15,8 @@ const messageData = computed(() => protocolData?.messages?.[messageId])
 const examples = computed(() => messageData.value?.examples || [])
 </script>
 
-::: danger ⚠️ Not yet public
-The Device API currently in development and is not yet accessible on production devices.
-
-These pages can be seen as a view of what is to come later this year.
-:::
-
 # 15: Position
 
-::: danger Not yet documented
-:::
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
