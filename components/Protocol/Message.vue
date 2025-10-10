@@ -9,21 +9,15 @@
                         :key="sectionIndex"
                         class="byte-section"
                     >
-                        <div class="byte-row">
-                            <span
-                                v-for="(byte, byteIndex) in section.bytes"
-                                :key="byteIndex"
-                                class="byte"
-                                :class="[
-                                    getByteColorClass(sectionIndex),
-                                    { 'byte-highlight': isByteHighlighted(sectionIndex, byteIndex) }
-                                ]"
-                                @mouseenter="setHoverByte(sectionIndex, byteIndex)"
-                                @mouseleave="clearHoverByte()"
-                            >
-                                {{ formatByte(byte) }}
-                            </span>
-                        </div>
+                        <Bytes
+                            :bytes="section.bytes"
+                            :color-index="sectionIndex"
+                            :highlighted-indices="getHighlightedByteIndices(sectionIndex)"
+                            :display-type="byteDisplayType"
+                            :upper-case="byteUpperCase"
+                            @mouseenter="setHoverByte(sectionIndex, $event)"
+                            @mouseleave="clearHoverByte()"
+                        />
                         <div class="byte-annotation">
                             <span
                                 class="annotation-label"
@@ -103,14 +97,12 @@
                         :key="sectionIndex"
                         class="byte-section-inline"
                     >
-                        <span
-                            v-for="(byte, byteIndex) in section.bytes"
-                            :key="byteIndex"
-                            class="byte"
-                            :class="getByteColorClass(sectionIndex)"
-                        >
-                            {{ formatByte(byte) }}
-                        </span>
+                        <Bytes
+                            :bytes="section.bytes"
+                            :color-index="sectionIndex"
+                            :display-type="byteDisplayType"
+                            :upper-case="byteUpperCase"
+                        />
                     </div>
                 </div>
             </div>
@@ -171,6 +163,7 @@ import { defineComponent, ref, computed, PropType } from 'vue';
 import { readTypedData } from '../../src/protocol/base.gen';
 import crc16 from 'crc/crc16xmodem';
 import { Buffer } from 'buffer';
+import Bytes from './Bytes.vue';
 
 interface ByteSection {
     label: string;
@@ -184,6 +177,9 @@ interface ByteSection {
 
 export default defineComponent({
     name: 'Message',
+    components: {
+        Bytes
+    },
     props: {
         byteString: {
             type: String,
@@ -501,24 +497,19 @@ export default defineComponent({
             isCogModalVisible.value = !isCogModalVisible.value;
         };
 
-        const formatByte = (byte: string): string => {
-            let formattedByte = '';
-            if (byteDisplayType.value === 'hex') {
-                formattedByte = parseInt(byte).toString(16).padStart(2, '0');
-            } else if (byteDisplayType.value === 'hex0x') {
-                formattedByte = '0x' + parseInt(byte).toString(16).padStart(2, '0');
-            } else {
-                formattedByte = byte;
-            }
-            return byteUpperCase.value ? formattedByte.toUpperCase() : formattedByte.toLowerCase();
-        };
-
-        const getByteColorClass = (index: number): string => {
-            const colors = ['color-0', 'color-1', 'color-2', 'color-3', 'color-4', 'color-5'];
-            return colors[index % colors.length];
-        };
-
         const copyToClipboard = () => {
+            const formatByte = (byte: string): string => {
+                let formattedByte = '';
+                if (byteDisplayType.value === 'hex') {
+                    formattedByte = parseInt(byte).toString(16).padStart(2, '0');
+                } else if (byteDisplayType.value === 'hex0x') {
+                    formattedByte = '0x' + parseInt(byte).toString(16).padStart(2, '0');
+                } else {
+                    formattedByte = byte;
+                }
+                return byteUpperCase.value ? formattedByte.toUpperCase() : formattedByte.toLowerCase();
+            };
+
             let text = byteArray.value.map(byte => formatByte(byte)).join(' ');
             if (byteDisplayType.value === 'printf') {
                 text = byteArray.value.map(byte => `'\\x${parseInt(byte).toString(16).padStart(2, '0')}'`).join('');
@@ -595,54 +586,6 @@ export default defineComponent({
             document.addEventListener('click', closeParseSelector);
         }
 
-        const isByteHighlighted = (section: number, byte: number): boolean => {
-            // Highlight if this byte is directly hovered
-            if (hoveredByte.value?.section === section && hoveredByte.value?.byte === byte) {
-                return true;
-            }
-
-            // Highlight if the annotation is hovered
-            if (hoveredAnnotation.value?.section === section) {
-                const currentSection = byteSections.value[section];
-                if (!currentSection) return false;
-
-                const part = hoveredAnnotation.value.part;
-                const valueIndex = hoveredAnnotation.value.valueIndex;
-
-                // For sections with structure (len + data)
-                if (currentSection.structure && currentSection.structure.length > 0) {
-                    const lengthByteCount = currentSection.structure[0].count;
-                    const dataByteCount = currentSection.structure[1].count;
-
-                    if (part === 'label') {
-                        // Label = all bytes
-                        return true;
-                    } else if (part === 'length') {
-                        // Length bytes (first lengthByteCount bytes)
-                        return byte < lengthByteCount;
-                    } else if (part === 'value') {
-                        // Data bytes (after length bytes)
-                        return byte >= lengthByteCount && byte < lengthByteCount + dataByteCount;
-                    }
-                }
-
-                // For sections without structure
-                if (part === 'label') {
-                    // Label = all bytes
-                    return true;
-                } else if (part === 'value') {
-                    // If hovering a specific value in a comma-separated list
-                    if (valueIndex >= 0) {
-                        return byte === valueIndex;
-                    }
-                    // Otherwise all bytes
-                    return true;
-                }
-            }
-
-            return false;
-        };
-
         const isAnnotationHighlighted = (section: number, part: string, valueIndex: number = -1): boolean => {
             // Highlight if this annotation is directly hovered
             if (hoveredAnnotation.value?.section === section &&
@@ -698,6 +641,52 @@ export default defineComponent({
             return false;
         };
 
+        // Compute which byte index should be highlighted based on hovered annotation
+        const getHighlightedByteIndices = (sectionIndex: number): number[] => {
+            // If a byte is directly hovered, highlight it
+            if (hoveredByte.value?.section === sectionIndex) {
+                return [hoveredByte.value.byte];
+            }
+
+            // If an annotation is hovered, highlight the corresponding bytes
+            if (hoveredAnnotation.value?.section === sectionIndex) {
+                const section = byteSections.value[sectionIndex];
+                if (!section) return [];
+
+                const part = hoveredAnnotation.value.part;
+                const valueIndex = hoveredAnnotation.value.valueIndex;
+
+                // For sections with structure (len + data)
+                if (section.structure && section.structure.length > 0) {
+                    const lengthByteCount = section.structure[0].count;
+                    const dataByteCount = section.structure[1].count;
+
+                    if (part === 'label') {
+                        // Highlight all bytes
+                        return Array.from({ length: lengthByteCount + dataByteCount }, (_, i) => i);
+                    } else if (part === 'length') {
+                        // Highlight length bytes
+                        return Array.from({ length: lengthByteCount }, (_, i) => i);
+                    } else if (part === 'value') {
+                        // Highlight data bytes
+                        return Array.from({ length: dataByteCount }, (_, i) => i + lengthByteCount);
+                    }
+                }
+
+                // For sections without structure
+                if (part === 'label' || part === 'value') {
+                    // If hovering a specific value in a comma-separated list
+                    if (valueIndex >= 0) {
+                        return [valueIndex];
+                    }
+                    // Otherwise highlight all bytes
+                    return Array.from({ length: section.bytes.length }, (_, i) => i);
+                }
+            }
+
+            return [];
+        };
+
         return {
             byteSections,
             allBytes,
@@ -709,22 +698,21 @@ export default defineComponent({
             byteCopySpaces,
             byteCopyCommas,
             byteUpperCase,
-            formatByte,
-            getByteColorClass,
             copyToClipboard,
             navigateToGenerate,
             setHoverByte,
             clearHoverByte,
             setHoverAnnotation,
             clearHoverAnnotation,
-            isByteHighlighted,
+            hoveredByte,
             isAnnotationHighlighted,
             isCommaSeparatedList,
             parseCommaSeparatedList,
             activeParseSelectorIndex,
             parseTypes,
             toggleParseSelector,
-            changeParseType
+            changeParseType,
+            getHighlightedByteIndices
         };
     }
 });
@@ -804,36 +792,6 @@ export default defineComponent({
 
 .dark .structure-label {
     color: #666;
-}
-
-.byte-row {
-    display: flex;
-    gap: 2px;
-}
-
-.byte {
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    padding: 3px 5px;
-    display: inline-block;
-    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 13px;
-    line-height: 1.2;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.dark .byte {
-    border: 1px solid #555;
-    color: white;
-}
-
-.byte-highlight {
-    border-color: #3eaf7c !important;
-    box-shadow: 0 0 0 2px rgba(62, 175, 124, 0.3);
-    transform: scale(1.05);
-    z-index: 10;
-    position: relative;
 }
 
 .byte-annotation {
@@ -943,54 +901,6 @@ export default defineComponent({
 
 .parse-option-selected:hover {
     background-color: #35946a;
-}
-
-.color-0 {
-    background-color: #f0f8ff;
-}
-
-.color-1 {
-    background-color: #f5dbee;
-}
-
-.color-2 {
-    background-color: #f5f5dc;
-}
-
-.color-3 {
-    background-color: #fafad2;
-}
-
-.color-4 {
-    background-color: #ffe4e1;
-}
-
-.color-5 {
-    background-color: #e0ffff;
-}
-
-.dark .color-0 {
-    background-color: #2f4f4f;
-}
-
-.dark .color-1 {
-    background-color: #556b2f;
-}
-
-.dark .color-2 {
-    background-color: #8b4513;
-}
-
-.dark .color-3 {
-    background-color: #483d8b;
-}
-
-.dark .color-4 {
-    background-color: #2e8b57;
-}
-
-.dark .color-5 {
-    background-color: #4682b4;
 }
 
 .byte-controls {
