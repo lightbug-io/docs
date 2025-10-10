@@ -16,9 +16,35 @@
 
         <!-- Type-specific inputs -->
         <div v-else class="input-group">
+            <!-- Boolean -->
+            <div v-if="fieldType === 'bool'" class="boolean-input">
+                <label class="input-label">{{ getInputLabel() }}</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input
+                            type="radio"
+                            :value="false"
+                            :checked="modelValue === false"
+                            @change="handleBooleanInput(false)"
+                        />
+                        <span class="radio-label">False</span>
+                    </label>
+                    <label class="radio-option">
+                        <input
+                            type="radio"
+                            :value="true"
+                            :checked="modelValue === true"
+                            @change="handleBooleanInput(true)"
+                        />
+                        <span class="radio-label">True</span>
+                    </label>
+                </div>
+                <div class="input-hint">{{ getTypeHint() }}</div>
+            </div>
+
             <!-- Numeric types -->
             <v-text-field
-                v-if="isNumericType"
+                v-else-if="isNumericType"
                 :model-value="modelValue"
                 @update:model-value="handleNumericInput"
                 :label="getInputLabel()"
@@ -103,7 +129,7 @@ export default defineComponent({
             required: true
         },
         modelValue: {
-            type: [String, Number, Array] as PropType<string | number | number[]>,
+            type: [String, Number, Boolean, Array] as PropType<string | number | boolean | number[]>,
             default: ''
         }
     },
@@ -162,6 +188,8 @@ export default defineComponent({
                 case 'uint':
                 case 'int':
                     return 'Variable length integer';
+                case 'bool':
+                    return 'Boolean value (true/false)';
                 default:
                     return type;
             }
@@ -191,9 +219,17 @@ export default defineComponent({
                 case 'uint':
                 case 'int':
                     return 'e.g., 1234';
+                case 'bool':
+                    return 'Select true or false';
                 default:
                     return '';
             }
+        };
+
+        const handleBooleanInput = (value: any) => {
+            // Convert the emitted value to boolean
+            const boolValue = Boolean(value);
+            emit('update:modelValue', boolValue);
         };
 
         const handleNumericInput = (value: string) => {
@@ -241,6 +277,7 @@ export default defineComponent({
             getInputLabel,
             getTypeHint,
             getPlaceholder,
+            handleBooleanInput,
             handleNumericInput,
             handleFloatInput,
             handleBytesInput
@@ -290,6 +327,58 @@ export default defineComponent({
 .input-group {
     display: flex;
     flex-direction: column;
+}
+
+.boolean-input {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.dark .input-label {
+    color: #ddd;
+}
+
+.radio-group {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.radio-option input[type="radio"] {
+    margin: 0;
+}
+
+.radio-label {
+    font-size: 14px;
+    color: #333;
+}
+
+.dark .radio-label {
+    color: #ddd;
+}
+
+.input-hint {
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.dark .input-hint {
+    color: #aaa;
 }
 
 .value-name {

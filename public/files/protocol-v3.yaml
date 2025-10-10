@@ -444,7 +444,8 @@ messages:
             name: reserved
             description: Can indicate a 2D fix, low accuracy, should be treated as invalid
           3:
-            name: standalone 3d fix
+            name: standalone
+            description: standalone 3d fix
           4:
             name: rtk-float
           5:
@@ -1358,18 +1359,20 @@ messages:
   10008:
     name: Base Page
     description: |
-      Draw a base page.
-      Displays a preset page that is hardcoded in the device.
-      Currently there is only a single home page programmed per device.
+      Draw a base device page.
+      Base pages are pre-defined pages in the device firmware, such as the home page.
+      These may differ in their appearance between device types.
     group: screen
     data:
       3:
         name: Page ID
         description: |
-          The page to draw or update.
-          Page ids 0-10 are reserved for system use.
-          If no page id is provided, page id 11 will be assumed.
+          The page to draw.
         type: uint8
+        values:
+          1:
+            name: Home Page
+            description: The preset home page programmed into the device
       5:
         name: Status bar Enable
         description: Show the status bar
@@ -1410,13 +1413,19 @@ messages:
             name: ClearDontDraw
             description: Clear the screen buffer (always), but don't redraw. Similar to BufferOnly, but always clears the buffer.
     examples:
-      - name: Display the preset home page
-        bytes: 3 14 0 24 39 1 0 1 1 126 0 0 25 55
+      - name: Request the home page (page 1) to be drawn
+        bytes: 03 20 00 24 39 01 00 01 04 57 48 00 00 01 00 03 01 01 241 73
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit.
   10009:
     name: Text Page
     description: |
       Display or alter a text page on the device screen, with up to 5 lines of text.
       A text page can have a title, and an optional status bar.
+      The text page is intended as a simple way to display information on the device screen.
+      Using the Draw Element messages are a more flexible way to create custom pages.
     group: screen
     data:
       3:
@@ -1469,10 +1478,18 @@ messages:
         name: Line 4
         type: ascii
     examples:
-      - name: Display a 3 line text page, with ID 200, and a title 'Page Title'
-        bytes: 3 61 0 25 39 1 0 1 1 233 5 0 3 4 100 101 102 1 200 10 80 97 103 101 32 84 105 116 108 101 10 70 105 114 115 116 32 76 105 110 101 11 83 101 99 111 110 100 32 76 105 110 101 5 84 104 105 114 100 106 149
-      - name: Add a 4th line to the same page ID 200, with the text '4th', by providing the same page ID, and only the new text field
-        bytes: 3 22 0 25 39 1 0 1 1 200 2 0 3 103 1 200 3 52 116 104 245 201
+      - name: Draw page 200, with a title and 4 lines of text
+        bytes: 3 70 0 25 39 1 0 1 4 233 0 0 0 6 0 3 4 100 101 102 103 1 200 10 80 97 103 101 32 84 105 116 108 101 10 70 105 114 115 116 32 76 105 110 101 11 83 101 99 111 110 100 32 76 105 110 101 5 84 104 105 114 100 4 70 111 117 114 169 45
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit.
+      - name: Alter page 200, changing line 4
+        bytes: 3 30 0 25 39 1 0 1 4 234 0 0 0 2 0 3 103 1 200 8 70 111 117 114 46 46 46 46 81 44
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit.
   10010:
     name: Menu Page
     description: |

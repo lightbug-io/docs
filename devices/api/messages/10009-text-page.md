@@ -16,21 +16,19 @@ const messageData = computed(() => protocolData?.messages?.[messageId])
 const examples = computed(() => messageData.value?.examples || [])
 </script>
 
-::: danger ⚠️ Not yet public
-The Device API currently in development and is not yet accessible on production devices.
-
-These pages can be seen as a view of what is to come later this year.
-:::
-
 # 10009: Text Page
-
-::: danger ⚠️ Recently altered
-Redraw options have recently changed, and this page needs updating.
-:::
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
 <PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
+
+## Pages
+
+This is what the text pages actually look like.
+
+### Default font
+
+
 
 ## Examples
 
@@ -68,8 +66,7 @@ v-if="index === 1"
 />
 -->
 
-<Message :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="true"/>
-
+<Message :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false" :realDeviceInfo="example.real"/>
 </div>
 
 Only a partial redraw will be performed in order to add new lines, and the existing lines will remain on the screen.

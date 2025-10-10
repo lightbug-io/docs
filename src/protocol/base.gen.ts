@@ -326,6 +326,9 @@ export function readTypedData(bytes: number[], type: string): any {
         result |= bytes[i] << (8 * i);
       }
       return result;
+    case 'bool':
+      // Boolean: 0 = false, 1 = true
+      return bytes[0] === 1;
     default:
       return bytes;
   }
@@ -358,6 +361,9 @@ export function writeTypedData(value: any, type: string): number[] {
     case 'int':
       // For variable length, use uint32 as default
       return writeUint32LE(value);
+    case 'bool':
+      // Boolean: 0 = false, 1 = true
+      return writeUint8(value ? 1 : 0);
     default:
       return Array.isArray(value) ? value : [];
   }

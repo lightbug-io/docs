@@ -15,12 +15,6 @@ const messageData = computed(() => protocolData?.messages?.[messageId])
 const examples = computed(() => messageData.value?.examples || [])
 </script>
 
-::: danger ⚠️ Not yet public
-The Device API currently in development and is not yet accessible on production devices.
-
-These pages can be seen as a view of what is to come later this year.
-:::
-
 # 10008: Base Page
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
@@ -28,6 +22,23 @@ These pages can be seen as a view of what is to come later this year.
 <PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
 
 <div v-if="examples.length > 0">
+
+## Pages
+
+This is what the base pages actually look like.
+
+### 1: Home page
+
+#### RH2
+
+:::tabs
+== Visualization
+![=400x](https://upload.r2.lb.chasm.cloud/2025/10/imgur/lGxzg9U.png){.center}
+== Wide Photo
+![=600x](https://upload.r2.lb.chasm.cloud/2025/10/imgur/dF5X5Qn.png){.center}
+== Zoom Photo
+![=400x](https://upload.r2.lb.chasm.cloud/2025/10/imgur/42e4q6P.jpeg){.center}
+:::
 
 ## Examples
 
