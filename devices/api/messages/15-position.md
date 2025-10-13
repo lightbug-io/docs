@@ -5,7 +5,7 @@ outline: false
 
 <script setup>
 import Message from '../../../components/Protocol/Message.vue';
-import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
+import MessageCodeGen from '../../../components/Protocol/MessageCodeGen.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
 import { computed } from 'vue'
@@ -45,4 +45,4 @@ Used to interact with the devices position.
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>
+<MessageCodeGen :messageId="messageId" :yaml-data="protocolData"/>

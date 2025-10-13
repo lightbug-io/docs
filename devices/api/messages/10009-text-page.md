@@ -5,7 +5,7 @@ outline: false
 
 <script setup>
 import Message from '../../../components/Protocol/Message.vue';
-import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
+import MessageCodeGen from '../../../components/Protocol/MessageCodeGen.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import EinkText from '../../../components/EinkText.vue';
 import { data as protocolData } from '../../../yaml-data.data.ts'
@@ -75,4 +75,4 @@ Only a partial redraw will be performed in order to add new lines, and the exist
 
 For convenience, the following constants can be used to reference the payload fields.
 
-<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>
+<MessageCodeGen :messageId="messageId" :yaml-data="protocolData"/>

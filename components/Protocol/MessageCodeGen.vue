@@ -91,7 +91,7 @@ interface Language {
 }
 
 export default defineComponent({
-    name: 'ProtocolMessageConstants',
+    name: 'MessageCodeGen',
     props: {
         messageId: {
             type: Number,

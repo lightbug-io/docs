@@ -5,7 +5,7 @@ outline: false
 
 <script setup>
 import Message from '../../../components/Protocol/Message.vue';
-import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
+import MessageCodeGen from '../../../components/Protocol/MessageCodeGen.vue'
 import PayloadTable from '../../../components/PayloadTable.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
 import { computed } from 'vue'
@@ -48,4 +48,4 @@ These pages can be seen as a view of what is to come later this year.
 
 For convenience, the following constants can be referring to this message type.
 
-<ProtocolMessageConstants :messageId="messageId" :yaml-data="protocolData"/>
+<MessageCodeGen :messageId="messageId" :yaml-data="protocolData"/>
