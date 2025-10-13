@@ -44,7 +44,7 @@ As an example empty message including prefix (with no additional header or paylo
     byteString="76 66 3 11 0 1 0 0 0 0 0 75 190"
     :allowCollapse="false"
     :yaml-data="protocolData"
-></ProtocolBytes2>
+></Message>
 
 ## Example Message
 
@@ -59,7 +59,7 @@ An example [prefixed](structure#prefix) and minimal message might look as follow
     byteString="76 66 3 11 0 1 0 0 0 0 0 75 190"
     :allowCollapse="false"
     :yaml-data="protocolData"
-></ProtocolBytes2>
+></Message>
 
 ::: info
 All integers are in [little-endian](https://en.wikipedia.org/wiki/Endianness) format eg. (uint16 `1` is represented as `0x01 0x00`).
@@ -81,4 +81,4 @@ So the full above example would be:
 <Message
     byteString="3 11 0 1 0 0 0 0 0 75 190"
     :allowCollapse="false"
-></ProtocolBytes2>
+></Message>
