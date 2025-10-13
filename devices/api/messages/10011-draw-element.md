@@ -22,6 +22,26 @@ const messageData = computed(() => protocolData?.messages?.[messageId])
 
 <PayloadSection :messageId="messageId" :yamlData="protocolData" />
 
+### Element types
+
+#### Box
+
+##### Box with text
+
+![=500x](https://upload.r2.lb.chasm.cloud/2025/10/ApplicationFrameHost_syTdANlguS.png)
+
+#### Line
+
+![=500x](https://upload.r2.lb.chasm.cloud/2025/10/ApplicationFrameHost_Hvs2087N6Q.png)
+
+#### Circle
+
+![=500x](https://upload.r2.lb.chasm.cloud/2025/10/ApplicationFrameHost_cJEn70CQo1.png)
+
+#### Bitmap
+
+![=500x](https://upload.r2.lb.chasm.cloud/2025/10/ApplicationFrameHost_NEQ3ZYBpTN.png)
+
 ## Examples
 
 <ExamplesSection :messageId="messageId" :yamlData="protocolData" />

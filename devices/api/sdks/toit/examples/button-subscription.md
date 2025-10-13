@@ -1,8 +1,12 @@
 ---
-order: 5
+order: 6
 aside: true
 outline: deep
 ---
+
+<script setup>
+import ToitGithubCode from '../../../../../components/ToitGithubCode.vue';
+</script>
 
 # Button subscription
 
@@ -10,9 +14,13 @@ Use the `button` module to subscribe to button events.
 
 ## Code
 
+<ToitGithubCode path="examples/modules/buttons/basic.toit">
+
 ```toit
 <!-- @include: .vitepress/ext/toit-lightbug/examples/modules/buttons/basic.toit-->
 ```
+
+</ToitGithubCode>
 
 ## Input
 
