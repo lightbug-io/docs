@@ -21,9 +21,10 @@ Reliable, ultra-accurate & affordable RTK tracking. For centimeter-level data ca
 
 Our RH2 guides are still a work in progress, but these links may help you get started for expected use cases:
 
-- Using the [default application](/devices/rtk/handheld/application) for RTK positions cloud streaming and logging, at 1Hz, 2Hz or 5Hz update rates.
+- Using the [default application](/devices/rtk/handheld/application) for RTK positions, cloud streaming and logging, at 1Hz, 2Hz or 5Hz update rates.
 - [Forwarding the cloud streamed data to external services](/apps/admin/devices/forwarding), via webhooks or MQTT.
 - Sharing snapshots of data publicly with others to view, [via public links](/apps/chasm/share/).
+- Using the second processor, [Toit SDK](/devices/api/sdks/toit/), and example  [Survey application](/devices/api/sdks/toit/applications/survey/) written in Toit for custom on device edge processing.
 
 ## Downloads
 

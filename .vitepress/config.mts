@@ -53,33 +53,63 @@ const protocolMenuItems = Object.keys(protocolGroups)
 
 // Ability to generate other collections of side bar entries
 const sidebarItemsFromDir = (dir) => {
-  const files = fs.readdirSync(dir)
-    .filter(file => file !== 'index.md' && file.endsWith('.md'))
+  const entries = fs.readdirSync(dir, { withFileTypes: true })
+    .filter(entry => (entry.isFile() && entry.name !== 'index.md' && entry.name.endsWith('.md')) || entry.isDirectory())
 
-  const items = files.map(file => {
-    const fullPath = path.resolve(dir, file);
+  const items = entries.map(entry => {
+    const name = entry.isDirectory() ? entry.name : entry.name.replace('.md', '');
     let order = 100;
-    try {
-      const content = fs.readFileSync(fullPath, 'utf8');
-      // simple frontmatter parse: look for leading --- yaml --- block
-      const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-      if (fmMatch) {
-        const fm = yaml.load(fmMatch[1]);
-        if (fm && typeof fm.order === 'number') {
-          order = fm.order;
+    let link = `/${dir}/${name}`;
+    let subItems;
+
+    if (entry.isDirectory()) {
+      link += '/';
+      // Try to read order from index.md if exists
+      const indexPath = path.resolve(dir, name, 'index.md');
+      if (fs.existsSync(indexPath)) {
+        try {
+          const content = fs.readFileSync(indexPath, 'utf8');
+          const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+          if (fmMatch) {
+            const fm = yaml.load(fmMatch[1]);
+            if (fm && typeof fm.order === 'number') {
+              order = fm.order;
+            }
+          }
+        } catch (e) {
+          // ignore
         }
       }
-    } catch (e) {
-      // ignore and use default order
+      // Recursively get sub-items
+      subItems = sidebarItemsFromDir(path.resolve(dir, name));
+    } else {
+      // For files, read frontmatter as before
+      const fullPath = path.resolve(dir, entry.name);
+      try {
+        const content = fs.readFileSync(fullPath, 'utf8');
+        // simple frontmatter parse: look for leading --- yaml --- block
+        const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+        if (fmMatch) {
+          const fm = yaml.load(fmMatch[1]);
+          if (fm && typeof fm.order === 'number') {
+            order = fm.order;
+          }
+        }
+      } catch (e) {
+        // ignore and use default order
+      }
     }
 
-    const name = file.replace('.md', '')
     const displayName = name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, ' ');
-    return {
+    const item: any = {
       text: displayName,
-      link: `/${dir}/${name}`,
+      link,
       order,
+    };
+    if (subItems) {
+      item.items = subItems;
     }
+    return item;
   })
 
   // sort by order, then by text
@@ -530,6 +560,11 @@ export default withMermaid(defineConfig({
                   text: 'Examples',
                   link: '/devices/api/sdks/toit/examples/',
                   items: sidebarItemsFromDir('devices/api/sdks/toit/examples')
+                },
+                {
+                  text: 'Applications',
+                  link: '/devices/api/sdks/toit/applications/',
+                  items: sidebarItemsFromDir('devices/api/sdks/toit/applications')
                 },
               ]
         },
