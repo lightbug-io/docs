@@ -2,10 +2,6 @@
 outline: [2,3]
 ---
 
-<script setup>
-import Message from '../../../components/Protocol/Message.vue';
-</script>
-
 # Structure
 
 - Protocol Version: The version of the protocol (always 3).

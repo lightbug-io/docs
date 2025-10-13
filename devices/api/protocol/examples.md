@@ -2,10 +2,6 @@
 outline: [2,3]
 ---
 
-<script setup>
-import Message from '../../../components/Protocol/Message.vue';
-</script>
-
 # Examples
 
 ### Type 3, header empty, data empty

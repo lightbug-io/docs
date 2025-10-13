@@ -3,7 +3,6 @@ outline: [2,3]
 ---
 
 <script setup>
-import ParseInput from '../../../components/Protocol/ParseInput.vue';
 import { data as protocolData } from '../../../yaml-data.data.ts'
 
 const createExampleUrl = (bytes) => {

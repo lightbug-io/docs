@@ -4,9 +4,6 @@ outline: [2,3]
 ---
 
 <script setup>
-import PayloadSection from '../../../components/Protocol/PayloadSection.vue';
-import ExamplesSection from '../../../components/Protocol/ExamplesSection.vue';
-import CodeSection from '../../../components/Protocol/CodeSection.vue';
 import { data as protocolData } from '../../../yaml-data.data.ts'
 import { computed } from 'vue'
 

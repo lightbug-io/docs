@@ -6,10 +6,6 @@ next:
 ---
 
 <script setup>
-import DeviceSpecImages from '../../components/DeviceSpecImages.vue'
-import DeviceSpecOverview from '../../components/DeviceSpecOverview.vue'
-import DeviceSpecSection from '../../components/DeviceSpecSection.vue'
-import DownloadSpecButton from '../../components/DownloadSpecButton.vue'
 import spec from '../../public/device-specs/vehicle/v3.yaml?raw'
 import loadSpec from '../../utils/loadSpec'
 

@@ -17,6 +17,9 @@ import 'vitepress-openapi/dist/style.css'
 
 import './custom.css'
 
+// Import all components globally
+const componentModules = import.meta.glob('../../components/**/*.vue', { eager: true })
+
 const vuetify = createVuetify({
     icons: {
         defaultSet: 'mdi',
@@ -54,5 +57,12 @@ export default {
         themeConfig.setI18nConfig({ locale: 'en' })
         themeConfig.setResponseCodeSelector('select')
         theme.enhanceApp({ app, router, siteData })
+
+        // Register all components globally
+        for (const path in componentModules) {
+            const component = (componentModules[path] as any).default
+            const name = path.split('/').pop()!.replace('.vue', '')
+            app.component(name, component)
+        }
     }
 } satisfies Theme

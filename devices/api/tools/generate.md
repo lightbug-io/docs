@@ -4,7 +4,6 @@ outline: [2,3]
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import Generate from '../../../components/Protocol/Generate.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
 
 const createExampleUrl = (params) => {

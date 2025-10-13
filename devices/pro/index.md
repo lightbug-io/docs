@@ -3,10 +3,6 @@ aside: true
 ---
 
 <script setup>
-import DeviceSpecImages from '../../components/DeviceSpecImages.vue'
-import DeviceSpecOverview from '../../components/DeviceSpecOverview.vue'
-import DeviceSpecSection from '../../components/DeviceSpecSection.vue'
-import DownloadSpecButton from '../../components/DownloadSpecButton.vue'
 import loadSpec from '../../utils/loadSpec'
 import { ref, onMounted } from 'vue'
 

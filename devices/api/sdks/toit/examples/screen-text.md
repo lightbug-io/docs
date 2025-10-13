@@ -4,10 +4,6 @@ aside: true
 outline: deep
 ---
 
-<script setup>
-import ToitGithubCode from '../../../../../components/ToitGithubCode.vue';
-</script>
-
 # Screen text
 
 Use the `eink` module to display some text on the screen.

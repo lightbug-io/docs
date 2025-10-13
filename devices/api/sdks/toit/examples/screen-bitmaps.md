@@ -4,10 +4,6 @@ aside: true
 outline: deep
 ---
 
-<script setup>
-import ToitGithubCode from '../../../../../components/ToitGithubCode.vue';
-</script>
-
 # Screen bitmaps
 
 Use the `eink` module to display multiple bitmaps on the screen, in a single draw.

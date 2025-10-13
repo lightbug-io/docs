@@ -3,8 +3,6 @@ outline: [2,3]
 ---
 
 <script setup>
-import MessageCodeGen from '../../../components/Protocol/MessageCodeGen.vue'
-import HeaderSection from '../../../components/HeaderSection.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
 

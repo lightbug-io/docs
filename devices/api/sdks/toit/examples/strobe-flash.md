@@ -4,10 +4,6 @@ aside: true
 outline: deep
 ---
 
-<script setup>
-import ToitGithubCode from '../../../../../components/ToitGithubCode.vue';
-</script>
-
 # Strobe flash
 
 Use the `strobe` module of the device to flash the strobe in a sequence.

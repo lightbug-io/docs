@@ -4,10 +4,6 @@ aside: true
 outline: deep
 ---
 
-<script setup>
-import ToitGithubCode from '../../../../../components/ToitGithubCode.vue';
-</script>
-
 # Button subscription
 
 Use the `button` module to subscribe to button events.

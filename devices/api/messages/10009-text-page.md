@@ -4,10 +4,6 @@ outline: false
 ---
 
 <script setup>
-import Message from '../../../components/Protocol/Message.vue';
-import PayloadSection from '../../../components/Protocol/PayloadSection.vue';
-import CodeSection from '../../../components/Protocol/CodeSection.vue';
-import EinkText from '../../../components/EinkText.vue';
 import { data as protocolData } from '../../../yaml-data.data.ts'
 import { computed } from 'vue'
 

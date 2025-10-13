@@ -2,9 +2,6 @@
 aside: true
 outline: [2,3]
 ---
-<script setup>
-import BitfieldCalculator from '../../components/BitfieldCalculator.vue'
-</script>
 
 # Glossary
 

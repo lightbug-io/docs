@@ -4,10 +4,6 @@ outline: false
 ---
 
 <script setup>
-import HeaderSection from '../../../components/Protocol/HeaderSection.vue';
-import PayloadSection from '../../../components/Protocol/PayloadSection.vue';
-import ExamplesSection from '../../../components/Protocol/ExamplesSection.vue';
-import CodeSection from '../../../components/Protocol/CodeSection.vue';
 import { data as protocolData } from '../../../yaml-data.data.ts'
 import { computed } from 'vue'
 

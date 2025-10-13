@@ -3,8 +3,6 @@ aside: false
 ---
 
 <script setup>
-import DownloadFile from '../../../components/DownloadFile.vue'
-import DownloadSpecFile from '../../../components/DownloadSpecFile.vue'
 import { useDeviceSpec } from '../../../composables/useDeviceSpec.js'
 import spec from '../../../public/device-specs/rtk/v2.yaml?raw'
 import loadSpec from '../../../utils/loadSpec'

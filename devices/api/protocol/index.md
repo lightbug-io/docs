@@ -3,8 +3,6 @@ outline: [1,3]
 ---
 
 <script setup>
-import MessageCodeGen from '../../../components/Protocol/MessageCodeGen.vue'
-import Message from '../../../components/Protocol/Message.vue'
 </script>
 
 # Protocol
