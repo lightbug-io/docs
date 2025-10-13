@@ -1,6 +1,6 @@
 # Applications
 
-All of the [examples](../../examples/) in the lightbug pkg are applications.
+All of the [examples](../examples/) in the lightbug pkg are applications.
 
 However, some applications are more complex, and demo specific functionality, or real world use cases.
 
