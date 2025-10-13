@@ -24,8 +24,14 @@ These pages can be seen as a view of what is to come later this year.
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
+## Payload
+
 <PayloadSection :messageId="messageId" :yamlData="protocolData" />
 
+## Examples
+
 <ExamplesSection :messageId="messageId" :yamlData="protocolData" />
+
+## Code
 
 <CodeSection :messageId="messageId" :yamlData="protocolData" />

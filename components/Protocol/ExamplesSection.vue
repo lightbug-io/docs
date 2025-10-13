@@ -1,6 +1,5 @@
 <template>
   <div v-if="examples.length > 0">
-    <h2>Examples</h2>
     <div v-for="(example, index) in examples" :key="index">
       <h5>{{ example.name }}</h5>
       <span v-if="example.description" style="white-space: pre-line;">{{ example.description }}</span>

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>Code</h2>
     <p>For convenience, the following constants can be used to reference this message type<span v-if="hasPayload"> and its payload fields</span>.</p>
     <MessageCodeGen :messageId="messageId" :yaml-data="yamlData"/>
   </div>

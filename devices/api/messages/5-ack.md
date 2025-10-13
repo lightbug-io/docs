@@ -27,9 +27,15 @@ This applies to Lightbug devices, SDKs, apps and services.
  - If an ID is not present, then no ACK will be sent because it is assumed the sender is not tracking successes/failures.
  - ACKs may always be sent for open and close messages (with type only) <!-- Currently the case for P1 comms-->
 
+## Header
+
 <HeaderSection :messageId="messageId" :yamlData="protocolData" />
 
+## Payload
+
 <PayloadSection :messageId="messageId" :yamlData="protocolData" />
+
+## Examples
 
 <ExamplesSection :messageId="messageId" :yamlData="protocolData" />
 
@@ -66,5 +72,7 @@ flowchart LR
     A[Sender] -->|Message id 56| B(Receiver)
     A[Sender] -->|Message id 56| B(Receiver)
 ```
+
+## Code
 
 <CodeSection :messageId="messageId" :yamlData="protocolData" />

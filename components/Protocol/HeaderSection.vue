@@ -1,6 +1,5 @@
 <template>
   <div v-if="hasRelevantHeaders">
-    <h2>Header</h2>
     <HeaderTable :messageId="messageId" headerText="" :yaml-data="yamlData"/>
     <small>This is an extract of header fields that are relevant to this message type, you can find them all documented in the <a href="../protocol/headers.md">Headers</a> section.</small>
   </div>

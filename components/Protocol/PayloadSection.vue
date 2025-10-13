@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2>Payload</h2>
     <PayloadTable :messageId="messageId" headerText="" :yaml-data="yamlData"/>
   </div>
 </template>

@@ -18,6 +18,8 @@ const messageData = computed(() => protocolData?.messages?.[messageId])
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
+## Payload
+
 <PayloadSection :messageId="messageId" :yamlData="protocolData" />
 
 ## Pages
@@ -37,6 +39,10 @@ This is what the base pages actually look like.
 ![=400x](https://upload.r2.lb.chasm.cloud/2025/10/imgur/42e4q6P.jpeg){.center}
 :::
 
+## Examples
+
 <ExamplesSection :messageId="messageId" :yamlData="protocolData" />
+
+## Code
 
 <CodeSection :messageId="messageId" :yamlData="protocolData" />

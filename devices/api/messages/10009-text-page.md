@@ -20,6 +20,8 @@ const examples = computed(() => messageData.value?.examples || [])
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
+## Payload
+
 <PayloadSection :messageId="messageId" :yamlData="protocolData" />
 
 ## Pages
@@ -70,5 +72,7 @@ v-if="index === 1"
 </div>
 
 Only a partial redraw will be performed in order to add new lines, and the existing lines will remain on the screen.
+
+## Code
 
 <CodeSection :messageId="messageId" :yamlData="protocolData" />

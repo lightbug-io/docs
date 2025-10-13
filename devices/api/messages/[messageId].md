@@ -32,10 +32,18 @@ if (typeof document !== 'undefined' && pageTitle.value) {
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
+## Header
+
 <HeaderSection :messageId="messageId" :yamlData="protocolData" />
+
+## Payload
 
 <PayloadSection :messageId="messageId" :yamlData="protocolData" />
 
+## Examples
+
 <ExamplesSection :messageId="messageId" :yamlData="protocolData" />
+
+## Code
 
 <CodeSection :messageId="messageId" :yamlData="protocolData" />
