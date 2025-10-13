@@ -3,10 +3,12 @@ outline: [2,3]
 ---
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import Generate from '../../../components/Protocol/Generate.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
 
 const createExampleUrl = (params) => {
+  if (typeof window === 'undefined') return '#generator';
   const url = new URL(window.location.href);
   const searchParams = new URLSearchParams(params);
   url.search = searchParams.toString();

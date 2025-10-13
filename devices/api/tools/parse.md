@@ -7,6 +7,7 @@ import ParseInput from '../../../components/Protocol/ParseInput.vue';
 import { data as protocolData } from '../../../yaml-data.data.ts'
 
 const createExampleUrl = (bytes) => {
+  if (typeof window === 'undefined') return '#parser';
   const url = new URL(window.location.href);
   url.searchParams.set('bytes', bytes);
   url.hash = 'parser';

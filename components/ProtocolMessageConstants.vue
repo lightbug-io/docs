@@ -28,12 +28,14 @@
 
         <!-- Code display -->
         <div class="code-display">
-            <VCodeBlock
-                :code="currentCode"
-                highlightjs
-                :lang="currentLang"
-                theme="default"
-            />
+            <ClientOnly>
+                <VCodeBlock
+                    :code="currentCode"
+                    highlightjs
+                    :lang="currentLang"
+                    theme="default"
+                />
+            </ClientOnly>
         </div>
 
         <!-- Options Modal -->

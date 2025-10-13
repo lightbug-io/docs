@@ -36,7 +36,11 @@ export default {
     ...DefaultTheme, Layout,
     enhanceApp({ app, router, siteData }) {
         app.use(vuetify)
-        app.use(VCodeBlock);
+
+        // Only initialize VCodeBlock on client side
+        if (typeof window !== 'undefined') {
+            app.use(VCodeBlock);
+        }
 
         enhanceAppWithTabs(app)
 

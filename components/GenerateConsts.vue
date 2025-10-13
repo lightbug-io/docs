@@ -14,52 +14,64 @@
                     <v-tab value="grouped">Grouped</v-tab>
                 </v-tabs>
                 <div v-if="goFormat === 'individual'">
-                    <VCodeBlock
-                        :code="computedGoConstantsIndividual"
-                        highlightjs
-                        lang="go"
-                        theme="default"
-                    />
+                    <ClientOnly>
+                        <VCodeBlock
+                            :code="computedGoConstantsIndividual"
+                            highlightjs
+                            lang="go"
+                            theme="default"
+                        />
+                    </ClientOnly>
                 </div>
                 <div v-else>
-                    <VCodeBlock
-                        :code="computedGoConstantsGrouped"
-                        highlightjs
-                        lang="go"
-                        theme="default"
-                    />
+                    <ClientOnly>
+                        <VCodeBlock
+                            :code="computedGoConstantsGrouped"
+                            highlightjs
+                            lang="go"
+                            theme="default"
+                        />
+                    </ClientOnly>
                 </div>
             </div>
             <div v-else-if="activeTab === 'cpp'">
-                <VCodeBlock
-                    :code="computedCppConstants"
-                    highlightjs
-                    lang="cpp"
-                    theme="default"
-                />
+                <ClientOnly>
+                    <VCodeBlock
+                        :code="computedCppConstants"
+                        highlightjs
+                        lang="cpp"
+                        theme="default"
+                    />
+                </ClientOnly>
             </div>
             <div v-else-if="activeTab === 'ts'">
-                <VCodeBlock
-                    :code="computedTsConstants"
-                    highlightjs
-                    lang="typescript"
-                    theme="default"
-                />
+                <ClientOnly>
+                    <VCodeBlock
+                        :code="computedTsConstants"
+                        highlightjs
+                        lang="typescript"
+                        theme="default"
+                    />
+                </ClientOnly>
             </div>
             <div v-else-if="activeTab === 'cs'">
-                <VCodeBlock
-                    :code="computedCsConstants"
-                    highlightjs
-                    lang="csharp"
-                    theme="default"
-                />
+                <ClientOnly>
+                    <VCodeBlock
+                        :code="computedCsConstants"
+                        highlightjs
+                        lang="csharp"
+                        theme="default"
+                    />
+                </ClientOnly>
             </div>
             <div v-else>
-                <VCodeBlock
-                    :code="computedToitConstants"
-                    highlightjs
-                    theme="default"
-                />
+                <ClientOnly>
+                    <VCodeBlock
+                        :code="computedToitConstants"
+                        highlightjs
+                        theme="default"
+                    />
+                </ClientOnly>
             </div>
         </v-card-text>
         <v-card-title>Options</v-card-title>
