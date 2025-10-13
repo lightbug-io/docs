@@ -3,7 +3,7 @@ outline: [2,3]
 ---
 
 <script setup>
-import GenerateConsts from '../../../components/GenerateConsts.vue'
+import ProtocolMessageConstants from '../../../components/ProtocolMessageConstants.vue'
 import HeaderSection from '../../../components/HeaderSection.vue'
 import { data as protocolData } from '../../../yaml-data.data.ts'
 </script>
@@ -18,4 +18,4 @@ For use in code, you can find a code generation section at the [bottom of this p
 
 ## Code generation
 
-<GenerateConsts :dataName="'MH'" :dataPath="'header'" :yaml-data="protocolData"/>
+<ProtocolMessageConstants :dataName="'MH'" :dataPath="'header'" :yaml-data="protocolData"/>
