@@ -4,16 +4,15 @@ outline: false
 ---
 
 <script setup>
-import Message from '../../../components/Protocol/Message.vue';
-import MessageCodeGen from '../../../components/Protocol/MessageCodeGen.vue'
-import PayloadTable from '../../../components/PayloadTable.vue'
-import HeaderTable from '../../../components/HeaderTable.vue'
+import HeaderSection from '../../../components/Protocol/HeaderSection.vue';
+import PayloadSection from '../../../components/Protocol/PayloadSection.vue';
+import ExamplesSection from '../../../components/Protocol/ExamplesSection.vue';
+import CodeSection from '../../../components/Protocol/CodeSection.vue';
 import { data as protocolData } from '../../../yaml-data.data.ts'
 import { computed } from 'vue'
 
 const messageId = 5
 const messageData = computed(() => protocolData?.messages?.[messageId])
-const examples = computed(() => messageData.value?.examples || [])
 </script>
 
 # 5: ACK
@@ -28,28 +27,11 @@ This applies to Lightbug devices, SDKs, apps and services.
  - If an ID is not present, then no ACK will be sent because it is assumed the sender is not tracking successes/failures.
  - ACKs may always be sent for open and close messages (with type only) <!-- Currently the case for P1 comms-->
 
-## Header
+<HeaderSection :messageId="messageId" :yamlData="protocolData" />
 
-<HeaderTable :messageId="messageId" headerText="" :yaml-data="protocolData"/>
+<PayloadSection :messageId="messageId" :yamlData="protocolData" />
 
-<small>This is an extract of header fields that are relevant to this message type, you can find them all documented in the [Headers](../protocol/headers.md) section.
-</small>
-
-## Payload
-
-<PayloadTable :messageId="messageId" headerText="" :yaml-data="protocolData"/>
-
-## Examples
-
-<div v-for="(example, index) in examples" :key="index">
-
-##### {{ example.name }}
-
-<span v-if="example.description" style="white-space: pre-line;">{{ example.description }}</span>
-
-<Message :byteString="example.bytes" :yaml-data="protocolData" :defaultCollapsed="false" :realDeviceInfo="example.real"/>
-
-</div>
+<ExamplesSection :messageId="messageId" :yamlData="protocolData" />
 
 ## Sequence
 
@@ -85,8 +67,4 @@ flowchart LR
     A[Sender] -->|Message id 56| B(Receiver)
 ```
 
-## Code
-
-For convenience, the following constants can be used to reference the payload fields.
-
-<MessageCodeGen :messageId="messageId" :yaml-data="protocolData"/>
+<CodeSection :messageId="messageId" :yamlData="protocolData" />

@@ -67,6 +67,7 @@ words:
   - mqtts
   - noopener
   - xffffffffn
+  - frontmatter
 
   # OK abbreviations
   - csum

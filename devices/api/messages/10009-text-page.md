@@ -5,8 +5,8 @@ outline: false
 
 <script setup>
 import Message from '../../../components/Protocol/Message.vue';
-import MessageCodeGen from '../../../components/Protocol/MessageCodeGen.vue'
-import PayloadTable from '../../../components/PayloadTable.vue'
+import PayloadSection from '../../../components/Protocol/PayloadSection.vue';
+import CodeSection from '../../../components/Protocol/CodeSection.vue';
 import EinkText from '../../../components/EinkText.vue';
 import { data as protocolData } from '../../../yaml-data.data.ts'
 import { computed } from 'vue'
@@ -20,7 +20,7 @@ const examples = computed(() => messageData.value?.examples || [])
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-<PayloadTable :messageId="messageId" headerText="Payload" :yaml-data="protocolData"/>
+<PayloadSection :messageId="messageId" :yamlData="protocolData" />
 
 ## Pages
 
@@ -71,8 +71,4 @@ v-if="index === 1"
 
 Only a partial redraw will be performed in order to add new lines, and the existing lines will remain on the screen.
 
-## Code
-
-For convenience, the following constants can be used to reference the payload fields.
-
-<MessageCodeGen :messageId="messageId" :yaml-data="protocolData"/>
+<CodeSection :messageId="messageId" :yamlData="protocolData" />
