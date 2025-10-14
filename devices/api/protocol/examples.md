@@ -1,42 +1,67 @@
 ---
-outline: [2,3]
+outline: deep
 ---
+
+<script setup>
+import { data as protocolData } from '../../../yaml-data.data.ts'
+</script>
 
 # Examples
 
-### Type 3, header empty, data empty
+Here are some example messages for various scenarios, to help you visualize how the protocol works.
+
+## Basic type 3 message
+
+Ignoring what type of message type 3 is, this example slowly builds from an empty message to one with various headers and data.
+
+### empty
+
+A message that only has a type, no headers, and no payload.
 
 <Message
     byteString="3 11 0 1 0 0 0 0 0 75 190"
-    :defaultCollapsed="true"
 ></Message>
 
-### .. as above, with LB prefix bytes:
+### with prefix bytes
+
+Adding the options [prefix bytes](./prefix.md) to the start of the message.
 
 <Message
     byteString="76 66 3 11 0 1 0 0 0 0 0 75 190"
-    :defaultCollapsed="true"
 :yaml-data="protocolData"
 ></Message>
 
-### Type 6, header (1:1), data empty
+### with single uint32 header
 
 <Message
-    byteString="3 14 0 6 0 1 0 1 1 1 0 0 217 95"
-    :defaultCollapsed="true"
+    byteString="76 66 3 17 0 1 0 1 0 1 4 22 0 0 0 0 0 243 35"
 :yaml-data="protocolData"
 ></Message>
 
-### Type 6, header (1:9), data empty
+### with single ascii payload
 
 <Message
-    byteString="3 14 0 6 0 1 0 1 1 9 0 0 120 246"
-    :defaultCollapsed="true"
+    byteString="76 66 3 24 0 1 0 1 0 1 4 22 0 0 0 1 0 26 5 104 101 108 108 111 221 92"
+:yaml-data="protocolData"
 ></Message>
 
-### Type 10009, header empty, data (10:hello):
+### with multiple headers and payloads
 
 <Message
-    byteString="3 18 0 25 39 0 0 1 0 10 5 104 101 108 108 111 118 77"
-    :defaultCollapsed="true"
+    byteString="76 66 3 33 0 1 0 2 0 1 99 4 22 0 0 0 4 108 98 108 98 2 0 26 27 5 104 101 108 108 111 1 7 183 242"
+:yaml-data="protocolData"
 ></Message>
+
+## Real world
+
+### Ack
+
+From the [ACK message](./../messages/5-ack)
+
+<ExamplesSection :messageId="5" :yamlData="protocolData" hideHeaders=true maxExamples=1 />
+
+### Position
+
+From the [Position message](./../messages/15-position)
+
+<ExamplesSection :messageId="15" :yamlData="protocolData" hideHeaders=true maxExamples=1 />
