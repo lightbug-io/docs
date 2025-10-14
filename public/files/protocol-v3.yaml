@@ -1186,14 +1186,18 @@ messages:
         type: bool
   48:
     name: Power Profile
-    description: See how much power is being used by the device. Total power is reset to zero when a new subscription is requested.
+    description: |
+      See how much power is or has been used by the device, as well as current power usage and if the device is charging.
     group: power
     header:
       - 5
     data:
       3:
         name: Total power
-        description: Total power used in mAH since the subscription was started (or the device was turned on, if only using GET)
+        description: |
+          Total power used, since a point in time decided by the method used.
+          For messages from a SUBSCRIBE, this is the mAH used since the subscription was started
+          For a GET response, this is the mAH used since the device was turned on
         type: float32
         unit: mAh
       4:
@@ -1201,13 +1205,56 @@ messages:
         description: Instantaneous Current power usage
         type: float32
         unit: mA
+      5:
+        name: Charging
+        description: Is the device currently charging
+        type: bool
     methods:
+      GET: null
       SUBSCRIBE:
         interval: '>= 300'
       UNSUBSCRIBE: null
+    examples:
+      - name: Get request
+        bytes: 03 20 00 48 00 02 00 01 05 04 11 00 00 00 01 02 00 00 14 76
+        real:
+          description: Created using the generate tool, this was tested against an RH2 device, sent from Toit.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
+      - name: Get response
+        bytes: 3 35 0 48 0 2 0 3 4 4 11 0 0 0 1 0 3 0 5 3 4 1 1 4 174 138 44 60 4 0 0 0 0 36 36
+        real:
+          description: Response to the above GET request, captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor.
+          date: "2025-10-14"
+          generator: RH2 P1 v2296
+      - name: Subscription Request
+        bytes: 3 26 0 48 0 3 0 1 5 6 4 15 0 0 0 1 3 4 208 7 0 0 0 0 80 185
+        real:
+          description: Created using the generate tool, this was tested against an RH2 device, sent from Toit.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
+      - name: Subscription ACK
+        bytes: 3 24 0 5 0 2 0 3 4 4 15 0 0 0 1 0 1 0 1 2 48 0 235 87
+        real:
+          description: Response to the above SUBSCRIBE request, captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor.
+          date: "2025-10-14"
+          generator: RH2 P1 v2296
+      - name: Subscription update, while on charge
+        bytes: 3 32 0 48 0 1 0 1 4 78 1 0 0 3 0 4 3 5 4 0 0 0 0 4 0 0 0 0 1 1 29 12
+        real:
+          description: Response to the above subscription, captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor.
+          date: "2025-10-14"
+          generator: RH2 P1 v2296
   49:
     name: CPU1 Reset
     group: power
+    examples:
+      - name: Reset CPU1
+        bytes: 3 17 0 49 0 1 0 1 4 12 0 0 0 0 0 133 230
+        real:
+          description: Created using the generate tool, this was tested against an RH2 device, sent from Toit.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
   50:
     name: Link Control
     description: |
@@ -1312,6 +1359,19 @@ messages:
         type: uint8
     methods:
       SUBSCRIBE: null
+    examples:
+      - name: Subscribe to WiFi scan results
+        bytes: 3 26 0 55 0 3 0 5 7 1 1 3 4 136 19 0 0 4 211 7 0 0 0 0 138 173
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where P1 subscribes to WiFi scan results from Toit on the ESP32.
+          date: "2025-10-14"
+          generator: RH2 P1 v2296
+      - name: WiFi scan result
+        bytes: 3 48 0 55 0 2 0 1 3 4 78 1 0 0 4 211 7 0 0 4 0 1 2 3 4 9 66 84 45 65 66 67 49 50 51 6 228 11 2 85 89 99 1 170 1 11 162 180
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, after WiFi scan results were subscribed to from P2, and a WiFi access point was found, sent back to P1.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
   56:
     name: BLE Scan
     group: scan
@@ -1331,6 +1391,19 @@ messages:
         type: int8
     methods:
       SUBSCRIBE: null
+    examples:
+      - name: Subscribe to BLE scan results
+        bytes: 3 26 0 56 0 3 0 5 7 1 1 3 4 184 11 0 0 4 212 7 0 0 0 0 167 130
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where P1 subscribes to BLE scan results from Toit on the ESP32.
+          date: "2025-10-14"
+          generator: RH2 P1 v2296
+      - name: BLE scan result
+        bytes: 3 64 0 56 0 2 0 3 1 4 212 7 0 0 4 81 0 0 0 3 0 1 2 3 28 3 3 159 254 23 22 159 254 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 6 78 78 78 83 8 130 1 168 9 37
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, after BLE scan results were subscribed to from P2, and a BLE device was found, sent back to P1.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
   1004:
     name: LORA
     description: |
