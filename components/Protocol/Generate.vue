@@ -1,5 +1,5 @@
 <template>
-    <div class="generate-container">
+    <div class="generate-container" :class="{ 'pinned-active': isMessagePinned }">
         <!-- Generated Message (at top, can be pinned) -->
         <div class="selection-section" :class="{ 'pinned-section': isMessagePinned }">
             <div class="section-header">
@@ -1170,7 +1170,6 @@ export default defineComponent({
     flex-direction: column;
     gap: 16px;
     margin: 20px 0;
-    padding-bottom: 400px; /* Space for pinned section when active */
 }
 
 .selection-section {
