@@ -7,7 +7,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import HeaderTable from '../HeaderTable.vue'
+import HeaderTable from './HeaderTable.vue'
 
 const props = defineProps({
   messageId: {

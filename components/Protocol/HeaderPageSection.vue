@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import HeaderInfo from './HeaderInfo.vue'
+import HeaderInfo from './HeaderPageInfo.vue'
 
 const props = defineProps({
   headerIds: {

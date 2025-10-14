@@ -116,6 +116,10 @@ export default defineComponent({
         dataName: {
             type: String,
             required: false
+        },
+        headerIds: {
+            type: Array,
+            required: false
         }
     },
     setup(props) {
@@ -401,6 +405,15 @@ export default defineComponent({
                 dataPath.split('.').forEach((key) => {
                     parsedData = parsedData[key];
                 });
+                if (props.headerIds && props.headerIds.length > 0) {
+                    const filteredData: Record<string, any> = {};
+                    props.headerIds.forEach((id: any) => {
+                        if (parsedData[id] !== undefined) {
+                            filteredData[id] = parsedData[id];
+                        }
+                    });
+                    parsedData = filteredData;
+                }
                 const prefixedConstants: Record<string, any> = {};
                 for (const key in parsedData) {
                     prefixedConstants[`${key}`] = {

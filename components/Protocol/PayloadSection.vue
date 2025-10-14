@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import PayloadTable from '../PayloadTable.vue'
+import PayloadTable from './PayloadTable.vue'
 
 defineProps({
   messageId: {
