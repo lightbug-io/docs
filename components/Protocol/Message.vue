@@ -157,6 +157,50 @@
                 >
                     <v-icon size="small">mdi-content-copy</v-icon>
                 </v-btn>
+                <v-menu offset-y>
+                    <template v-slot:activator="{ props }">
+                        <v-btn
+                            size="x-small"
+                            variant="text"
+                            icon
+                            v-bind="props"
+                            class="control-btn"
+                            :title="hostInput ? `Send to ${hostInput}` : 'Send to device'"
+                        >
+                            <v-icon size="small">mdi-send</v-icon>
+                        </v-btn>
+                    </template>
+                    <v-list density="compact" class="send-menu">
+                        <v-list-item @click="sendToEndpoint('p1')" :disabled="!hostInput">
+                            <v-list-item-title>
+                                <v-icon size="small" class="mr-2">mdi-send</v-icon>
+                                Send to P1
+                            </v-list-item-title>
+                        </v-list-item>
+                        <v-list-item @click="sendToEndpoint('p2')" :disabled="!hostInput">
+                            <v-list-item-title>
+                                <v-icon size="small" class="mr-2">mdi-send</v-icon>
+                                Send to P2
+                            </v-list-item-title>
+                        </v-list-item>
+                        <v-divider></v-divider>
+                        <v-list-item @click="showHostDialog = true">
+                            <v-list-item-title>
+                                <v-icon size="small" class="mr-2">mdi-cog</v-icon>
+                                Set Device Address
+                            </v-list-item-title>
+                            <v-list-item-subtitle v-if="hostInput" class="text-caption">
+                                Current: {{ hostInput }}
+                            </v-list-item-subtitle>
+                        </v-list-item>
+                        <v-list-item v-if="hostInput" @click="forgetHost">
+                            <v-list-item-title>
+                                <v-icon size="small" class="mr-2">mdi-delete</v-icon>
+                                Forget Device Address
+                            </v-list-item-title>
+                        </v-list-item>
+                    </v-list>
+                </v-menu>
             </div>
         </div>
 
@@ -206,6 +250,39 @@
                 <v-card-actions class="modal-actions">
                     <v-spacer></v-spacer>
                     <v-btn color="primary" variant="elevated" @click="toggleCogModal">Done</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <!-- Host Configuration Dialog -->
+        <v-dialog v-model="showHostDialog" max-width="500px" :persistent="isValidatingHost">
+            <v-card>
+                <v-card-title class="modal-title">Set Device Address</v-card-title>
+                <v-card-text class="pa-4">
+                    <v-text-field
+                        v-model="hostInput"
+                        label="Device Hostname or URL"
+                        placeholder="192.168.1.5 or http://192.168.1.5:8089"
+                        variant="outlined"
+                        density="comfortable"
+                        hint="Enter IP address with optional port, or full URL"
+                        persistent-hint
+                        :disabled="isValidatingHost"
+                    ></v-text-field>
+                    <v-progress-linear
+                        v-if="isValidatingHost"
+                        indeterminate
+                        color="primary"
+                        class="mt-4"
+                    ></v-progress-linear>
+                    <div v-if="isValidatingHost" class="text-caption text-center mt-2">
+                        Validating connection to device...
+                    </div>
+                </v-card-text>
+                <v-card-actions class="modal-actions">
+                    <v-spacer></v-spacer>
+                    <v-btn variant="text" @click="showHostDialog = false" :disabled="isValidatingHost">Cancel</v-btn>
+                    <v-btn color="primary" variant="elevated" @click="saveHost" :loading="isValidatingHost">Save</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -286,6 +363,12 @@ export default defineComponent({
         const byteCopySpaces = ref(true);
         const byteCopyCommas = ref(false);
         const byteUpperCase = ref(true);
+
+        // Host and endpoint for sending messages - load from localStorage
+        const STORAGE_KEY = 'protocol-message-device-host';
+        const hostInput = ref(localStorage.getItem(STORAGE_KEY) || '');
+        const showHostDialog = ref(false);
+        const isValidatingHost = ref(false);
 
         // Hover state management
         const hoveredByte = ref<{ section: number; byte: number } | null>(null);
@@ -799,6 +882,110 @@ export default defineComponent({
             }
         };
 
+        // Normalize host input to a base URL
+        const normalizeHost = (input: string): string | null => {
+            if (!input) return null;
+            let host = input.trim();
+
+            // If no protocol specified, add http://
+            if (!/^https?:\/\//i.test(host)) {
+                host = 'http://' + host;
+            }
+
+            try {
+                const url = new URL(host);
+                // Return base URL (protocol + host + port)
+                return `${url.protocol}//${url.host}`;
+            } catch (e) {
+                console.error('Invalid host:', input);
+                return null;
+            }
+        };
+
+        // Save host to localStorage
+        const saveHost = async () => {
+            if (!hostInput.value) {
+                showHostDialog.value = false;
+                return;
+            }
+
+            const baseUrl = normalizeHost(hostInput.value);
+            if (!baseUrl) {
+                alert('Please enter a valid hostname or URL');
+                return;
+            }
+
+            // Validate by making a GET request to /post
+            const testUrl = baseUrl + '/post';
+
+            isValidatingHost.value = true;
+            try {
+                const response = await fetch(testUrl, {
+                    method: 'GET',
+                    mode: 'no-cors', // Allow cross-origin requests
+                });
+
+                // With no-cors mode, we can't read the response but we can detect if the request completed
+                // If fetch succeeds without throwing, we consider it valid
+                localStorage.setItem(STORAGE_KEY, hostInput.value);
+                showHostDialog.value = false;
+            } catch (error) {
+                alert(`Could not connect to device at ${baseUrl}\n\nPlease verify:\n- The device is powered on\n- The address is correct\n- The device is reachable on your network`);
+                console.error('Device validation failed:', error);
+            } finally {
+                isValidatingHost.value = false;
+            }
+        };
+
+        // Forget/clear the saved host address
+        const forgetHost = () => {
+            localStorage.removeItem(STORAGE_KEY);
+            hostInput.value = '';
+        };
+
+        // Send message bytes to device endpoint
+        const sendToEndpoint = (endpoint: 'p1' | 'p2') => {
+            // Check if host is set, if not show dialog
+            if (!hostInput.value) {
+                showHostDialog.value = true;
+                return;
+            }
+
+            const baseUrl = normalizeHost(hostInput.value);
+            if (!baseUrl) {
+                alert('Please enter a valid hostname or URL');
+                showHostDialog.value = true;
+                return;
+            }
+
+            const endpointPath = endpoint === 'p1' ? '/post' : '/post-receive';
+            const targetUrl = baseUrl + endpointPath;
+
+            // Prepare the payload with bytes as an array of integers
+            const bytesJson = JSON.stringify({
+                bytes: byteArray.value.map(b => parseInt(b, 10))
+            });
+
+            // Create a hidden form that will POST to the target URL
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = targetUrl;
+            form.target = '_blank';
+            form.style.display = 'none';
+
+            // Create a hidden input field with the JSON payload
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'payload';
+            input.value = bytesJson;
+            form.appendChild(input);
+
+            // Add form to document, submit it, then remove it
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        };
+
         // Hover interaction functions
         const setHoverByte = (section: number, byte: number) => {
             hoveredByte.value = { section, byte };
@@ -962,6 +1149,12 @@ export default defineComponent({
             byteUpperCase,
             copyToClipboard,
             navigateToGenerate,
+            hostInput,
+            showHostDialog,
+            isValidatingHost,
+            saveHost,
+            forgetHost,
+            sendToEndpoint,
             setHoverByte,
             clearHoverByte,
             setHoverAnnotation,
@@ -1177,6 +1370,26 @@ export default defineComponent({
 .byte-controls {
     display: flex;
     gap: 0px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.host-input {
+    font-size: 12px;
+}
+
+.host-input :deep(.v-field__input) {
+    font-size: 12px;
+    padding: 4px 8px;
+    min-height: 32px;
+}
+
+.endpoint-selector {
+    height: 32px;
+}
+
+.send-btn {
+    height: 32px;
 }
 
 .control-btn {
