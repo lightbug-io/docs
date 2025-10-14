@@ -68,6 +68,7 @@ words:
   - noopener
   - xffffffffn
   - frontmatter
+  - popstate
 
   # OK abbreviations
   - csum

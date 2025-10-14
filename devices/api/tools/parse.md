@@ -4,14 +4,38 @@ outline: [2,3]
 
 <script setup>
 import { data as protocolData } from '../../../yaml-data.data.ts'
+import { ref, onMounted } from 'vue'
 
-const createExampleUrl = (bytes) => {
-  if (typeof window === 'undefined') return '#parser';
-  const url = new URL(window.location.href);
-  url.searchParams.set('bytes', bytes);
-  url.hash = 'parser';
-  return url.toString();
+const currentBytes = ref('')
+
+const loadExample = (bytes) => {
+  currentBytes.value = bytes
+  // Update URL
+  if (typeof window !== 'undefined') {
+    const url = new URL(window.location.href)
+    url.searchParams.set('bytes', bytes)
+    url.hash = 'parser'
+    window.history.pushState({}, '', url)
+  }
 }
+
+onMounted(() => {
+  if (typeof window !== 'undefined') {
+    // Load from URL on mount
+    const urlParams = new URLSearchParams(window.location.search)
+    const bytesParam = urlParams.get('bytes')
+    if (bytesParam) {
+      currentBytes.value = bytesParam
+    }
+
+    // Listen for popstate events (browser back/forward)
+    window.addEventListener('popstate', () => {
+      const urlParams = new URLSearchParams(window.location.search)
+      const bytesParam = urlParams.get('bytes')
+      currentBytes.value = bytesParam || ''
+    })
+  }
+})
 </script>
 
 # Parse
@@ -33,17 +57,17 @@ You can find some example byte streams [below](#examples) to try out.
 
 ## Parser
 
-<ParseInput :yaml-data="protocolData" />
+<ParseInput :initialBytes="currentBytes" :yaml-data="protocolData" />
 
 ## Examples
 
 Click any example below to load it into the parser:
 
 <div class="example-buttons">
-  <a :href="createExampleUrl('3 14 0 13 0 0 0 1 0 6 1 84 103 57')" class="example-btn">Single Heartbeat</a>
-  <a :href="createExampleUrl('3 14 0 13 0 0 0 1 0 6 1 84 103 57 3 14 0 13 0 0 0 1 0 6 1 84 103 57')" class="example-btn">2 Heartbeats</a>
-  <a :href="createExampleUrl('1 8 6 55 3 14 0 13 0 0 0 1 0 6 1 84 103 57 0 0 1 2 3 3 14 0 13 0 0 0 1 0 6 1 84 103 57 9 8 7 6')" class="example-btn">2 Heartbeats with Noise</a>
-  <a :href="createExampleUrl('3 19 0 148 38 1 0 201 1 3 1 0 202 3 102 111 111 112 94')" class="example-btn">Custom Message</a>
+  <button @click="loadExample('3 14 0 13 0 0 0 1 0 6 1 84 103 57')" class="example-btn">Single Heartbeat</button>
+  <button @click="loadExample('3 14 0 13 0 0 0 1 0 6 1 84 103 57 3 14 0 13 0 0 0 1 0 6 1 84 103 57')" class="example-btn">2 Heartbeats</button>
+  <button @click="loadExample('1 8 6 55 3 14 0 13 0 0 0 1 0 6 1 84 103 57 0 0 1 2 3 3 14 0 13 0 0 0 1 0 6 1 84 103 57 9 8 7 6')" class="example-btn">2 Heartbeats with Noise</button>
+  <button @click="loadExample('3 19 0 148 38 1 0 201 1 3 1 0 202 3 102 111 111 112 94')" class="example-btn">Custom Message</button>
 </div>
 
 #### Partial Messages
@@ -51,9 +75,9 @@ Click any example below to load it into the parser:
 These examples demonstrate the parser's ability to detect partially correct messages:
 
 <div class="example-buttons">
-  <a :href="createExampleUrl('3 14 0 13 0 0 0 1 0 6 1 84 99 99')" class="example-btn example-partial">Invalid Checksum</a>
-  <a :href="createExampleUrl('3 14 0 13 0 0 0 1 0 6 1')" class="example-btn example-partial">Truncated Message</a>
-  <a :href="createExampleUrl('3 19 0 148 38 1 0 201 1 3 1 0 0 3 14 0 13 0 0 0 1 0 6 1 84 103 57')" class="example-btn example-partial">Partial + Valid</a>
+  <button @click="loadExample('3 14 0 13 0 0 0 1 0 6 1 84 99 99')" class="example-btn example-partial">Invalid Checksum</button>
+  <button @click="loadExample('3 14 0 13 0 0 0 1 0 6 1')" class="example-btn example-partial">Truncated Message</button>
+  <button @click="loadExample('3 19 0 148 38 1 0 201 1 3 1 0 0 3 14 0 13 0 0 0 1 0 6 1 84 103 57')" class="example-btn example-partial">Partial + Valid</button>
 </div>
 
 <style scoped>

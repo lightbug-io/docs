@@ -704,26 +704,7 @@ export default defineComponent({
             window.history.replaceState({}, '', url);
         };
 
-        const loadFromUrl = () => {
-            if (typeof window === 'undefined') return;
-
-            const urlParams = new URLSearchParams(window.location.search);
-            const bytesParam = urlParams.get('bytes');
-            if (bytesParam) {
-                inputByteString.value = bytesParam;
-            }
-        };
-
         onMounted(() => {
-            if (props.initialBytes) {
-                inputByteString.value = props.initialBytes;
-            } else {
-                loadFromUrl();
-            }
-
-            // Listen for popstate events (browser back/forward)
-            window.addEventListener('popstate', loadFromUrl);
-
             // If there's a hash in the URL and bytes were loaded, scroll to it after messages are parsed
             if (typeof window !== 'undefined' && window.location.hash && inputByteString.value) {
                 // Use nextTick to ensure the DOM is updated before scrolling
@@ -736,6 +717,13 @@ export default defineComponent({
                 }, 100);
             }
         });
+
+        // Watch for changes to initialBytes prop
+        watch(() => props.initialBytes, (newBytes) => {
+            if (newBytes !== inputByteString.value) {
+                inputByteString.value = newBytes || '';
+            }
+        }, { immediate: true });
 
         // Watch for changes to update URL
         watch(inputByteString, () => {
