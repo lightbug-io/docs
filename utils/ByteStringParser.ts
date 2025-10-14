@@ -10,20 +10,27 @@ export interface ParsedBytes {
 
 /**
  * Extract valid byte values (0-255) from any input string.
- * Handles:
- * - Decimal integers (0-255)
- * - Hex values (with or without 0x prefix)
- * - Mixed text and numbers
- * - Various separators (spaces, commas, etc.)
+ * Handles messy input with random text, hex values, and decimal integers.
+ * If the input contains multiple messages separated by "(parse)", returns an array of ParsedBytes.
  *
  * @param input - Raw input string potentially containing bytes
- * @returns Object with parsed bytes array and hex detection flag
+ * @returns Array of objects with parsed bytes array and hex detection flag
  */
-export function parseByteString(input: string): ParsedBytes {
+export function parseByteString(input: string): ParsedBytes[] {
     if (!input || !input.trim()) {
-        return { bytes: [], hasHex: false };
+        return [];
     }
 
+    // Split on "(parse)" to handle multiple messages
+    const parts = input.split(/(?=\(parse\))/).filter(part => part.trim());
+
+    return parts.map(part => parseSingleByteString(part));
+}
+
+/**
+ * Parse a single message string into ParsedBytes.
+ */
+function parseSingleByteString(input: string): ParsedBytes {
     // Normalize the input
     let normalized = input.trim();
 
@@ -57,7 +64,8 @@ export function parseByteString(input: string): ParsedBytes {
 
     // If we have multiple hex pairs AND hex letters (a-f), AND they make up
     // a significant portion of the input, treat as hex
-    if (hexPairs.length >= 3 && hasHexLetters) {
+    // But only if there are no non-hex letters (g-z)
+    if (hexPairs.length >= 3 && hasHexLetters && !/[g-zG-Z]/.test(normalized)) {
         const hexPairChars = hexPairs.join('').length;
         const totalChars = normalized.replace(/\s/g, '').length;
 
@@ -136,6 +144,10 @@ function parseHexBytes(input: string): ParsedBytes {
     }
 
     // Last resort: treat entire string as continuous hex (remove non-hex chars)
+    // But only if the input contains only hex digits and whitespace
+    if (/[^0-9a-fA-F\s]/.test(input)) {
+        return { bytes: [], hasHex: false };
+    }
     const hexOnly = input.replace(/[^0-9a-fA-F]/g, '');
 
     // Parse as pairs of hex digits
