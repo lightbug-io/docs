@@ -142,7 +142,10 @@
 
         <!-- Found Messages -->
         <div v-if="foundMessages.length > 0" class="found-messages">
-            <h2 id="found-messages">Messages</h2>
+            <h2 id="found-messages" tabindex="-1">
+                Messages
+                <a class="header-anchor" href="#found-messages" aria-label="Permalink to &quot;Messages&quot;">​</a>
+            </h2>
             <div
                 v-for="(msg, index) in foundMessages"
                 :key="index"

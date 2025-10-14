@@ -1,7 +1,8 @@
 <template>
   <div v-for="id in headerIds" :key="id" class="header-section">
-    <h2 :id="`${id}-${headerData[id]?.name?.toLowerCase().replace(/\s+/g, '-')}`">
+    <h2 :id="`${id}-${headerData[id]?.name?.toLowerCase().replace(/\s+/g, '-')}`" tabindex="-1">
       {{ id }}: {{ headerData[id]?.name }}
+      <a class="header-anchor" :href="`#${id}-${headerData[id]?.name?.toLowerCase().replace(/\s+/g, '-')}`" :aria-label="`Permalink to &quot;${id}: ${headerData[id]?.name}&quot;`">​</a>
     </h2>
     <div v-if="headerData[id]?.alpha" class="custom-block alpha">
       <p class="custom-block-title">🧪 Alpha</p>
