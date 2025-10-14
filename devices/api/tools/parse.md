@@ -44,7 +44,7 @@ You can parse Lightbug V3 messages using the tool below.
 
 Enter bytes in any format (decimal integers, hex, 0x notation, comma or space separated), and the tool will automatically detect and display any valid protocol messages found in the byte stream, and tell you information about them.
 
-The parser can detect one or more valid messages in a byte stream, even if they are surrounded by noise bytes.
+The parser can detect one or more valid messages in a byte stream, even if they are surrounded by noise bytes or random text (such as other logs).
 
 The parser can also detect and display partially correct messages:
 - **Invalid checksum**: The message structure is valid but the CRC check fails
@@ -70,14 +70,14 @@ Click any example below to load it into the parser:
   <button @click="loadExample('3 19 0 148 38 1 0 201 1 3 1 0 202 3 102 111 111 112 94')" class="example-btn">Custom Message</button>
 </div>
 
-#### Partial Messages
+#### Partial or Messy Input
 
-These examples demonstrate the parser's ability to detect partially correct messages:
-
+These examples demonstrate the parser's ability to detect partially correct messages:, or messages embedded in noisy text.
 <div class="example-buttons">
   <button @click="loadExample('3 14 0 13 0 0 0 1 0 6 1 84 99 99')" class="example-btn example-partial">Invalid Checksum</button>
   <button @click="loadExample('3 14 0 13 0 0 0 1 0 6 1')" class="example-btn example-partial">Truncated Message</button>
   <button @click="loadExample('3 19 0 148 38 1 0 201 1 3 1 0 0 3 14 0 13 0 0 0 1 0 6 1 84 103 57')" class="example-btn example-partial">Partial + Valid</button>
+  <button @click="loadExample('[lb.comms] DEBUG: car: Running sendHeartbeats_\n[lb.comms] DEBUG: SEND: Message type: 13 length: 0 id: 1 bytes: 03, 11, 00, 0d, 00, 01, 00, 01, 04, 01, 00, 00, 00, 00, 00, 4a, e7\n[lb.comms] DEBUG: car: Running processOutbox_')" class="example-btn example-partial">Message in Logs</button>
 </div>
 
 <style scoped>

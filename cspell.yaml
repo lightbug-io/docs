@@ -12,6 +12,7 @@ ignorePaths:
   - public/files/protocol-v3.yaml
   - .vitepress/theme/index.ts
   - src/protocol/*.gen.ts
+  - "**/*.test.ts"
 
 # Custom dictionary definitions (none used currently)
 dictionaryDefinitions: []

@@ -189,6 +189,7 @@
 import { defineComponent, ref, computed, watch, onMounted } from 'vue';
 import Message from './Message.vue';
 import { parseRawMessage, calculateCRC16XMODEM } from '../../src/protocol/base.gen';
+import { parseByteString, formatBytes, type ByteDisplayFormat } from '../../utils/ByteStringParser';
 
 interface FoundMessage {
     startIndex: number;
@@ -223,7 +224,7 @@ export default defineComponent({
         const inputByteString = ref('');
         const hoveredByteIndex = ref<number | null>(null);
         const hoveredMessageIndex = ref<number | null>(null);
-        const byteDisplayFormat = ref<'ints' | 'hex' | 'hex0x' | 'printf'>('ints');
+        const byteDisplayFormat = ref<ByteDisplayFormat>('ints');
         const parserTimedOut = ref(false);
 
         // Byte stream copy settings
@@ -232,43 +233,8 @@ export default defineComponent({
 
         // Parse input and convert to normalized byte array
         const processedBytes = computed(() => {
-            if (!inputByteString.value.trim()) {
-                return [];
-            }
-
-            let input = inputByteString.value
-                .replace(/0x/gi, ' ') // Remove 0x prefix
-                .replace(/,/g, ' ')   // Replace commas with spaces
-                .replace(/\s+/g, ' ') // Normalize whitespace
-                .trim();
-
-            if (input === '') {
-                return [];
-            }
-
-            // Check if input contains hex characters
-            const hasHex = /[a-fA-F]/.test(input);
-
-            if (hasHex) {
-                // Remove all spaces and parse as continuous hex
-                input = input.replace(/\s/g, '');
-                const bytes: number[] = [];
-                for (let i = 0; i < input.length; i += 2) {
-                    const byteStr = input.substring(i, i + 2);
-                    if (byteStr.length === 2) {
-                        const parsed = parseInt(byteStr, 16);
-                        if (!isNaN(parsed)) {
-                            bytes.push(parsed);
-                        }
-                    }
-                }
-                return bytes;
-            } else {
-                // Parse as space-separated integers
-                return input.split(' ')
-                    .map(part => parseInt(part, 10))
-                    .filter(byte => !isNaN(byte) && byte >= 0 && byte <= 255);
-            }
+            const parsed = parseByteString(inputByteString.value);
+            return parsed.bytes;
         });
 
         // Format bytes for display based on selected format
@@ -649,42 +615,14 @@ export default defineComponent({
         };
 
         const copyByteStream = () => {
-            const formatByte = (byte: number): string => {
-                switch (byteDisplayFormat.value) {
-                    case 'hex':
-                        return byte.toString(16).padStart(2, '0').toUpperCase();
-                    case 'hex0x':
-                        return '0x' + byte.toString(16).padStart(2, '0').toUpperCase();
-                    case 'printf':
-                        return `'\\x${byte.toString(16).padStart(2, '0')}'`;
-                    default:
-                        return byte.toString();
+            const text = formatBytes(
+                processedBytes.value,
+                byteDisplayFormat.value,
+                {
+                    spaces: streamCopySpaces.value,
+                    commas: streamCopyCommas.value
                 }
-            };
-
-            let text: string;
-
-            if (byteDisplayFormat.value === 'printf') {
-                // Printf format: continuous string of '\xHH' format
-                text = processedBytes.value.map(byte => formatByte(byte)).join('');
-            } else {
-                // Other formats: apply separators
-                text = processedBytes.value.map(byte => formatByte(byte)).join('');
-
-                if (streamCopySpaces.value && streamCopyCommas.value) {
-                    // Both: "1, 2, 3"
-                    text = processedBytes.value.map(byte => formatByte(byte)).join(', ');
-                } else if (streamCopyCommas.value) {
-                    // Comma only: "1,2,3"
-                    text = processedBytes.value.map(byte => formatByte(byte)).join(',');
-                } else if (streamCopySpaces.value) {
-                    // Space only: "1 2 3"
-                    text = processedBytes.value.map(byte => formatByte(byte)).join(' ');
-                } else {
-                    // Neither: "123"
-                    text = processedBytes.value.map(byte => formatByte(byte)).join('');
-                }
-            }
+            );
 
             navigator.clipboard.writeText(text).then(() => {
                 console.log('Copied byte stream to clipboard:', text);
