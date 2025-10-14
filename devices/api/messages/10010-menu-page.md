@@ -6,9 +6,11 @@ outline: false
 <script setup>
 import { data as protocolData } from '../../../yaml-data.data.ts'
 import { computed } from 'vue'
+import { useMessageSections } from '../../../composables/useMessageSections.js'
 
 const messageId = 10010
 const messageData = computed(() => protocolData?.messages?.[messageId])
+const { hasPayload, hasExamples } = useMessageSections(messageId, protocolData)
 </script>
 
 ::: danger ⚠️ Not yet public
@@ -21,13 +23,21 @@ These pages can be seen as a view of what is to come later this year.
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
+<template v-if="hasPayload">
+
 ## Payload
 
 <PayloadSection :messageId="messageId" :yamlData="protocolData" />
 
+</template>
+
+<template v-if="hasExamples">
+
 ## Examples
 
 <ExamplesSection :messageId="messageId" :yamlData="protocolData" />
+
+</template>
 
 ## Code
 

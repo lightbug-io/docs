@@ -1,14 +1,16 @@
 ---
-aside: false
-outline: false
+aside: true
+outline: deep
 ---
 
 <script setup>
 import { data as protocolData } from '../../../yaml-data.data.ts'
 import { computed } from 'vue'
+import { useMessageSections } from '../../../composables/useMessageSections.js'
 
 const messageId = 5
 const messageData = computed(() => protocolData?.messages?.[messageId])
+const { hasHeader, hasPayload, hasExamples } = useMessageSections(messageId, protocolData)
 </script>
 
 # 5: ACK
@@ -23,17 +25,29 @@ This applies to Lightbug devices, SDKs, apps and services.
  - If an ID is not present, then no ACK will be sent because it is assumed the sender is not tracking successes/failures.
  - ACKs may always be sent for open and close messages (with type only) <!-- Currently the case for P1 comms-->
 
+<template v-if="hasHeader">
+
 ## Header
 
 <HeaderSection :messageId="messageId" :yamlData="protocolData" />
+
+</template>
+
+<template v-if="hasPayload">
 
 ## Payload
 
 <PayloadSection :messageId="messageId" :yamlData="protocolData" />
 
+</template>
+
+<template v-if="hasExamples">
+
 ## Examples
 
 <ExamplesSection :messageId="messageId" :yamlData="protocolData" />
+
+</template>
 
 ## Sequence
 

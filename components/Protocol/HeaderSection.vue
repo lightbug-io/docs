@@ -22,6 +22,11 @@ const props = defineProps({
 
 const hasRelevantHeaders = computed(() => {
   const messageData = props.yamlData?.messages?.[props.messageId]
-  return messageData?.headers && Object.keys(messageData.headers).length > 0
+  return messageData?.header && messageData.header.length > 0
+})
+
+// Expose for parent components to check
+defineExpose({
+  hasContent: hasRelevantHeaders
 })
 </script>

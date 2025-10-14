@@ -1,5 +1,5 @@
 <template>
-  <div v-if="examples.length > 0">
+  <div v-if="hasContent">
     <div v-for="(example, index) in examples" :key="index">
       <h5 v-if="!hideHeaders">{{ example.name }}</h5>
       <span v-if="example.description" style="white-space: pre-line;">{{ example.description }}</span>
@@ -35,5 +35,12 @@ const examples = computed(() => {
   const messageData = props.yamlData?.messages?.[props.messageId]
   const allExamples = messageData?.examples || []
   return props.maxExamples ? allExamples.slice(0, props.maxExamples) : allExamples
+})
+
+const hasContent = computed(() => examples.value.length > 0)
+
+// Expose for parent components to check
+defineExpose({
+  hasContent
 })
 </script>

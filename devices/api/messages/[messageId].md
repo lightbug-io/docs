@@ -7,7 +7,8 @@ title: {{ $params.pageTitle }}
 <script setup>
 import { data as protocolData } from '../../../yaml-data.data.ts'
 import { computed } from 'vue'
-import { useRoute,useData } from 'vitepress'
+import { useRoute, useData } from 'vitepress'
+import { useMessageSections } from '../../../composables/useMessageSections.js'
 
 const route = useRoute()
 const { frontmatter } = useData()
@@ -22,23 +23,37 @@ const pageTitle = computed(() => route.data.params.pageTitle || `${messageId}: $
 if (typeof document !== 'undefined' && pageTitle.value) {
   document.title = `${pageTitle.value} | Lightbug Documentation`
 }
+
+const { hasHeader, hasPayload, hasExamples } = useMessageSections(messageId, protocolData)
 </script>
 
 # {{ messageId }}: {{ messageData?.name }}
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
+<template v-if="hasHeader">
+
 ## Header
 
 <HeaderSection :messageId="messageId" :yamlData="protocolData" />
+
+</template>
+
+<template v-if="hasPayload">
 
 ## Payload
 
 <PayloadSection :messageId="messageId" :yamlData="protocolData" />
 
+</template>
+
+<template v-if="hasExamples">
+
 ## Examples
 
 <ExamplesSection :messageId="messageId" :yamlData="protocolData" />
+
+</template>
 
 ## Code
 
