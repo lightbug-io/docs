@@ -949,6 +949,25 @@ messages:
             name: Medium
           2:
             name: High
+    examples:
+      - name: Medium intensity fade
+        bytes: 03 23 00 40 00 01 00 01 04 57 00 00 00 02 00 01 02 01 01 01 01 21 242
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
+      - name: Medium intensity pulse
+        bytes: 03 23 00 40 00 01 00 01 04 61 00 00 00 02 00 01 02 01 02 01 01 145 166
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
+      - name: Mediaum intensity drop
+        bytes: 03 23 00 40 00 01 00 01 04 65 00 00 00 02 00 01 02 01 03 01 01 109 03
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
   41:
     name: Temperature
     description: Temperature information
@@ -1018,6 +1037,19 @@ messages:
         name: Frequency
         description: Frequency of buzzer of KHz.(if frequency is sent, only duration and frequency parameters will be inside the message)
         type: float32
+    examples:
+      - name: 0.5KHz for 20ms
+        bytes: 03 27 00 42 00 01 00 01 04 14 00 00 00 02 00 01 05 02 20 00 04 00 00 00 63 251 238
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
+      - name: Siren sound for 2 seconds
+        bytes: 03 27 00 42 00 01 00 01 04 49 00 00 00 03 00 01 02 03 02 208 07 01 01 01 01 226 126
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
   43:
     name: Battery Status
     description: |
@@ -1129,6 +1161,13 @@ messages:
         name: Timings
         description: Array of timings in ms as uint16
         type: uint16[]
+    examples:
+      - name: Play a complex sequence of sounds
+        bytes: 03 231 00 46 00 01 00 01 04 68 00 00 00 02 00 06 07 140 174 71 225 62 00 00 00 00 174 71 225 62 00 00 00 00 174 71 225 62 00 00 00 00 33 176 178 62 00 00 00 00 84 227 05 63 00 00 00 00 174 71 225 62 00 00 00 00 33 176 178 62 00 00 00 00 84 227 05 63 00 00 00 00 174 71 225 62 00 00 00 00 57 180 40 63 00 00 00 00 57 180 40 63 00 00 00 00 57 180 40 63 00 00 00 00 33 176 50 63 00 00 00 00 84 227 05 63 00 00 00 00 225 122 212 62 00 00 00 00 33 176 178 62 00 00 00 00 84 227 05 63 00 00 00 00 174 71 225 62 70 144 01 50 00 144 01 50 00 144 01 50 00 44 01 50 00 100 00 50 00 144 01 50 00 44 01 50 00 100 00 50 00 32 03 50 00 144 01 50 00 144 01 50 00 144 01 50 00 44 01 50 00 100 00 50 00 144 01 50 00 44 01 50 00 100 00 50 00 32 03 219 48
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
   47:
     name: CPU2 Sleep
     description: Request CPU2 sleep
@@ -1479,13 +1518,7 @@ messages:
         type: ascii
     examples:
       - name: Draw page 200, with a title and 4 lines of text
-        bytes: 3 70 0 25 39 1 0 1 4 233 0 0 0 6 0 3 4 100 101 102 103 1 200 10 80 97 103 101 32 84 105 116 108 101 10 70 105 114 115 116 32 76 105 110 101 11 83 101 99 111 110 100 32 76 105 110 101 5 84 104 105 114 100 4 70 111 117 114 169 45
-        real:
-          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
-          date: "2025-10-10"
-          generator: RH2 ESP32 Toit.
-      - name: Alter page 200, changing line 4
-        bytes: 3 30 0 25 39 1 0 1 4 234 0 0 0 2 0 3 103 1 200 8 70 111 117 114 46 46 46 46 81 44
+        bytes: 3 57 0 25 39 1 0 1 4 123 0 0 0 6 0 3 4 100 101 102 103 1 200 5 84 105 116 108 101 5 70 105 114 115 116 6 83 101 99 111 110 100 5 84 104 105 114 100 6 70 111 117 114 116 104 219 219
         real:
           description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
           date: "2025-10-10"
