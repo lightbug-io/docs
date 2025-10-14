@@ -489,6 +489,7 @@ export default withMermaid(defineConfig({
             {
               text: 'Protocol',
               link: '/devices/api/protocol/',
+              collapsed: true,
               items: [
                 {
                   text: 'Prefix',
