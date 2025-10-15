@@ -27,41 +27,77 @@ onMounted(async () => {
 
 <DeviceSpecOverview v-if="specs" :spec="specs" />
 
+<template v-if="specs && specs.physical">
+
 ## Physical
 
 <DeviceSpecSection v-if="specs" :spec="specs" sectionName="physical" />
+
+</template>
+
+<template v-if="specs && specs.integrations">
 
 ## Integrations
 
 <DeviceSpecSection v-if="specs" :spec="specs" sectionName="integrations" />
 
+</template>
+
+<template v-if="specs && specs['user interface']">
+
 ## User Interface
 
 <DeviceSpecSection v-if="specs" :spec="specs" sectionName="user interface" />
+
+</template>
+
+<template v-if="specs && specs.connectivity">
 
 ## Connectivity
 
 <DeviceSpecSection v-if="specs" :spec="specs" sectionName="connectivity" />
 
+</template>
+
+<template v-if="specs && specs.positioning">
+
 ## Positioning
 
 <DeviceSpecSection v-if="specs" :spec="specs" sectionName="positioning" />
+
+</template>
+
+<template v-if="specs && specs.sensors">
 
 ## Sensors
 
 <DeviceSpecSection v-if="specs" :spec="specs" sectionName="sensors" />
 
+</template>
+
+<template v-if="specs && specs.battery">
+
 ## Battery
 
 <DeviceSpecSection v-if="specs" :spec="specs" sectionName="battery" />
+
+</template>
+
+<template v-if="specs && specs.charging">
 
 ## Charging
 
 <DeviceSpecSection v-if="specs" :spec="specs" sectionName="charging" />
 
+</template>
+
+<template v-if="specs && specs.components">
+
 ## Components
 
 <DeviceSpecSection v-if="specs" :spec="specs" sectionName="components" />
+
+</template>
 
 ## Specification
 

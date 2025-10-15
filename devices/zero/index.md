@@ -21,43 +21,77 @@ const specs = loadSpec(spec)
 
 <DeviceSpecOverview :spec="specs" />
 
+<template v-if="specs.physical">
+
 ## Physical
 
 <DeviceSpecSection :spec="specs" sectionName="physical" />
+
+</template>
+
+<template v-if="specs.integrations">
 
 ## Integrations
 
 <DeviceSpecSection :spec="specs" sectionName="integrations" />
 
+</template>
+
+<template v-if="specs['user interface']">
+
 ## User Interface
 
 <DeviceSpecSection :spec="specs" sectionName="user interface" />
+
+</template>
+
+<template v-if="specs.connectivity">
 
 ## Connectivity
 
 <DeviceSpecSection :spec="specs" sectionName="connectivity" />
 
+</template>
+
+<template v-if="specs.positioning">
+
 ## Positioning
 
 <DeviceSpecSection :spec="specs" sectionName="positioning" />
+
+</template>
+
+<template v-if="specs.sensors">
 
 ## Sensors
 
 <DeviceSpecSection :spec="specs" sectionName="sensors" />
 
+</template>
+
+<template v-if="specs.battery">
+
 ## Battery
 
 <DeviceSpecSection :spec="specs" sectionName="battery" />
+
+</template>
+
+<template v-if="specs.charging">
 
 ## Charging
 
 <DeviceSpecSection :spec="specs" sectionName="charging" />
 
-## Components
+</template>
+
+<template v-if="specs.components">
 
 ## Components
 
 <DeviceSpecSection :spec="specs" sectionName="components" />
+
+</template>
 
 ## Exterior
 
