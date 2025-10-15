@@ -16,7 +16,7 @@ A USB-C to versatile connector is available, allowing easy charging and data con
 
 A docking station is available for the RH2, allowing easy charging and data connection via USB (for development).
 
-## KickFast
+## KlickFast
 
 KlickFast is the market-leading carrying solution (See [https://www.peterjonesilg.co.uk/product-category/klick-fast/](https://www.peterjonesilg.co.uk/product-category/klick-fast/)).
 
