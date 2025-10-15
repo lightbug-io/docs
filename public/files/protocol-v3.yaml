@@ -563,10 +563,14 @@ messages:
   30:
     name: Transmit Now
     description: |
-      Send arbitrary data over GSM to the Lightbug cloud as a sensorReading of type `uart_blob`.
+      Trigger a transmission, to Lightbug cloud, over GSM.
 
       The message will initially be ACKed indicating the device has received the message.
       When the data is sent to the cloud, or the send fails, a response will be sent with the status 1 (OK), 2 (NOT OK).
+
+      If supported by the device, arbitrary data can be sent as a sensorReading of type `uart_blob`.
+
+      Send arbitrary data over GSM to the Lightbug cloud as a sensorReading of type `uart_blob`.
     group: gsm
     data:
       1:
@@ -577,7 +581,9 @@ messages:
         type: bool
       2:
         name: Payload
-        description: Data to send, can be up to 200 bytes
+        description: |
+          Data to send, can be up to 200 bytes.
+          Only supported by devices that support uart_blob sensorReading type. (Currently only Vipers)
         type: bytes
       3:
         name: Retries
@@ -642,8 +648,10 @@ messages:
     data:
       1:
         name: Active SIM
-        description: Activate the specified SIM
-        type: uint32
+        description: |
+          Activate the specified SIM
+          If SIM2 is selected, sending the APN settings is required
+        type: uint8
         values:
           0:
             name: SIM1
@@ -660,11 +668,26 @@ messages:
         type: ascii
       8:
         name: SIM2 ICCID
-        type: bool
-        readonly: true
+        description: SIM2 ICCID if known, read-only
+        type: ascii
     methods:
       GET: null
       SET: null
+    examples:
+      - name: Enable SIM2 with APN settings
+        bytes: 3 42 0 33 0 2 0 1 5 4 22 0 0 0 1 1 2 0 1 2 4 1 0 0 0 14 115 111 109 101 46 97 112 110 46 112 108 97 99 101 85 240
+        real:
+          description: Created using the generate tool, this was tested against an RH2 device, sent from Toit.
+          date: "2025-10-15"
+          generator: RH2 ESP32 Toit
+      - name: ACK SIM2 settings
+        bytes: 3 24 0 5 0 2 0 3 4 4 22 0 0 0 1 0 1 0 1 2 33 0 36 72
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, in response to the previous message.
+          date: "2025-10-15"
+          generator: RH2 P1 v2296
+      - name: GET request for SIM settings
+        bytes: 3 20 0 33 0 2 0 1 5 4 23 0 0 0 1 2 0 0 123 128
   34:
     name: Device Status
     description: |
