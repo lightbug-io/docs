@@ -191,6 +191,13 @@ import Message from './Message.vue';
 import { parseRawMessage, calculateCRC16XMODEM } from '../../src/protocol/base.gen';
 import { parseByteString, formatBytes, type ByteDisplayFormat } from '../../utils/ByteStringParser';
 
+// Declare gtag function for TypeScript
+declare global {
+    interface Window {
+        gtag: (command: string, targetId: string, config?: any) => void;
+    }
+}
+
 interface FoundMessage {
     startIndex: number;
     endIndex: number;
@@ -372,6 +379,16 @@ export default defineComponent({
                             messageTypeName: messageTypeName,
                             isPartial: false
                         });
+
+                        // Track valid message parsing for analytics
+                        if (typeof window !== 'undefined' && window.gtag) {
+                            window.gtag('event', 'parse_message', {
+                                event_category: 'protocol_tools',
+                                event_label: `message_type_${parsedMessage.messageType}`,
+                                value: parsedMessage.messageType,
+                                custom_parameter_1: messageTypeName || 'unknown'
+                            });
+                        }
 
                         // Mark these bytes as used
                         for (let j = messageStart; j <= messageEnd; j++) {

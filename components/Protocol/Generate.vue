@@ -308,6 +308,13 @@ import Message from './Message.vue';
 import FieldInput from './FieldInput.vue';
 import { writeTypedData, parseRawMessage, readTypedData } from '../../src/protocol/base.gen';
 
+// Declare gtag function for TypeScript
+declare global {
+    interface Window {
+        gtag: (command: string, targetId: string, config?: any) => void;
+    }
+}
+
 export default defineComponent({
     name: 'Generate',
     components: {
@@ -1122,6 +1129,26 @@ export default defineComponent({
                 payloadValues.value = {};
             } else {
                 console.log('[watcher] NOT clearing (isLoadingFromUrl is true or custom message)');
+            }
+        });
+
+        // Track message generation for analytics
+        watch(generatedBytes, (newBytes, oldBytes) => {
+            // Only track if we have bytes and a message type, and this isn't during URL loading
+            if (newBytes.length > 0 && selectedMessageId.value && !isLoadingFromUrl.value) {
+                const messageType = selectedMessageId.value === 'custom'
+                    ? parseInt(customMessageType.value) || 0
+                    : parseInt(selectedMessageId.value) || 0;
+
+                // Send Google Analytics event
+                if (typeof window !== 'undefined' && window.gtag) {
+                    window.gtag('event', 'generate_message', {
+                        event_category: 'protocol_tools',
+                        event_label: `message_type_${messageType}`,
+                        value: messageType,
+                        custom_parameter_1: selectedMessageInfo.value?.name || 'unknown'
+                    });
+                }
             }
         });
 
