@@ -147,6 +147,17 @@ describe('ByteStringParser', () => {
                 expect(result[0].bytes).toEqual([3, 17, 0, 13, 0, 1, 0, 1, 4, 1, 0, 0, 0, 0, 0, 74, 231]);
                 expect(result[0].hasHex).toBe(true);
             });
+
+            it('should parse multiple messages with mixed separators on separate lines', () => {
+                const input = `03 20 00 33 00 02 00 01 05 04 23 00 00 00 01 02 00 00 123 128
+03, 2d, 00, 21, 00, 02, 00, 03, 04, 04, 17, 00, 00, 00, 01, 00, 02, 00, 01, 02, 01, 01, 14, 6c, 69, 67, 68, 74, 62, 75, 67, 2e, 74, 65, 6c, 65, 32, 2e, 63, 6f, 6d, 11, c0, dd, 4e`;
+                const result = parseByteString(input);
+                expect(result).toHaveLength(2);
+                expect(result[0].bytes).toEqual([3, 20, 0, 33, 0, 2, 0, 1, 5, 4, 23, 0, 0, 0, 1, 2, 0, 0, 123, 128]);
+                expect(result[0].hasHex).toBe(false);
+                expect(result[1].bytes).toEqual([3, 45, 0, 33, 0, 2, 0, 3, 4, 4, 23, 0, 0, 0, 1, 0, 2, 0, 1, 2, 1, 1, 20, 108, 105, 103, 104, 116, 98, 117, 103, 46, 116, 101, 108, 101, 50, 46, 99, 111, 109, 17, 192, 221, 78]);
+                expect(result[1].hasHex).toBe(true);
+            });
         });
     });
 

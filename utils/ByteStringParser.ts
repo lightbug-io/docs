@@ -11,7 +11,7 @@ export interface ParsedBytes {
 /**
  * Extract valid byte values (0-255) from any input string.
  * Handles messy input with random text, hex values, and decimal integers.
- * If the input contains multiple messages separated by "(parse)", returns an array of ParsedBytes.
+ * If the input contains multiple messages separated by "(parse)" or newlines, returns an array of ParsedBytes.
  *
  * @param input - Raw input string potentially containing bytes
  * @returns Array of objects with parsed bytes array and hex detection flag
@@ -21,8 +21,14 @@ export function parseByteString(input: string): ParsedBytes[] {
         return [];
     }
 
-    // Split on "(parse)" to handle multiple messages
-    const parts = input.split(/(?=\(parse\))/).filter(part => part.trim());
+    let parts: string[];
+    if (input.includes('(parse)')) {
+        // Split on "(parse)" to handle multiple messages in log output
+        parts = input.split(/(?=\(parse\))/).filter(part => part.trim());
+    } else {
+        // Split on newlines to handle multiple messages
+        parts = input.split(/\n+/).filter(part => part.trim());
+    }
 
     return parts.map(part => parseSingleByteString(part));
 }
