@@ -13,14 +13,28 @@ Forwarding allows you to forward data from your devices to other services, via a
 
 This will replace similar messaging based on Notifications, which is only accessible via API or the [Cloud app](/apps/cloud/account/notifications).
 
+## Accessing Forwarding
+
+You can access sharing on supported devices, via the `Forwarding` button in the device actions.
+
+![](https://upload.r2.lb.chasm.cloud/2025/10/He9gWHUObe.png)
+
+For multiple device selection, you can also access forwarding via the `Forwarding` button in the bulk actions.
+
+![](https://upload.r2.lb.chasm.cloud/2025/10/Yhgf34LAel.png)
+
 ## Selection
 
 If you already have a forwarder set up, it should appear in the list of forwarders ready to select.
 
+If no forwarders have been set up, you'll see an empty list.
+
+:::tabs
+== Single device
 ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/zkPvShs.png)
-
-If not forwarders have been set up, you'll see an empty list.
-
+== Multiple devices
+![](https://upload.r2.lb.chasm.cloud/2025/10/chrome_bXJ5YB7FYB.png)
+:::
 
 ## Create a Forwarder
 
