@@ -239,29 +239,9 @@ export default defineComponent({
         const streamCopyCommas = ref(false);
 
         // Parse input and convert to normalized byte array
-        // parseByteString may return either a single ParsedBytes object
-        // or an array of ParsedBytes (multiple messages). Normalize to a
-        // single flat array of bytes for downstream processing so the
-        // template can safely access `.length`.
-    const processedBytes = computed<number[]>(() => {
+        const processedBytes = computed<number[]>(() => {
             const parsed = parseByteString(inputByteString.value);
-
-            // If the parser returns an array of messages, flatten their bytes
-            if (Array.isArray(parsed)) {
-                return parsed.reduce<number[]>((acc, entry) => {
-                    if (entry && Array.isArray((entry as any).bytes)) {
-                        return acc.concat((entry as any).bytes as number[]);
-                    }
-                    return acc;
-                }, []);
-            }
-
-            // If parser returned a single object, return its bytes or empty array
-            if (parsed && (parsed as any).bytes && Array.isArray((parsed as any).bytes)) {
-                return (parsed as any).bytes as number[];
-            }
-
-            return [];
+            return parsed.bytes || [];
         });
 
         // Format bytes for display based on selected format

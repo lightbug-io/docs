@@ -11,26 +11,25 @@ export interface ParsedBytes {
 /**
  * Extract valid byte values (0-255) from any input string.
  * Handles messy input with random text, hex values, and decimal integers.
- * If the input contains multiple messages separated by "(parse)" or newlines, returns an array of ParsedBytes.
+ * Only valid characters are: 0-9, A-F, a-f, X, x
+ * All other characters (including newlines, commas, spaces, parentheses, etc.) are treated as noise.
+ *
+ * Supports multiple byte formats:
+ * - Continuous hex: "ffff" = [255, 255]
+ * - 0x notation: "0xff0xff" = [255, 255]
+ * - Space/comma separated: "255 255" or "255,255" = [255, 255]
+ * - Mixed with noise: "ff foolala ff" = [255, 255]
+ * - Multiline: "255\n255" = [255, 255]
  *
  * @param input - Raw input string potentially containing bytes
- * @returns Array of objects with parsed bytes array and hex detection flag
+ * @returns Object with parsed bytes array and hex detection flag
  */
-export function parseByteString(input: string): ParsedBytes[] {
+export function parseByteString(input: string): ParsedBytes {
     if (!input || !input.trim()) {
-        return [];
+        return { bytes: [], hasHex: false };
     }
 
-    let parts: string[];
-    if (input.includes('(parse)')) {
-        // Split on "(parse)" to handle multiple messages in log output
-        parts = input.split(/(?=\(parse\))/).filter(part => part.trim());
-    } else {
-        // Split on newlines to handle multiple messages
-        parts = input.split(/\n+/).filter(part => part.trim());
-    }
-
-    return parts.map(part => parseSingleByteString(part));
+    return parseSingleByteString(input);
 }
 
 /**
@@ -42,16 +41,6 @@ function parseSingleByteString(input: string): ParsedBytes {
 
     // Check if input contains 0x prefix - strong indicator of hex mode
     if (/0x/i.test(normalized)) {
-        return parseHexBytes(normalized);
-    }
-
-    // Check if input looks like continuous hex (e.g., "030E000D")
-    // Remove all whitespace and check if what's left is all hex digits
-    const noWhitespace = normalized.replace(/\s/g, '');
-    const allHexPattern = /^[0-9a-fA-F]+$/;
-
-    if (allHexPattern.test(noWhitespace) && /[a-fA-F]/.test(noWhitespace) && noWhitespace.length >= 4) {
-        // Looks like a continuous hex string
         return parseHexBytes(normalized);
     }
 
@@ -68,15 +57,27 @@ function parseSingleByteString(input: string): ParsedBytes {
     const hexPairs = normalized.match(hexPairPattern) || [];
     const hasHexLetters = /[a-fA-F]/.test(normalized);
 
-    // If we have multiple hex pairs AND hex letters (a-f), AND they make up
-    // a significant portion of the input, treat as hex
-    // But only if there are no non-hex letters (g-z)
-    if (hexPairs.length >= 3 && hasHexLetters && !/[g-zG-Z]/.test(normalized)) {
-        const hexPairChars = hexPairs.join('').length;
-        const totalChars = normalized.replace(/\s/g, '').length;
+    // If we have hex pairs AND hex letters (a-f), check if they're actual hex pairs
+    // Count how many of the hex pairs contain a-f (strong hex indicators)
+    if (hexPairs.length >= 2 && hasHexLetters) {
+        const hexPairsWithLetters = hexPairs.filter(pair => /[a-fA-F]/.test(pair)).length;
+        // If at least one hex pair contains letters, and most pairs are hex-like, use hex mode
+        if (hexPairsWithLetters >= 1 && hexPairsWithLetters / hexPairs.length > 0.3) {
+            return parseHexBytes(normalized);
+        }
+    }
 
-        // If hex pairs make up > 40% of non-whitespace characters, treat as hex
-        if (hexPairChars / totalChars > 0.4) {
+    // Check if input looks like continuous hex (e.g., "030E000D" or "ffff")
+    // Remove all non-valid characters and check if what's left is all hex digits
+    // AND is a reasonable length for continuous hex (even number of chars, not too long)
+    const onlyValid = normalized.replace(/[^0-9a-fA-F]/g, '');
+    const allHexPattern = /^[0-9a-fA-F]+$/;
+
+    if (allHexPattern.test(onlyValid) && /[a-fA-F]/.test(onlyValid) && onlyValid.length >= 4 && onlyValid.length % 2 === 0) {
+        // Calculate how much of the original input is hex chars
+        const hexDensity = onlyValid.length / normalized.replace(/\s/g, '').length;
+        // If > 70% of non-whitespace chars are valid hex, likely continuous hex
+        if (hexDensity > 0.7) {
             return parseHexBytes(normalized);
         }
     }
@@ -87,21 +88,24 @@ function parseSingleByteString(input: string): ParsedBytes {
 
 /**
  * Parse hex values from input.
- * Handles continuous hex strings and 0x-prefixed values.
+ * Handles continuous hex strings, 0x-prefixed values, and hex with noise.
+ * Only extracts valid hex characters (0-9, A-F, a-f, X, x).
  */
 function parseHexBytes(input: string): ParsedBytes {
     const bytes: number[] = [];
 
     // First, try to find 0x-prefixed hex values
-    const hex0xPattern = /0x([0-9a-fA-F]{1,2})\b/g;
+    // Match 0x followed by exactly 1 or 2 hex digits
+    // We'll match greedily and process all of them
+    const hex0xPattern = /0x([0-9a-fA-F]{1,2})/gi;
     let match;
-    const foundRanges: Array<{start: number, end: number}> = [];
+    let last0xIndex = -1;
 
     while ((match = hex0xPattern.exec(input)) !== null) {
         const value = parseInt(match[1], 16);
         if (value >= 0 && value <= 255) {
             bytes.push(value);
-            foundRanges.push({ start: match.index, end: match.index + match[0].length });
+            last0xIndex = match.index + match[0].length;
         }
     }
 
@@ -134,8 +138,8 @@ function parseHexBytes(input: string): ParsedBytes {
         return { bytes, hasHex: true };
     }
 
-    // Otherwise, look for isolated hex pairs (word boundaries)
-    // This will match things like "0a" or "FF" but not "hello"
+    // Look for hex pairs (2 consecutive hex digits) anywhere in the input
+    // This will match "ff", "aa", "bb", "cc" but not the "e" from "noise" or "ore"
     const hexPairPattern = /\b([0-9a-fA-F]{2})\b/g;
     while ((match = hexPairPattern.exec(input)) !== null) {
         const value = parseInt(match[1], 16);
@@ -144,16 +148,13 @@ function parseHexBytes(input: string): ParsedBytes {
         }
     }
 
-    // If we found hex pairs, use those
+    // If we found word-boundary hex pairs, use those
     if (bytes.length > 0) {
         return { bytes, hasHex: true };
     }
 
-    // Last resort: treat entire string as continuous hex (remove non-hex chars)
-    // But only if the input contains only hex digits and whitespace
-    if (/[^0-9a-fA-F\s]/.test(input)) {
-        return { bytes: [], hasHex: false };
-    }
+    // Last resort: extract all valid hex characters as continuous hex
+    // This handles cases like "ffff" without spaces
     const hexOnly = input.replace(/[^0-9a-fA-F]/g, '');
 
     // Parse as pairs of hex digits
