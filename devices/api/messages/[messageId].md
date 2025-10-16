@@ -25,9 +25,25 @@ if (typeof document !== 'undefined' && pageTitle.value) {
 }
 
 const { hasHeader, hasPayload, hasExamples } = useMessageSections(messageId, protocolData)
+
+const isAlpha = computed(() => {
+  return messageData.value?.alpha
+})
+
+const alphaText = computed(() => {
+  return messageData.value?.alpha
+})
 </script>
 
 # {{ messageId }}: {{ messageData?.name }}
+
+<template v-if="isAlpha">
+
+:::alpha
+{{ alphaText }}
+:::
+
+</template>
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 

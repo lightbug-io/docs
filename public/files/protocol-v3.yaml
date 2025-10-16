@@ -344,6 +344,7 @@ messages:
         bytes: 3 18 0 13 0 0 0 1 0 202 5 104 101 108 108 111 145 78
   14:
     name: Config
+    alpha: Config interactions are currently in an experimental phase, and the API may change in future, and documentation may be incomplete.
     group: ungrouped
     data:
       7:
@@ -1429,6 +1430,7 @@ messages:
           generator: RH2 ESP32 Toit
   1004:
     name: LORA
+    alpha: LORA interactions are currently in an experimental phase, and the API may change in future, and documentation may be incomplete.
     description: |
       Interaction with LORA.
       Used to interact with LORA on the device.
