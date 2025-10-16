@@ -74,7 +74,17 @@ function parseSingleByteString(input: string): ParsedBytes {
     const allHexPattern = /^[0-9a-fA-F]+$/;
 
     if (allHexPattern.test(onlyValid) && /[a-fA-F]/.test(onlyValid) && onlyValid.length >= 4 && onlyValid.length % 2 === 0) {
-        // Calculate how much of the original input is hex chars
+        // Check if there's a continuous hex sequence in the ORIGINAL input that's long enough (10+ bytes = 20+ chars)
+        // This handles cases where hex is embedded in messy logs
+        const continuousHexPattern = /[0-9a-fA-F]{20,}/g;
+        const continuousSequences = normalized.match(continuousHexPattern) || [];
+
+        if (continuousSequences.length > 0) {
+            // Found a long continuous hex sequence, likely hex mode
+            return parseHexBytes(normalized);
+        }
+
+        // Fallback: calculate how much of the original input is hex chars
         const hexDensity = onlyValid.length / normalized.replace(/\s/g, '').length;
         // If > 70% of non-whitespace chars are valid hex, likely continuous hex
         if (hexDensity > 0.7) {
@@ -94,7 +104,58 @@ function parseSingleByteString(input: string): ParsedBytes {
 function parseHexBytes(input: string): ParsedBytes {
     const bytes: number[] = [];
 
-    // First, try to find 0x-prefixed hex values
+    // First, check for long continuous hex sequences (4+ characters)
+    // These indicate actual hex messages embedded in logs
+    // Do this EARLY before other patterns to prioritize them
+    const continuousHexPattern = /[0-9a-fA-F]{4,}/g;
+    const sequences = input.match(continuousHexPattern) || [];
+
+    // If we found significant continuous sequences, extract all 4+ character sequences
+    // This handles cases where multiple messages are in the same input
+    if (sequences.length > 0) {
+        // Concatenate ALL sequences (even short ones like "2025") to handle multi-message logs
+        // But we'll sort them so we preserve order: keep them in original order from input
+        const hexOnly = sequences.join('');
+
+        // However, if we have a very long sequence (>= 20 chars), prefer just that
+        const significantSequences = sequences.filter(s => s.length >= 20);
+        if (significantSequences.length > 0) {
+            // Use only the significant sequences
+            const significantHex = significantSequences.join('');
+
+            // Parse as pairs of hex digits
+            for (let i = 0; i < significantHex.length; i += 2) {
+                const byteStr = significantHex.substring(i, i + 2);
+                if (byteStr.length === 2) {
+                    const value = parseInt(byteStr, 16);
+                    if (!isNaN(value)) {
+                        bytes.push(value);
+                    }
+                }
+            }
+
+            if (bytes.length > 0) {
+                return { bytes, hasHex: true };
+            }
+        } else {
+            // Use all sequences if none are particularly long
+            for (let i = 0; i < hexOnly.length; i += 2) {
+                const byteStr = hexOnly.substring(i, i + 2);
+                if (byteStr.length === 2) {
+                    const value = parseInt(byteStr, 16);
+                    if (!isNaN(value)) {
+                        bytes.push(value);
+                    }
+                }
+            }
+
+            if (bytes.length > 0) {
+                return { bytes, hasHex: true };
+            }
+        }
+    }
+
+    // Try to find 0x-prefixed hex values
     // Match 0x followed by exactly 1 or 2 hex digits
     // We'll match greedily and process all of them
     const hex0xPattern = /0x([0-9a-fA-F]{1,2})/gi;
@@ -153,7 +214,7 @@ function parseHexBytes(input: string): ParsedBytes {
         return { bytes, hasHex: true };
     }
 
-    // Last resort: extract all valid hex characters as continuous hex
+    // Final fallback: extract all valid hex characters as continuous hex
     // This handles cases like "ffff" without spaces
     const hexOnly = input.replace(/[^0-9a-fA-F]/g, '');
 

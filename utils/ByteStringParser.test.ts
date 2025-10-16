@@ -183,6 +183,31 @@ describe('ByteStringParser', () => {
                 }
                 expect(foundIndex).toBe(expectedBytes.length);
             });
+
+            it('should parse continuous hex from messy logs (no spaces)', () => {
+                const input = `gingin-chasm-1  | [00] 2025-10-16T10:50:50.203Z INFO    in/udp.go:296   Received NATS message to send to device 10579203: 033a00d00700000100012dd300244090270e4750504e554c4c414e54454e4e4100000d5452494d424c4520414c4c4f59000053881f0000000048`;
+                const result = parseByteString(input);
+                expect(result.hasHex).toBe(true);
+                // The hex string should be parsed
+                expect(result.bytes.length).toBeGreaterThan(0);
+                // Check that we got the expected bytes at the start
+                expect(result.bytes[0]).toBe(0x03);
+                expect(result.bytes[1]).toBe(0x3a);
+                expect(result.bytes[2]).toBe(0x00);
+                expect(result.bytes[3]).toBe(0xd0);
+            });
+
+            it('should parse multiple continuous hex sequences from logs', () => {
+                const input = `gingin-chasm-1  | [00] 2025-10-16T10:50:50.203Z INFO    in/udp.go:296   Received NATS message to send to device 10579203: 033a00d00700000100012dd300244090270e4750504e554c4c414e54454e4e4100000d5452494d424c4520414c4c4f59000053881f0000000048
+gingin-chasm-1  | [00] 2025-10-16T10:50:50.223Z INFO    in/udp.go:296   Received NATS message to send to device 10579203: 03f800d0070000010001ebd300e24320275bb64582002085560c020000000020204080777fe7e7fa2a427a72428a1a1a23ead8a5490b42dcfef00eca4e5caa5157b3cc680e502484b5100c200c3e30707132827104fb166430da6cdcf3d9e9a3de82f006a3ed4dde3fbcf77a267f0d44ba95b4c0847efe1644b0591281e95008b7fc22e018085ea01692005a480065080a0360385080e1460394a855ff817c9a83d0d01ce508739541b17a0137fe0c4917ae03bee7a37b9e8bedf08fbe22fee9497ba51fecf847fffffffffffffffffffffffffffff800000017db75f65b44545d53755f73f3ad4db84f753af18e37ec434e120000007fed`;
+                const result = parseByteString(input);
+                expect(result.hasHex).toBe(true);
+                // Both messages should be concatenated
+                expect(result.bytes.length).toBeGreaterThan(100);
+                // Check start of first message
+                expect(result.bytes[0]).toBe(0x03);
+                expect(result.bytes[1]).toBe(0x3a);
+            });
         });
 
         describe('mixed and edge cases', () => {
