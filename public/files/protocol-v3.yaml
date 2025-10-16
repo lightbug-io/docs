@@ -883,8 +883,22 @@ messages:
     data:
       1:
         name: Button ID
-        description: ID of the button, 0 indexed.
+        description: |
+          ID of the button.
+          Zero indexed.
+
+          Devices may have buttons in different locations, however the following is a common layout:
+          0 = Action button (usually center)
+          1 = Left / Up button
+          2 = Right / Down button
         type: uint8
+        values:
+          0:
+            name: Action
+          1:
+            name: Up_Left
+          2:
+            name: Down_Right
       2:
         name: Duration
         description: Duration of the button press in ms
@@ -895,7 +909,9 @@ messages:
         type: uint8
       4:
         name: Menu Item
-        description: ID of the menu item the button was on when pressed, if the device has a screen and a menu was showing.
+        description: |
+          ID of the menu item the button was on when pressed, if the device has a screen and a menu was showing.
+          Zero indexed.
         type: uint8
     methods:
       SUBSCRIBE: null
@@ -908,13 +924,20 @@ messages:
           description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 has subscribed to button events from the RH2.
           date: "2025-10-10"
           generator: RH2 ESP32 Toit
-      - name: Button 2 press event of 255ms
+      - name: Button 2 press event of 270ms
         description: At the end of a button press, the device will send a message with the button ID and duration of the press.
-        bytes: 3 26 0 38 0 1 0 1 4 2 0 0 0 2 0 1 2 1 2 4 255 0 0 0 215 92
+        bytes: 3 29 0 38 0 1 0 1 4 73 0 0 0 3 0 1 2 3 1 2 4 14 1 0 0 1 1 232 189
         real:
           description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, after button events were subscribed to, and the right button was pressed.
-          date: "2025-10-10"
-          generator: RH2 P1 v2287
+          date: "2025-10-16"
+          generator: RH2 P1 v2300
+      - name: Button 0 pressed on page 15, with menu item 1 selected.
+        description: If the device is on a menu page, the menu item will be included.
+        bytes: 3 32 0 38 0 1 0 1 4 72 0 0 0 4 0 1 2 3 4 1 0 4 71 1 0 0 1 15 1 1 107 57
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, after button events were subscribed to.
+          date: "2025-10-16"
+          generator: RH2 P1 v2300
   39:
     name: GPS Control
     description: |
