@@ -941,8 +941,9 @@ messages:
   39:
     name: GPS Control
     description: |
-      Used to interact with the device GPS service.
       Currently only accessible from Viper devices.
+      Used to interact with the device GPS service.
+      In order to get GPS position data, you must used Position message (15).
     group: location
     header:
       - 5
@@ -1252,6 +1253,7 @@ messages:
           generator: RH2 ESP32 Toit
   47:
     name: CPU2 Sleep
+    alpha: This message is specified, but not actively used by the Toit SDK at this time.
     description: Request CPU2 sleep
     group: power
     data:
@@ -1966,3 +1968,28 @@ messages:
       100:
         name: Text
         type: ascii
+    examples:
+      - name: Draw circle in the middle of a page
+        bytes: 3 35 0 27 39 1 0 1 4 1 0 0 0 6 0 5 7 8 9 10 11 1 0 1 115 1 51 1 20 1 20 1 1 181 50
+        real:
+          description: Generated using a Toit example on an RH2 ESP32
+          date: "2025-10-17"
+          generator: RH2 ESP32 Toit
+      - name: Draw a horizontal line across the middle of the page
+        bytes: 3 35 0 27 39 1 0 1 4 1 0 0 0 6 0 5 7 8 11 19 20 1 0 1 0 1 61 1 2 1 249 1 61 0 150
+        real:
+          description: Generated using a Toit example on an RH2 ESP32
+          date: "2025-10-17"
+          generator: RH2 ESP32 Toit
+      - name: Draw a 40x40 lightbug logo in the top left of the screen
+        bytes: 3 237 0 27 39 1 0 1 4 1 0 0 0 7 0 5 7 8 9 10 11 25 1 0 1 0 1 0 1 40 1 40 1 3 200 0 0 0 0 0 3 255 255 255 192 15 255 255 255 240 31 255 255 255 248 63 255 255 255 252 127 255 255 255 252 127 255 255 255 254 127 255 255 255 254 127 255 255 255 254 127 255 0 255 254 127 252 0 63 254 127 252 0 63 254 127 255 231 255 254 127 255 255 255 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 252 24 63 254 127 255 255 255 254 127 255 255 255 254 127 255 255 255 254 63 255 255 255 252 63 255 255 255 252 31 255 255 255 248 15 255 255 255 240 3 255 255 255 192 0 0 0 0 0 120 140
+        real:
+          description: Generated using a Toit example on an RH2 ESP32
+          date: "2025-10-17"
+          generator: RH2 ESP32 Toit
+      - name: Write the string "Lightbug..." in the top left of the screen in a box
+        bytes: 3 45 0 27 39 1 0 1 4 1 0 0 0 6 0 3 5 7 8 11 100 1 129 1 0 1 0 1 0 1 0 11 76 105 103 104 116 98 117 103 46 46 46 82 49
+        real:
+          description: Generated using a Toit example on an RH2 ESP32
+          date: "2025-10-17"
+          generator: RH2 ESP32 Toit
