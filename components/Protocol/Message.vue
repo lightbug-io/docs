@@ -402,9 +402,16 @@ export default defineComponent({
         const allBytes = computed(() => byteArray.value);
 
         // Helper function to format timestamp
-        const formatTimestamp = (timestampMs: number): string => {
+        const formatTimestamp = (timestampMs: number, includeMilliseconds: boolean = false): string => {
             const date = new Date(timestampMs);
-            return date.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC');
+            const isoString = date.toISOString();
+            if (includeMilliseconds) {
+                // Keep milliseconds: "2025-10-03T17:35:00.123Z" -> "2025-10-03 17:35:00.123 UTC"
+                return isoString.replace('T', ' ').replace('Z', ' UTC');
+            } else {
+                // Remove milliseconds: "2025-10-03T17:35:00.123Z" -> "2025-10-03 17:35:00 UTC"
+                return isoString.replace('T', ' ').replace(/\.\d{3}Z$/, ' UTC');
+            }
         };
 
         // Helper function to apply conversion to a value
@@ -431,14 +438,16 @@ export default defineComponent({
                 if (!isNaN(timestampValue)) {
                     // Check if the timestamp is in seconds or milliseconds based on the unit
                     // If unit contains "s since epoch" (not "ms since epoch"), it's in seconds
-                    const isSeconds = unit && unit.includes('s since epoch') && !unit.includes('ms since epoch');
+                    const isSeconds = !!unit && unit.includes('s since epoch') && !unit.includes('ms since epoch');
+                    const isMilliseconds = !!unit && unit.includes('ms since epoch');
 
                     if (isSeconds) {
                         // Convert seconds to milliseconds for formatTimestamp
                         timestampValue = timestampValue * 1000;
                     }
 
-                    const result = formatTimestamp(timestampValue);
+                    // Include milliseconds in output if the unit explicitly indicates millisecond precision
+                    const result = formatTimestamp(timestampValue, isMilliseconds);
                     return result;
                 }
             }
