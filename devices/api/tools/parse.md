@@ -72,12 +72,13 @@ Click any example below to load it into the parser:
 
 #### Partial or Messy Input
 
-These examples demonstrate the parser's ability to detect partially correct messages:, or messages embedded in noisy text.
+These examples demonstrate the parser's ability to detect partially correct messages, messages embedded in noisy text, or non-message patterns that might indicate wrong data format.
 <div class="example-buttons">
   <button @click="loadExample('3 14 0 13 0 0 0 1 0 6 1 84 99 99')" class="example-btn example-partial">Invalid Checksum</button>
   <button @click="loadExample('3 14 0 13 0 0 0 1 0 6 1')" class="example-btn example-partial">Truncated Message</button>
   <button @click="loadExample('3 19 0 148 38 1 0 201 1 3 1 0 0 3 14 0 13 0 0 0 1 0 6 1 84 103 57')" class="example-btn example-partial">Partial + Valid</button>
   <button @click="loadExample('[lb.comms] DEBUG: car: Running sendHeartbeats_\n[lb.comms] DEBUG: SEND: Message type: 13 length: 0 id: 1 bytes: 03, 11, 00, 0d, 00, 01, 00, 01, 04, 01, 00, 00, 00, 00, 00, 4a, e7\n[lb.comms] DEBUG: car: Running processOutbox_')" class="example-btn example-partial">Message in Logs</button>
+  <button @click="loadExample('65 84 43 67 79 78 78 69 67 84 73 78 71')" class="example-btn example-partial">AT+ Modem Command</button>
 </div>
 
 <style scoped>

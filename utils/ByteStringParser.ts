@@ -256,6 +256,238 @@ function parseDecimalBytes(input: string): ParsedBytes {
 }
 
 /**
+ * Detected non-message byte pattern
+ */
+export interface DetectedPattern {
+    startIndex: number;
+    endIndex: number;
+    name: string;
+    description: string;
+    explanation?: string; // Detailed explanation of what was found
+    bytes: number[];
+    severity: 'warning' | 'error'; // 'warning' for informational, 'error' for likely wrong format
+}
+
+/**
+ * Pattern definitions for detection
+ */
+export interface BytePattern {
+    name: string;
+    description: string;
+    explanation?: string; // Detailed explanation of what was found
+    pattern: (bytes: number[], startIndex: number) => boolean;
+    length: number; // minimum length to match
+    severity: 'warning' | 'error';
+}
+
+/**
+ * Detect non-message byte patterns in the byte stream.
+ * Looks for common patterns like AT+, HTTP methods, TLS handshakes, etc.
+ * Only returns patterns that are NOT part of valid messages.
+ *
+ * @param bytes - The byte array to scan
+ * @param messageByteRanges - Set of byte indices that are part of valid messages
+ * @returns Array of detected patterns
+ */
+export function detectNonMessagePatterns(
+    bytes: number[],
+    messageByteRanges: Set<number> = new Set()
+): DetectedPattern[] {
+    const patterns = defineBytePatterns();
+    const detected: DetectedPattern[] = [];
+
+    // Scan through bytes looking for patterns
+    for (let i = 0; i < bytes.length; i++) {
+        // Skip if this byte is part of a valid message
+        if (messageByteRanges.has(i)) {
+            continue;
+        }
+
+        // Check each pattern
+        for (const patternDef of patterns) {
+            if (i + patternDef.length <= bytes.length) {
+                if (patternDef.pattern(bytes, i)) {
+                    // Found a match
+                    // Check if the entire pattern range is outside valid messages
+                    let inMessage = false;
+                    for (let j = i; j < i + patternDef.length; j++) {
+                        if (messageByteRanges.has(j)) {
+                            inMessage = true;
+                            break;
+                        }
+                    }
+
+                    if (!inMessage) {
+                        detected.push({
+                            startIndex: i,
+                            endIndex: i + patternDef.length - 1,
+                            name: patternDef.name,
+                            description: patternDef.description,
+                            explanation: patternDef.explanation,
+                            bytes: bytes.slice(i, i + patternDef.length),
+                            severity: patternDef.severity
+                        });
+
+                        // Skip past this pattern to avoid overlapping matches
+                        i += patternDef.length - 1;
+                    }
+                }
+            }
+        }
+    }
+
+    return detected;
+}
+
+/**
+ * Define all byte patterns to detect
+ */
+function defineBytePatterns(): BytePattern[] {
+    return [
+        // AT+ Commands (0x41, 0x54, 0x2B = "AT+")
+        {
+            name: 'AT+ Command',
+            description: 'Looks like an AT modem command (not a Lightbug protocol message)',
+            explanation: 'AT+ is the standard prefix for Hayes modem commands. This is used in cellular modems, GPS devices, and other serial communication devices - not Lightbug protocol.',
+            pattern: (bytes, i) => bytes[i] === 0x41 && bytes[i + 1] === 0x54 && bytes[i + 2] === 0x2B,
+            length: 3,
+            severity: 'error'
+        },
+
+        // HTTP GET (0x47, 0x45, 0x54 = "GET")
+        {
+            name: 'HTTP GET',
+            description: 'Looks like an HTTP GET request (not a Lightbug protocol message)',
+            explanation: 'HTTP GET is the start of an HTTP request to retrieve web resources. Your bytes appear to contain web traffic, not Lightbug protocol messages.',
+            pattern: (bytes, i) => bytes[i] === 0x47 && bytes[i + 1] === 0x45 && bytes[i + 2] === 0x54,
+            length: 3,
+            severity: 'error'
+        },
+
+        // HTTP POST (0x50, 0x4F, 0x53, 0x54 = "POST")
+        {
+            name: 'HTTP POST',
+            description: 'Looks like an HTTP POST request (not a Lightbug protocol message)',
+            explanation: 'HTTP POST is the start of an HTTP request to submit data to a server. Your bytes appear to contain web traffic, not Lightbug protocol messages.',
+            pattern: (bytes, i) =>
+                bytes[i] === 0x50 && bytes[i + 1] === 0x4F && bytes[i + 2] === 0x53 && bytes[i + 3] === 0x54,
+            length: 4,
+            severity: 'error'
+        },
+
+        // HTTP PUT (0x50, 0x55, 0x54 = "PUT")
+        {
+            name: 'HTTP PUT',
+            description: 'Looks like an HTTP PUT request (not a Lightbug protocol message)',
+            explanation: 'HTTP PUT is the start of an HTTP request to create or update resources on a server. Your bytes appear to contain web traffic, not Lightbug protocol messages.',
+            pattern: (bytes, i) => bytes[i] === 0x50 && bytes[i + 1] === 0x55 && bytes[i + 2] === 0x54,
+            length: 3,
+            severity: 'error'
+        },
+
+        // HTTP HEAD (0x48, 0x45, 0x41, 0x44 = "HEAD")
+        {
+            name: 'HTTP HEAD',
+            description: 'Looks like an HTTP HEAD request (not a Lightbug protocol message)',
+            explanation: 'HTTP HEAD is similar to GET but only retrieves headers without the response body. Your bytes appear to contain web traffic, not Lightbug protocol messages.',
+            pattern: (bytes, i) =>
+                bytes[i] === 0x48 && bytes[i + 1] === 0x45 && bytes[i + 2] === 0x41 && bytes[i + 3] === 0x44,
+            length: 4,
+            severity: 'error'
+        },
+
+        // HTTP OPTIONS (0x4F, 0x50, 0x54, 0x49, 0x4F, 0x4E, 0x53 = "OPTIONS")
+        {
+            name: 'HTTP OPTIONS',
+            description: 'Looks like an HTTP OPTIONS request (not a Lightbug protocol message)',
+            explanation: 'HTTP OPTIONS is used to describe communication options for a resource. Your bytes appear to contain web traffic, not Lightbug protocol messages.',
+            pattern: (bytes, i) =>
+                bytes[i] === 0x4F && bytes[i + 1] === 0x50 && bytes[i + 2] === 0x54 && bytes[i + 3] === 0x49 &&
+                bytes[i + 4] === 0x4F && bytes[i + 5] === 0x4E && bytes[i + 6] === 0x53,
+            length: 7,
+            severity: 'error'
+        },
+
+        // HTTP PATCH (0x50, 0x41, 0x54, 0x43, 0x48 = "PATCH")
+        {
+            name: 'HTTP PATCH',
+            description: 'Looks like an HTTP PATCH request (not a Lightbug protocol message)',
+            explanation: 'HTTP PATCH is used to apply partial modifications to a resource on a server. Your bytes appear to contain web traffic, not Lightbug protocol messages.',
+            pattern: (bytes, i) =>
+                bytes[i] === 0x50 && bytes[i + 1] === 0x41 && bytes[i + 2] === 0x54 && bytes[i + 3] === 0x43 &&
+                bytes[i + 4] === 0x48,
+            length: 5,
+            severity: 'error'
+        },
+
+        // HTTP DELETE (0x44, 0x45, 0x4C, 0x45, 0x54, 0x45 = "DELETE")
+        {
+            name: 'HTTP DELETE',
+            description: 'Looks like an HTTP DELETE request (not a Lightbug protocol message)',
+            explanation: 'HTTP DELETE is used to delete a resource on a server. Your bytes appear to contain web traffic, not Lightbug protocol messages.',
+            pattern: (bytes, i) =>
+                bytes[i] === 0x44 && bytes[i + 1] === 0x45 && bytes[i + 2] === 0x4C && bytes[i + 3] === 0x45 &&
+                bytes[i + 4] === 0x54 && bytes[i + 5] === 0x45,
+            length: 6,
+            severity: 'error'
+        },
+
+        // HTTP Response (0x48, 0x54, 0x54, 0x50 = "HTTP")
+        {
+            name: 'HTTP Response',
+            description: 'Looks like an HTTP response (not a Lightbug protocol message)',
+            explanation: 'HTTP responses start with "HTTP/" followed by a version number. Your bytes appear to contain web traffic or HTTP responses, not Lightbug protocol messages.',
+            pattern: (bytes, i) =>
+                bytes[i] === 0x48 && bytes[i + 1] === 0x54 && bytes[i + 2] === 0x54 && bytes[i + 3] === 0x50,
+            length: 4,
+            severity: 'error'
+        },
+
+        // TLS/SSL Client Hello (0x16, 0x03, 0x01 = TLS 1.0/1.1/1.2)
+        {
+            name: 'TLS/SSL Client Hello',
+            description: 'Looks like a TLS/SSL Client Hello handshake (encrypted connection, not a protocol message)',
+            explanation: 'TLS/SSL connections start with a handshake record (0x16 = Handshake, 0x03 0x01 = TLS 1.0/1.1/1.2). This indicates encrypted traffic, not raw Lightbug protocol messages.',
+            pattern: (bytes, i) => bytes[i] === 0x16 && bytes[i + 1] === 0x03 && (bytes[i + 2] === 0x01 || bytes[i + 2] === 0x03),
+            length: 3,
+            severity: 'warning'
+        },
+
+        // IPv4 packet with TCP (0x45, 0x00 at offset 0, 0x06 at offset 9)
+        {
+            name: 'IPv4 + TCP Packet',
+            description: 'Looks like a TCP/IP network packet (not a Lightbug protocol message)',
+            explanation: 'Found IPv4 header (0x45 = version 4, 5 word header) with TCP protocol (0x06 at offset 9). This is a network layer packet, not a Lightbug protocol message.',
+            pattern: (bytes, i) =>
+                bytes[i] === 0x45 && bytes[i + 1] === 0x00 && i + 9 < bytes.length && bytes[i + 9] === 0x06,
+            length: 10,
+            severity: 'warning'
+        },
+
+        // IPv4 packet with UDP (0x45, 0x00 at offset 0, 0x11 at offset 9)
+        {
+            name: 'IPv4 + UDP Packet',
+            description: 'Looks like a UDP/IP network packet (not a Lightbug protocol message)',
+            explanation: 'Found IPv4 header (0x45 = version 4, 5 word header) with UDP protocol (0x11 at offset 9). This is a network layer packet, not a Lightbug protocol message.',
+            pattern: (bytes, i) =>
+                bytes[i] === 0x45 && bytes[i + 1] === 0x00 && i + 9 < bytes.length && bytes[i + 9] === 0x11,
+            length: 10,
+            severity: 'warning'
+        },
+
+        // Ethernet + IPv4 (0x08, 0x00, 0x45 = EtherType IPv4 + IP version)
+        {
+            name: 'Ethernet + IPv4 Packet',
+            description: 'Looks like an Ethernet frame with IPv4 (not a Lightbug protocol message)',
+            explanation: 'Found EtherType 0x0800 (IPv4) and IP version/header length 0x45 (IPv4 with 20-byte header). This is the start of an Ethernet frame carrying an IPv4 packet.',
+            pattern: (bytes, i) => bytes[i] === 0x08 && bytes[i + 1] === 0x00 && bytes[i + 2] === 0x45,
+            length: 3,
+            severity: 'warning'
+        }
+    ];
+}
+
+/**
  * Format bytes for display in various formats.
  */
 export type ByteDisplayFormat = 'ints' | 'hex' | 'hex0x' | 'printf';

@@ -182,6 +182,44 @@
                 />
             </div>
         </div>
+
+        <!-- Detected Non-Message Patterns -->
+        <div v-if="detectedPatterns.length > 0" class="detected-patterns">
+            <h2 id="detected-patterns" tabindex="-1">
+                <v-icon size="small" color="error">mdi-alert-circle</v-icon>
+                Detected Non-Message Patterns
+                <a class="header-anchor" href="#detected-patterns" aria-label="Permalink to &quot;Detected Patterns&quot;">​</a>
+            </h2>
+            <div class="patterns-warning-box">
+                <v-icon size="small" color="error">mdi-alert-box</v-icon>
+                <p>
+                    The following patterns were detected in your byte stream. These are <strong>not</strong> Lightbug protocol messages.
+                    They likely indicate your bytes are in a different format than expected.
+                </p>
+            </div>
+            <div
+                v-for="(pattern, index) in detectedPatterns"
+                :key="index"
+                class="pattern-wrapper"
+                :class="{ 'pattern-error': pattern.severity === 'error', 'pattern-warning': pattern.severity === 'warning' }"
+            >
+                <div class="pattern-header">
+                    <span class="pattern-name">
+                        <v-icon :size="pattern.severity === 'error' ? 'small' : 'x-small'" :color="pattern.severity === 'error' ? 'error' : 'warning'">
+                            {{ pattern.severity === 'error' ? 'mdi-alert-circle' : 'mdi-information' }}
+                        </v-icon>
+                        <strong>{{ pattern.name }}</strong>
+                    </span>
+                    <span class="pattern-range">bytes {{ pattern.startIndex }} - {{ pattern.endIndex }}</span>
+                </div>
+                <p class="pattern-description">{{ pattern.description }}</p>
+                <p v-if="pattern.explanation" class="pattern-explanation">{{ pattern.explanation }}</p>
+                <div class="pattern-bytes">
+                    <span class="pattern-bytes-label">Bytes:</span>
+                    <code class="pattern-bytes-value">{{ pattern.bytes.join(' ') }}</code>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -189,7 +227,7 @@
 import { defineComponent, ref, computed, watch, onMounted } from 'vue';
 import Message from './Message.vue';
 import { parseRawMessage, calculateCRC16XMODEM } from '../../src/protocol/base.gen';
-import { parseByteString, formatBytes, type ByteDisplayFormat } from '../../utils/ByteStringParser';
+import { parseByteString, formatBytes, type ByteDisplayFormat, detectNonMessagePatterns, type DetectedPattern } from '../../utils/ByteStringParser';
 
 // Declare gtag function for TypeScript
 declare global {
@@ -561,9 +599,34 @@ export default defineComponent({
             };
         });
 
+        // Detect non-message patterns (AT+, HTTP, TLS, network protocols, etc.)
+        const detectedPatterns = computed(() => {
+            const bytes = processedBytes.value;
+            const messageRanges = new Set<number>();
+
+            // Mark all bytes that are part of messages
+            foundMessages.value.forEach(msg => {
+                for (let i = msg.startIndex; i <= msg.endIndex; i++) {
+                    messageRanges.add(i);
+                }
+            });
+
+            // Detect non-message patterns
+            return detectNonMessagePatterns(bytes, messageRanges);
+        });
+
         // Determine the class for each byte in the stream
         const getByteClass = (index: number): string => {
             const classes: string[] = [];
+
+            // First check if this byte is part of a detected pattern (highest priority for visual warning)
+            for (const pattern of detectedPatterns.value) {
+                if (index >= pattern.startIndex && index <= pattern.endIndex) {
+                    classes.push('byte-pattern-detected');
+                    classes.push(`byte-pattern-${pattern.severity}`);
+                    return classes.join(' '); // Return early for pattern detection
+                }
+            }
 
             // Check if this byte is part of a found message
             // Prioritize valid messages over partial ones by checking valid messages first
@@ -690,6 +753,7 @@ export default defineComponent({
             processedBytes,
             processedBytesForDisplay,
             foundMessages,
+            detectedPatterns,
             byteStatistics,
             hoveredByteIndex,
             hoveredMessageIndex,
@@ -1135,4 +1199,223 @@ export default defineComponent({
     font-size: 12px;
     opacity: 0.9;
 }
+
+/* Detected Pattern Styles */
+.detected-patterns {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.detected-patterns h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #dc3545;
+    color: #dc3545;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dark .detected-patterns h2 {
+    border-bottom-color: #f87171;
+    color: #f87171;
+}
+
+.patterns-warning-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background-color: #ffe6e6;
+    border: 1px solid #ffcccc;
+    border-radius: 6px;
+    color: #d32f2f;
+    font-size: 14px;
+}
+
+.dark .patterns-warning-box {
+    background-color: #5a1a1a;
+    border-color: #8b0000;
+    color: #ff6b6b;
+}
+
+.patterns-warning-box p {
+    margin: 0;
+    flex: 1;
+}
+
+.pattern-wrapper {
+    border: 2px solid;
+    border-radius: 8px;
+    padding: 12px 16px;
+    transition: all 0.2s ease;
+}
+
+.pattern-wrapper.pattern-error {
+    border-color: #dc3545;
+    background-color: #fff5f5;
+}
+
+.dark .pattern-wrapper.pattern-error {
+    border-color: #f87171;
+    background-color: #3a1010;
+}
+
+.pattern-wrapper.pattern-warning {
+    border-color: #ffc107;
+    background-color: #fff8e1;
+}
+
+.dark .pattern-wrapper.pattern-warning {
+    border-color: #fbbf24;
+    background-color: #4a3a0a;
+}
+
+.pattern-wrapper:hover {
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dark .pattern-wrapper:hover {
+    box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+.pattern-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.pattern-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.pattern-wrapper.pattern-error .pattern-name {
+    color: #d32f2f;
+}
+
+.dark .pattern-wrapper.pattern-error .pattern-name {
+    color: #ff6b6b;
+}
+
+.pattern-wrapper.pattern-warning .pattern-name {
+    color: #f57f17;
+}
+
+.dark .pattern-wrapper.pattern-warning .pattern-name {
+    color: #fbbf24;
+}
+
+.pattern-range {
+    font-size: 11px;
+    font-weight: 400;
+    color: #999;
+}
+
+.dark .pattern-range {
+    color: #777;
+}
+
+.pattern-description {
+    margin: 8px 0 12px 0;
+    font-size: 13px;
+    color: #555;
+}
+
+.dark .pattern-description {
+    color: #bbb;
+}
+
+.pattern-explanation {
+    margin: 8px 0 12px 0;
+    font-size: 13px;
+    color: #666;
+    font-style: italic;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.03);
+    border-left: 3px solid currentColor;
+    border-radius: 2px;
+}
+
+.dark .pattern-explanation {
+    color: #aaa;
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.pattern-bytes {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    margin-top: 8px;
+}
+
+.pattern-bytes-label {
+    font-weight: 600;
+    color: #666;
+}
+
+.dark .pattern-bytes-label {
+    color: #aaa;
+}
+
+.pattern-bytes-value {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+    padding: 4px 8px;
+    color: #333;
+    flex: 1;
+    overflow-x: auto;
+}
+
+.dark .pattern-bytes-value {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #ddd;
+}
+
+/* Byte stream pattern highlighting */
+.byte-pattern-detected {
+    border: 2px solid #dc3545 !important;
+    font-weight: 700 !important;
+    background-color: #ffe6e6 !important;
+    color: #8b0000 !important;
+    animation: pulse-error 1.5s ease-in-out infinite;
+}
+
+.dark .byte-pattern-detected {
+    background-color: #3a1010 !important;
+    border-color: #f87171 !important;
+    color: #ff6b6b !important;
+}
+
+.byte-pattern-warning {
+    border-color: #ffc107 !important;
+    background-color: #fffacd !important;
+    color: #b8860b !important;
+}
+
+.dark .byte-pattern-warning {
+    border-color: #fbbf24 !important;
+    background-color: #4a3a0a !important;
+    color: #fbbf24 !important;
+}
+
+@keyframes pulse-error {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+    }
+}
+
 </style>

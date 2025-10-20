@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { parseByteString, formatBytes } from './ByteStringParser';
+import { parseByteString, formatBytes, detectNonMessagePatterns } from './ByteStringParser';
 
 describe('ByteStringParser', () => {
     describe('parseByteString', () => {
@@ -270,6 +270,98 @@ bb cc`;
         it('should handle empty array', () => {
             const result = formatBytes([], 'ints', { spaces: true });
             expect(result).toBe('');
+        });
+    });
+
+    describe('detectNonMessagePatterns', () => {
+        it('should detect AT+ command', () => {
+            const bytes = [0x41, 0x54, 0x2B]; // "AT+"
+            const patterns = detectNonMessagePatterns(bytes);
+            expect(patterns.length).toBe(1);
+            expect(patterns[0].name).toBe('AT+ Command');
+            expect(patterns[0].severity).toBe('error');
+            expect(patterns[0].bytes).toEqual([0x41, 0x54, 0x2B]);
+        });
+
+        it('should detect HTTP GET', () => {
+            const bytes = [0x47, 0x45, 0x54]; // "GET"
+            const patterns = detectNonMessagePatterns(bytes);
+            expect(patterns.length).toBe(1);
+            expect(patterns[0].name).toBe('HTTP GET');
+            expect(patterns[0].severity).toBe('error');
+        });
+
+        it('should detect HTTP POST', () => {
+            const bytes = [0x50, 0x4F, 0x53, 0x54]; // "POST"
+            const patterns = detectNonMessagePatterns(bytes);
+            expect(patterns.length).toBe(1);
+            expect(patterns[0].name).toBe('HTTP POST');
+            expect(patterns[0].severity).toBe('error');
+        });
+
+        it('should detect Ethernet + IPv4', () => {
+            const bytes = [0x08, 0x00, 0x45]; // EtherType IPv4 + IP version
+            const patterns = detectNonMessagePatterns(bytes);
+            expect(patterns.length).toBe(1);
+            expect(patterns[0].name).toBe('Ethernet + IPv4 Packet');
+            expect(patterns[0].severity).toBe('warning');
+            expect(patterns[0].explanation).toContain('EtherType');
+        });
+
+        it('should detect IPv4 + TCP', () => {
+            const bytes = [0x45, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06]; // IPv4 + TCP at offset 9
+            const patterns = detectNonMessagePatterns(bytes);
+            expect(patterns.length).toBe(1);
+            expect(patterns[0].name).toBe('IPv4 + TCP Packet');
+            expect(patterns[0].severity).toBe('warning');
+        });
+
+        it('should detect IPv4 + UDP', () => {
+            const bytes = [0x45, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11]; // IPv4 + UDP at offset 9
+            const patterns = detectNonMessagePatterns(bytes);
+            expect(patterns.length).toBe(1);
+            expect(patterns[0].name).toBe('IPv4 + UDP Packet');
+            expect(patterns[0].severity).toBe('warning');
+        });
+
+        it('should detect TLS/SSL Client Hello', () => {
+            const bytes = [0x16, 0x03, 0x01]; // TLS 1.0/1.1/1.2
+            const patterns = detectNonMessagePatterns(bytes);
+            expect(patterns.length).toBe(1);
+            expect(patterns[0].name).toBe('TLS/SSL Client Hello');
+            expect(patterns[0].severity).toBe('warning');
+        });
+
+        it('should not detect patterns in message byte ranges', () => {
+            const bytes = [0x41, 0x54, 0x2B]; // "AT+" - would normally be detected
+            const messageRanges = new Set([0, 1, 2]); // All bytes are part of a message
+            const patterns = detectNonMessagePatterns(bytes, messageRanges);
+            expect(patterns.length).toBe(0);
+        });
+
+        it('should detect patterns outside message byte ranges', () => {
+            const bytes = [0x41, 0x54, 0x2B, 0xFF]; // "AT+" + noise
+            const messageRanges = new Set([3]); // Only last byte is part of a message
+            const patterns = detectNonMessagePatterns(bytes, messageRanges);
+            expect(patterns.length).toBe(1);
+            expect(patterns[0].startIndex).toBe(0);
+            expect(patterns[0].endIndex).toBe(2);
+        });
+
+        it('should include explanation in detected patterns', () => {
+            const bytes = [0x08, 0x00, 0x45];
+            const patterns = detectNonMessagePatterns(bytes);
+            expect(patterns[0].explanation).toBeDefined();
+            expect(patterns[0].explanation).toContain('IPv4');
+        });
+
+        it('should detect multiple patterns in one byte stream', () => {
+            // "GET" followed by noise, then "AT+"
+            const bytes = [0x47, 0x45, 0x54, 0xFF, 0xFF, 0x41, 0x54, 0x2B];
+            const patterns = detectNonMessagePatterns(bytes);
+            expect(patterns.length).toBeGreaterThanOrEqual(2);
+            expect(patterns[0].name).toBe('HTTP GET');
+            expect(patterns.some(p => p.name === 'AT+ Command')).toBe(true);
         });
     });
 });
