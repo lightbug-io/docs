@@ -42,7 +42,7 @@ onMounted(() => {
 
 You can parse Lightbug V3 messages using the tool below.
 
-Enter bytes in any format (decimal integers, hex, 0x notation, comma or space separated), and the tool will automatically detect and display any valid protocol messages found in the byte stream, and tell you information about them.
+Enter bytes in any format (decimal integers, hex, 0x notation, comma or space separated, or base64 encoded), and the tool will automatically detect and display any valid protocol messages found in the byte stream, and tell you information about them.
 
 The parser can detect one or more valid messages in a byte stream, even if they are surrounded by noise bytes or random text (such as other logs).
 
@@ -68,6 +68,7 @@ Click any example below to load it into the parser:
   <button @click="loadExample('3 14 0 13 0 0 0 1 0 6 1 84 103 57 3 14 0 13 0 0 0 1 0 6 1 84 103 57')" class="example-btn">2 Heartbeats</button>
   <button @click="loadExample('1 8 6 55 3 14 0 13 0 0 0 1 0 6 1 84 103 57 0 0 1 2 3 3 14 0 13 0 0 0 1 0 6 1 84 103 57 9 8 7 6')" class="example-btn">2 Heartbeats with Noise</button>
   <button @click="loadExample('3 19 0 148 38 1 0 201 1 3 1 0 202 3 102 111 111 112 94')" class="example-btn">Custom Message</button>
+  <button @click="loadExample('AzgAIgACAAECBBcGAAAIA22hAAAAAAAIAAEDBwoCBAUGAUEBAAQACQAAATABZAEEAg8AAuoA+mY=')" class="example-btn">Base64 Encoded</button>
 </div>
 
 #### Partial or Messy Input

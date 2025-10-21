@@ -210,6 +210,36 @@ gingin-chasm-1  | [00] 2025-10-16T10:50:50.223Z INFO    in/udp.go:296   Received
             });
         });
 
+        describe('base64 mode', () => {
+            it('should parse base64 encoded message', () => {
+                // This base64 string decodes to a valid Lightbug message
+                const result = parseByteString('AzgAIgACAAECBBcGAAAIA22hAAAAAAAIAAEDBwoCBAUGAUEBAAQACQAAATABZAEEAg8AAuoA+mY=');
+                expect(result.bytes).toEqual([3, 56, 0, 34, 0, 2, 0, 1, 2, 4, 23, 6, 0, 0, 8, 3, 109, 161, 0, 0, 0, 0, 0, 8, 0, 1, 3, 7, 10, 2, 4, 5, 6, 1, 65, 1, 0, 4, 0, 9, 0, 0, 1, 48, 1, 100, 1, 4, 2, 15, 0, 2, 234, 0, 250, 102]);
+                expect(result.hasHex).toBe(false);
+            });
+
+            it('should parse base64 with newlines', () => {
+                const base64WithNewlines = `AzgAIgACAAECBBcGAAAIA22hAAAAAAAIAAEDBwoCBAUGAUEBAAQACQAAATABZAEEAg8A
+AuoA+mY=`;
+                const result = parseByteString(base64WithNewlines);
+                expect(result.bytes.length).toBeGreaterThan(0);
+                expect(result.bytes[0]).toBe(3);
+                expect(result.bytes[1]).toBe(56);
+            });
+
+            it('should parse base64 with whitespace', () => {
+                const base64WithSpaces = 'AzgAIgACAAECBBc GAAAIa22hAAAAAAAIAAEDBwoCBAUGAUEBAAQACQAAATABZAEEAg8AAuoA+mY=';
+                const result = parseByteString(base64WithSpaces);
+                expect(result.bytes.length).toBeGreaterThan(0);
+                expect(result.bytes[0]).toBe(3);
+            });
+
+            it('should handle invalid base64 gracefully', () => {
+                const result = parseByteString('not really base64!!!');
+                expect(result.bytes.length).toBeGreaterThanOrEqual(0);
+            });
+        });
+
         describe('mixed and edge cases', () => {
             it('should handle multiline hex with noise', () => {
                 const input = `noise

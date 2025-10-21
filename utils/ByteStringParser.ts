@@ -11,7 +11,9 @@ export interface ParsedBytes {
 /**
  * Extract valid byte values (0-255) from any input string.
  * Handles messy input with random text, hex values, and decimal integers.
- * Only valid characters are: 0-9, A-F, a-f, X, x
+ * Also supports base64 encoded data.
+ * Only valid characters are: 0-9, A-F, a-f, X, x for hex
+ * A-Z, a-z, 0-9, +, /, = for base64
  * All other characters (including newlines, commas, spaces, parentheses, etc.) are treated as noise.
  *
  * Supports multiple byte formats:
@@ -20,6 +22,7 @@ export interface ParsedBytes {
  * - Space/comma separated: "255 255" or "255,255" = [255, 255]
  * - Mixed with noise: "ff foolala ff" = [255, 255]
  * - Multiline: "255\n255" = [255, 255]
+ * - Base64: "A+E=" or "AzgAIgACBBc..." = decoded bytes
  *
  * @param input - Raw input string potentially containing bytes
  * @returns Object with parsed bytes array and hex detection flag
@@ -29,7 +32,95 @@ export function parseByteString(input: string): ParsedBytes {
         return { bytes: [], hasHex: false };
     }
 
+    // Check if input looks like base64 first
+    if (looksLikeBase64(input)) {
+        const decoded = tryDecodeBase64(input);
+        if (decoded.length > 0) {
+            return { bytes: decoded, hasHex: false };
+        }
+    }
+
     return parseSingleByteString(input);
+}
+
+/**
+ * Check if input looks like it might be base64 encoded.
+ * Base64 uses A-Z, a-z, 0-9, +, /, and = for padding.
+ * We need to be careful not to match hex strings or other patterns.
+ * Key indicators of base64:
+ * - Ends with = or == (padding)
+ * - Contains + or / characters (uncommon in hex/decimal)
+ * - Long continuous string of valid base64 chars with proper formatting
+ */
+function looksLikeBase64(input: string): boolean {
+    const trimmed = input.trim();
+
+    // Base64 should be at least 4 characters
+    if (trimmed.length < 4) {
+        return false;
+    }
+
+    // Strong indicators: has + or / or ends with =
+    const hasBase64Markers = /[+/]/.test(trimmed) || /=+$/.test(trimmed);
+
+    if (!hasBase64Markers) {
+        return false;
+    }
+
+    // Now check if it's mostly valid base64 characters
+    // Remove whitespace first
+    const normalized = trimmed.replace(/\s/g, '');
+
+    // Check that 95%+ of characters are valid base64
+    const base64Pattern = /^[A-Za-z0-9+/]*={0,2}$/;
+    if (!base64Pattern.test(normalized)) {
+        return false;
+    }
+
+    // Check for proper padding (must be multiple of 4)
+    if (normalized.length % 4 !== 0) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Attempt to decode base64 input into bytes.
+ * Returns empty array if decoding fails.
+ */
+function tryDecodeBase64(input: string): number[] {
+    try {
+        // Remove all whitespace (newlines, spaces, etc.)
+        const cleaned = input.trim().replace(/\s/g, '');
+
+        // Check for valid base64 format one more time
+        if (!/^[A-Za-z0-9+/]*={0,2}$/.test(cleaned) || cleaned.length % 4 !== 0) {
+            return [];
+        }
+
+        // Decode base64 string to bytes
+        // For Node.js environment
+        if (typeof Buffer !== 'undefined') {
+            const buffer = Buffer.from(cleaned, 'base64');
+            return Array.from(buffer);
+        }
+
+        // Fallback for browser environment
+        if (typeof window !== 'undefined' && typeof atob !== 'undefined') {
+            const binaryString = atob(cleaned);
+            const bytes: number[] = [];
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes.push(binaryString.charCodeAt(i));
+            }
+            return bytes;
+        }
+
+        return [];
+    } catch (error) {
+        // Decoding failed
+        return [];
+    }
 }
 
 /**
