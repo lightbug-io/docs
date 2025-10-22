@@ -359,7 +359,6 @@ export default defineComponent({
             'float32',
             'ascii',
             'bytes',
-            '[]uint8',
             'uint',
             'int'
         ];

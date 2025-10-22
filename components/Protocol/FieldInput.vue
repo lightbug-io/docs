@@ -85,7 +85,7 @@
             />
 
             <!-- Bytes/Array types -->
-            <div v-else-if="fieldType === 'bytes' || fieldType === '[]uint8' || isArrayType">
+            <div v-else-if="fieldType === 'bytes' || isArrayType">
                 <v-text-field
                     :model-value="bytesDisplayValue"
                     @update:model-value="handleBytesInput"
@@ -224,7 +224,6 @@ export default defineComponent({
                 case 'string':
                     return 'e.g., Hello';
                 case 'bytes':
-                case '[]uint8':
                     return 'e.g., 55 78 12 4';
                 case 'uint':
                 case 'int':
