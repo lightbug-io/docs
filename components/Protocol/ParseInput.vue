@@ -1233,7 +1233,6 @@ export default defineComponent({
 .message-wrapper {
     border: 2px solid #e0e0e0;
     border-radius: 8px;
-    overflow: hidden;
     transition: border-color 0.2s ease;
 }
 
