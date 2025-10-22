@@ -1,26 +1,45 @@
 <template>
     <div class="parse-input-container">
-        <!-- Input Field -->
-        <v-textarea
-            v-model="inputByteString"
-            label="Enter byte string (any format: ints, hex, 0x11, comma/space separated)"
-            @input="handleInputChange"
-            density="compact"
-            variant="outlined"
-            clearable
-            rows="4"
-            auto-grow
+        <!-- Input Field with Drag & Drop -->
+        <div
+            class="textarea-drop-zone"
+            :class="{ 'drop-active': isDraggingOver }"
+            @dragover.prevent="handleDragOver"
+            @dragleave.prevent="handleDragLeave"
+            @drop.prevent="handleFileDrop"
         >
-            <template #append>
-                <v-icon
-                    v-if="inputByteString"
-                    @click="clearInput"
-                    style="cursor: pointer;"
-                >
-                    mdi-close-circle
-                </v-icon>
-            </template>
-        </v-textarea>
+            <v-textarea
+                v-model="inputByteString"
+                label="Enter byte string (any format: ints, hex, 0x11, comma/space separated)"
+                @input="handleInputChange"
+                density="compact"
+                variant="outlined"
+                clearable
+                rows="4"
+                auto-grow
+                :disabled="isLoadingFile"
+            >
+                <template #append>
+                    <v-icon
+                        v-if="inputByteString"
+                        @click="clearInput"
+                        style="cursor: pointer;"
+                    >
+                        mdi-close-circle
+                    </v-icon>
+                </template>
+            </v-textarea>
+            <div v-if="isDraggingOver" class="drop-overlay">
+                <div class="drop-hint">
+                    <v-icon size="large">mdi-file-upload</v-icon>
+                    <p>Drop file here (max 10KB)</p>
+                </div>
+            </div>
+        </div>
+        <div v-if="fileLoadError" class="file-error">
+            <v-icon size="small" color="error">mdi-alert-circle</v-icon>
+            {{ fileLoadError }}
+        </div>
 
         <!-- Statistics -->
         <div v-if="processedBytes.length > 0" class="parse-stats">
@@ -275,6 +294,13 @@ export default defineComponent({
         // Byte stream copy settings
         const streamCopySpaces = ref(true);
         const streamCopyCommas = ref(false);
+
+        // File drag-and-drop state
+        const isDraggingOver = ref(false);
+        const isLoadingFile = ref(false);
+        const fileLoadError = ref('');
+
+        const MAX_FILE_SIZE = 10000; // 10k chars
 
         // Parse input and convert to normalized byte array
         const processedBytes = computed<number[]>(() => {
@@ -722,6 +748,68 @@ export default defineComponent({
             window.history.replaceState({}, '', url);
         };
 
+        // File drag-and-drop handlers
+        const handleDragOver = (event: DragEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+            isDraggingOver.value = true;
+        };
+
+        const handleDragLeave = (event: DragEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+            isDraggingOver.value = false;
+        };
+
+        const handleFileDrop = async (event: DragEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+            isDraggingOver.value = false;
+            fileLoadError.value = '';
+
+            const files = event.dataTransfer?.files;
+            if (!files || files.length === 0) {
+                return;
+            }
+
+            const file = files[0];
+
+            // Check file size
+            if (file.size > MAX_FILE_SIZE) {
+                fileLoadError.value = `File too large: ${(file.size / 1024).toFixed(1)}KB (max ${MAX_FILE_SIZE / 1024}KB)`;
+                return;
+            }
+
+            isLoadingFile.value = true;
+
+            try {
+                const isTextFile = file.type.startsWith('text/') ||
+                                   file.name.endsWith('.txt') ||
+                                   file.name.endsWith('.log') ||
+                                   file.name.endsWith('.hex') ||
+                                   file.name.endsWith('.csv');
+
+                if (isTextFile) {
+                    // Read as text
+                    const text = await file.text();
+                    inputByteString.value = text;
+                } else {
+                    // Read as binary and convert to hex bytes
+                    const arrayBuffer = await file.arrayBuffer();
+                    const bytes = new Uint8Array(arrayBuffer);
+                    const hexString = Array.from(bytes)
+                        .map(b => '0x' + b.toString(16).padStart(2, '0'))
+                        .join(' ');
+                    inputByteString.value = hexString;
+                }
+                updateUrl();
+            } catch (error) {
+                fileLoadError.value = `Error reading file: ${error instanceof Error ? error.message : 'Unknown error'}`;
+            } finally {
+                isLoadingFile.value = false;
+            }
+        };
+
         onMounted(() => {
             // If there's a hash in the URL and bytes were loaded, scroll to it after messages are parsed
             if (typeof window !== 'undefined' && window.location.hash && inputByteString.value) {
@@ -767,7 +855,13 @@ export default defineComponent({
             copyMessageBytes,
             toggleStreamCopySpaces,
             toggleStreamCopyCommas,
-            copyByteStream
+            copyByteStream,
+            isDraggingOver,
+            isLoadingFile,
+            fileLoadError,
+            handleDragOver,
+            handleDragLeave,
+            handleFileDrop
         };
     }
 });
@@ -781,6 +875,66 @@ export default defineComponent({
     margin: 20px 0;
 }
 
+.textarea-drop-zone {
+    position: relative;
+}
+
+.textarea-drop-zone.drop-active {
+    background-color: rgba(62, 175, 124, 0.1);
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.drop-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(62, 175, 124, 0.15);
+    border: 3px dashed #3eaf7c;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.drop-hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: #3eaf7c;
+    font-weight: 600;
+    text-align: center;
+}
+
+.drop-hint p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.file-error {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background-color: #fff5f5;
+    border: 1px solid #ffcccc;
+    border-radius: 6px;
+    color: #d32f2f;
+    font-size: 13px;
+}
+
+.dark .file-error {
+    background-color: #5a1a1a;
+    border-color: #8b0000;
+    color: #ff6b6b;
+}
+
 .parse-stats {
     display: flex;
     gap: 16px;
@@ -788,6 +942,15 @@ export default defineComponent({
     background-color: #f8f9fa;
     border-radius: 6px;
     font-size: 14px;
+}
+
+.dark .textarea-drop-zone.drop-active {
+    background-color: rgba(62, 175, 124, 0.15);
+}
+
+.dark .drop-overlay {
+    background-color: rgba(62, 175, 124, 0.1);
+    border-color: #3eaf7c;
 }
 
 .dark .parse-stats {
