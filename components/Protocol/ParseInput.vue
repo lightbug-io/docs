@@ -247,6 +247,7 @@ import { defineComponent, ref, computed, watch, onMounted } from 'vue';
 import Message from './Message.vue';
 import { parseRawMessage, calculateCRC16XMODEM } from '../../src/protocol/base.gen';
 import { parseByteString, formatBytes, type ByteDisplayFormat, detectNonMessagePatterns, type DetectedPattern } from '../../utils/ByteStringParser';
+import { parseIdeDebugCsv } from '../../utils/IdeDebugParser';
 
 // Declare gtag function for TypeScript
 declare global {
@@ -792,7 +793,15 @@ export default defineComponent({
                 if (isTextFile) {
                     // Read as text
                     const text = await file.text();
-                    inputByteString.value = text;
+
+                    // Try to parse as IDE debug CSV format first
+                    const parsedBytes = parseIdeDebugCsv(text);
+                    if (parsedBytes) {
+                        inputByteString.value = parsedBytes;
+                    } else {
+                        // Fall back to treating as raw text
+                        inputByteString.value = text;
+                    }
                 } else {
                     // Read as binary and convert to hex bytes
                     const arrayBuffer = await file.arrayBuffer();
