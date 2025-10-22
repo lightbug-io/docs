@@ -42,7 +42,15 @@
                                     @mouseenter="setHoverAnnotation(sectionIndex, 'value', -1)"
                                     @mouseleave="clearHoverAnnotation()"
                                 >
-                                    Value: {{ section.value }}
+                                    <template v-if="section.isArray && section.value">
+                                        Value: <span
+                                            v-for="(val, valIndex) in section.value.split(',')"
+                                            :key="valIndex"
+                                        >{{ val }}<span v-if="valIndex < section.value.split(',').length - 1">,</span></span>
+                                    </template>
+                                    <template v-else>
+                                        Value: {{ section.value }}
+                                    </template>
                                     <span
                                         v-if="section.isUndefined"
                                         class="parse-selector-trigger"
@@ -312,6 +320,8 @@ interface ByteSection {
     unit?: string;
     rawUnit?: string;
     conversion?: number | string;
+    isArray?: boolean;
+    arrayLength?: number;
 }
 
 export default defineComponent({
@@ -430,6 +440,11 @@ export default defineComponent({
 
         // Helper function to format a value with parser and conversion
         const formatValue = (value: number | string | bigint, parser?: string, conversion?: number | string, unit?: string): string => {
+            // Handle array values - return just comma-separated, we'll format the length in the section display
+            if (Array.isArray(value)) {
+                return value.join(',');
+            }
+
             // Handle timestamp parser - convert BigInt to number if needed
             if (parser === 'timestamp') {
 
@@ -464,6 +479,11 @@ export default defineComponent({
 
         // Helper function to get expected byte size for a type
         const getExpectedByteSize = (type: string): number | null => {
+            // Array types are variable length
+            if (type.includes('[]')) {
+                return null;
+            }
+
             switch (type.toLowerCase()) {
                 case 'uint8':
                 case 'int8':
@@ -661,6 +681,10 @@ export default defineComponent({
                         }
                     }
 
+                    // Check if this is an array type
+                    const headerFieldType = headerFieldDef?.type || customHeaderType || 'uint8';
+                    const isArrayField = headerFieldType.includes('[]');
+
                     sections.push({
                         label: headerName,
                         value: displayValue,
@@ -674,7 +698,9 @@ export default defineComponent({
                         rawBytes: dataBytes,
                         unit,
                         rawUnit,
-                        conversion
+                        conversion,
+                        isArray: isArrayField,
+                        arrayLength: isArrayField ? dataBytes.length : undefined
                     });
                     index += 1 + headerLength;
                 }
@@ -794,6 +820,10 @@ export default defineComponent({
                         }
                     }
 
+                    // Check if this is an array type
+                    const payloadFieldType = payloadFieldDef?.type || customPayloadType || 'uint8';
+                    const isArrayField = payloadFieldType.includes('[]');
+
                     sections.push({
                         label: payloadName,
                         value: displayValue,
@@ -807,7 +837,9 @@ export default defineComponent({
                         rawBytes: dataBytes,
                         unit,
                         rawUnit,
-                        conversion
+                        conversion,
+                        isArray: isArrayField,
+                        arrayLength: isArrayField ? dataBytes.length : undefined
                     });
                     index += 1 + payloadLength;
                 }

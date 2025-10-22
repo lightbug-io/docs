@@ -85,14 +85,14 @@
             />
 
             <!-- Bytes/Array types -->
-            <div v-else-if="fieldType === 'bytes' || fieldType === '[]uint8'">
+            <div v-else-if="fieldType === 'bytes' || fieldType === '[]uint8' || isArrayType">
                 <v-text-field
                     :model-value="bytesDisplayValue"
                     @update:model-value="handleBytesInput"
                     :label="getInputLabel()"
                     density="compact"
                     variant="outlined"
-                    hint="Comma or space separated bytes (e.g., '1 2 3' or '0x01 0x02 0x03')"
+                    :hint="getTypeHint()"
                     :placeholder="getPlaceholder()"
                     persistent-hint
                 />
@@ -159,6 +159,10 @@ export default defineComponent({
             return numericTypes.includes(fieldType.value);
         });
 
+        const isArrayType = computed(() => {
+            return fieldType.value.includes('[]');
+        });
+
         const bytesDisplayValue = computed(() => {
             if (Array.isArray(props.modelValue)) {
                 return props.modelValue.join(' ');
@@ -174,6 +178,9 @@ export default defineComponent({
 
         const getTypeHint = () => {
             const type = fieldType.value;
+            if (isArrayType.value) {
+                return `Array of ${type.replace('[]', '')} values`;
+            }
             switch (type) {
                 case 'uint8':
                     return '0-255';
@@ -197,6 +204,9 @@ export default defineComponent({
 
         const getPlaceholder = () => {
             const type = fieldType.value;
+            if (isArrayType.value) {
+                return 'e.g., 1 2 3 or 0x01,0x02,0x03';
+            }
             switch (type) {
                 case 'uint8':
                     return 'e.g., 200';
@@ -273,6 +283,7 @@ export default defineComponent({
             hasValues,
             valueOptions,
             isNumericType,
+            isArrayType,
             bytesDisplayValue,
             getInputLabel,
             getTypeHint,

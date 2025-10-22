@@ -294,12 +294,35 @@ export function calculateCRC16XMODEM(bytes: number[]): number {
 }
 
 /**
+ * Check if a type is an array type (e.g., uint8[], int16[])
+ */
+export function isArrayType(type: string): boolean {
+  return type.includes('[]');
+}
+
+/**
+ * Get the base element type of an array type (e.g., uint8 from uint8[])
+ */
+export function getArrayElementType(type: string): string {
+  if (!isArrayType(type)) return type;
+  return type.replace(/\[\]$/, '').trim();
+}
+
+/**
  * Read typed data from byte array
  */
 export function readTypedData(bytes: number[], type: string): any {
   if (bytes.length === 0) return null;
 
-  switch (type.toLowerCase()) {
+  const normalizedType = type.toLowerCase();
+
+  // Handle array types
+  if (isArrayType(normalizedType)) {
+    const elementType = getArrayElementType(normalizedType);
+    return readArrayData(bytes, elementType);
+  }
+
+  switch (normalizedType) {
     case 'uint8':
       return readUint8(bytes, 0);
     case 'uint16':
@@ -315,7 +338,6 @@ export function readTypedData(bytes: number[], type: string): any {
     case 'ascii':
     case 'string':
       return readAscii(bytes);
-    case '[]uint8':
     case 'bytes':
       return bytes;
     case 'uint':
@@ -335,10 +357,63 @@ export function readTypedData(bytes: number[], type: string): any {
 }
 
 /**
+ * Read array data from bytes
+ */
+export function readArrayData(bytes: number[], elementType: string): number[] {
+  const elementSize = getElementByteSize(elementType);
+  if (elementSize === null) {
+    // For variable-length elements, we can't reliably split, return raw bytes
+    return bytes;
+  }
+
+  const result: number[] = [];
+  for (let i = 0; i < bytes.length; i += elementSize) {
+    if (i + elementSize <= bytes.length) {
+      const elementBytes = bytes.slice(i, i + elementSize);
+      const value = readTypedData(elementBytes, elementType);
+      result.push(typeof value === 'number' ? value : value.toString().charCodeAt(0));
+    }
+  }
+  return result;
+}
+
+/**
+ * Get the byte size of a single element of a type (not array size)
+ */
+export function getElementByteSize(type: string): number | null {
+  switch (type.toLowerCase()) {
+    case 'uint8':
+    case 'int8':
+      return 1;
+    case 'uint16':
+    case 'int16':
+      return 2;
+    case 'uint32':
+    case 'int32':
+    case 'float32':
+      return 4;
+    case 'uint64':
+    case 'int64':
+    case 'float64':
+      return 8;
+    default:
+      return null; // Variable length
+  }
+}
+
+/**
  * Write typed data to byte array
  */
 export function writeTypedData(value: any, type: string): number[] {
-  switch (type.toLowerCase()) {
+  const normalizedType = type.toLowerCase();
+
+  // Handle array types
+  if (isArrayType(normalizedType)) {
+    const elementType = getArrayElementType(normalizedType);
+    return writeArrayData(value, elementType);
+  }
+
+  switch (normalizedType) {
     case 'uint8':
       return writeUint8(value);
     case 'uint16':
@@ -354,7 +429,6 @@ export function writeTypedData(value: any, type: string): number[] {
     case 'ascii':
     case 'string':
       return writeAscii(value);
-    case '[]uint8':
     case 'bytes':
       return Array.isArray(value) ? value : [];
     case 'uint':
@@ -367,4 +441,36 @@ export function writeTypedData(value: any, type: string): number[] {
     default:
       return Array.isArray(value) ? value : [];
   }
+}
+
+/**
+ * Write array data to bytes
+ */
+export function writeArrayData(value: any, elementType: string): number[] {
+  // If value is already an array of numbers, treat as direct bytes
+  if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'number') {
+    return value;
+  }
+
+  // If it's a string, parse as space or comma-separated values
+  if (typeof value === 'string') {
+    const parts = value.trim().split(/[\s,]+/).filter(p => p.trim());
+    const bytes: number[] = [];
+
+    for (const part of parts) {
+      let byte: number;
+      if (part.startsWith('0x') || part.startsWith('0X')) {
+        byte = parseInt(part, 16);
+      } else {
+        byte = parseInt(part, 10);
+      }
+
+      if (!isNaN(byte) && byte >= 0 && byte <= 255) {
+        bytes.push(byte);
+      }
+    }
+    return bytes;
+  }
+
+  return Array.isArray(value) ? value : [];
 }

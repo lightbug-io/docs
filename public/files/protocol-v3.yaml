@@ -107,7 +107,9 @@ header:
         name: SUBSCRIBE
         description: |
           Subscribe to values for the associated message type.
-          Should be used in conjunction with other header fields to define the subscription parameters, such as Interval, Duration and Timeout.
+          Can be used in conjunction with other header fields to define the subscription parameters, such as Interval, Duration, Timeout, Storage Level and Message Level.
+          If no interval is provided, messages will be sent as and when new data is available.
+          Some data, such as GPS position, may require a set interval to be provided.
       5:
         name: UNSUBSCRIBE
         description: Unsubscribe from a previous subscription.
@@ -115,6 +117,10 @@ header:
     name: Interval
     description: |
       To be used with the SUBSCRIBE method.
+      Defines how often messages of the given type should be sent.
+      If no interval is provided, messages will be sent as and when new data is available.
+      Some data, such as GPS position, may require a set interval to be provided.
+      If the interval is less than the period required to acquire the data, or refresh the data, the data may be send less often than requested.
     type: uint32
     unit: ms
   7:
@@ -137,6 +143,10 @@ header:
       When requesting data or services that can take time to acquire (such as a GPS fix), this defines how long to try for before abandoning the action.
       An ACK with ABANDONED status code will be sent in this case.
       For actions that support it, timeout instead defines how long to wait before performing the action.
+
+      When used with a SUBSCRIBE method, with a Message Level header field:
+      This defines the time to wait for a message of the given level, before cancelling the subscription.
+      Example: GPS subscribe with Message Level 'Valid' and Timeout 60000ms
     type: uint32
     unit: ms
   9:
@@ -221,10 +231,26 @@ header:
         description: Receive all messages if and when available, without explicitly requesting that the underlying hardware be turned on.
       2:
         name: Info-Auto
-        description: Receive all messages and explicitly request underlying hardware be activated to provide the requested data where neeeded
+        description: Receive all messages and explicitly request underlying hardware be activated to provide the requested data where needed
       10:
         name: Valid
         description: Activate the relevant hardware but only receive valid data. May be used with subscription timeout feature to request usable data without leaving the hardware on indefinitely
+  17:
+    name: Subscription ID
+    description: |
+      ID of the subscription being managed, when multiple subscriptions are being used per message type (advanced usage).
+      If not provided, Subscription ID 0 is assumed (the default subscription).
+
+      Can be used to uniquely identify subscriptions when multiple subscriptions of the same message type exist.
+      Devices may have default subscriptions, and these will use Subscription ID 0.
+      So SUBSCRIBing without a Subscription ID, or with subscription ID 0 will, create or modify the default subscription.
+
+      When using with the SUBSCRIBE or UNSUBSCRIBE methods, you should optionally provide a single uint8 value.
+
+      If messages are sent as part of a non 0 Subscription ID,
+      one or more Subscription IDs will be included in the message header to identify which subscription(s) the message relates to.
+    type: uint8[]
+    alpha: New feature, subject to alterations, for advanced usage
   100:
     name: Received time
     description: |
@@ -233,6 +259,14 @@ header:
       Particularly useful for messages that are further processed, queued or forwarded on.
     type: uint64
     unit: ms since epoch
+  101:
+    name: Received sequence
+    description: |
+      Sequence the message was received in, as an incrementing number.
+      Cloud systems may add this to messages they receive.
+      Should start at 1 and increments by 1 for each message received on a single connection or during a single session.
+      A sequence number of 1 can thus indicate the start of a new session or connection.
+    type: uint32
 messages:
   5:
     name: ACK
@@ -992,7 +1026,9 @@ messages:
         response: null
   40:
     name: Haptics Control
-    description: Control the haptics
+    description: |
+      Control the haptics
+      The first haptics action after power-on will also result in the haptics driver being initialized, leading to a calibration.
     group: interface
     data:
       1:

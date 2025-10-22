@@ -711,6 +711,27 @@ export default defineComponent({
                 return [];
             }
 
+            // Check if it's an array type
+            if (type.includes('[]')) {
+                // For array types, parse as space or comma-separated values
+                if (Array.isArray(value)) {
+                    return value;
+                }
+                if (typeof value === 'string') {
+                    // Parse space or comma-separated byte values
+                    return value.split(/[\s,]+/)
+                        .map(s => {
+                            const trimmed = s.trim();
+                            if (trimmed.startsWith('0x') || trimmed.startsWith('0X')) {
+                                return parseInt(trimmed, 16);
+                            }
+                            return parseInt(trimmed, 10);
+                        })
+                        .filter(b => !isNaN(b) && b >= 0 && b <= 255);
+                }
+                return [];
+            }
+
             // Special handling for 'bytes' type - parse space-separated string
             if (type === 'bytes') {
                 if (Array.isArray(value)) {
