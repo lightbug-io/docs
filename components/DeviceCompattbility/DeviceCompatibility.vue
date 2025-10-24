@@ -1,8 +1,8 @@
 <template>
-  <div :class="['device-compatibility', { 'device-compatibility--compact': compact }]">
+  <div :class="['device-compatibility', { 'device-compatibility--compact': compact }]" :style="{ ...(float ? { float: float, display: 'flex', 'flex-direction': 'column' } : {}), ...(fullWidth ? { width: '100%' } : {}) }">
     <div class="device-compatibility__header">
       <span class="device-compatibility__title">Device compatibility</span>
-      <span class="device-compatibility__description">V3 protocol</span>
+      <span class="device-compatibility__description" v-if="description">{{ description }}</span>
     </div>
     <div class="device-compatibility__chips">
       <a
@@ -29,6 +29,18 @@ const props = defineProps({
   compact: {
     type: Boolean,
     default: true
+  },
+  description: {
+    type: String,
+    default: 'V3 protocol'
+  },
+  float: {
+    type: String,
+    default: null
+  },
+  fullWidth: {
+    type: Boolean,
+    default: false
   }
 });
 </script>

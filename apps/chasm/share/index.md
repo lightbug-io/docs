@@ -4,11 +4,7 @@
 
 The Chasm Share application is a web-based tool that allows users to view public shared messaging from Lightbug devices.
 
-:::alpha
-The sharing application is currently in alpha, and may change rapidly when comparing with the screenshots below.
-
-There many be bugs in display of data, or slow loading, and we appreciate any feedback you have during this time.
-:::
+<DeviceCompatibilityV3 fullWidth/>
 
 ## Access
 
