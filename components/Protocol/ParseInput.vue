@@ -428,10 +428,9 @@ export default defineComponent({
                         // Track valid message parsing for analytics
                         if (typeof window !== 'undefined' && window.gtag) {
                             window.gtag('event', 'parse_message', {
-                                event_category: 'protocol_tools',
-                                event_label: `message_type_${parsedMessage.messageType}`,
-                                value: parsedMessage.messageType,
-                                custom_parameter_1: messageTypeName || 'unknown'
+                                message_type: parsedMessage.messageType,
+                                message_name: messageTypeName || 'unknown',
+                                bytes_length: length
                             });
                         }
 

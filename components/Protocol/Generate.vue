@@ -1163,10 +1163,9 @@ export default defineComponent({
                 // Send Google Analytics event
                 if (typeof window !== 'undefined' && window.gtag) {
                     window.gtag('event', 'generate_message', {
-                        event_category: 'protocol_tools',
-                        event_label: `message_type_${messageType}`,
-                        value: messageType,
-                        custom_parameter_1: selectedMessageInfo.value?.name || 'unknown'
+                        message_type: messageType,
+                        message_name: selectedMessageInfo.value?.name || 'unknown',
+                        bytes_length: newBytes.length,
                     });
                 }
             }
