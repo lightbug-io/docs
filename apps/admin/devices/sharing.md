@@ -14,6 +14,7 @@ Sharing allows you to share a period of data that has been received from a devic
 ## Accessing Sharing
 
 You can access sharing on supported devices, via the `Sharing` button in the device actions.
+https://admin.lightbug.cloud/#/pages/devices
 
 ![](https://upload.r2.lb.chasm.cloud/2025/10/1qPepVy89y.png)
 
