@@ -113,8 +113,8 @@ product:
       channels:
         - 5
         - 9
+      ieee_802_15_4: yes
       notes: "Supports common UWB channels; compatible with TDoA/TWR systems (requires infrastructure)"
-    ieee_802_15_4: yes
   positioning:
     gnss:
       typical_accuracy_meters: "0.01-1"
