@@ -208,6 +208,20 @@ gingin-chasm-1  | [00] 2025-10-16T10:50:50.223Z INFO    in/udp.go:296   Received
                 expect(result.bytes[0]).toBe(0x03);
                 expect(result.bytes[1]).toBe(0x3a);
             });
+
+            it('should parse multiple hex messages separated by newlines (no spaces, lowercase)', () => {
+                const input = `031a000f0004000511060f0103010004e803000001140000d9fb
+035f00d007000001000152d30049405000ee2c4c9d404057656c636f6d6520746f20536d6172744e65742c20746865204d756c74692d436f6e7374656c6c6174696f6e20436f7272656374696f6e20536572766963652e12ec710000003735
+031f00d007000001000112d300093f50b8ee2c4c778048c477ad000000cd81
+036a01d007000002000102ffd301524320b87055c062002085572e0200000000282081007bdfbf2febf2fcfa225a9a922a6a6a8a2a2282292447f510a1203b13d21d59fa3185e1f063dee7c08f91e55aca85963f2e2939226f058ccb4696e82b6e5c10b901854e79fcee79f87596ed69db03bf090d82190468c8e1ec18da01b47f72402b404ec0b3cd5d9afd35fa700b181e2d5c8a86478c7c199`;
+                const result = parseByteString(input);
+                expect(result.hasHex).toBe(true);
+                // Should have parsed multiple messages as hex
+                expect(result.bytes.length).toBeGreaterThan(200);
+                // Check start of first message
+                expect(result.bytes[0]).toBe(0x03);
+                expect(result.bytes[1]).toBe(0x1a);
+            });
         });
 
         describe('base64 mode', () => {

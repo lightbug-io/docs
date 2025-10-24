@@ -160,26 +160,25 @@ function parseSingleByteString(input: string): ParsedBytes {
 
     // Check if input looks like continuous hex (e.g., "030E000D" or "ffff")
     // Remove all non-valid characters and check if what's left is all hex digits
-    // AND is a reasonable length for continuous hex (even number of chars, not too long)
     const onlyValid = normalized.replace(/[^0-9a-fA-F]/g, '');
     const allHexPattern = /^[0-9a-fA-F]+$/;
+    const onlyValidHasHexLetters = /[a-fA-F]/.test(onlyValid);
 
-    if (allHexPattern.test(onlyValid) && /[a-fA-F]/.test(onlyValid) && onlyValid.length >= 4 && onlyValid.length % 2 === 0) {
-        // Check if there's a continuous hex sequence in the ORIGINAL input that's long enough (10+ bytes = 20+ chars)
-        // This handles cases where hex is embedded in messy logs
-        const continuousHexPattern = /[0-9a-fA-F]{20,}/g;
+    if (allHexPattern.test(onlyValid) && onlyValidHasHexLetters && onlyValid.length >= 4) {
+        // Check if there's a continuous hex sequence in the ORIGINAL input that's long enough (4+ characters)
+        // This handles cases where hex is embedded in messy logs or multiple messages separated by newlines
+        const continuousHexPattern = /[0-9a-fA-F]{4,}/g;
         const continuousSequences = normalized.match(continuousHexPattern) || [];
 
         if (continuousSequences.length > 0) {
-            // Found a long continuous hex sequence, likely hex mode
-            return parseHexBytes(normalized);
-        }
+            // Filter for sequences that actually contain hex letters (a-f, not just 0-9)
+            // This distinguishes real hex from pure decimal sequences
+            const realHexSequences = continuousSequences.filter(seq => /[a-fA-F]/.test(seq));
 
-        // Fallback: calculate how much of the original input is hex chars
-        const hexDensity = onlyValid.length / normalized.replace(/\s/g, '').length;
-        // If > 70% of non-whitespace chars are valid hex, likely continuous hex
-        if (hexDensity > 0.7) {
-            return parseHexBytes(normalized);
+            // If we have at least one sequence with hex letters, or multiple sequences (one might be hex), treat as hex
+            if (realHexSequences.length > 0 || continuousSequences.length > 1) {
+                return parseHexBytes(normalized);
+            }
         }
     }
 
@@ -201,48 +200,36 @@ function parseHexBytes(input: string): ParsedBytes {
     const continuousHexPattern = /[0-9a-fA-F]{4,}/g;
     const sequences = input.match(continuousHexPattern) || [];
 
-    // If we found significant continuous sequences, extract all 4+ character sequences
-    // This handles cases where multiple messages are in the same input
+    // If we found continuous sequences, extract all of them
+    // This handles cases where multiple messages are in the same input (e.g., on separate lines)
     if (sequences.length > 0) {
-        // Concatenate ALL sequences (even short ones like "2025") to handle multi-message logs
-        // But we'll sort them so we preserve order: keep them in original order from input
-        const hexOnly = sequences.join('');
+        // Filter for sequences that actually contain hex letters (a-f, not just 0-9)
+        // This distinguishes real hex from pure decimal sequences and prevents
+        // parsing of timestamps and device IDs mixed into the logs
+        const realHexSequences = sequences.filter(seq => /[a-fA-F]/.test(seq));
 
-        // However, if we have a very long sequence (>= 20 chars), prefer just that
-        const significantSequences = sequences.filter(s => s.length >= 20);
-        if (significantSequences.length > 0) {
-            // Use only the significant sequences
-            const significantHex = significantSequences.join('');
+        // Use real hex sequences if we have any, otherwise use all sequences
+        // (in case the input is purely numeric hex like "00ff00ff")
+        const sequencesToUse = realHexSequences.length > 0 ? realHexSequences : sequences;
 
-            // Parse as pairs of hex digits
-            for (let i = 0; i < significantHex.length; i += 2) {
-                const byteStr = significantHex.substring(i, i + 2);
-                if (byteStr.length === 2) {
-                    const value = parseInt(byteStr, 16);
-                    if (!isNaN(value)) {
-                        bytes.push(value);
-                    }
+        // Simply concatenate sequences in the order they appear
+        // This preserves the order of multiple messages separated by newlines or other noise
+        let hexOnly = sequencesToUse.join('');
+
+        // If we have an odd number of hex characters, it's likely a copy-paste error
+        // We'll just process what we have and let the parser handle the incomplete byte
+        for (let i = 0; i < hexOnly.length - 1; i += 2) {
+            const byteStr = hexOnly.substring(i, i + 2);
+            if (byteStr.length === 2) {
+                const value = parseInt(byteStr, 16);
+                if (!isNaN(value)) {
+                    bytes.push(value);
                 }
             }
+        }
 
-            if (bytes.length > 0) {
-                return { bytes, hasHex: true };
-            }
-        } else {
-            // Use all sequences if none are particularly long
-            for (let i = 0; i < hexOnly.length; i += 2) {
-                const byteStr = hexOnly.substring(i, i + 2);
-                if (byteStr.length === 2) {
-                    const value = parseInt(byteStr, 16);
-                    if (!isNaN(value)) {
-                        bytes.push(value);
-                    }
-                }
-            }
-
-            if (bytes.length > 0) {
-                return { bytes, hasHex: true };
-            }
+        if (bytes.length > 0) {
+            return { bytes, hasHex: true };
         }
     }
 
