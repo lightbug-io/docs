@@ -528,6 +528,12 @@ messages:
           description: This example is captured from an RV1 device as part of normal communications with the cloud, somewhere in California.
           date: "2025-10-03"
           generator: RV1 P1 v2287
+      - name: Subscription request
+        bytes: 031a000f0004000511060f0103010004e803000001140000d9fb
+        real:
+          description: This is a real message recorded from the lightbug cloud forwarding system, sent to an RH2 device
+          date: "2025-10-24"
+          generator: Lightbug cloud forwarding system
   16:
     name: Satellite Data
     group: location

@@ -519,6 +519,10 @@ export default withMermaid(defineConfig({
               items: protocolMenuItems,
             },
             {
+              text: 'Subscriptions',
+              link: '/devices/api/subscriptions',
+            },
+            {
               text: 'Tools',
               collapsed: true,
               items: [
