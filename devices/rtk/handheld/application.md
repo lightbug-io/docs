@@ -13,7 +13,18 @@ The cloud connection, or link can also be configured to point to a private UDP s
 If you would like to use this feature, please [contact us for more information.](https://lightbug.io/contact/)
 :::
 
+## Deactivated
+
+When not enabled on a Lightbug Cloud account, the device will show a deactivated screen.
+
+:::tabs
+== Wide Photo
+![=400x](https://upload.r2.lb.chasm.cloud/2025/10/chrome_hjJ9bJCBYS.png){.center}
+:::
+
 ## Home
+
+Once activated on Lightbug Cloud, the default screen is the home screen.
 
 The home screen shows basic device status, and basic device control.
 
@@ -59,6 +70,8 @@ Information above the status of this process will be shown on the screen.
 ![=400x](https://upload.r2.lb.chasm.cloud/2025/10/imgur/1hVj0c0.jpeg){.center}
 :::
 
+While armed, the device will go through multiple possible states for GNSS and correction status.
+
 #### GNSS Status
 
 The GNSS status will be one of the following:
@@ -94,4 +107,15 @@ The menu allows selection of:
 ![=600x](https://upload.r2.lb.chasm.cloud/2025/10/imgur/D0PxTPE.png){.center}
 == Zoom Photo
 ![=400x](https://upload.r2.lb.chasm.cloud/2025/10/imgur/a0mwlDn.jpeg){.center}
+:::
+
+## Low Battery
+
+If the device detects a critically low battery level while armed, you will periodically see a warning on screen, as well as a beep from the device to draw your attention.
+
+Once the device reaches a critically low battery level it will display a final screen before it runs out of power.
+
+:::tabs
+== Wide Photo
+![=400x](https://upload.r2.lb.chasm.cloud/2025/10/chrome_GShRI9sm2U.jpg){.center}
 :::
