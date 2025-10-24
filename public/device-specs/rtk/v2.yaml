@@ -113,8 +113,11 @@ product:
       channels:
         - 5
         - 9
-      ieee_802_15_4: yes
       notes: "Supports common UWB channels; compatible with TDoA/TWR systems (requires infrastructure)"
+    thread:
+      version: "IEEE 802.15.4"
+    zigbee:
+      version: "IEEE 802.15.4"
   positioning:
     gnss:
       typical_accuracy_meters: "0.01-1"
@@ -364,6 +367,9 @@ product:
         tx_power_dbm:
           802_11b: "+21"
           802_11ax (MCS9, 20MHz): "+19.5"
+        radio_features:
+          bluetooth_specification: "5 LE"
+          ieee_802_15_4_support: "Yes"
         cpu:
           high_performance: "32-bit RISC-V up to 160 MHz"
           low_power: "32-bit RISC-V up to 20 MHz"
