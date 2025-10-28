@@ -77,7 +77,7 @@ The connection defines how and where the data is forwarded to. Some pre-defined 
 
 Some connections are provided by the system, which you can use without needing to create your own.
 
-Currently the only system connection that exists is `Lightbug Cloud`.
+Currently two system connections exist: `Lightbug Cloud` and `Nowhere`.
 
 #### Lightbug Cloud
 
@@ -110,6 +110,15 @@ The storage level `MH_STORAGE_LEVEL_NVM` will be used.
 Data can be accessed via Lightbug Cloud as normal, including via the [Cloud App](/apps/cloud/), and the [API](/apis/) as device [datapoints](/terminology/points).
 
 ![=500x](https://upload.r2.lb.chasm.cloud/2025/10/chrome_zOCfD9oQ84.png){.center}
+
+#### Nowhere
+
+The `Nowhere` connection allows you to configure device subscriptions as part of forwarding, without actually forwarding data to any external service.
+
+This is useful when you want to:
+
+- Control or test subscriptions, without a data target, or external integration
+- Debug device behavior with different subscription configurations
 
 ### Create a Connection
 
