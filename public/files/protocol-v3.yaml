@@ -24,6 +24,7 @@ groups:
 header:
   1:
     name: Message ID
+    id: id
     description: |
       ID identifying the message.
       Can be used by a receiver to ACK, respond to, deduplicate, resend or otherwise track messages.
@@ -31,6 +32,7 @@ header:
     type: uint32
   2:
     name: Client ID
+    id: client
     description: |
       ID of the client sending the message.
       May mean different things in different contexts.
@@ -38,12 +40,14 @@ header:
     type: uint
   3:
     name: Response to
+    id: responseTo
     description: |
       ID of the message that is being responded to
       (Message ID of the request or subscription)
     type: uint32
   4:
     name: Status
+    id: status
     description: |
       If omitted, assume the message is OK
 
@@ -51,60 +55,87 @@ header:
       Values > 0 indicate an error or non-OK status.
     type: int8
     values:
+      -127:
+        name: Already Responded
+        id: alreadyResponded
+      -126:
+        name: No ACK
+        id: noACK
+      -1:
+        name: Error
+        id: error
       0:
         name: OK
+        id: ok
         description: Everything appears to be OK
       1:
         name: Generic Error
+        id: genericError
       2:
         name: Missing Parameter
+        id: missingParam
       3:
         name: Method Not Supported
+        id: methodNotSupported
         description: e.g., SETting GPS position
       4:
         name: Invalid Parameter
+        id: invalidParam
         description: Unsupported values requested (e.g., requesting the GPS data at 100hz)
       5:
         name: Invalid State
+        id: invalidState
         description: e.g., requesting GPS data stream before turning GPS on
       6:
         name: No Data
+        id: noData
         description: e.g., requesting GPS or time data when not yet available
       7:
         name: Not Supported
+        id: notSupported
         description: If the receiver does not support the requested action or method
       8:
         name: Failed Will Retry
+        id: willRetry
         description: Currently only used for tx now
       9:
         name: Failed Permanently
+        id: failed
       10:
         name: Abandoned
+        id: abandoned
         description: Status code when an actioned has timed out or been deliberately cancelled by another process
       11:
         name: Expired
+        id: expired
         description: Status code when a request has expired and has been cancelled, typically subscriptions
       12:
         name: Missing Subscription Parameter
+        id: missingSubParam
         description: Status code when a subscription request is missing required parameters such as Interval or Duration
       13:
         name: Invalid Subscription Parameter
+        id: invalidSubParam
         description: Status code when a subscription request has invalid parameters such as Interval or Duration
   5:
     name: Method
+    id: method
     description: Request a service to be perform an action
     type: uint8
     values:
       1:
         name: SET
+        id: set
         description: |
           Set one or more values that are provided in the message payload.
       2:
         name: GET
+        id: get
         description: |
           Get values for the associated message type.
       3:
         name: SUBSCRIBE
+        id: subscribe
         description: |
           Subscribe to values for the associated message type.
           Can be used in conjunction with other header fields to define the subscription parameters, such as Interval, Duration, Timeout, Storage Level and Message Level.
@@ -112,9 +143,11 @@ header:
           Some data, such as GPS position, may require a set interval to be provided.
       5:
         name: UNSUBSCRIBE
+        id: unsubscribe
         description: Unsubscribe from a previous subscription.
   6:
     name: Interval
+    id: interval
     description: |
       To be used with the SUBSCRIBE method.
       Defines how often messages of the given type should be sent.
@@ -125,6 +158,7 @@ header:
     unit: ms
   7:
     name: Duration
+    id: duration
     description: |
       To be used with the SUBSCRIBE method, or actions that can be timed.
 
@@ -139,6 +173,7 @@ header:
     unit: ms
   8:
     name: Timeout
+    id: timeout
     description: |
       When requesting data or services that can take time to acquire (such as a GPS fix), this defines how long to try for before abandoning the action.
       An ACK with ABANDONED status code will be sent in this case.
@@ -151,46 +186,58 @@ header:
     unit: ms
   9:
     name: Forward For Type
+    id: forwardForType
     description: 'FOR FUTURE USE: Type of client that the message is being forwarded for.'
     alpha: Forwarding is currently a new feature, and may not be perfectly documented
     values:
       1:
         name: LoRa
+        id: lora
         description: Message is being forwarded for another Lightbug device over LoRa
       2:
         name: I2C
+        id: i2c
         description: Message is being forwarded for an I2C connection, typically from the ESP32 co-processor.
       3:
         name: Cloud
+        id: cloud
         description: Message is being forwarded for a cloud link. Typically used when cloud messages are being forwarded to the ESP32 co-processor.
   10:
     name: Forwarded For
+    id: forwardedFor
     description: ID of the client sending the original message that is being forwarded. Forward for type alters the meaning of this field
     type: uint
     alpha: Forwarding is currently a new feature, and may not be perfectly documented
   11:
     name: Forwarded RSSI
+    id: forwardedRssi
     description: RSSI of forwarded message, when forwarded over radio
   12:
     name: Forwarded SNR
+    id: forwardedSnr
     description: SNR of forwarded message, when forwarded over radio
   13:
     name: Forwarding To Type
+    id: forwardingToType
     description: Type of client to forward the message to.
     type: uint
     alpha: Forwarding is currently a new feature, and may not be perfectly documented
     values:
       1:
         name: LoRa
+        id: lora
         description: Message is being forwarded for another Lightbug device over LoRa
       2:
         name: I2C
+        id: i2c
         description: Message is being forwarded for an I2C connection, typically from the ESP32 co-processor.
       3:
         name: Cloud
+        id: cloud
         description: Message is being forwarded for a cloud link. Typically used when cloud messages are being forwarded to the ESP32 co-processor.
   14:
     name: Forward To
+    id: forwardTo
     description: |
       ID of the client to forward the message to.
       Forwarding to type alters the meaning of this field.
@@ -198,6 +245,7 @@ header:
     alpha: Forwarding is currently a new feature, and may not be perfectly documented
   15:
     name: Storage Level
+    id: storageLevel
     description: |
       Defines the behaviour for messages that have not been ACKed.
       The default is None, i.e. failed messages will not be retried.
@@ -208,15 +256,19 @@ header:
     values:
       0:
         name: None
+        id: none
         description: Do not attempt to resend messages if they are not ACKed
       10:
         name: RAM
+        id: ram
         description: Keep the messages in RAM until they are ACKed or overwritten. Messages are discarded on reboot
       20:
         name: NVM
+        id: nvm
         description: Keep the messages until they are ACKed or overwritten
   16:
     name: Message Level
+    id: messageLevel
     description: |
       Loosely analogous to log levels (trace, debug, info, warning, etc.) in that you must define the lowest level of interest.
       Message Levels can be used with timeouts on subscriptions - if a message of the requested level is not available within the specified time,
@@ -228,15 +280,19 @@ header:
     values:
       1:
         name: Info-Watch
+        id: infoWatch
         description: Receive all messages if and when available, without explicitly requesting that the underlying hardware be turned on.
       2:
         name: Info-Auto
+        id: infoAuto
         description: Receive all messages and explicitly request underlying hardware be activated to provide the requested data where needed
       10:
         name: Valid
+        id: valid
         description: Activate the relevant hardware but only receive valid data. May be used with subscription timeout feature to request usable data without leaving the hardware on indefinitely
   17:
     name: Subscription ID
+    id: subscriptionId
     description: |
       ID of the subscription being managed, when multiple subscriptions are being used per message type (advanced usage).
       If not provided, Subscription ID 0 is assumed (the default subscription).
@@ -253,6 +309,7 @@ header:
     alpha: New feature, subject to alterations, for advanced usage
   100:
     name: Received time
+    id: receivedTime
     description: |
       Time the message was received.
       Cloud systems may add this to messages they receive.
@@ -261,6 +318,7 @@ header:
     unit: ms since epoch
   101:
     name: Received sequence
+    id: receivedSeq
     description: |
       Sequence the message was received in, as an incrementing number.
       Cloud systems may add this to messages they receive.
@@ -270,6 +328,7 @@ header:
 messages:
   5:
     name: ACK
+    id: ack
     description: |
       Used to acknowledge a previously sent message.
 
@@ -290,8 +349,12 @@ messages:
     data:
       1:
         name: ACK Type
+        id: type
         description: Type of previous message being ACKed
         type: uint16
+        parsers:
+          - id: typeName
+            parser: message-type
     examples:
       - name: ACKing a heartbeat message type 13, ID 567, with an OK status
         bytes: 3 24 0 5 0 2 0 3 4 4 55 2 0 0 1 0 1 0 1 2 13 0 201 198
@@ -306,16 +369,19 @@ messages:
         bytes: 3 15 0 5 0 0 0 1 0 1 2 11 0 184 159
   11:
     name: Open
+    id: open
     description: |
       Explicit indicator for the start of a connection.
     group: general
     data:
       1:
         name: Flags
+        id: flags
         description: For future use, if used should currently always be 0
         type: uint32
       10:
         name: Device Type
+        id: deviceType
         description: Type of device, relates to the SN prefix
         type: uint8
     examples:
@@ -330,6 +396,7 @@ messages:
         bytes: 3 11 0 11 0 0 0 0 0 73 56
   12:
     name: Close
+    id: close
     description: |
       Explicit indicator for a connection about to close.
       Can be used to differentiate between deliberate and accidental disconnections.
@@ -346,6 +413,7 @@ messages:
         bytes: 3 11 0 12 0 0 0 0 0 8 240
   13:
     name: Heartbeat
+    id: heartbeat
     description: |
       A message sent to let the receiver know the sender is still active/alive.
       Can also be used to check if a connection is still active, as the message should be ACKed.
@@ -356,6 +424,7 @@ messages:
     data:
       6:
         name: Battery Percent
+        id: batteryPct
         description: Devices send battery percentage in heartbeats
         type: uint8
     examples:
@@ -386,25 +455,31 @@ messages:
         bytes: 3 18 0 13 0 0 0 1 0 202 5 104 101 108 108 111 145 78
   14:
     name: Config
+    id: config
     alpha: Config interactions are currently in an experimental phase, and the API may change in future, and documentation may be incomplete.
     group: ungrouped
     data:
       7:
         name: Key
+        id: key
         type: uint16
       9:
         name: Payload
+        id: payload
         description: Payload for the config
         type: bytes
         values:
           19:
             name: RtkMinUsableSatDb
+            id: rtkMinUsableSatDb
             description: Minimum usable satellite db
           20:
             name: RtkMinElevation
+            id: rtkMinElevation
             description: RtkMinElevation
   15:
     name: Position
+    id: position
     description: |
       When setting up of changing a SUBSCRIpition, particularly intervals <= 1000, the GNSS module may need to reboot to apply the changes, and it may take time to get a fix.
     group: location
@@ -413,6 +488,7 @@ messages:
     data:
       1:
         name: Timestamp
+        id: timestamp
         description: |
           Timestamp of when the position was taken
           May be invalid if the GPS has not locked in yet (when type is 'invalid')
@@ -420,9 +496,12 @@ messages:
         type: uint64
         readonly: true
         unit: ms since epoch
-        parser: timestamp
+        parsers:
+          - id: timestampIso
+            parser: timestamp
       2:
         name: Latitude
+        id: lat
         raw-description: Fixed point representation of Latitude.
         type: int32
         readonly: true
@@ -430,6 +509,7 @@ messages:
         unit: degree
       3:
         name: Longitude
+        id: lon
         raw-description: Fixed point representation of Longitude.
         type: int32
         readonly: true
@@ -437,6 +517,7 @@ messages:
         unit: degree
       4:
         name: Altitude
+        id: alt
         description: Altitude
         raw-description: Altitude in mm.
         type: int32
@@ -445,6 +526,7 @@ messages:
         unit: meter
       5:
         name: Accuracy
+        id: acc
         description: Accuracy
         type: uint16
         readonly: true
@@ -453,6 +535,7 @@ messages:
         raw-unit: cm
       6:
         name: Course
+        id: course
         description: Course over ground
         raw-description: Course over ground centi-degrees (cd).
         type: uint16
@@ -461,6 +544,7 @@ messages:
         unit: degree
       7:
         name: Speed
+        id: speed
         description: Speed
         raw-description: Speed in meters per second (m/s).
         type: uint16
@@ -469,49 +553,68 @@ messages:
         unit: km/h
       8:
         name: Satellites
+        id: sats
         type: uint8
         readonly: true
         unit: count
       9:
         name: CN0
+        id: cn0
         description: Average CN0. Carrier to noise density. Higher is better.
         type: uint8
         readonly: true
         unit: dB-Hz
       10:
         name: Type
+        id: type
         description: Position type
         type: uint8
         readonly: true
         values:
           0:
             name: invalid
+            id: invalid
           1:
             name: fixed
+            id: fixed
           2:
             name: reserved
+            id: reserved
             description: Can indicate a 2D fix, low accuracy, should be treated as invalid
           3:
             name: standalone
+            id: gps
             description: standalone 3d fix
           4:
             name: rtk-float
+            id: rtkFloat
           5:
             name: rtk-fix
+            id: rtkFix
+        parsers:
+          - id: typeName
+            parser: values
       11:
         name: Source
+        id: source
         description: Position source
         type: uint8
         readonly: true
         values:
           0:
             name: gps
+            id: gps
             description: Position has come from a GPS module.
           1:
             name: rtk
+            id: rtk
             description: Position has come from an RTK module. This does not mean the position is RTK corrected.
+        parsers:
+          - id: sourceName
+            parser: values
       12:
         name: Correction Age
+        id: correctionAge
         description: Age of the correction data (RTK or DGNSS) from NMEA GGA sentence
         type: uint8
         readonly: true
@@ -536,70 +639,108 @@ messages:
           generator: Lightbug cloud forwarding system
   16:
     name: Satellite Data
+    id: satelliteData
     group: location
     header:
       - 5
     data:
       1:
         name: SNR Average
+        id: snrAvg
         description: Average signal-to-noise ratio across all satellites
         type: uint8
       2:
         name: SNR Minimum
+        id: snrMin
         description: Minimum signal-to-noise ratio among all satellites
         type: uint8
       3:
         name: SNR Maximum
+        id: snrMax
         description: Maximum signal-to-noise ratio among all satellites
         type: uint8
       4:
         name: Total Satellites
+        id: totalSats
         description: Total number of satellites in view
         type: uint8
       5:
         name: Good Satellites
+        id: goodSats
         description: Heuristic for signal quality (defined as satellites with SNR>=38dBm. This number should be higher than 8 for a good RTK fix, typically)
         type: uint8
       10:
         name: GPS L1
+        id: gpsL1
         description: Summary data for GPS L1 satellites
         type: bytes
-        parser: gsv
+        parsers:
+          - id: gpsL1
+            parser: gsv
+            replace-root: true
       11:
         name: GPS Lx
+        id: gpsLx
         description: Summary data for GPS L2 or L5 satellite signals (depending on hardware)
         type: bytes
-        parser: gsv
+        parsers:
+          - id: gpsLx
+            parser: gsv
+            replace-root: true
       12:
         name: GLONASS L1
+        id: glonassL1
         description: Summary data for GLONASS L1 satellite signals
         type: bytes
-        parser: gsv
+        parsers:
+          - id: glonassL1
+            parser: gsv
+            replace-root: true
       13:
         name: GLONASS Lx
+        id: glonassLx
         description: Summary data for GLONASS L2 or L5 satellite signals (depending on hardware)
         type: bytes
-        parser: gsv
+        parsers:
+          - id: glonassLx
+            parser: gsv
+            replace-root: true
       14:
         name: Beidou L1
+        id: beidouL1
         description: Summary data for Beidou L1 satellite signals
         type: bytes
-        parser: gsv
+        parsers:
+          - id: beidouL1
+            parser: gsv
+            replace-root: true
       15:
         name: Beidou Lx
+        id: beidouLx
         description: Summary data for Beidou L2 or L5 satellite signals (depending on hardware)
         type: bytes
-        parser: gsv
+        parsers:
+          - id: beidouLx
+            parser: gsv
+            replace-root: true
       16:
         name: Galileo L1
+        id: galileoL1
         description: Summary data for Galileo L1 satellite signals
         type: bytes
-        parser: gsv
+        parsers:
+          - id: galileoL1
+            parser: gsv
+            replace-root: true
       17:
         name: Galileo Lx
+        id: galileoLx
         description: Summary data for Galileo L2 or L5 satellite signals (depending on hardware)
         type: bytes
-        parser: gsv
+        parsers:
+          - id: galileoLx
+            parser: gsv
+            replace-root: true
     methods:
       GET: null
       SUBSCRIBE: null
@@ -613,6 +754,7 @@ messages:
           generator: RV1 P1 v2287
   30:
     name: Transmit Now
+    id: transmitNow
     description: |
       Trigger a transmission, to Lightbug cloud, over GSM.
 
@@ -626,22 +768,26 @@ messages:
     data:
       1:
         name: GPS Search
+        id: gpsSearch
         description: |
           0 = no gps fix required
           1 = wait for GPS lock (or timeout) before send
         type: bool
       2:
         name: Payload
+        id: payload
         description: |
           Data to send, can be up to 200 bytes.
           Only supported by devices that support uart_blob sensorReading type. (Currently only Vipers)
         type: bytes
       3:
         name: Retries
+        id: retries
         description: Number of retries [0-10]. Exponential backoff (10 = 25h)
         type: uint8
       4:
         name: Priority
+        id: priority
         description: 0 - 1
         type: uint8
     examples:
@@ -651,30 +797,36 @@ messages:
         bytes: 3 20 0 30 0 3 0 3 4 1 1 131 1 1 1 92 0 0 84 149
   31:
     name: GSM Control
+    id: gsmControl
     group: gsm
     header:
       - 5
     data:
       1:
-        name: Enable Flight mode
+        name: Flight mode
+        id: flightMode
         type: bool
       2:
         name: Duration
+        id: duration
         type: uint32
         unit: minutes
       3:
-        name: Is GSM Active
+        name: GSM Active
+        id: gsmActive
         type: bool
         readonly: true
       4:
         name: Request Control
+        id: requestControl
         description: Note this will always be true when GETting state in flight mode (as control has been taken).
         type: bool
     methods:
       GET: null
       SET: null
   32:
-    name: GSM Request Ownership
+    name: GSM Ownership
+    id: gsmOwnership
     description: Only available for implant modules that expose modem control over usb to a host directly
     group: gsm
     header:
@@ -682,16 +834,19 @@ messages:
     data:
       2:
         name: Duration
+        id: duration
         description: in mins
         type: uint32
       4:
         name: Request Control
+        id: requestControl
         type: bool
     methods:
       GET: null
       SET: null
   33:
     name: SIM settings
+    id: simSettings
     description: For devices that have dual-sim functionality, control which SIM is active and set APN parameters for SIM2
     group: gsm
     header:
@@ -699,6 +854,7 @@ messages:
     data:
       1:
         name: Active SIM
+        id: active
         description: |
           Activate the specified SIM
           If SIM2 is selected, sending the APN settings is required
@@ -706,19 +862,25 @@ messages:
         values:
           0:
             name: SIM1
+            id: sim1
           1:
             name: SIM2
+            id: sim2
       2:
         name: SIM2 APN
+        id: sim2Apn
         type: ascii
       3:
         name: SIM2 APN Username
+        id: sim2ApnUser
         type: ascii
       4:
         name: SIM2 APN Password
+        id: sim2ApnPass
         type: ascii
       8:
         name: SIM2 ICCID
+        id: sim2Iccid
         description: SIM2 ICCID if known, read-only
         type: ascii
     methods:
@@ -741,6 +903,7 @@ messages:
         bytes: 3 20 0 33 0 2 0 1 5 4 23 0 0 0 1 2 0 0 123 128
   34:
     name: Device Status
+    id: deviceStatus
     description: |
       General status of the device.
     group: info
@@ -749,37 +912,48 @@ messages:
     data:
       1:
         name: Battery
+        id: bat
         description: Battery level
         type: uint8
         unit: '%'
       2:
         name: Signal Strength
+        id: signalStrength
         description: Signal strength
         type: uint8
         unit: '%'
       3:
         name: Mode
+        id: mode
         description: Device mode
         type: uint8
         values:
           0:
             name: Sleep
+            id: sleep
           1:
             name: Awake
+            id: awake
       4:
         name: Network type
+        id: networkType
         type: uint8
         values:
           0:
             name: No network
+            id: noNetwork
           2:
             name: GSM (2G)
+            id: gsm2g
           3:
             name: WCDMA (3G)
+            id: wcdma3g
           4:
             name: LTE (4G)
+            id: lte4g
       5:
         name: Network MNC
+        id: mnc
         description: |
           MNC of the currently connected network.
           Can be 0 if not connected.
@@ -787,6 +961,7 @@ messages:
         type: uint16
       6:
         name: Network MCC
+        id: mcc
         description: |
           MCC of the currently connected network.
           Can be 0 if not connected.
@@ -794,10 +969,12 @@ messages:
         type: uint16
       7:
         name: Firmware Version
+        id: fw
         description: Firmware version as a single integer, e.g. 2287
         type: uint32
       10:
         name: Device Type
+        id: deviceType
         description: |
           Type of device, relates to the SN prefix.
           For devices released from 2025 onwards, this is documented on the device specification page.
@@ -819,6 +996,7 @@ messages:
           generator: RH2 P1 v2287
   35:
     name: Device IDs
+    id: deviceIds
     description: |
       Used to GET the various IDs of the device.
     group: info
@@ -827,16 +1005,19 @@ messages:
     data:
       1:
         name: ID
+        id: id
         description: |
           Unique ID for the device which is used in the cloud API.
           uint32 or uint64 only
         type: uint
       2:
         name: IMEI
+        id: imei
         description: IMEI - 15 characters
         type: ascii
       3:
         name: ICCID
+        id: iccid
         description: ICCID - 19 to 22 characters
         type: ascii
     methods:
@@ -856,6 +1037,7 @@ messages:
           generator: RH2 P1 v2287
   36:
     name: Device Time
+    id: deviceTime
     description: |
       Device time information, if known.
       Currently the best available time will be provided.
@@ -866,37 +1048,47 @@ messages:
     data:
       1:
         name: Unix Time
+        id: unix
         description: Unix time
         raw-description: Unix timestamp in s (number of seconds since 1 Jan 1970)
         type: uint32
         unit: s since epoch
-        parser: timestamp
+        parsers:
+          - id: unixIso
+            parser: timestamp
       2:
         name: Year
+        id: year
         description: Year
         type: uint16
       3:
         name: Month
+        id: month
         description: Month
         type: uint8
       4:
         name: Date
+        id: date
         description: Date in month
         type: uint8
       5:
         name: Weekday
+        id: weekday
         description: Weekday (0 = sunday, 1 = monday etc)
         type: uint8
       6:
         name: Hour
+        id: hour
         description: Hour
         type: uint8
       7:
         name: Minute
+        id: minute
         description: Minute
         type: uint8
       8:
         name: Second
+        id: second
         description: Second
         type: uint8
     methods:
@@ -916,6 +1108,7 @@ messages:
           generator: RH2 P1 v2287
   38:
     name: Button Press
+    id: buttonPress
     description: Press of a device button
     group: interface
     header:
@@ -923,6 +1116,7 @@ messages:
     data:
       1:
         name: Button ID
+        id: button
         description: |
           ID of the button.
           Zero indexed.
@@ -935,20 +1129,26 @@ messages:
         values:
           0:
             name: Action
+            id: action
           1:
             name: Up_Left
+            id: upLeft
           2:
             name: Down_Right
+            id: downRight
       2:
         name: Duration
+        id: duration
         description: Duration of the button press in ms
         type: uint32
       3:
         name: Page ID
+        id: page
         description: ID of the page the button was on when pressed, if the device has a screen.
         type: uint8
       4:
         name: Menu Item
+        id: menuItem
         description: |
           ID of the menu item the button was on when pressed, if the device has a screen and a menu was showing.
           Zero indexed.
@@ -980,6 +1180,7 @@ messages:
           generator: RH2 P1 v2300
   39:
     name: GPS Control
+    id: gpsControl
     description: |
       Currently only accessible from Viper devices.
       Used to interact with the device GPS service.
@@ -990,31 +1191,40 @@ messages:
     data:
       1:
         name: GPS is on
+        id: gpsOn
         description: Status of the GPS, is it on?
         type: bool
         readonly: true
       2:
         name: Corrections Enabled
+        id: correctionsOn
         description: Request and apply correction data to the GPS, such as RTK.
         type: uint8
         values:
           0:
             name: Disabled
+            id: disabled
           1:
             name: Full RTCM stream
+            id: fullRtcmStream
       3:
         name: Start Mode
+        id: startMode
         description: Start mode of the GPS module.
         type: uint8
         values:
           1:
             name: Normal
+            id: normal
           2:
             name: Cold
+            id: cold
           3:
             name: Warm
+            id: warm
           4:
             name: Hot
+            id: hot
     methods:
       GET:
         description: Return the current state of the GPS module
@@ -1032,6 +1242,7 @@ messages:
         response: null
   40:
     name: Haptics Control
+    id: hapticsControl
     description: |
       Control the haptics
       The first haptics action after power-on will also result in the haptics driver being initialized, leading to a calibration.
@@ -1039,27 +1250,35 @@ messages:
     data:
       1:
         name: Pattern
+        id: pattern
         description: Pattern of haptics [1-3]
         type: uint8
         values:
           1:
             name: Fade
+            id: fade
             description: Default
           2:
             name: Pulse
+            id: pulse
           3:
             name: Drop
+            id: drop
       2:
         name: Intensity
+        id: intensity
         description: Intensity of haptics [0-2]
         type: uint8
         values:
           0:
             name: Low
+            id: low
           1:
             name: Medium
+            id: medium
           2:
             name: High
+            id: high
     examples:
       - name: Medium intensity fade
         bytes: 03 23 00 40 00 01 00 01 04 57 00 00 00 02 00 01 02 01 01 01 01 21 242
@@ -1081,6 +1300,7 @@ messages:
           generator: RH2 ESP32 Toit
   41:
     name: Temperature
+    id: temperature
     description: Temperature information
     group: info
     header:
@@ -1088,6 +1308,7 @@ messages:
     data:
       1:
         name: Temperature
+        id: temperature
         description: Temperature in Celsius
         type: float32
         unit: C
@@ -1108,44 +1329,58 @@ messages:
           generator: RH2 P1 v2287
   42:
     name: Buzzer Control
+    id: buzzerControl
     description: Control the buzzer. Either pass duration and frequency, Or all fields without frequency.
     group: interface
     data:
       1:
         name: Duration
+        id: duration
         description: Duration of buzzer in milliseconds
         type: uint16
       2:
         name: Sound Type
+        id: soundType
         description: A predefined sound type
         type: uint8
         values:
           0:
             name: Solid
+            id: solid
           1:
             name: Siren
+            id: siren
           2:
             name: Beep Beep
+            id: beepBeep
           3:
             name: Ambulance
+            id: ambulance
           4:
             name: FireTruck
+            id: firetruck
           5:
             name: Positive1
+            id: positive1
           6:
             name: SlowBeep
+            id: slowbeep
           7:
             name: Alarm
+            id: alarm
       3:
         name: Intensity
+        id: intensity
         description: Intensity of buzzer. [0-2]. Work as frequency control for buzzer types (moving towards and away from resonance).
         type: uint8
       4:
         name: Run Count
+        id: runCount
         description: Number of times to run the buzzer
         type: uint8
       5:
         name: Frequency
+        id: frequency
         description: Frequency of buzzer of KHz.(if frequency is sent, only duration and frequency parameters will be inside the message)
         type: float32
     examples:
@@ -1163,6 +1398,7 @@ messages:
           generator: RH2 ESP32 Toit
   43:
     name: Battery Status
+    id: batteryStatus
     description: |
       Get the battery status of a device
     group: info
@@ -1171,11 +1407,13 @@ messages:
     data:
       1:
         name: Voltage
+        id: voltage
         description: Current battery voltage
         type: float32
         unit: V
       2:
         name: Percent
+        id: percent
         description: Current battery percent
         type: uint8
         unit: '%'
@@ -1196,6 +1434,7 @@ messages:
           generator: RH2 P1 v2287
   44:
     name: Pressure
+    id: pressure
     description: Pressure information
     group: info
     header:
@@ -1203,6 +1442,7 @@ messages:
     data:
       1:
         name: Pressure
+        id: pressure
         description: Pressure in millibar / hectopascals
         type: float32
         unit: hPa
@@ -1217,6 +1457,7 @@ messages:
           generator: RH2 ESP32 Toit
   45:
     name: Alarm
+    id: alarm
     description: |-
       Trigger an alarm, using buzzer, haptics, strobe and optional prompt.
       Duration header field will control the time the alert is played for, unless legacy alarm action is used.
@@ -1224,47 +1465,59 @@ messages:
     data:
       1:
         name: Legacy alarm action
+        id: legacyAlarmAction
         description: 4 bytes of encoded data relating to legacy alarm formats. Can not be used with other options. Note using this field will override Duration header field setting
         type: uint32
       2:
         name: Duration
+        id: duration
         description: Duration of alarm in seconds. Max 127s
         type: uint8
       3:
         name: Buzzer Pattern
+        id: buzzerPattern
         type: uint8
       4:
         name: Buzzer Intensity
+        id: buzzerIntensity
         type: uint8
       5:
         name: Haptics Pattern
+        id: hapticsPattern
         type: uint8
       6:
         name: Haptics Intensity
+        id: hapticsIntensity
         type: uint8
       7:
         name: Strobe Pattern
+        id: strobePattern
         type: uint8
       8:
         name: Strobe Intensity
+        id: strobeIntensity
         type: uint8
       9:
         name: Prompt message
+        id: promptMessage
         description: |-
           Message to show on the device prompt If not set, no prompt will be shown
           Prompts can be dismissed by button presses, or automatically after the prompt timeout has expired
         type: ascii
       10:
         name: Prompt timeout
+        id: promptTimeout
         description: |
           Timeout for the prompt in seconds
           If not set, prompt will stay until dismissed with a button press
         type: uint8
       11:
         name: Prompt button 1
+        id: promptButton1
         type: ascii
       12:
         name: Prompt button 2
+        id: promptButton2
         type: ascii
     examples:
       - name: Show an LB prompt on the screen for 1 second
@@ -1275,15 +1528,18 @@ messages:
           generator: Generate tool
   46:
     name: Buzzer Sequence
+    id: buzzerSequence
     description: Play a sequence of buzzer sounds
     group: interface
     data:
       6:
         name: Frequencies
+        id: frequencies
         description: Array of frequencies in Hz as floats
         type: float32[]
       7:
         name: Timings
+        id: timings
         description: Array of timings in ms as uint16
         type: uint16[]
     examples:
@@ -1295,20 +1551,24 @@ messages:
           generator: RH2 ESP32 Toit
   47:
     name: CPU2 Sleep
+    id: cpu2Sleep
     alpha: This message is specified, but not actively used by the Toit SDK at this time.
     description: Request CPU2 sleep
     group: power
     data:
       1:
         name: Interval
+        id: interval
         description: Interval in ms to turn off the CPU2 for, before turning it back on
         type: uint32
       2:
         name: Wake on Event
+        id: wakeOnEvent
         description: Should CPU1 wake up CPU2 on new events / messages
         type: bool
   48:
     name: Power Profile
+    id: powerProfile
     description: |
       See how much power is or has been used by the device, as well as current power usage and if the device is charging.
     group: power
@@ -1317,6 +1577,7 @@ messages:
     data:
       3:
         name: Total power
+        id: totalPower
         description: |
           Total power used, since a point in time decided by the method used.
           For messages from a SUBSCRIBE, this is the mAH used since the subscription was started
@@ -1325,11 +1586,13 @@ messages:
         unit: mAh
       4:
         name: Current
+        id: current
         description: Instantaneous Current power usage
         type: float32
         unit: mA
       5:
         name: Charging
+        id: charging
         description: Is the device currently charging
         type: bool
     methods:
@@ -1370,6 +1633,7 @@ messages:
           generator: RH2 P1 v2296
   49:
     name: CPU1 Reset
+    id: cpu1Reset
     group: power
     examples:
       - name: Reset CPU1
@@ -1380,6 +1644,7 @@ messages:
           generator: Generate tool
   50:
     name: Link Control
+    id: linkControl
     description: |
       Control a link to the internet to send and receive messages.
       Used to control a remote device link, such as connecting to a UDP server, and using the V3 messaging protocol to communicate with it.
@@ -1390,18 +1655,22 @@ messages:
     data:
       1:
         name: IP Address
+        id: ip
         description: IP Address of the link, if not using FQDN
         type: ascii
       2:
         name: Port
+        id: port
         description: UDP Port for the link
         type: uint16
       3:
         name: Enable
+        id: enable
         description: Enable or disable the link
         type: bool
       4:
         name: FQDN
+        id: fqdn
         description: FQDN of the link, if not using IP address
         type: ascii
     methods:
@@ -1428,6 +1697,7 @@ messages:
           generator: Generate tool
   53:
     name: Protection Level
+    id: protectionLevel
     description: |
       Get information about the protection level - i.e. 95% confidence accuracy ellipse. Only supported on RTK enabled products.
       Used to retrieve ublox protection level information, on devices that have it.
@@ -1437,20 +1707,24 @@ messages:
     data:
       1:
         name: Valid
+        id: valid
         description: Indicates if the protection level data is valid
         type: uint8
       2:
         name: latitude
+        id: lat
         description: Protection level in the Lat direction (North South)
         type: uint32
         unit: mm
       3:
         name: longitude
+        id: lon
         description: Protection level in the Lon direction (East West)
         type: uint32
         unit: mm
       4:
         name: Altitude
+        id: alt
         description: Protection level in the Z direction
         type: uint32
         unit: mm
@@ -1458,6 +1732,7 @@ messages:
       GET: null
   54:
     name: Charger Settings
+    id: chargerSettings
     description: For products with configurable charge settings (notably NOT Vehicle RTK), get and define charging parameters
     group: location
     header:
@@ -1465,16 +1740,19 @@ messages:
     data:
       1:
         name: Input Current Limit
+        id: inputCurrentLimit
         description: Maximum power draw allowed from Vin. Typically higher than Charge Current Limit (additional current is used to power device operation whilst charging)
         type: uint16
         unit: mA
       2:
         name: Charge Current Limit
+        id: chargeCurrentLimit
         description: Maximum charge rate for the battery. Recommended value is 0.5C (where C is the battery capacity)
         type: uint16
         unit: mA
       3:
         name: Charge Termination Voltage
+        id: chargeTerminationVoltage
         description: Target charge voltage for the battery. Typically 4.25V for lithium ion batteries.
         type: uint16
         unit: mV
@@ -1483,24 +1761,29 @@ messages:
       SET: null
   55:
     name: WiFi Scan
+    id: wifiScan
     group: scan
     header:
       - 5
     data:
       1:
         name: SSID
+        id: ssid
         description: SSID of the access point
         type: ascii
       2:
         name: MAC
+        id: mac
         description: MAC Address of the access point, as 6 bytes
         type: bytes
       3:
         name: RSSI
+        id: rssi
         description: Signal strength of the access point
         type: int8
       4:
         name: Channel
+        id: channel
         description: WiFi channel of the access point
         type: uint8
     methods:
@@ -1520,19 +1803,23 @@ messages:
           generator: RH2 ESP32 Toit
   56:
     name: BLE Scan
+    id: bleScan
     group: scan
     header:
       - 5
     data:
       1:
         name: Advertising Data
+        id: advertisingData
         type: bytes
       2:
         name: MAC
+        id: mac
         description: MAC Address of the access point, as 6 bytes
         type: bytes
       3:
         name: RSSI
+        id: rssi
         description: Signal strength
         type: int8
     methods:
@@ -1552,6 +1839,7 @@ messages:
           generator: RH2 ESP32 Toit
   1004:
     name: LORA
+    id: lora
     alpha: LORA interactions are currently in an experimental phase, and the API may change in future, and documentation may be incomplete.
     description: |
       Interaction with LORA.
@@ -1562,41 +1850,51 @@ messages:
     data:
       2:
         name: Payload
+        id: payload
         type: bytes
       4:
         name: Spread Factor
+        id: spreadFactor
         description: 8-12
         type: uint8
       5:
         name: Coding Rate
+        id: codingRate
         description: '1-4. [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]'
         type: uint8
       6:
         name: Bandwidth
+        id: bandwidth
         description: '0-2. [0: 125 kHz, 1: 250 kHz, 2: 500 kHz]'
         type: uint8
       7:
         name: Center Frequency
+        id: centerFrequency
         description: 860000000-925000000. value in hz
         type: uint32
       8:
         name: TX Power
+        id: txPower
         description: 0-22
         type: uint8
       9:
         name: Preamble Length
+        id: preambleLength
         description: 4-128
         type: uint8
       10:
         name: Receive Ms
+        id: receiveMs
         description: How long to listen for after a transmit, in ms
         type: uint32
       11:
         name: Sleep
+        id: sleep
         description: True will tell the LORA to stop all activity now
         type: bool
       12:
         name: State
+        id: state
         type: uint
         readonly: true
     methods:
@@ -1607,24 +1905,31 @@ messages:
       UNSUBSCRIBE: null
   2000:
     name: RTCM Data
+    id: rtcmData
     description: Data relating to RTCM (Radio Technical Commission for Maritime Services) correction data for high-precision GNSS positioning.
     group: ""
     data:
       1:
         name: Data
+        id: data
         description: |
           RTCM v3 message data as complete frames (including D3 header, length, payload, and CRC) or raw payload bytes.
           Can be chunked and split across multiple fields in a message with incrementing field numbers.
         type: bytes
-        parser: rtcm
+        parsers:
+          - id: data
+            parser: rtcm
+            replace-root: true
       100:
         name: Module Type
+        id: moduleType
         type: uint8
     codegen:
       exclude:
         - toit
   10008:
     name: Base Page
+    id: basePage
     description: |
       Draw a base device page.
       Base pages are pre-defined pages in the device firmware, such as the home page.
@@ -1633,23 +1938,28 @@ messages:
     data:
       3:
         name: Page ID
+        id: pageId
         description: |
           The page to draw.
         type: uint8
         values:
           1:
             name: Home Page
+            id: homePage
             description: The preset home page programmed into the device
       5:
         name: Status bar Enable
+        id: statusBarEnable
         description: Show the status bar
         type: bool
       6:
         name: Redraw Type
+        id: redrawType
         type: uint8
         values:
           0:
             name: Auto
+            id: auto
             description: |
               Automatically choose the redraw type, based on page id.
               No page id provided will assume the same page id as last set.
@@ -1657,16 +1967,19 @@ messages:
               Changed page id will clear the buffer and do a full redraw.
           1:
             name: PartialRedraw
+            id: partialRedraw
             description: |
               Only redraw the parts of the screen changed in this message.
               Leaves the buffer intact.
               Will occasionally do a full redraw if the firmware thinks it is needed.
           2:
             name: FullRedraw
+            id: fullRedraw
             description: |
               Clear the screen buffer, and redraw the entire screen
           3:
             name: BufferOnly
+            id: bufferOnly
             description: |
               Do not redraw the screen, only update the buffer.
               Will clear the buffer if the page id has changed.
@@ -1674,10 +1987,12 @@ messages:
               Similar to ClearDontDraw, but only clears the buffer if the page id has changed.
           4:
             name: FullRedrawWithoutClear
+            id: fullRedrawWithoutClear
             description: |
               Redraw the entire screen, without clearing the buffer
           5:
             name: ClearDontDraw
+            id: clearDontDraw
             description: Clear the screen buffer (always), but don't redraw. Similar to BufferOnly, but always clears the buffer.
     examples:
       - name: Request the home page (page 1) to be drawn
@@ -1688,6 +2003,7 @@ messages:
           generator: RH2 ESP32 Toit.
   10009:
     name: Text Page
+    id: textPage
     description: |
       Display or alter a text page on the device screen, with up to 5 lines of text.
       A text page can have a title, and an optional status bar.
@@ -1697,6 +2013,7 @@ messages:
     data:
       3:
         name: Page ID
+        id: pageId
         description: |
           The page to draw or update.
           Page ids 0-10 are reserved for system use.
@@ -1704,45 +2021,58 @@ messages:
         type: uint8
       4:
         name: Page Title
+        id: pageTitle
         description: Title of the page
         type: ascii
       5:
         name: Status bar Enable
+        id: statusBarEnable
         description: Show the status bar
         type: bool
       6:
         name: Redraw Type
+        id: redrawType
         type: uint8
         values:
           0:
             name: Auto
+            id: auto
             description: Automatically choose the redraw type
           1:
             name: PartialRedraw
+            id: partialRedraw
             description: Only redraw the parts of the screen changed in this message
           2:
             name: FullRedraw
+            id: fullRedraw
             description: Clear the screen buffer, and redraw the entire screen
           3:
             name: BufferOnly
+            id: bufferOnly
             description: Update the buffer only, do not redraw
           4:
             name: FullRedrawWithoutClear
+            id: fullRedrawWithoutClear
             description: Redraw the entire screen, without clearing the buffer
           5:
             name: ClearDontDraw
+            id: clearDontDraw
             description: Clear the screen buffer, but don't redraw
       100:
         name: Line 1
+        id: line1
         type: ascii
       101:
         name: Line 2
+        id: line2
         type: ascii
       102:
         name: Line 3
+        id: line3
         type: ascii
       103:
         name: Line 4
+        id: line4
         type: ascii
     examples:
       - name: Draw page 200, with a title and 4 lines of text
@@ -1753,6 +2083,7 @@ messages:
           generator: RH2 ESP32 Toit.
   10010:
     name: Menu Page
+    id: menuPage
     description: |
       Draw or change a menu.
       Display or alter a menu page on the device screen.
@@ -1760,6 +2091,7 @@ messages:
     data:
       3:
         name: Page ID
+        id: pageId
         description: |
           The page to draw or update.
           Page ids 0-10 are reserved for system use.
@@ -1768,73 +2100,95 @@ messages:
         type: uint8
       30:
         name: Item count
+        id: itemCount
         description: Number of items in the menu (max 20). Required.
         type: uint8
       31:
         name: Selected item
+        id: selectedItem
         description: |
           Optionally select a specific item, else the first will be unsubscribed.
           Zero indexed.
         type: uint8
       100:
         name: Item 1
+        id: item1
         type: ascii
       101:
         name: Item 2
+        id: item2
         type: ascii
       102:
         name: Item 3
+        id: item3
         type: ascii
       103:
         name: Item 4
+        id: item4
         type: ascii
       104:
         name: Item 5
+        id: item5
         type: ascii
       105:
         name: Item 6
+        id: item6
         type: ascii
       106:
         name: Item 7
+        id: item7
         type: ascii
       107:
         name: Item 8
+        id: item8
         type: ascii
       108:
         name: Item 9
+        id: item9
         type: ascii
       109:
         name: Item 10
+        id: item10
         type: ascii
       110:
         name: Item 11
+        id: item11
         type: ascii
       111:
         name: Item 12
+        id: item12
         type: ascii
       112:
         name: Item 13
+        id: item13
         type: ascii
       113:
         name: Item 14
+        id: item14
         type: ascii
       114:
         name: Item 15
+        id: item15
         type: ascii
       115:
         name: Item 16
+        id: item16
         type: ascii
       116:
         name: Item 17
+        id: item17
         type: ascii
       117:
         name: Item 18
+        id: item18
         type: ascii
       118:
         name: Item 19
+        id: item19
         type: ascii
       119:
         name: Item 20
+        id: item20
         type: ascii
     examples:
       - name: Display a menu page with 3 options
@@ -1857,11 +2211,13 @@ messages:
           generator: Generate tool
   10011:
     name: Draw Element
+    id: drawElement
     description: Draw an element
     group: interface
     data:
       3:
         name: Page ID
+        id: pageId
         description: |
           The page to draw or update.
           Page ids 0-10 are reserved for system use.
@@ -1869,53 +2225,67 @@ messages:
         type: uint8
       5:
         name: Status bar Enable
+        id: statusBarEnable
         description: Show the status bar
         type: bool
       6:
         name: Redraw Type
+        id: redrawType
         type: uint8
         values:
           0:
             name: Auto
+            id: auto
             description: Automatically choose the redraw type
           1:
             name: PartialRedraw
+            id: partialRedraw
             description: Only redraw the parts of the screen changed in this message
           2:
             name: FullRedraw
+            id: fullRedraw
             description: Clear the screen buffer, and redraw the entire screen
           3:
             name: BufferOnly
+            id: bufferOnly
             description: Update the buffer only, do not redraw
           4:
             name: FullRedrawWithoutClear
+            id: fullRedrawWithoutClear
             description: Redraw the entire screen, without clearing the buffer
           5:
             name: ClearDontDraw
+            id: clearDontDraw
             description: Clear the screen buffer, but don't redraw
       7:
         name: X
+        id: x
         description: X coordinate for the start of the element. If padded, this is the start of the padded area.
         type: uint
       8:
         name: "Y"
+        id: "y"
         description: Y coordinate for the start of the element. If padded, this is the start of the padded area.
         type: uint
       9:
         name: Width
+        id: width
         description: Width of the element. If padded this does not include the padding.
         type: uint
       10:
         name: Height
+        id: height
         description: Height of the element. If padded this does not include the padding.
         type: uint
       11:
         name: Type
+        id: type
         description: Type of element to draw
         type: uint8
         values:
           0:
             name: Box
+            id: box
             description: |
               Draw a Box.
               Requires x, y (top left corner), width and height.
@@ -1925,90 +2295,116 @@ messages:
               Can have a border with the line width parameter.
           1:
             name: Circle
+            id: circle
             description: |
               Draw a circle.
               Requires x, y (top left corner) and width.
               Can have a border with the line width parameter.
           2:
             name: Line
+            id: line
             description: |
               Draw a line.
               Requires x, y (start point), width and height (end point).
               Can have line width and line type (dashed or solid).
           3:
             name: Bitmap
+            id: bitmap
             description: |
               Draw a bitmap, from provided data.
               Requires x, y (top left corner), width, height and bitmap data.
       12:
         name: Style
+        id: style
         description: Style of the element to draw. Default is BlackOnClear.
         type: uint8
         values:
           0:
             name: BlackOnClear
+            id: blackOnClear
           1:
             name: WhiteOnBlack
+            id: whiteOnBlack
           2:
             name: BlackOutline
+            id: blackOutline
           3:
             name: WhiteOutline
+            id: whiteOutline
       13:
         name: FontSize
+        id: fontSize
         description: Size of the font to use. Default is Medium.
         type: uint8
         values:
           0:
             name: Small
+            id: small
           1:
             name: Medium
+            id: medium
           2:
             name: Large
+            id: large
       14:
         name: TextAlign
+        id: textAlign
         description: Alignment of the text. Default is Middle.
         type: uint8
         values:
           0:
             name: Left
+            id: left
           1:
             name: Middle
+            id: middle
           2:
             name: Right
+            id: right
       15:
         name: LineWidth
+        id: lineWidth
         description: Default is 1. Max is 8.
         type: uint8
       16:
         name: Padding
+        id: padding
         description: Padding inside the element (in terms of x and y). Default is 0.
         type: uint8
       17:
         name: Radius
+        id: radius
         description: For use with circle, or corner rounding. Default is 0.
         type: uint8
       18:
         name: LineType
+        id: lineType
         description: Default is Solid.
         type: uint8
         values:
           0:
             name: Solid
+            id: solid
           1:
             name: Dashed
+            id: dashed
       19:
         name: X2
+        id: x2
         description: Second X coordinate, primarily for lines. Min 0, Max WIDTH -1.
         type: uint
       20:
         name: Y2
+        id: y2
         description: Second Y coordinate, primarily for lines. Min 0, Max HEIGHT -1.
         type: uint
       25:
         name: Bitmap
+        id: bitmapData
         type: bytes
       100:
         name: Text
+        id: text
         type: ascii
     examples:
       - name: Draw circle in the middle of a page

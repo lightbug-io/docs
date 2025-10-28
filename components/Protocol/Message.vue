@@ -609,7 +609,7 @@ export default defineComponent({
                         const headerValue = readTypedData(dataBytes, headerValueType);
 
                         // Get unit information from field definition
-                        const parser = headerFieldDef.parser;
+                        const parser = headerFieldDef.parsers?.[0]?.parser;
                         const fieldUnit = headerFieldDef.unit;
                         rawUnit = headerFieldDef['raw-unit'];
                         conversion = headerFieldDef.conversion;
@@ -747,7 +747,7 @@ export default defineComponent({
                         const payloadValue = readTypedData(dataBytes, payloadValueType);
 
                         // Get unit information from field definition
-                        const parser = payloadFieldDef.parser;
+                        const parser = payloadFieldDef.parsers?.[0]?.parser;
                         const fieldUnit = payloadFieldDef.unit;
                         rawUnit = payloadFieldDef['raw-unit'];
                         conversion = payloadFieldDef.conversion;
