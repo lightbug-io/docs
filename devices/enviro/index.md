@@ -3,25 +3,19 @@ aside: true
 ---
 
 <script setup>
+import spec from '../../public/device-specs/enviro/v2.yaml?raw'
 import loadSpec from '../../utils/loadSpec'
-import { ref, onMounted } from 'vue'
 
-const specs = ref(null)
-
-onMounted(async () => {
-  const res = await fetch('/device-specs/enviro/v2.yaml')
-  const yamlText = await res.text()
-  specs.value = loadSpec(yamlText).value
-})
+const specs = loadSpec(spec)
 </script>
 
 # Enviro (EN2)
 
-<DownloadSpecButton v-if="specs" :spec="specs" deviceTitle="Enviro (EN2)" />
+<DownloadSpecButton :spec="specs" deviceTitle="Enviro (EN2)" />
 
 ## Images
 
-<DeviceSpecImages v-if="specs" :spec="specs" />
+<DeviceSpecImages :spec="specs" />
 
 ## Overview
 
@@ -43,11 +37,79 @@ onMounted(async () => {
 
 </template>
 
-<template v-if="specs && specs['user interface']">
+## Overview
+
+<DeviceSpecOverview :spec="specs" />
+
+<template v-if="specs.product.physical">
+
+## Physical
+
+<DeviceSpecSection :spec="specs" sectionName="physical" />
+
+</template>
+
+<template v-if="specs.product.integrations">
+
+## Integrations
+
+<DeviceSpecSection :spec="specs" sectionName="integrations" />
+
+</template>
+
+<template v-if="specs.product['user interface']">
 
 ## User Interface
 
-<DeviceSpecSection v-if="specs" :spec="specs" sectionName="user interface" />
+<DeviceSpecSection :spec="specs" sectionName="user interface" />
+
+</template>
+
+<template v-if="specs.product.connectivity">
+
+## Connectivity
+
+<DeviceSpecSection :spec="specs" sectionName="connectivity" />
+
+</template>
+
+<template v-if="specs.product.positioning">
+
+## Positioning
+
+<DeviceSpecSection :spec="specs" sectionName="positioning" />
+
+</template>
+
+<template v-if="specs.product.sensors">
+
+## Sensors
+
+<DeviceSpecSection :spec="specs" sectionName="sensors" />
+
+</template>
+
+<template v-if="specs.product.battery">
+
+## Battery
+
+<DeviceSpecSection :spec="specs" sectionName="battery" />
+
+</template>
+
+<template v-if="specs.product.charging">
+
+## Charging
+
+<DeviceSpecSection :spec="specs" sectionName="charging" />
+
+</template>
+
+<template v-if="specs.product.components">
+
+## Components
+
+<DeviceSpecSection :spec="specs" sectionName="components" />
 
 </template>
 

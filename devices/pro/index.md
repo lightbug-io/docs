@@ -3,97 +3,93 @@ aside: true
 ---
 
 <script setup>
+import spec from '../../public/device-specs/pro/v2.yaml?raw'
 import loadSpec from '../../utils/loadSpec'
-import { ref, onMounted } from 'vue'
 
-const specs = ref(null)
-
-onMounted(async () => {
-  const res = await fetch('/device-specs/pro/v2.yaml')
-  const yamlText = await res.text()
-  specs.value = loadSpec(yamlText).value
-})
+const specs = loadSpec(spec)
 </script>
 
 # Pro (PR2)
 
-<DownloadSpecButton v-if="specs" :spec="specs" deviceTitle="Pro (PR2)" />
+<DownloadSpecButton :spec="specs" deviceTitle="Pro (PR2)" />
 
 ## Images
 
-<DeviceSpecImages v-if="specs" :spec="specs" />
+<DeviceSpecImages :spec="specs" />
 
 ## Overview
 
-<DeviceSpecOverview v-if="specs" :spec="specs" />
+<DeviceSpecOverview :spec="specs" />
 
-<template v-if="specs && specs.physical">
+<template v-if="specs.product.physical">
 
 ## Physical
 
-<DeviceSpecSection v-if="specs" :spec="specs" sectionName="physical" />
+<DeviceSpecSection :spec="specs" sectionName="physical" />
 
 </template>
 
-<template v-if="specs && specs.integrations">
+<template v-if="specs.product.integrations">
 
 ## Integrations
 
-<DeviceSpecSection v-if="specs" :spec="specs" sectionName="integrations" />
+<DeviceSpecSection :spec="specs" sectionName="integrations" />
 
 </template>
 
-<template v-if="specs && specs['user interface']">
+<template v-if="specs.product['user interface']">
 
 ## User Interface
 
-<DeviceSpecSection v-if="specs" :spec="specs" sectionName="user interface" />
+<DeviceSpecSection :spec="specs" sectionName="user interface" />
 
 </template>
 
-<template v-if="specs && specs.connectivity">
+<template v-if="specs.product.connectivity">
 
 ## Connectivity
 
-<DeviceSpecSection v-if="specs" :spec="specs" sectionName="connectivity" />
+<DeviceSpecSection :spec="specs" sectionName="connectivity" />
 
 </template>
 
-<template v-if="specs && specs.positioning">
+<template v-if="specs.product.positioning">
 
 ## Positioning
 
-<DeviceSpecSection v-if="specs" :spec="specs" sectionName="positioning" />
+<DeviceSpecSection :spec="specs" sectionName="positioning" />
 
 </template>
 
-<template v-if="specs && specs.sensors">
+<template v-if="specs.product.sensors">
 
 ## Sensors
 
-<DeviceSpecSection v-if="specs" :spec="specs" sectionName="sensors" />
+<DeviceSpecSection :spec="specs" sectionName="sensors" />
 
 </template>
 
-<template v-if="specs && specs.battery">
+<template v-if="specs.product.battery">
 
 ## Battery
 
-<DeviceSpecSection v-if="specs" :spec="specs" sectionName="battery" />
+<DeviceSpecSection :spec="specs" sectionName="battery" />
 
 </template>
 
-<template v-if="specs && specs.charging">
+<template v-if="specs.product.charging">
 
 ## Charging
 
-<DeviceSpecSection v-if="specs" :spec="specs" sectionName="charging" />
+<DeviceSpecSection :spec="specs" sectionName="charging" />
 
 </template>
 
-<template v-if="specs && specs.components">
+<template v-if="specs.product.components">
 
-<DeviceSpecSection v-if="specs" :spec="specs" sectionName="components" />
+## Components
+
+<DeviceSpecSection :spec="specs" sectionName="components" />
 
 </template>
 

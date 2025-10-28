@@ -38,24 +38,27 @@ product:
       - "EDGE"
       territory: "Global"
       bands:
-        - B1
-        - B2
-        - B3
-        - B4
-        - B5
-        - B8
-        - B12
-        - B13
-        - B18
-        - B19
-        - B20
-        - B26
-        - B28
-        - B39
-        - 850MHz
-        - 900MHz
-        - 1800MHz
-        - 1900MHz
+        LTE_FDD:
+          - B1
+          - B2
+          - B3
+          - B4
+          - B5
+          - B8
+          - B12
+          - B13
+          - B18
+          - B19
+          - B20
+          - B26
+          - B28
+        LTE_TDD:
+          - B39
+        gsm:
+          - 850MHz
+          - 900MHz
+          - 1800MHz
+          - 1900MHz
     bluetooth-le:
       technologies:
       - "Low Power Broadcasting (iBeacon)"

@@ -21,7 +21,7 @@ const specs = loadSpec(spec)
 
 <DeviceSpecOverview :spec="specs" />
 
-<template v-if="specs.physical">
+<template v-if="specs.product.physical">
 
 ## Physical
 
@@ -29,7 +29,7 @@ const specs = loadSpec(spec)
 
 </template>
 
-<template v-if="specs.integrations">
+<template v-if="specs.product.integrations">
 
 ## Integrations
 
@@ -37,7 +37,7 @@ const specs = loadSpec(spec)
 
 </template>
 
-<template v-if="specs['user interface']">
+<template v-if="specs.product['user interface']">
 
 ## User Interface
 
@@ -45,7 +45,7 @@ const specs = loadSpec(spec)
 
 </template>
 
-<template v-if="specs.connectivity">
+<template v-if="specs.product.connectivity">
 
 ## Connectivity
 
@@ -53,7 +53,7 @@ const specs = loadSpec(spec)
 
 </template>
 
-<template v-if="specs.positioning">
+<template v-if="specs.product.positioning">
 
 ## Positioning
 
@@ -61,7 +61,7 @@ const specs = loadSpec(spec)
 
 </template>
 
-<template v-if="specs.sensors">
+<template v-if="specs.product.sensors">
 
 ## Sensors
 
@@ -69,7 +69,7 @@ const specs = loadSpec(spec)
 
 </template>
 
-<template v-if="specs.battery">
+<template v-if="specs.product.battery">
 
 ## Battery
 
@@ -77,7 +77,7 @@ const specs = loadSpec(spec)
 
 </template>
 
-<template v-if="specs.charging">
+<template v-if="specs.product.charging">
 
 ## Charging
 
@@ -85,7 +85,7 @@ const specs = loadSpec(spec)
 
 </template>
 
-<template v-if="specs.components">
+<template v-if="specs.product.components">
 
 ## Components
 
