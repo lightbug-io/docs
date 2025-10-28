@@ -155,6 +155,10 @@ For MQTT, you'll need to select a few options:
  - **Username**: (Optional) The username to authenticate with the MQTT broker.
  - **Password**: (Optional) The password to authenticate with the MQTT broker.
 
+Once setup, you'll find data in topics such as:
+ - `lightbug/device/1234/v3-bytes`
+ - `lightbug/device/1234/v3-json`
+
 #### Connection testing
 
 In both cases, you can `Test Connection` to ensure the details are correct before saving the connection.
