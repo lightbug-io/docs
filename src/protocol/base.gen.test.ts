@@ -8,6 +8,107 @@ import {
     writeArrayData
 } from './base.gen';
 
+describe('base.gen basic type functions', () => {
+    describe('readTypedData with basic types', () => {
+        it('should parse int8 values correctly', () => {
+            expect(readTypedData([127], 'int8')).toBe(127);
+            expect(readTypedData([128], 'int8')).toBe(-128);
+            expect(readTypedData([255], 'int8')).toBe(-1);
+            expect(readTypedData([0], 'int8')).toBe(0);
+        });
+
+        it('should parse uint8 values correctly', () => {
+            expect(readTypedData([255], 'uint8')).toBe(255);
+            expect(readTypedData([0], 'uint8')).toBe(0);
+        });
+
+        it('should parse uint16 values correctly', () => {
+            expect(readTypedData([0x34, 0x12], 'uint16')).toBe(0x1234);
+        });
+
+        it('should parse uint32 values correctly', () => {
+            expect(readTypedData([0x78, 0x56, 0x34, 0x12], 'uint32')).toBe(0x12345678);
+        });
+
+        it('should parse int32 values correctly', () => {
+            expect(readTypedData([0x00, 0x00, 0x00, 0x80], 'int32')).toBe(-2147483648);
+        });
+
+        it('should parse float32 values correctly', () => {
+            const bytes = [0x00, 0x00, 0x80, 0x3f]; // 1.0 in IEEE 754
+            const result = readTypedData(bytes, 'float32');
+            expect(result).toBeCloseTo(1.0);
+        });
+
+        it('should parse ascii strings', () => {
+            expect(readTypedData([72, 101, 108, 108, 111], 'ascii')).toBe('Hello');
+        });
+
+        it('should return raw bytes for unknown types', () => {
+            expect(readTypedData([1, 2, 3], 'unknown')).toEqual([1, 2, 3]);
+        });
+    });
+
+    describe('writeTypedData with basic types', () => {
+        it('should write int8 values correctly', () => {
+            expect(writeTypedData(127, 'int8')).toEqual([127]);
+            expect(writeTypedData(-128, 'int8')).toEqual([128]);
+            expect(writeTypedData(-1, 'int8')).toEqual([255]);
+            expect(writeTypedData(0, 'int8')).toEqual([0]);
+        });
+
+        it('should write uint8 values correctly', () => {
+            expect(writeTypedData(255, 'uint8')).toEqual([255]);
+            expect(writeTypedData(0, 'uint8')).toEqual([0]);
+        });
+
+        it('should write uint16 values correctly', () => {
+            expect(writeTypedData(0x1234, 'uint16')).toEqual([0x34, 0x12]);
+        });
+
+        it('should write uint32 values correctly', () => {
+            expect(writeTypedData(0x12345678, 'uint32')).toEqual([0x78, 0x56, 0x34, 0x12]);
+        });
+
+        it('should write int32 values correctly', () => {
+            expect(writeTypedData(-2147483648, 'int32')).toEqual([0x00, 0x00, 0x00, 0x80]);
+        });
+
+        it('should write float32 values correctly', () => {
+            const result = writeTypedData(1.0, 'float32');
+            expect(result).toEqual([0x00, 0x00, 0x80, 0x3f]); // 1.0 in IEEE 754
+        });
+
+        it('should write ascii strings', () => {
+            expect(writeTypedData('Hello', 'ascii')).toEqual([72, 101, 108, 108, 111]);
+        });
+
+        it('should return empty array for unknown types', () => {
+            expect(writeTypedData(123, 'unknown')).toEqual([]);
+        });
+    });
+
+    describe('Integration: Parse and write basic data', () => {
+        it('should round-trip int8 data', () => {
+            const testValues = [127, -128, -1, 0, 42];
+            for (const value of testValues) {
+                const written = writeTypedData(value, 'int8');
+                const read = readTypedData(written, 'int8');
+                expect(read).toBe(value);
+            }
+        });
+
+        it('should round-trip uint8 data', () => {
+            const testValues = [0, 255, 42];
+            for (const value of testValues) {
+                const written = writeTypedData(value, 'uint8');
+                const read = readTypedData(written, 'uint8');
+                expect(read).toBe(value);
+            }
+        });
+    });
+});
+
 describe('base.gen array type functions', () => {
     describe('isArrayType', () => {
         it('should recognize array types', () => {

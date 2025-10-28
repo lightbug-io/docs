@@ -196,6 +196,11 @@ export function readUint8(bytes: number[], offset: number): number {
   return bytes[offset];
 }
 
+export function readInt8(bytes: number[], offset: number): number {
+  const value = bytes[offset];
+  return value > 0x7f ? value - 0x100 : value;
+}
+
 export function readUint16LE(bytes: number[], offset: number): number {
   return bytes[offset] | (bytes[offset + 1] << 8);
 }
@@ -235,6 +240,13 @@ export function readAscii(bytes: number[]): string {
 
 export function writeUint8(value: number): number[] {
   return [value & 0xff];
+}
+
+export function writeInt8(value: number): number[] {
+  const buffer = new ArrayBuffer(1);
+  const view = new DataView(buffer);
+  view.setInt8(0, value);
+  return [view.getUint8(0)];
 }
 
 export function writeUint16LE(value: number): number[] {
@@ -325,6 +337,8 @@ export function readTypedData(bytes: number[], type: string): any {
   switch (normalizedType) {
     case 'uint8':
       return readUint8(bytes, 0);
+    case 'int8':
+      return readInt8(bytes, 0);
     case 'uint16':
       return readUint16LE(bytes, 0);
     case 'uint32':
@@ -416,6 +430,8 @@ export function writeTypedData(value: any, type: string): number[] {
   switch (normalizedType) {
     case 'uint8':
       return writeUint8(value);
+    case 'int8':
+      return writeInt8(value);
     case 'uint16':
       return writeUint16LE(value);
     case 'uint32':

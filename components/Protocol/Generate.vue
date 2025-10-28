@@ -504,6 +504,14 @@ export default defineComponent({
             if (!selectedHeaders.value.includes(headerId)) {
                 selectedHeaders.value.push(headerId);
                 selectedHeaders.value.sort((a, b) => a - b);
+
+                // Set default value for fields with predefined values
+                const headerDef = headers.value[headerId];
+                if (headerDef?.values && Object.keys(headerDef.values).length > 0 && headerValues.value[headerId] === undefined) {
+                    // Set the first available value as default
+                    const firstValue = Object.keys(headerDef.values)[0];
+                    headerValues.value[headerId] = parseInt(firstValue);
+                }
             }
             headerToAdd.value = null;
         };
@@ -545,6 +553,14 @@ export default defineComponent({
             if (!selectedPayload.value.includes(fieldId)) {
                 selectedPayload.value.push(fieldId);
                 selectedPayload.value.sort((a, b) => a - b);
+
+                // Set default value for fields with predefined values
+                const payloadField = selectedMessagePayload.value[fieldId];
+                if (payloadField?.values && Object.keys(payloadField.values).length > 0 && payloadValues.value[fieldId] === undefined) {
+                    // Set the first available value as default
+                    const firstValue = Object.keys(payloadField.values)[0];
+                    payloadValues.value[fieldId] = parseInt(firstValue);
+                }
             }
             payloadToAdd.value = null;
         };
