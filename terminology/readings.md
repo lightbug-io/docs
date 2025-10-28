@@ -29,7 +29,7 @@ These types can also be used to filter the data.
 These reading types are sent from most devices:
 
 - temp: Temperature
-- ble_seen: Data associated with a Bluetooth device seen by the device
+- [ble_seen](#bluetooth-ble-seen): Bluetooth device seen
 - chg_voltage: Charging voltage
 
 Some readings will only be sent by devices that have additional sensors built in, such as the [Enviro](/devices/enviro/):
@@ -79,3 +79,40 @@ If you need help understanding a reading type that is not listed here, please [c
 - adc_245
 - adc_10
 - accel_3d
+
+### Bluetooth (ble_seen)
+
+Records data associated with a Bluetooth device seen by the device.
+Including links to the device entry itself, which will in turn link to data gathered from sensors on that device.
+
+#### No sensors or name
+
+When a Bluetooth device is seen, but it has no name or sensors, the data may look like this:
+
+Value: `-42`
+Meta: `{"rssi":-42,"sensorCount":0}`
+RSSI: `-42`
+Gateway: `7890123`
+Device: `123456`
+
+#### Sensor with name
+
+When a Bluetooth device with sensors and a name is seen, the data may look like this:
+
+Value: `{"name":"P ID 00A3B6"}`
+Meta: `{"rssi":-42,"sensorCount":1}`
+RSSI: `-42`
+Gateway: `7890123`
+Device: `123456`
+
+#### iBeacon
+
+When an iBeacon device is seen, the following data is included in the reading:
+
+Value: `{"major":44,"minor":1234,"power":1}`
+Meta: `{"rssi":-81,"sensorCount":1,"ibeacon":true}`
+RSSI: `-81`
+Gateway: `7890123`
+Device: `123456`
+
+The device seen relates to a device entry that will include the MAC address of the iBeacon.

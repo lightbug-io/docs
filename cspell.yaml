@@ -64,6 +64,9 @@ words:
   - FULLREDRAWWITHOUTCLEAR
   - CLEARDONTDRAW
   - TEXTALIGN
+  - adcraw
+  - loragw
+  - heartrate
 
   # Other tech / code terms
   - mqtts
@@ -73,6 +76,7 @@ words:
   - popstate
   - foolala
   - outofscope
+  - ibeacon
 
   # OK abbreviations
   - csum
