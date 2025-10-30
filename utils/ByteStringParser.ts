@@ -152,8 +152,9 @@ function parseSingleByteString(input: string): ParsedBytes {
     // Count how many of the hex pairs contain a-f (strong hex indicators)
     if (hexPairs.length >= 2 && hasHexLetters) {
         const hexPairsWithLetters = hexPairs.filter(pair => /[a-fA-F]/.test(pair)).length;
-        // If at least one hex pair contains letters, and most pairs are hex-like, use hex mode
-        if (hexPairsWithLetters >= 1 && hexPairsWithLetters / hexPairs.length > 0.3) {
+        // If at least one hex pair contains letters, and reasonable ratio, use hex mode
+        // Lower threshold (0.15) handles messages with many 00/01 bytes but clear hex letters
+        if (hexPairsWithLetters >= 1 && hexPairsWithLetters / hexPairs.length > 0.15) {
             return parseHexBytes(normalized);
         }
     }
