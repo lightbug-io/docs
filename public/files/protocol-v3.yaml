@@ -1632,11 +1632,15 @@ messages:
           date: "2025-10-14"
           generator: RH2 P1 v2296
   49:
-    name: CPU1 Reset
-    id: cpu1Reset
-    group: power
+    name: Reset
+    id: reset
+    description: |
+      Reset a target device, CPU, service or system, within the relevant context.
+      If P1 or P2 receive this message, they will reset themselves.
+      This message type is left open for future use, such as resetting co-processors, or subsystems.
+    group: general
     examples:
-      - name: Reset CPU1
+      - name: Reset CPU1 from CPU2
         bytes: 3 17 0 49 0 1 0 1 4 12 0 0 0 0 0 133 230
         real:
           description: Created using the generate tool, this was tested against an RH2 device, sent from Toit.
@@ -1695,6 +1699,28 @@ messages:
           description: This example was generated using the generate tool, and tested against an RH2 device, sent from Toit.
           date: "2025-10-16"
           generator: Generate tool
+  52:
+    name: LED Control
+    id: ledControl
+    alpha: This message was only defined on 17/11/2025 and is subject to change.
+    description: Control LEDs
+    group: interface
+    data:
+      2:
+        name: Red
+        id: red
+        description: Red LED intensity (0-255) PWM value
+        type: uint8
+      3:
+        name: Green
+        id: green
+        description: Green LED intensity (0-255) PWM value
+        type: uint8
+      4:
+        name: Blue
+        id: blue
+        description: Blue LED intensity (0-255) PWM value
+        type: uint8
   53:
     name: Protection Level
     id: protectionLevel
