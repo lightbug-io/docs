@@ -324,7 +324,7 @@ header:
       Cloud systems may add this to messages they receive.
       Should start at 1 and increments by 1 for each message received on a single connection or during a single session.
       A sequence number of 1 can thus indicate the start of a new session or connection.
-    type: uint32
+    type: uint
 messages:
   5:
     name: ACK
