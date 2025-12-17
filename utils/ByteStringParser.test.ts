@@ -229,6 +229,50 @@ gingin-chasm-1  | [00] 2025-10-16T10:50:50.223Z INFO    in/udp.go:296   Received
                 expect(result.hasHex).toBe(true);
                 expect(result.bytes).toEqual([0x4C, 0x42, 0x03, 0x42, 0x00, 0x3A, 0x00, 0x01, 0x00, 0x01, 0x04, 0x1D, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x0A, 0x02, 0xC3, 0x07, 0x2B, 0xFE, 0x02, 0x01, 0x51, 0x24, 0x00, 0x88, 0x01, 0x00, 0xCF, 0x8A, 0x02, 0x69, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x1E, 0x00, 0xC2, 0x80, 0x9A, 0x40, 0x00, 0x00, 0x00, 0x00, 0x40, 0x80, 0x00, 0x00, 0x01, 0x40, 0x00, 0x00, 0x00, 0xC0, 0x00, 0x00, 0x04, 0x29, 0xB2]);
             });
+
+            it('should parse long hex message with many zeros and hex letters (LB prefix with various bytes)', () => {
+                const input = '4C 42 03 3F 00 0F 00 00 00 0B 00 01 02 03 04 05 06 07 08 09 0A 0B 08 2C 31 94 53 28 03 00 00 04 00 00 00 00 04 00 00 00 00 04 00 00 00 00 02 00 00 02 00 00 02 00 00 01 00 01 00 01 00 01 01 71 6A';
+                const result = parseByteString(input);
+                expect(result.hasHex).toBe(true);
+                // Verify it correctly parses as hex, not decimal
+                expect(result.bytes[0]).toBe(0x4C); // 76 in decimal
+                expect(result.bytes[1]).toBe(0x42); // 66 in decimal
+                expect(result.bytes[2]).toBe(0x03);
+                expect(result.bytes[3]).toBe(0x3F); // 63 in decimal
+                // Verify the hex letters are correctly parsed
+                expect(result.bytes).toContain(0x0A); // 10 in decimal
+                expect(result.bytes).toContain(0x0B); // 11 in decimal
+                expect(result.bytes).toContain(0x0F); // 15 in decimal
+                expect(result.bytes).toContain(0x2C); // 44 in decimal
+                expect(result.bytes).toContain(0x31); // 49 in decimal
+                expect(result.bytes).toContain(0x94); // 148 in decimal
+                expect(result.bytes).toContain(0x6A); // 106 in decimal
+                // Should have 65 bytes
+                expect(result.bytes.length).toBe(65);
+            });
+
+            it('should parse hex with many zeros but clear hex indicators (0A, 0B, 0F, 2C)', () => {
+                const input = '03 3F 00 0F 00 00 00 0B 00 01 02 03 04 05 06 07 08 09 0A 0B 08 2C 31 94 53 28';
+                const result = parseByteString(input);
+                expect(result.hasHex).toBe(true);
+                // Verify hex parsing, not decimal
+                expect(result.bytes[0]).toBe(0x03); // 3
+                expect(result.bytes[1]).toBe(0x3F); // 63
+                // Verify hex letters are present and correctly parsed
+                expect(result.bytes).toContain(0x0A); // 10
+                expect(result.bytes).toContain(0x0B); // 11
+                expect(result.bytes).toContain(0x0F); // 15
+                expect(result.bytes).toContain(0x2C); // 44
+                expect(result.bytes.length).toBe(26);
+            });
+
+            it('should detect hex with single hex letter among many zeros', () => {
+                const input = '00 00 00 00 00 00 00 00 00 00 FF 00 00 00 00 00 00 00 00 00';
+                const result = parseByteString(input);
+                expect(result.hasHex).toBe(true);
+                // Should parse all the zeros as hex, not decimal
+                expect(result.bytes).toEqual([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+            });
         });
 
         describe('base64 mode', () => {

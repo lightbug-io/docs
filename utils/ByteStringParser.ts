@@ -148,13 +148,14 @@ function parseSingleByteString(input: string): ParsedBytes {
     const hexPairs = normalized.match(hexPairPattern) || [];
     const hasHexLetters = /[a-fA-F]/.test(normalized);
 
-    // If we have hex pairs AND hex letters (a-f), check if they're actual hex pairs
-    // Count how many of the hex pairs contain a-f (strong hex indicators)
+    // If we have hex pairs AND hex letters (a-f), treat as hex
+    // The presence of any hex letter (A-F) in space-separated pairs strongly indicates hex mode
+    // Even if most bytes are 00/01, the hex letters prove it's not decimal
     if (hexPairs.length >= 2 && hasHexLetters) {
+        // Just need at least ONE hex pair with letters to confidently say it's hex
+        // This handles messages with many 00 bytes but clear hex letters like 0A, 0B, 0C, 0F, etc.
         const hexPairsWithLetters = hexPairs.filter(pair => /[a-fA-F]/.test(pair)).length;
-        // If at least one hex pair contains letters, and reasonable ratio, use hex mode
-        // Lower threshold (0.15) handles messages with many 00/01 bytes but clear hex letters
-        if (hexPairsWithLetters >= 1 && hexPairsWithLetters / hexPairs.length > 0.15) {
+        if (hexPairsWithLetters >= 1) {
             return parseHexBytes(normalized);
         }
     }
@@ -280,6 +281,7 @@ function parseHexBytes(input: string): ParsedBytes {
 
     // Look for hex pairs (2 consecutive hex digits) anywhere in the input
     // This will match "ff", "aa", "bb", "cc" but not the "e" from "noise" or "ore"
+    // Handles space-separated hex (4C 42 03 3F), comma-separated (4C,42,03), or hex with noise (ff-aa)
     const hexPairPattern = /\b([0-9a-fA-F]{2})\b/g;
     while ((match = hexPairPattern.exec(input)) !== null) {
         const value = parseInt(match[1], 16);
