@@ -367,6 +367,9 @@ export default defineComponent({
         }
     },
     setup(props) {
+        // Prevent rendering excessive fields from invalid data
+        const MAX_FIELDS = 500;
+
         const isCogModalVisible = ref(false);
         const isBytesCollapsed = ref(props.defaultCollapsed);
         const byteDisplayType = ref<'ints' | 'hex' | 'hex0x' | 'printf'>('ints');
@@ -569,16 +572,21 @@ export default defineComponent({
             index += 2;
 
             // Header field count
-            const numHeaderFields = readUint16LE(bytes[index], bytes[index + 1]);
+            const numHeaderFieldsRaw = readUint16LE(bytes[index], bytes[index + 1]);
+            const numHeaderFields = Math.min(numHeaderFieldsRaw, MAX_FIELDS);
+            let headerCountValue = String(numHeaderFieldsRaw);
+            if (numHeaderFieldsRaw > MAX_FIELDS) {
+                headerCountValue = `${numHeaderFieldsRaw} ⚠️ (capped at ${MAX_FIELDS})`;
+            }
             sections.push({
                 label: 'Header Count',
-                value: String(numHeaderFields),
+                value: headerCountValue,
                 bytes: byteArray.value.slice(index, index + 2)
             });
             index += 2;
 
             // Header field types
-            if (numHeaderFields > 0) {
+            if (numHeaderFields > 0 && index + numHeaderFields <= bytes.length) {
                 const headerTypesIndex = index;
                 sections.push({
                     label: 'Header Types',
@@ -589,6 +597,9 @@ export default defineComponent({
 
                 // Header field data
                 for (let i = 0; i < numHeaderFields; i++) {
+                    // Skip if we don't have at least one byte for the length field
+                    if (index >= bytes.length) break;
+
                     const headerLength = bytes[index];
                     const headerType = bytes[headerTypesIndex + i];
                     const headerFieldDef = props.yamlData?.header?.[headerType];
@@ -707,16 +718,21 @@ export default defineComponent({
             }
 
             // Payload field count
-            const numPayloadFields = readUint16LE(bytes[index], bytes[index + 1]);
+            const numPayloadFieldsRaw = readUint16LE(bytes[index], bytes[index + 1]);
+            const numPayloadFields = Math.min(numPayloadFieldsRaw, MAX_FIELDS);
+            let payloadCountValue = String(numPayloadFieldsRaw);
+            if (numPayloadFieldsRaw > MAX_FIELDS) {
+                payloadCountValue = `${numPayloadFieldsRaw} ⚠️ (capped at ${MAX_FIELDS})`;
+            }
             sections.push({
                 label: 'Payload Count',
-                value: String(numPayloadFields),
+                value: payloadCountValue,
                 bytes: byteArray.value.slice(index, index + 2)
             });
             index += 2;
 
             // Payload field types
-            if (numPayloadFields > 0) {
+            if (numPayloadFields > 0 && index + numPayloadFields <= bytes.length) {
                 const payloadTypesIndex = index;
                 sections.push({
                     label: 'Payload Types',
@@ -727,6 +743,9 @@ export default defineComponent({
 
                 // Payload field data
                 for (let i = 0; i < numPayloadFields; i++) {
+                    // Skip if we don't have at least one byte for the length field
+                    if (index >= bytes.length) break;
+
                     const payloadLength = bytes[index];
                     const payloadType = bytes[payloadTypesIndex + i];
                     const payloadFieldDef = props.yamlData?.messages?.[messageType]?.data?.[payloadType];
