@@ -307,6 +307,38 @@ header:
       one or more Subscription IDs will be included in the message header to identify which subscription(s) the message relates to.
     type: uint8[]
     alpha: New feature, subject to alterations, for advanced usage
+  50:
+    name: App Name
+    id: app
+    description: |
+      Application name that can be added to a message to identify the source or purpose of the messages.
+      Some clients listening for messages may filter on this.
+      All clients may use the message regardless of the app name, and general message protocol rules apply.
+
+      A reserved and example usage is "pub", which will result in messages being published for use with https://docs.lightbug.io/apps/chasm/share/
+      In this case, the "App Data" field can be used to provide a ascii share code.
+    type: string
+    alpha: New feature, subject to alterations. Currently only used internally.
+  51:
+    name: App Data
+    id: appData
+    description: |
+      Application data that can be added to a message, that can be used by specific applications.
+      This data is opaque to general clients, and may be ignored.
+      Specific applications may use this data for their own purposes.
+    type: bytes
+    alpha: New feature, subject to alterations. Currently only used internally.
+  52:
+    name: Correlation
+    id: correlation
+    description: |
+      Correlation ID for the received message.
+      Can be used to correlate messages together, that are part of the same logical group or transaction, that are sent separately.
+
+      On the server side, this should be a UUID v7 represented as 16 bytes.
+      Constrained clients may set less bytes, and the server will construct a full UUID v7 matching the provided bytes for the session.
+      Server systems may also add this to messages they receive, if not already present.
+    type: bytes
   100:
     name: Received time
     id: receivedTime
