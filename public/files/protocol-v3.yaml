@@ -1567,8 +1567,8 @@ messages:
         description: Should CPU1 wake up CPU2 on new events / messages
         type: bool
   48:
-    name: Power Profile
-    id: powerProfile
+    name: Power Info
+    id: powerInfo
     description: |
       See how much power is or has been used by the device, as well as current power usage and if the device is charging.
     group: power
@@ -1576,7 +1576,7 @@ messages:
       - 5
     data:
       3:
-        name: Total power
+        name: Total power since profile
         id: totalPower
         description: |
           Total power used, since a point in time decided by the method used.
