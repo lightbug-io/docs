@@ -1699,6 +1699,29 @@ messages:
           description: This example was generated using the generate tool, and tested against an RH2 device, sent from Toit.
           date: "2025-10-16"
           generator: Generate tool
+  51:
+    name: Status LED Control
+    id: statusLedControl
+    alpha: This message was only defined on 06/01/2026 and is subject to change.
+    description: Control Status LEDs
+    group: interface
+    data:
+      5:
+        name: LED 1
+        id: "1"
+        type: bool
+      6:
+        name: LED 2
+        id: "2"
+        type: bool
+      7:
+        name: LED 3
+        id: "3"
+        type: bool
+      8:
+        name: LED 4
+        id: "4"
+        type: bool
   52:
     name: LED Control
     id: ledControl
