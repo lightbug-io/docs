@@ -1723,13 +1723,13 @@ messages:
         type: uint8
     examples:
       - name: Set Strobe LED on P2 to green from a cloud link
-        bytes: 03 11 00 34 00 01 00 0E 01 01 01 00 03 01 FF C2 D8
+        bytes: 3 17 0 52 0 1 0 14 1 1 1 0 3 1 255 194 216
         real:
           description: This example was generated using the generate tool, and tested against an RH2 device, sent from a Chasm link.
           date: "2025-11-18"
           generator: Generate tool
       - name: Set Strobe LED on P2 to be off from a cloud link
-        bytes: 03 17 00 34 00 01 00 0E 01 01 03 00 02 03 04 01 00 01 00 01 00 C3 C3
+        bytes: 3 23 0 52 0 1 0 14 1 1 3 0 2 3 4 1 0 1 0 1 0 195 195
         real:
           description: This example was generated using the generate tool, and tested against an RH2 device, sent from a Chasm link.
           date: "2025-11-18"
