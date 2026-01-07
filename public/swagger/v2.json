@@ -1,6 +1,35 @@
 {
   "components": {
     "schemas": {
+      "BulkPlanResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/DeviceResult"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "summary": {
+            "$ref": "#/components/schemas/BulkSummary"
+          }
+        },
+        "type": "object"
+      },
+      "BulkSummary": {
+        "properties": {
+          "errorCount": {
+            "type": "integer"
+          },
+          "successCount": {
+            "type": "integer"
+          },
+          "totalRequested": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "BuyPlansRequest": {
         "properties": {
           "currency": {
@@ -152,6 +181,9 @@
             "description": "ID of the user which owns this device",
             "type": "integer"
           },
+          "qcEvents": {
+            "$ref": "#/components/schemas/QCEventMap"
+          },
           "reseller": {
             "$ref": "#/components/schemas/Reseller"
           },
@@ -268,7 +300,7 @@
             "type": "integer"
           },
           "movementSensitivityOld": {
-            "description": "Deprecated. See debounce.\nmovementSensitivity threshold in terms of units of gravity. We used to adjust it, but a better way of doing it was the ammount of times over that threshold (that what debounce is)\nShould always be 1, which means... debounce when already moving",
+            "description": "Deprecated. See debounce.\nmovementSensitivity threshold in terms of units of gravity. We used to adjust it, but a better way of doing it was the amount of times over that threshold (that what debounce is)\nShould always be 1, which means... debounce when already moving",
             "type": "integer"
           },
           "otaFW": {
@@ -310,7 +342,7 @@
             "description": "When the unit first wakes up from sleep, how long to wait before trying to transmit in multiples of 30 seconds.\n0 = instant, 1 = 30s, 2 = 60s...\nUseful to avoid detection or draining battery inside shielded buildings.",
             "type": "integer"
           },
-          "updateAvailibility": {
+          "updateAvailability": {
             "description": "The update availability.",
             "type": "integer"
           },
@@ -342,6 +374,78 @@
         "additionalProperties": {},
         "type": "object"
       },
+      "DeviceResult": {
+        "properties": {
+          "identifier": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "description": "\"SUCCESS\" or \"ERROR\"",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FirmwareChannelAndBuild": {
+        "properties": {
+          "build": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FirmwareUpdateRequest": {
+        "properties": {
+          "availability": {
+            "description": "The availability of the update\n0 - No update available, or no priority given to the update\n2 - Update available (minor or un-important), Device may check-in to download if it wants to\n4 - Update available (major), Device may check-in to download, could be useful, but not critical\n6 - Update available (critical), Device will check-in to download, this is critical and should be done ASAP\n9 - Force check-in (maybe an update, maybe not...)",
+            "type": "integer"
+          },
+          "build": {
+            "description": "A build to update to now.\nCan be specific, such as 123, or a special value such as \"latest\"\nIf passed with a channel, the build must be available in that channel",
+            "type": "string"
+          },
+          "channel": {
+            "description": "Channel to to use for future updates for the device",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FirmwareUpdateState": {
+        "properties": {
+          "_forceFW": {
+            "description": "Legacy field, will be removed in the future",
+            "type": "boolean"
+          },
+          "pending": {
+            "description": "Pending firmware, as decided by the firmware update system\nIf a specific firmware has been requested, this is likely to be the same as the requested firmware\nOtherwise it is the firmware that the device has been told to update to, perhaps due to new channel releases or other defaults",
+            "type": "integer"
+          },
+          "pendingReason": {
+            "description": "Reason for the pending firmware",
+            "type": "string"
+          },
+          "request": {
+            "description": "Requested firmware version",
+            "type": "integer"
+          },
+          "updateAvailability": {
+            "description": "Value indicating the importance of checking the bootserver for possible FW updates (for the device)",
+            "type": "integer"
+          },
+          "updateRedirects": {
+            "description": "Number of times the device has been told to check the bootserver for possible FW updates, since the last successful update, or FW request",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "Geofence": {
         "properties": {
           "center": {
@@ -363,7 +467,7 @@
             "type": "integer"
           },
           "meta": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_mysql_dao_model.GeofenceMeta"
+            "$ref": "#/components/schemas/GeofenceMeta"
           },
           "modified": {
             "type": "boolean"
@@ -428,6 +532,10 @@
         ],
         "type": "object"
       },
+      "GeofenceMeta": {
+        "additionalProperties": {},
+        "type": "object"
+      },
       "GeofencePoint": {
         "description": "For circular geofences, the center {lat:x,lng:y}. Property is ignored if outline != null.",
         "properties": {
@@ -452,7 +560,7 @@
             "type": "integer"
           },
           "meta": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_mysql_dao_model.GeofenceMeta"
+            "$ref": "#/components/schemas/GeofenceMeta"
           },
           "name": {
             "type": "string"
@@ -714,6 +822,35 @@
         },
         "type": "object"
       },
+      "PaginatedResult-Plan": {
+        "properties": {
+          "data": {
+            "description": "Paginated data",
+            "items": {
+              "$ref": "#/components/schemas/Plan"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "limit": {
+            "description": "Requested elements per page",
+            "type": "integer"
+          },
+          "page": {
+            "description": "Requested page number",
+            "type": "integer"
+          },
+          "totalElements": {
+            "description": "Total elements in the database for given filters",
+            "type": "integer"
+          },
+          "totalPages": {
+            "description": "Total pages of elements given limit and filters",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "PersonalAccessTokenResponse": {
         "properties": {
           "created": {
@@ -735,7 +872,11 @@
         "type": "object"
       },
       "Plan": {
+        "description": "Details of the plan.",
         "properties": {
+          "description": {
+            "type": "string"
+          },
           "displayName": {
             "type": "string"
           },
@@ -815,6 +956,89 @@
             "uniqueItems": false
           }
         },
+        "type": "object"
+      },
+      "PutPlanBulkInput": {
+        "properties": {
+          "deviceIdentifiers": {
+            "description": "Device identifiers - currently only numerical IDs are supported",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "ignoreSubscriptionSetup": {
+            "description": "Optional ignoring of subscription setup for non reseller users.",
+            "type": "boolean"
+          },
+          "planId": {
+            "description": "Plan ID to be assigned to the devices if available",
+            "type": "integer"
+          },
+          "renewOnto": {
+            "description": "Plan ID that the device should automatically renew onto in future billing cycles",
+            "type": "integer"
+          },
+          "renewUntil": {
+            "description": "Optional date, at which the devices will deactivate and plans will not be renewed",
+            "type": "string"
+          }
+        },
+        "required": [
+          "deviceIdentifiers",
+          "planId"
+        ],
+        "type": "object"
+      },
+      "PutPlanInput": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/renewOnto"
+          }
+        ],
+        "properties": {
+          "ignoreSubscriptionSetup": {
+            "description": "Optional ignoring of subscription setup for non reseller users.\nIf the user has the plan already purchased, then don't setup a card or subscription if it does'nt exist...\nSubscriptions are already ignored for reseller users, so this option would not be needed for them.",
+            "type": "boolean"
+          },
+          "planId": {
+            "description": "Plan ID to be assigned to the device if available",
+            "type": "integer"
+          },
+          "renewOnto": {
+            "description": "Plan ID that the device should automatically renew onto in future billing cycles",
+            "type": "integer"
+          },
+          "renewUntil": {
+            "description": "Optional date, at which the device will deactivate and plans will not be renewed",
+            "type": "string"
+          }
+        },
+        "required": [
+          "planId"
+        ],
+        "type": "object"
+      },
+      "QCEventInfo": {
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "QCEventMap": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/QCEventInfo"
+        },
+        "description": "(optional) QC Events keyed by QC code",
         "type": "object"
       },
       "RefreshTokenRequest": {
@@ -982,10 +1206,15 @@
       "UserPlanSummaryEntry": {
         "properties": {
           "count": {
+            "description": "Number of these plans that have either been consumed, or are available for use by devices.",
             "type": "integer"
           },
           "plan": {
             "$ref": "#/components/schemas/Plan"
+          },
+          "subscriptions": {
+            "description": "Number of devices that have an active subscription to this plan.",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -1028,39 +1257,6 @@
             "type": "string"
           }
         },
-        "type": "object"
-      },
-      "internal_api_handlers_v2_devices_byId.PutPlanInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/renewOnto"
-          }
-        ],
-        "properties": {
-          "ignoreSubscriptionSetup": {
-            "description": "Optional ignoring of subscription setup for non reseller users.\nIf the user has the plan already purchased, then don't setup a card or subscription if it does'nt exist...\nSubscriptions are already ignored for reseller users, so this option would not be needed for them.",
-            "type": "boolean"
-          },
-          "planId": {
-            "description": "Plan ID to be assigned to the device if available",
-            "type": "integer"
-          },
-          "renewOnto": {
-            "description": "Plan ID that the device should automatically renew onto in future billing cycles",
-            "type": "integer"
-          },
-          "renewUntil": {
-            "description": "Optional date, at which the device will deactivate and plans will not be renewed",
-            "type": "string"
-          }
-        },
-        "required": [
-          "planId"
-        ],
-        "type": "object"
-      },
-      "lightbug_io_gingin_internal_mysql_dao_model.GeofenceMeta": {
-        "additionalProperties": {},
         "type": "object"
       },
       "renewOnto": {
@@ -1125,89 +1321,12 @@
             }
           },
           {
-            "description": "Only show devices connected since this date (super secret)",
-            "in": "query",
-            "name": "_connectedSince",
-            "schema": {
-              "description": "Only show devices connected since this date (super secret)",
-              "form": "_connectedSince",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan",
-            "in": "query",
-            "name": "_include",
-            "schema": {
-              "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan",
-              "form": "_include",
-              "items": {
-                "type": "string"
-              },
-              "type": "array",
-              "uniqueItems": false
-            }
-          },
-          {
             "description": "Filter by ID (comma separated for multiple values)",
             "in": "query",
             "name": "id",
             "schema": {
               "description": "Filter by ID (comma separated for multiple values)",
               "form": "id",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by type (comma separated for multiple values)",
-            "in": "query",
-            "name": "type",
-            "schema": {
-              "description": "Filter by type (comma separated for multiple values)",
-              "example": "ZeroN",
-              "form": "type",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by iccid (exact match) (comma separated for multiple values)",
-            "in": "query",
-            "name": "iccid",
-            "schema": {
-              "description": "Filter by iccid (exact match) (comma separated for multiple values)",
-              "form": "iccid",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
-            "in": "query",
-            "name": "user",
-            "schema": {
-              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
-              "example": "*user1*,*user2*",
-              "form": "user",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by current firmware version",
-            "in": "query",
-            "name": "config.currentFW",
-            "schema": {
-              "description": "Filter by current firmware version",
-              "form": "config.currentFW",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by reseller name (exact match)",
-            "in": "query",
-            "name": "reseller",
-            "schema": {
-              "description": "Filter by reseller name (exact match)",
-              "example": "Name*",
-              "form": "reseller",
               "type": "string"
             }
           },
@@ -1223,6 +1342,17 @@
             }
           },
           {
+            "description": "Filter by type (comma separated for multiple values)",
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "description": "Filter by type (comma separated for multiple values)",
+              "example": "ZeroN",
+              "form": "type",
+              "type": "string"
+            }
+          },
+          {
             "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
             "in": "query",
             "name": "serial",
@@ -1234,12 +1364,12 @@
             }
           },
           {
-            "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
+            "description": "Filter by iccid (exact match) (comma separated for multiple values)",
             "in": "query",
-            "name": "imei",
+            "name": "iccid",
             "schema": {
-              "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
-              "form": "imei",
+              "description": "Filter by iccid (exact match) (comma separated for multiple values)",
+              "form": "iccid",
               "type": "string"
             }
           },
@@ -1266,8 +1396,74 @@
             }
           },
           {
-            "description": "Optionally provide parameters as a JSON object in this header. If both query params and X-Query overlap, a 400 error is returned.",
-            "example": "{\"id\":\"1\"}",
+            "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan,qcEvents",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan,qcEvents",
+              "form": "_include",
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": false
+            }
+          },
+          {
+            "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
+            "in": "query",
+            "name": "imei",
+            "schema": {
+              "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
+              "form": "imei",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+            "in": "query",
+            "name": "user",
+            "schema": {
+              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+              "example": "*user1*,*user2*",
+              "form": "user",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by reseller name (exact match)",
+            "in": "query",
+            "name": "reseller",
+            "schema": {
+              "description": "Filter by reseller name (exact match)",
+              "example": "Name*",
+              "form": "reseller",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by current firmware version",
+            "in": "query",
+            "name": "config.currentFW",
+            "schema": {
+              "description": "Filter by current firmware version",
+              "form": "config.currentFW",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only show devices connected since this date (currently an alpha filter)",
+            "in": "query",
+            "name": "_connectedSince",
+            "schema": {
+              "description": "Only show devices connected since this date (currently an alpha filter)",
+              "form": "_connectedSince",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optionally provide parameters as a JSON object in this header. X-Query values take precedence over query parameters for any overlapping fields.",
+            "example": "{\"id\":\"1,2,3\"}",
             "in": "header",
             "name": "X-Query",
             "schema": {
@@ -1340,6 +1536,591 @@
           }
         ],
         "summary": "Gets devices",
+        "tags": [
+          "devices"
+        ]
+      }
+    },
+    "/devices/plan": {
+      "put": {
+        "description": "Sets the plan for multiple devices simultaneously. This is more efficient than individual requests and helps avoid deadlocks when setting plans for reseller devices.\nFor user devices, the user must have already purchased or been allocated the target plan for each device.\nFor reseller devices, \"unpaid\" plans will be created and billed on the next cycle.\nCurrently only supports device identifiers as numerical IDs.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutPlanBulkInput"
+              }
+            }
+          },
+          "description": "Bulk plan request",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkPlanResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Sets plans for multiple devices in bulk",
+        "tags": [
+          "plans"
+        ]
+      }
+    },
+    "/devices/plans": {
+      "get": {
+        "description": "Gets plans that are available for the provided devices.\nIf multiple devices are provided, only plans that are available to all devices will be returned.",
+        "parameters": [
+          {
+            "description": "Comma separated device identifiers (serial, imei, id, etc.)",
+            "in": "query",
+            "name": "deviceIdentifiers",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Limit for pagination, default 10, max 10000",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Include additional data",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "items": {
+                "enum": [
+                  "prices"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          {
+            "description": "Optionally provide parameters as a JSON object in this header. X-Query values take precedence over query parameters for any overlapping fields.",
+            "example": "{\"deviceIdentifiers\":\"ABC123,35987654321\"}",
+            "in": "header",
+            "name": "X-Query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResult-Plan"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets plans that are available for devices",
+        "tags": [
+          "plans"
+        ]
+      }
+    },
+    "/devices/{id}/firmware/current": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FirmwareChannelAndBuild"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets the current firmware of a device",
+        "tags": [
+          "devices"
+        ]
+      }
+    },
+    "/devices/{id}/firmware/update": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Removes a request for a firmware update on a device",
+        "tags": [
+          "devices"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FirmwareUpdateState"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets the current update that is queued for a device",
+        "tags": [
+          "devices"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FirmwareUpdateRequest"
+              }
+            }
+          },
+          "description": "Request",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FirmwareUpdateRequest"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Requests that a device be updated to the given firmware channel and or version",
         "tags": [
           "devices"
         ]

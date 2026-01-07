@@ -33,6 +33,7 @@ words:
   - markdownit
   - jsyaml
   - highlightjs
+  - xero
 
   # Lightbug device names
   - Enviro
@@ -58,6 +59,7 @@ words:
   - GPRS
   - iccid
   - imei
+  - imsi
   - PARTIALREDRAW
   - FULLREDRAW
   - BUFFERONLY
@@ -67,6 +69,8 @@ words:
   - adcraw
   - loragw
   - heartrate
+  - refreshable
+  - bootserver
 
   # Other tech / code terms
   - mqtts
@@ -77,6 +81,7 @@ words:
   - foolala
   - outofscope
   - ibeacon
+  - httputil
 
   # OK abbreviations
   - csum
@@ -101,6 +106,7 @@ words:
   - initialised
   - actioned
   - Centimetre
+  - stabilise
 
   # Misc
   - Geofences
@@ -140,6 +146,9 @@ words:
   - wght
   - mdit
   - integ
+  - listid
+  - fenceid
+  - targetid
 
 # Words to ignore (none configured)
 ignoreWords: []
