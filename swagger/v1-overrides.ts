@@ -47,7 +47,13 @@ export const v1SummaryOverrides = {
 };
 
 export const v1DescriptionOverrides = {
-    'get-devices-id-points': `Gets one or more points for a device, based on filtering.`,
+    'get-devices-id-points': `Gets one or more points for a device, based on filtering.
+
+### Filter limitations
+
+When filtering by time ranges, using the ` + '`timestamp`' + ` field, you are limited to at most 90 days of data at a time.
+If you request more than 90 days, only the latest 90 days in your range will be returned.
+A maximum of 10,000 readings can be returned in one request.`,
     'get-devices-id-points-fk': `Get a specific point for device when you already know the device ID and point ID.`,
     'get-users-id-getDeviceSummary': `Lists all devices for a user, with a summary of state, including most resent points.`,
     'get-devices-id-deactivate': `Deactivates a device.`,
@@ -60,7 +66,13 @@ If you want to activate a device on a modern plan, see the V2 API.`,
     'get-devices-id-readings':
 `Gets [readings](/terminology/readings) that a device has taken, such as battery voltage, temperature, humidity etc.
 
-Use [filtering](/apis/v1/filtering) to get a specific [type](/terminology/readings#types).`,
+Use [filtering](/apis/v1/filtering) to get a specific [type](/terminology/readings#types).
+
+### Filter limitations
+
+When filtering by time ranges, using the ` + '`timestamp`' + ` field, you are limited to at most 90 days of data at a time.
+If you request more than 90 days, only the latest 90 days in your range will be returned.
+A maximum of 10,000 readings can be returned in one request.`,
     'get-devices-id-setupSqsForwarding':
 `Configure SQS Notifications for a device.
 
