@@ -1246,6 +1246,345 @@
         ],
         "type": "object"
       },
+      "WsMultiDeviceRequestOut": {
+        "properties": {
+          "data": {
+            "description": "Message data in specified encoding",
+            "example": "ff 00 01",
+            "type": "string"
+          },
+          "device": {
+            "description": "Target device identifier or ID (required)",
+            "example": "device1",
+            "type": "string"
+          },
+          "encoding": {
+            "description": "Encoding format: hex, decimal, base64, json",
+            "example": "hex",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "Client-provided message ID for tracking",
+            "example": "msg-789",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"out\" to send message to device",
+            "example": "out",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceRequestSubscribe": {
+        "properties": {
+          "data": {
+            "description": "Comma-separated device identifiers or IDs",
+            "example": "device1,device2",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "Client-provided message ID for tracking",
+            "example": "sub-456",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"subscribe\" to add device subscriptions",
+            "example": "subscribe",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceRequestUnsubscribe": {
+        "properties": {
+          "data": {
+            "description": "Comma-separated device identifiers or IDs",
+            "example": "device2",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "Client-provided message ID for tracking",
+            "example": "unsub-101",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"unsubscribe\" to remove device subscriptions",
+            "example": "unsubscribe",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceResponseAck": {
+        "properties": {
+          "messageId": {
+            "description": "Echoes the messageId from out request",
+            "example": "msg-789",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:46.250Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"ack\" - acknowledgment",
+            "example": "ack",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceResponseError": {
+        "properties": {
+          "error": {
+            "description": "Error description",
+            "example": "device not found: invalid-device",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "MessageId from request if available",
+            "example": "sub-456",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:48.456Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"error\" - error response",
+            "example": "error",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceResponseIn": {
+        "properties": {
+          "data": {
+            "description": "Message data in requested encoding",
+            "example": "7b 22 74 65 6d 70 22 3a 32 35 7d"
+          },
+          "device": {
+            "description": "Device ID that sent the message",
+            "example": "1",
+            "type": "string"
+          },
+          "encoding": {
+            "description": "Encoding format",
+            "example": "hex",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:46.234Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"in\" - message from device",
+            "example": "in",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceResponseSrv": {
+        "properties": {
+          "data": {
+            "description": "Server event data"
+          },
+          "device": {
+            "description": "Device ID that generated the event",
+            "example": "2",
+            "type": "string"
+          },
+          "encoding": {
+            "description": "Encoding format",
+            "example": "hex",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:47.345Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"srv\" - server event",
+            "example": "srv",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceResponseSubscribed": {
+        "properties": {
+          "device": {
+            "description": "Device identifier that was subscribed to",
+            "example": "device1",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "Echoes the messageId from subscribe request",
+            "example": "sub-456",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:45.123Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"subscribed\" - subscription confirmed",
+            "example": "subscribed",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceResponseUnsubscribed": {
+        "properties": {
+          "device": {
+            "description": "Device ID that was unsubscribed from",
+            "example": "2",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "Echoes the messageId from unsubscribe request",
+            "example": "unsub-101",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:47.345Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"unsubscribed\" - unsubscription confirmed",
+            "example": "unsubscribed",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsSingleDeviceRequestOut": {
+        "properties": {
+          "data": {
+            "description": "Message data in specified encoding",
+            "example": "03 18 00 05 00 02",
+            "type": "string"
+          },
+          "encoding": {
+            "description": "Encoding format: hex, decimal, base64, json",
+            "example": "hex",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "Client-provided message ID for tracking",
+            "example": "msg-123",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"out\" to send message to device",
+            "example": "out",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsSingleDeviceResponseAck": {
+        "properties": {
+          "messageId": {
+            "description": "Echoes the messageId from request",
+            "example": "msg-123",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:45.200Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"ack\" - acknowledgment",
+            "example": "ack",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsSingleDeviceResponseError": {
+        "properties": {
+          "error": {
+            "description": "Error description",
+            "example": "failed to parse message: invalid hex data",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "MessageId from request if available",
+            "example": "msg-123",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:45.150Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"error\" - error response",
+            "example": "error",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsSingleDeviceResponseIn": {
+        "properties": {
+          "data": {
+            "description": "Message data in requested encoding",
+            "example": "a5 b2 c3 d4"
+          },
+          "encoding": {
+            "description": "Encoding format",
+            "example": "hex",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:45.123Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"in\" - message from device",
+            "example": "in",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsSingleDeviceResponseSrv": {
+        "properties": {
+          "data": {
+            "description": "Server event data"
+          },
+          "encoding": {
+            "description": "Encoding format",
+            "example": "hex",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:46.234Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"srv\" - server event",
+            "example": "srv",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "httputil.HTTPError": {
         "properties": {
           "code": {
@@ -1285,6 +1624,199 @@
     "url": ""
   },
   "paths": {
+    "/chasm/ws": {
+      "get": {
+        "description": "Establishes a WebSocket connection to manage multiple device subscriptions dynamically\n\n<div class=\"custom-block alpha\">\n<p class=\"custom-block-title\">🧪 Alpha</p>\nThis endpoint is alpha, and may change while being tested.\n\nThis documentation page also does not lend itself to a websocket endpoint, this is not a GET.\n</div>\n\nSupports subscribe/unsubscribe/out message types",
+        "parameters": [
+          {
+            "description": "Initial devices to subscribe to (comma-separated)",
+            "in": "query",
+            "name": "devices",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Message encoding format (json|hex|decimal|base64)",
+            "in": "query",
+            "name": "encoding",
+            "schema": {
+              "default": "json",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WsMultiDeviceRequestOut"
+              }
+            }
+          },
+          "description": "Send message to device",
+          "required": true
+        },
+        "responses": {
+          "101": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsMultiDeviceResponseSubscribed"
+                }
+              }
+            },
+            "description": "Subscription confirmed"
+          },
+          "102": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsMultiDeviceResponseUnsubscribed"
+                }
+              }
+            },
+            "description": "Unsubscription confirmed"
+          },
+          "103": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsMultiDeviceResponseIn"
+                }
+              }
+            },
+            "description": "Incoming message from subscribed device"
+          },
+          "104": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsMultiDeviceResponseSrv"
+                }
+              }
+            },
+            "description": "Server event from subscribed device"
+          },
+          "105": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsMultiDeviceResponseAck"
+                }
+              }
+            },
+            "description": "Acknowledgment of sent message"
+          },
+          "106": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsMultiDeviceResponseError"
+                }
+              }
+            },
+            "description": "Error response"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "WebSocket",
+        "tags": [
+          "chasm"
+        ]
+      }
+    },
+    "/chasm/ws/{device}": {
+      "get": {
+        "description": "Establishes a WebSocket connection to send and receive messages from a single device\n\n<div class=\"custom-block alpha\">\n<p class=\"custom-block-title\">🧪 Alpha</p>\nThis endpoint is alpha, and may change while being tested.\n\nThis documentation page also does not lend itself to a websocket endpoint, this is not a GET.\n</div>\n\nSupports multiple encoding formats: json, hex, decimal, base64",
+        "parameters": [
+          {
+            "description": "Device ID or identifier",
+            "in": "path",
+            "name": "device",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Message encoding format (json|hex|decimal|base64)",
+            "in": "query",
+            "name": "encoding",
+            "schema": {
+              "default": "json",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WsSingleDeviceRequestOut"
+              }
+            }
+          },
+          "description": "Message to send to device",
+          "required": true
+        },
+        "responses": {
+          "101": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsSingleDeviceResponseIn"
+                }
+              }
+            },
+            "description": "Incoming message from device"
+          },
+          "102": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsSingleDeviceResponseSrv"
+                }
+              }
+            },
+            "description": "Server event"
+          },
+          "103": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsSingleDeviceResponseAck"
+                }
+              }
+            },
+            "description": "Acknowledgment of sent message"
+          },
+          "104": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsSingleDeviceResponseError"
+                }
+              }
+            },
+            "description": "Error response"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Device WebSocket",
+        "tags": [
+          "chasm"
+        ]
+      }
+    },
     "/devices": {
       "get": {
         "parameters": [
@@ -1321,16 +1853,6 @@
             }
           },
           {
-            "description": "Filter by ID (comma separated for multiple values)",
-            "in": "query",
-            "name": "id",
-            "schema": {
-              "description": "Filter by ID (comma separated for multiple values)",
-              "form": "id",
-              "type": "string"
-            }
-          },
-          {
             "description": "Filter by active status",
             "in": "query",
             "name": "active",
@@ -1339,6 +1861,52 @@
               "example": true,
               "form": "active",
               "type": "boolean"
+            }
+          },
+          {
+            "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+            "in": "query",
+            "name": "serial",
+            "schema": {
+              "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+              "example": "12001234",
+              "form": "serial",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+            "in": "query",
+            "name": "user",
+            "schema": {
+              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+              "example": "*user1*,*user2*",
+              "form": "user",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by current firmware version",
+            "in": "query",
+            "name": "config.currentFW",
+            "schema": {
+              "description": "Filter by current firmware version",
+              "form": "config.currentFW",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan,qcEvents",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan,qcEvents",
+              "form": "_include",
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": false
             }
           },
           {
@@ -1353,13 +1921,12 @@
             }
           },
           {
-            "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+            "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
             "in": "query",
-            "name": "serial",
+            "name": "imei",
             "schema": {
-              "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
-              "example": "12001234",
-              "form": "serial",
+              "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
+              "form": "imei",
               "type": "string"
             }
           },
@@ -1396,41 +1963,6 @@
             }
           },
           {
-            "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan,qcEvents",
-            "in": "query",
-            "name": "_include",
-            "schema": {
-              "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan,qcEvents",
-              "form": "_include",
-              "items": {
-                "type": "string"
-              },
-              "type": "array",
-              "uniqueItems": false
-            }
-          },
-          {
-            "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
-            "in": "query",
-            "name": "imei",
-            "schema": {
-              "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
-              "form": "imei",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
-            "in": "query",
-            "name": "user",
-            "schema": {
-              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
-              "example": "*user1*,*user2*",
-              "form": "user",
-              "type": "string"
-            }
-          },
-          {
             "description": "Filter by reseller name (exact match)",
             "in": "query",
             "name": "reseller",
@@ -1442,22 +1974,22 @@
             }
           },
           {
-            "description": "Filter by current firmware version",
-            "in": "query",
-            "name": "config.currentFW",
-            "schema": {
-              "description": "Filter by current firmware version",
-              "form": "config.currentFW",
-              "type": "string"
-            }
-          },
-          {
             "description": "Only show devices connected since this date (currently an alpha filter)",
             "in": "query",
             "name": "_connectedSince",
             "schema": {
               "description": "Only show devices connected since this date (currently an alpha filter)",
               "form": "_connectedSince",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by ID (comma separated for multiple values)",
+            "in": "query",
+            "name": "id",
+            "schema": {
+              "description": "Filter by ID (comma separated for multiple values)",
+              "form": "id",
               "type": "string"
             }
           },

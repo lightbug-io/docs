@@ -149,6 +149,9 @@ words:
   - listid
   - fenceid
   - targetid
+  - unsub
+  - unsubscription
+  - Unsubscription
 
 # Words to ignore (none configured)
 ignoreWords: []
