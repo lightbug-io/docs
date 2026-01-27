@@ -976,10 +976,6 @@
             "description": "Plan ID to be assigned to the devices if available",
             "type": "integer"
           },
-          "renewOnto": {
-            "description": "Plan ID that the device should automatically renew onto in future billing cycles",
-            "type": "integer"
-          },
           "renewUntil": {
             "description": "Optional date, at which the devices will deactivate and plans will not be renewed",
             "type": "string"
@@ -992,11 +988,6 @@
         "type": "object"
       },
       "PutPlanInput": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/renewOnto"
-          }
-        ],
         "properties": {
           "ignoreSubscriptionSetup": {
             "description": "Optional ignoring of subscription setup for non reseller users.\nIf the user has the plan already purchased, then don't setup a card or subscription if it does'nt exist...\nSubscriptions are already ignored for reseller users, so this option would not be needed for them.",
@@ -1004,10 +995,6 @@
           },
           "planId": {
             "description": "Plan ID to be assigned to the device if available",
-            "type": "integer"
-          },
-          "renewOnto": {
-            "description": "Plan ID that the device should automatically renew onto in future billing cycles",
             "type": "integer"
           },
           "renewUntil": {
@@ -1099,9 +1086,6 @@
       "Reseller": {
         "description": "(optional) Reseller",
         "properties": {
-          "billingTerm": {
-            "type": "integer"
-          },
           "created": {
             "type": "string"
           },
@@ -1115,6 +1099,7 @@
             "type": "string"
           },
           "plans": {
+            "description": "BillingTerm     int32           `json:\"billingTerm\"`",
             "items": {
               "$ref": "#/components/schemas/ResellerPlan"
             },
@@ -1194,11 +1179,53 @@
           "planId": {
             "type": "integer"
           },
-          "renewOnto": {
-            "type": "integer"
-          },
           "userId": {
             "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "TimelineData": {
+        "properties": {
+          "description": {
+            "description": "A text description of the event",
+            "type": "string"
+          },
+          "meta": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Optional, A series of additional meta data for the event",
+            "type": "object"
+          },
+          "timestamp": {
+            "description": "The time of the event",
+            "type": "string"
+          },
+          "type": {
+            "description": "The type of event. Can be split with /",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TimelineResponse": {
+        "properties": {
+          "data": {
+            "description": "The timeline data",
+            "items": {
+              "$ref": "#/components/schemas/TimelineData"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "since": {
+            "description": "The time after which events are included",
+            "type": "string"
+          },
+          "until": {
+            "description": "The time up until which the timeline was created for (can be used for polling as the next since)\nIn case systems have lag, it might be wise to use a time before this time to poll for more data, deduplicating what you don't want",
+            "type": "string"
           }
         },
         "type": "object"
@@ -1597,20 +1624,17 @@
           }
         },
         "type": "object"
-      },
-      "renewOnto": {
-        "properties": {
-          "renewOnto": {
-            "type": "integer"
-          }
-        },
-        "type": "object"
       }
     },
     "securitySchemes": {
       "ApiKeyAuth": {
         "in": "header",
         "name": "Authorization",
+        "type": "apiKey"
+      },
+      "ApiKeyWebsocketAuth": {
+        "in": "query",
+        "name": "authorization",
         "type": "apiKey"
       }
     }
@@ -1626,7 +1650,7 @@
   "paths": {
     "/chasm/ws": {
       "get": {
-        "description": "Establishes a WebSocket connection to manage multiple device subscriptions dynamically\n\n<div class=\"custom-block alpha\">\n<p class=\"custom-block-title\">🧪 Alpha</p>\nThis endpoint is alpha, and may change while being tested.\n\nThis documentation page also does not lend itself to a websocket endpoint, this is not a GET.\n</div>\n\nSupports subscribe/unsubscribe/out message types",
+        "description": "Establishes a WebSocket connection to manage multiple device subscriptions dynamically\n\n<div class=\"custom-block alpha\">\n<p class=\"custom-block-title\">🧪 Alpha</p>\nThis endpoint is alpha, and may change while being tested.\n\nThis documentation page also does not lend itself to a websocket endpoint, this is not a GET. Please see schema descriptions and various response codes for detailed examples of messages.\n</div>\n\nSupports subscribe/unsubscribe/out message types",
         "parameters": [
           {
             "description": "Initial devices to subscribe to (comma-separated)",
@@ -1732,7 +1756,7 @@
     },
     "/chasm/ws/{device}": {
       "get": {
-        "description": "Establishes a WebSocket connection to send and receive messages from a single device\n\n<div class=\"custom-block alpha\">\n<p class=\"custom-block-title\">🧪 Alpha</p>\nThis endpoint is alpha, and may change while being tested.\n\nThis documentation page also does not lend itself to a websocket endpoint, this is not a GET.\n</div>\n\nSupports multiple encoding formats: json, hex, decimal, base64",
+        "description": "Establishes a WebSocket connection to send and receive messages from a single device\n\n<div class=\"custom-block alpha\">\n<p class=\"custom-block-title\">🧪 Alpha</p>\nThis endpoint is alpha, and may change while being tested.\n\nThis documentation page also does not lend itself to a websocket endpoint, this is not a GET. Please see schema descriptions and various response codes for detailed examples of messages.\n</div>\n\nSupports multiple encoding formats: json, hex, decimal, base64",
         "parameters": [
           {
             "description": "Device ID or identifier",
@@ -1853,35 +1877,24 @@
             }
           },
           {
-            "description": "Filter by active status",
+            "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
             "in": "query",
-            "name": "active",
+            "name": "name",
             "schema": {
-              "description": "Filter by active status",
-              "example": true,
-              "form": "active",
-              "type": "boolean"
-            }
-          },
-          {
-            "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
-            "in": "query",
-            "name": "serial",
-            "schema": {
-              "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
-              "example": "12001234",
-              "form": "serial",
+              "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
+              "example": "Hello *",
+              "form": "name",
               "type": "string"
             }
           },
           {
-            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+            "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
             "in": "query",
-            "name": "user",
+            "name": "tag",
             "schema": {
-              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
-              "example": "*user1*,*user2*",
-              "form": "user",
+              "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
+              "example": "device_type:truck",
+              "form": "tag",
               "type": "string"
             }
           },
@@ -1910,13 +1923,24 @@
             }
           },
           {
-            "description": "Filter by type (comma separated for multiple values)",
+            "description": "Filter by active status",
             "in": "query",
-            "name": "type",
+            "name": "active",
             "schema": {
-              "description": "Filter by type (comma separated for multiple values)",
-              "example": "ZeroN",
-              "form": "type",
+              "description": "Filter by active status",
+              "example": true,
+              "form": "active",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+            "in": "query",
+            "name": "serial",
+            "schema": {
+              "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+              "example": "12001234",
+              "form": "serial",
               "type": "string"
             }
           },
@@ -1941,24 +1965,13 @@
             }
           },
           {
-            "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
+            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
             "in": "query",
-            "name": "name",
+            "name": "user",
             "schema": {
-              "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
-              "example": "Hello *",
-              "form": "name",
-              "type": "string"
-            }
-          },
-          {
-            "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
-            "in": "query",
-            "name": "tag",
-            "schema": {
-              "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
-              "example": "device_type:truck",
-              "form": "tag",
+              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+              "example": "*user1*,*user2*",
+              "form": "user",
               "type": "string"
             }
           },
@@ -1990,6 +2003,17 @@
             "schema": {
               "description": "Filter by ID (comma separated for multiple values)",
               "form": "id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by type (comma separated for multiple values)",
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "description": "Filter by type (comma separated for multiple values)",
+              "example": "ZeroN",
+              "form": "type",
               "type": "string"
             }
           },
@@ -2860,33 +2884,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/renewOnto"
-                  }
-                ],
-                "properties": {
-                  "ignoreSubscriptionSetup": {
-                    "description": "Optional ignoring of subscription setup for non reseller users.\nIf the user has the plan already purchased, then don't setup a card or subscription if it does'nt exist...\nSubscriptions are already ignored for reseller users, so this option would not be needed for them.",
-                    "type": "boolean"
-                  },
-                  "planId": {
-                    "description": "Plan ID to be assigned to the device if available",
-                    "type": "integer"
-                  },
-                  "renewOnto": {
-                    "description": "Plan ID that the device should automatically renew onto in future billing cycles",
-                    "type": "integer"
-                  },
-                  "renewUntil": {
-                    "description": "Optional date, at which the device will deactivate and plans will not be renewed",
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "planId"
-                ],
-                "type": "object"
+                "$ref": "#/components/schemas/PutPlanInput"
               }
             }
           },
@@ -3385,6 +3383,144 @@
           }
         ],
         "summary": "Updates or creates a device tag",
+        "tags": [
+          "devices"
+        ]
+      }
+    },
+    "/devices/{id}/timeline/{type}": {
+      "get": {
+        "description": "Gets timeline data of a specific type for a device\n\nYou may also be interested in the \"Chasm\" endpoints for live modern messaging observability.\n\nVarious types will take differing times to respond, some will fail depending on the device data and patterns of data available.\nSome types require elevated permissions to access, in which case you would receive an error.",
+        "parameters": [
+          {
+            "description": "Only return events after this time (RFC3339). Defaults to 14 days ago.",
+            "in": "query",
+            "name": "since",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only return events before this time (RFC3339). Defaults to now.",
+            "in": "query",
+            "name": "until",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier of the device. Can be ID, IMEI, or Serial number. Use format 'id:1234', 'imei:139872149701', or 'serial:43000001'",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Timeline type (bootloader, activation, plans, devicemessage, datapoint, backendnote, pairing, sim)",
+            "in": "path",
+            "name": "type",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimelineResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Timeline of specific type for device",
         "tags": [
           "devices"
         ]

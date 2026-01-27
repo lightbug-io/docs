@@ -71,6 +71,8 @@ words:
   - heartrate
   - refreshable
   - bootserver
+  - backendnote
+  - devicemessage
 
   # Other tech / code terms
   - mqtts
