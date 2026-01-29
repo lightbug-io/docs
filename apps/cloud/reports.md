@@ -20,24 +20,24 @@ device.
 
 ## Zone Reports
 
- - Zone Report (by Time)
- - Specific Zone Report: Check entries and exits for given zone(s).
- - Live Zone Status: Simple dashboard that groups devices by current zone or zone type.
- - Trip Count: Count the number of trips between two zones (or zone types)
- - Aggregated Zone Report
- - Inventory Report
+ - [Zone Report (by Time)](./reports/zone): Report of devices in zones over time.
+ - [Specific Zone Report](./reports/zone-specific): Check entries and exits for given zone(s).
+ - [Live Zone Status](./reports/live-zone-status): Simple dashboard that groups devices by current zone or zone type.
+ - [Trip Count](./reports/trip-count): Count the number of trips between two zones (or zone types).
+ - [Aggregated Zone Report](./reports/aggregated-zone)
+ - [Inventory Report](./reports/inventory)
 
 ## Vehicle Reports
 
- - Vehicle Activity: Report of device motion relative to ignition and working hours.
- - Vehicle Summary: Report of vehicle trips, distances, utilisation and more.
- - Vehicle Events: Text log of vehicle events, including zone entry & exit, ignition on & off and more
+ - [Vehicle Activity](./reports/vehicle-activity): Report of device motion relative to ignition and working hours.
+ - [Vehicle Summary](./reports/vehicle-summary): Report of vehicle trips, distances, utilisation and more.
+ - [Vehicle Events](./reports/vehicle-events): Text log of vehicle events, including zone entry & exit, ignition on & off and more
 
 ## Sensor Reports
 
- - Temperature Report
- - Proximity Report
- - Battery Performance Report
- - Motion Data Report
+ - [Temperature Report](./reports/temperature)
+ - [Proximity Report](./reports/proximity)
+ - [Battery Performance Report](./reports/battery-performance)
+ - [Motion Data Report](./reports/motion-data)
 
 For a high level overview of some reports, [see page 65 of the legacy user manual](https://lightbug.io/user_manual.pdf)
