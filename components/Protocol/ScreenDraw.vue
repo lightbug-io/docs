@@ -436,6 +436,7 @@ export default {
             b.push(0);
             let d = new Map();
             d.set(3, [pageId]);
+            d.set(5, [0]); // disable status bar
             d.set(7, [box.exportPositionX]);
             d.set(8, [box.exportPositionY]);
             d.set(9, [box.exportSizeX]);
