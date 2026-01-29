@@ -440,6 +440,7 @@ export default {
             d.set(8, [box.exportPositionY]);
             d.set(9, [box.exportSizeX]);
             d.set(10, [box.exportSizeY]);
+            d.set(11, [3]); // draw element bitmap
             d.set(25, box.cArrayOutput.split(',').map(byte => parseInt(byte, 16)));
             if(onlyOneLeft && isFirst) {
             d.set(6, [2]); // FullRedraw
