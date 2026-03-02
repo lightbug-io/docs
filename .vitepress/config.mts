@@ -461,6 +461,16 @@ export default withMermaid(defineConfig({
           ]
         },
         {
+          text: 'Capabilities',
+          link : '/devices/capabilities/',
+          items: [
+            {
+              text: 'BLE Scanning',
+              link: '/devices/capabilities/ble-scanning',
+            },
+          ]
+        },
+        {
           text: 'API',
           link : '/devices/api/',
         },

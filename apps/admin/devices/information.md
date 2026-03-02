@@ -56,6 +56,12 @@ This will poll for new events as they happen, so you should be able to see your 
 If your device has not recently sent any data, you might find the timeline empty, or timing out.
 :::
 
+## Live
+
+For devices that make use of V3 messaging, you can also view live data from the device as it is received by the Lightbug platform.
+
+![](https://upload.r2.lb.chasm.cloud/2026/03/chrome_eEEcyNZDFD.png)
+
 ## Config Pages
 
 The config pages tab shows the current config pages applied to the device.
