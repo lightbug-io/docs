@@ -20,11 +20,11 @@ device.
 
 ## Zone Reports
 
- - [Zone Report (by Time)](./reports/zone): Report of devices in zones over time.
- - [Specific Zone Report](./reports/zone-specific): Check entries and exits for given zone(s).
- - [Live Zone Status](./reports/live-zone-status): Simple dashboard that groups devices by current zone or zone type.
+ - [Zone Report (by Time)](./reports/zone-by-time): Report of devices in zones over time.
+ - [Specific Zone Report](./reports/specific-zone): Check entries and exits for given zone(s).
+ - [Live Zone Status](./reports/live-zones): Simple dashboard that groups devices by current zone or zone type.
  - [Trip Count](./reports/trip-count): Count the number of trips between two zones (or zone types).
- - [Aggregated Zone Report](./reports/aggregated-zone)
+ - [Aggregated Zone Report](./reports/zone-aggregate)
  - [Inventory Report](./reports/inventory)
 
 ## Vehicle Reports
