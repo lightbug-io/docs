@@ -32,4 +32,12 @@ The URL is made up of the device ID, start time, end time, and a random token to
 
 ## Viewing
 
-Shares will be published to [share.chasm.cloud](https://share.chasm.cloud) ([documentation](/apps/chasm/share/)), and can be viewed without authentication.
+Shares will be published to [share.chasm.cloud](https://share.chasm.cloud) which itself is [fully documented on this site](/apps/chasm/share/), and can be viewed without authentication.
+
+Some example share URLs for RH2 devices:
+ - [A 5 minute drive through Bristol @ 1Hz](https://share.chasm.cloud/#12916041/20260212-170900-20260212-171500-htNJ4Uuz5hM7zOb45Hw0)
+ - [A 50 minute walk in Bristol @ 1Hz](https://share.chasm.cloud/#12916041/20260212-124500-20260212-134500-5QoJIuLTbH76C9PlINmS)
+ - [Sat stationary on a rock on Dartmoor](https://share.chasm.cloud/#13671375/20260125-151718-20260125-152439-1EBYuf1nYgfqfDJ1lAVX)
+
+And for other devices:
+ - Android: [A 5 minute walk including BLE data](https://share.chasm.cloud/#13683726/20260114-164117-20260114-164627-OLlSHUMJvbY13z4TWtGZ)

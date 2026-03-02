@@ -17,9 +17,9 @@ const props = defineProps({
 })
 
 const devices = [
-  { id: 'rtk-handheld', name: 'Handheld RTK', link: '/devices/rtk/handheld/' },
-  { id: 'rtk-vehicle', name: 'Vehicle RTK', link: '/devices/rtk/vehicle' },
+  { id: 'rtk', name: 'RTK', link: '/devices/rtk/' },
   { id: 'viper', name: 'Viper' },
+  { id: 'ble-gateways', name: 'BLE Gateways' },
   { id: 'zcard', name: 'ZCard' }
 ]
 </script>

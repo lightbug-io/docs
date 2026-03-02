@@ -862,6 +862,21 @@ export default withMermaid(defineConfig({
           ],
         }
       ],
+      '/apps/chasm/share': [
+        { text: 'Chasm Share', link: '/apps/chasm/share/' },
+        { text: 'Creating a Share', link: '/apps/chasm/share/creating-a-share' },
+        { text: 'Views',
+          items: [
+          { text: 'Overview', link: '/apps/chasm/share/overview' },
+          { text: 'Summary', link: '/apps/chasm/share/summary' },
+          { text: 'Position', link: '/apps/chasm/share/position' },
+          { text: 'Satellite', link: '/apps/chasm/share/satellite' },
+          { text: 'Device Status', link: '/apps/chasm/share/device-status' },
+          { text: 'Power Info', link: '/apps/chasm/share/power-info' },
+          { text: 'BLE Scan', link: '/apps/chasm/share/ble-scan' },
+          ]
+        }
+      ],
       '/onprem': [
         {
           text: 'On Premise',
