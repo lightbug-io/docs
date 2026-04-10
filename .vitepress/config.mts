@@ -358,21 +358,26 @@ export default withMermaid(defineConfig({
           text: 'Terminology',
           link: '/terminology/',
           items: [
+            { text: 'IoT', link: '/terminology/iot' },
             {
-              text: 'General',
+              text: 'Positioning',
+              link: '/terminology/positioning/',
+              items: [
+                { text: 'GNSS', link: '/terminology/positioning/gnss' },
+                { text: 'RTK', link: '/terminology/positioning/rtk' },
+                { text: 'WiFi', link: '/terminology/positioning/wifi' },
+                { text: 'Cellular', link: '/terminology/positioning/cellular' },
+              ]
+            },
+            {
+              text: 'Communication',
+              link: '/terminology/communication/',
               items: [
                 {
-                  text: 'Positioning',
-                  link: '/terminology/positioning/',
-                  items: [
-                    { text: 'GNSS', link: '/terminology/positioning/gnss' },
-                    { text: 'RTK', link: '/terminology/positioning/rtk' },
-                    { text: 'WiFi', link: '/terminology/positioning/wifi' },
-                    { text: 'Cellular', link: '/terminology/positioning/cellular' },
-                  ]
+                  text: 'Cellular',
+                  link: '/terminology/communication/cellular/',
                 },
-                { text: 'IoT', link: '/terminology/iot' },
-                { text: 'Observability', link: '/terminology/observability' },
+                { text: 'LoRa', link: '/terminology/communication/lora' },
               ]
             },
             { text: 'Devices', link: '/terminology/devices' },
