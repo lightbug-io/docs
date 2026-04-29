@@ -18,6 +18,12 @@ groups:
   power:
     name: Power
     description: Power and battery management
+  scan:
+    name: Scan
+    description: WiFi, BLE, and RF scanning messages
+  server:
+    name: Server
+    description: Server side events
   ungrouped:
     name: Ungrouped
     description: A collection of ungrouped messages
@@ -117,6 +123,15 @@ header:
         name: Invalid Subscription Parameter
         id: invalidSubParam
         description: Status code when a subscription request has invalid parameters such as Interval or Duration
+      14:
+        name: Bad Encryption
+        id: badEnc
+        description: |
+          The receiver was expected to be able to decrypt the message, but decryption failed
+          e.g., due to incorrect keys or corrupted data
+    parsers:
+      - id: statusName
+        parser: values
   5:
     name: Method
     id: method
@@ -145,6 +160,9 @@ header:
         name: UNSUBSCRIBE
         id: unsubscribe
         description: Unsubscribe from a previous subscription.
+    parsers:
+      - id: methodName
+        parser: values
   6:
     name: Interval
     id: interval
@@ -307,6 +325,12 @@ header:
       one or more Subscription IDs will be included in the message header to identify which subscription(s) the message relates to.
     type: uint8[]
     alpha: New feature, subject to alterations, for advanced usage
+  20:
+    name: Session ID
+    id: sessionId
+    description: The message ID of the session, associated with a session start message
+    type: uint32
+    alpha: New feature, subject to alterations, possibly for internal only usage
   50:
     name: App Name
     id: app
@@ -339,6 +363,15 @@ header:
       Constrained clients may set less bytes, and the server will construct a full UUID v7 matching the provided bytes for the session.
       Server systems may also add this to messages they receive, if not already present.
     type: bytes
+  99:
+    name: Timestamp
+    id: ts
+    description: Timestamp of when the message was generated, in seconds since epoch, if not sent in "real time".
+    type: uint32
+    unit: s since epoch
+    parsers:
+      - id: tsIso
+        parser: timestamp
   100:
     name: Received time
     id: receivedTime
@@ -348,16 +381,72 @@ header:
       Particularly useful for messages that are further processed, queued or forwarded on.
     type: uint64
     unit: ms since epoch
+    parsers:
+      - id: tsIso
+        parser: timestamp-ms
   101:
     name: Received sequence
     id: receivedSeq
     description: |
-      Sequence the message was received in, as an incrementing number.
-      Cloud systems may add this to messages they receive.
-      Should start at 1 and increments by 1 for each message received on a single connection or during a single session.
-      A sequence number of 1 can thus indicate the start of a new session or connection.
+      Sequence that messages not associated with a "session" were received in, as an incrementing number.
+      Cloud systems may add this to messages they receive, but should not add it to messages that are part of a session (has session ID, or is session start/end).
+      Should start at 1 and increment by 1 for each message received on a single connection.
+      A sequence number of 1 can thus indicate the start of a new connection, has happened, and the device may want to be resent any commands.
     type: uint
+  103:
+    name: Received with
+    id: receivedWith
+    description: |
+      Raw bytes of other V3 messages that were received alongside this message, when contextually relevant or important for the message type.
+      For example, cloud systems add this to session end messages, bundling the raw bytes of all other messages in the session.
+      Each field instance contains up to 255 bytes of the concatenated message stream.
+      A single message may span multiple field instances if it exceeds 255 bytes.
+      Use multiple fields of this type to carry the full payload.
+    type: bytes
+    parsers:
+      - id: v3messages
+        parser: v3-messages
 messages:
+  3:
+    name: Event
+    id: event
+    alpha: New message type for server side events, subject to alterations
+    description: |
+      Used to indicate that an event has occurred.
+      Events may be used to notify of state changes, errors, warnings, or other significant occurrences.
+      Initially this will only be used for server side events, such as device connected, disconnected, RTK errors etc.
+
+      Probable header fields:
+       - Client ID will indicate the device the event relates to.
+       - Status will indicate if the event is an error or OK.
+       - Received Time may be added by cloud systems to indicate when the event was generated
+    group: server
+    data:
+      1:
+        name: Service
+        id: service
+        description: Service the event relates to, e.g., "CHASM"
+        type: ascii
+      2:
+        name: System
+        id: system
+        description: Sub system the event relates to, e.g., "UDP_IN"
+        type: ascii
+      3:
+        name: Code
+        id: code
+        description: Code identifying the event, e.g., "DEVICE_CONNECTED"
+        type: ascii
+      4:
+        name: Text Data
+        id: text
+        description: Text for the event (optional). Additional context...
+        type: ascii
+      5:
+        name: Integer
+        id: integer
+        description: Integer data for the event (optional). Additional context...
+        type: int32
   5:
     name: ACK
     id: ack
@@ -491,16 +580,57 @@ messages:
     alpha: Config interactions are currently in an experimental phase, and the API may change in future, and documentation may be incomplete.
     group: ungrouped
     data:
+      3:
+        name: Command
+        id: cmd
+        type: uint
+        values:
+          1:
+            name: Partial Wipe
+            id: partialWipe
+            description: |
+              Wipe some config values, such as WiFi credentials, but not all config
+              Same as reset=1 in old lightbug device config.
+          2:
+            name: Full Wipe
+            id: fullWipe
+            description: |
+              Wipe all config values, returning the device to a factory new state.
+              Same as reset=2 in old lightbug device config.
+      4:
+        name: Summary of uint8 keys
+        id: summary8
+        description: |
+          A table of uint8 keys known, with the crc8 of the value.
+          eg: 123, 45, 124, 67 means key 123 has a value with crc8 of 45, and key 124 has a value with crc8 of 67.
+          May be sent, with the expectation of receiving config messages with the listed keys and values that need changing
+        type: uint8[]
+      5:
+        name: Summary of uint16 keys
+        id: summary16
+        description: |
+          A table of uint16 keys known, with the crc8 of the value.
+          eg: 123, 0, 45, means key 123 has a value with crc8 of 45.
+          May be sent, with the expectation of receiving config messages with the listed keys and values that need changing
+        type: bytes
       7:
         name: Key
         id: key
         type: uint16
-      9:
-        name: Payload
-        id: payload
-        description: Payload for the config
-        type: bytes
         values:
+          1:
+            name: BaseSettings
+            id: base
+            description: 24 bytes of basic device settings (intervals, modes, etc.)
+          2:
+            name: HomeWifi
+            id: homeWifi
+          5:
+            name: TimedSettings
+            id: timedSettings
+          6:
+            name: UnixAlarms
+            id: unixAlarms
           19:
             name: RtkMinUsableSatDb
             id: rtkMinUsableSatDb
@@ -509,6 +639,21 @@ messages:
             name: RtkMinElevation
             id: rtkMinElevation
             description: RtkMinElevation
+          27:
+            name: Secondary Server
+            id: secondaryServer
+            description: A FQDN or IP of a secondary server for the second link.
+      9:
+        name: Payload
+        id: payload
+        description: |
+          Payload for the config.
+          Setting a key to a 0 length value may be used to clear the config value for that key.
+        type: bytes
+    methods:
+      GET: null
+      NONE: null
+      SET: null
   15:
     name: Position
     id: position
@@ -623,6 +768,12 @@ messages:
           5:
             name: rtk-fix
             id: rtkFix
+          10:
+            name: wifi
+            id: wifi
+          11:
+            name: gsm
+            id: gsm
         parsers:
           - id: typeName
             parser: values
@@ -652,6 +803,40 @@ messages:
         readonly: true
         conversion: "10"
         unit: seconds
+      98:
+        name: Send Reason
+        id: sendReason
+        description: |
+          Send reason code for this position.
+        type: uint8
+        bitfield:
+          1:
+            name: wake
+            id: wake
+          2:
+            name: sleep
+            id: sleep
+          4:
+            name: disconnected
+            id: disconnected
+          8:
+            name: outside
+            id: outside
+          16:
+            name: detected
+            id: detected
+          32:
+            name: start
+            id: start
+          64:
+            name: stop
+            id: stop
+          128:
+            name: stale
+            id: stale
+        parsers:
+          - id: sendReasonNames
+            parser: bitfield
     methods:
       GET: null
       SUBSCRIBE: null
@@ -784,6 +969,33 @@ messages:
           description: This example is captured from an RV1 device as part of normal communications with the cloud, somewhere in California.
           date: "2025-10-03"
           generator: RV1 P1 v2287
+  17:
+    name: Command
+    id: command
+    description: |
+      Issue a direct command to the device.
+    group: general
+    data:
+      1:
+        name: Arm Mode
+        id: armMode
+        description: 0 = disarm, 1 = arm. Only available on devices that can be armed.
+        type: uint8
+        values:
+          0:
+            name: Disarm
+            id: disarm
+          1:
+            name: Arm
+            id: arm
+      2:
+        name: Deep Sleep
+        id: deepSleep
+        description: 1 = trigger deep sleep / shipping mode.
+        type: uint8
+    methods:
+      GET: null
+      SET: null
   30:
     name: Transmit Now
     id: transmitNow
@@ -822,6 +1034,8 @@ messages:
         id: priority
         description: 0 - 1
         type: uint8
+    methods:
+      SET: null
     examples:
       - name: Send the arbitrary data 'foo' as ascii bytes to the cloud
         bytes: 3 22 0 30 0 2 0 5 1 1 4 1 131 1 0 2 3 102 111 111 180 28
@@ -853,6 +1067,21 @@ messages:
         id: requestControl
         description: Note this will always be true when GETting state in flight mode (as control has been taken).
         type: bool
+      5:
+        name: Start Search
+        id: startSearch
+        description: |
+          Trigger a network search. When present, takes priority over flight mode / duration fields.
+        type: uint8
+        values:
+          0:
+            name: Full
+            id: full
+            description: Full network scan.
+          1:
+            name: Auto
+            id: auto
+            description: Automatic search using the last known band.
     methods:
       GET: null
       SET: null
@@ -1013,6 +1242,8 @@ messages:
         type: uint8
     methods:
       GET: null
+      SUBSCRIBE: null
+      UNSUBSCRIBE: null
     examples:
       - name: GET request for device status
         bytes: 3 20 0 34 0 2 0 5 1 1 2 4 32 98 132 62 0 0 194 229
@@ -1138,6 +1369,83 @@ messages:
           description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where P1 responses to a request from Toit on the ESP32.
           date: "2025-10-10"
           generator: RH2 P1 v2287
+  37:
+    name: Cell Info
+    id: cellInfo
+    group: info
+    header:
+      - 5
+    data:
+      4:
+        name: Network type
+        id: networkType
+        type: uint8
+        values:
+          0:
+            name: No network
+            id: noNetwork
+          2:
+            name: GSM (2G)
+            id: gsm2g
+          3:
+            name: WCDMA (3G)
+            id: wcdma3g
+          4:
+            name: LTE (4G)
+            id: lte4g
+      5:
+        name: Network MNC
+        id: mnc
+        description: |
+          MNC of the currently connected network.
+          Can be 0 if not connected.
+          See <a href="https://mcc-mnc.net/" target="_blank">mcc-mnc.net</a>
+        type: uint16
+      6:
+        name: Network MCC
+        id: mcc
+        description: |
+          MCC of the currently connected network.
+          Can be 0 if not connected.
+          See <a href="https://mcc-mnc.net/" target="_blank">mcc-mnc.net</a>
+        type: uint16
+      20:
+        name: Carrier Squelch
+        id: csq
+        type: uint8
+      21:
+        name: RSRP
+        id: rsrp
+        description: Reference Signal Received Power
+        type: uint8
+      22:
+        name: RSRQ
+        id: rsrq
+        description: Reference Signal Received Quality
+        type: uint8
+      23:
+        name: RSSI
+        id: rssi
+        description: Received Signal Strength Indicator
+        type: uint8
+      24:
+        name: RSNR
+        id: rsnr
+        description: Reference Signal to Noise Ratio
+        type: uint8
+      25:
+        name: Cell ID
+        id: cell
+        type: uint32
+      26:
+        name: LAC
+        id: lac
+        description: Location Area Code
+        type: uint16
+    methods:
+      GET: null
+      SUBSCRIBE: null
+      UNSUBSCRIBE: null
   38:
     name: Button Press
     id: buttonPress
@@ -1278,7 +1586,15 @@ messages:
     description: |
       Control the haptics
       The first haptics action after power-on will also result in the haptics driver being initialized, leading to a calibration.
+      If Header Duration is provided, haptics are run in DRV2605 RTP (Real Time Playback) continuous mode and automatically stopped after the specified timeout.
+      Parameter combinations are strict:
+      - Pattern + Intensity (optional Duration) is valid.
+      - Driver Pattern by itself is valid. (duration is defined by the pattern and cannot be overridden)
+      - Driver Pattern cannot be combined with Pattern, Intensity, or Duration.
     group: interface
+    header:
+      - 5
+      - 7
     data:
       1:
         name: Pattern
@@ -1311,6 +1627,262 @@ messages:
           2:
             name: High
             id: high
+      3:
+        name: Driver Pattern
+        id: driverPattern
+        description: |
+          Direct DRV2605 ROM effect index [1-123].
+          Must be sent on its own (without Pattern, Intensity, or Header Duration).
+        type: uint8
+        values:
+          1:
+            name: Strong Click - 100%
+          2:
+            name: Strong Click - 60%
+          3:
+            name: Strong Click - 30%
+          4:
+            name: Sharp Click - 100%
+          5:
+            name: Sharp Click - 60%
+          6:
+            name: Sharp Click - 30%
+          7:
+            name: Soft Bump - 100%
+          8:
+            name: Soft Bump - 60%
+          9:
+            name: Soft Bump - 30%
+          10:
+            name: Double Click - 100%
+          11:
+            name: Double Click - 60%
+          12:
+            name: Triple Click - 100%
+          13:
+            name: Soft Fuzz - 60%
+          14:
+            name: Strong Buzz - 100%
+          15:
+            name: 750ms Alert - 100%
+          16:
+            name: 1000ms Alert - 100%
+          17:
+            name: Strong Click 1 - 100%
+          18:
+            name: Strong Click 2 - 80%
+          19:
+            name: Strong Click 3 - 60%
+          20:
+            name: Strong Click 4 - 30%
+          21:
+            name: Medium Click 1 - 100%
+          22:
+            name: Medium Click 2 - 80%
+          23:
+            name: Medium Click 3 - 60%
+          24:
+            name: Sharp Tick 1 - 100%
+          25:
+            name: Sharp Tick 2 - 80%
+          26:
+            name: Sharp Tick 3 - 60%
+          27:
+            name: Short Double Click Strong 1 - 100%
+          28:
+            name: Short Double Click Strong 2 - 80%
+          29:
+            name: Short Double Click Strong 3 - 60%
+          30:
+            name: Short Double Click Strong 4 - 30%
+          31:
+            name: Short Double Click Medium 1 - 100%
+          32:
+            name: Short Double Click Medium 2 - 80%
+          33:
+            name: Short Double Click Medium 3 - 60%
+          34:
+            name: Short Double Sharp Tick 1 - 100%
+          35:
+            name: Short Double Sharp Tick 2 - 80%
+          36:
+            name: Short Double Sharp Tick 3 - 60%
+          37:
+            name: Long Double Sharp Click Strong 1 - 100%
+          38:
+            name: Long Double Sharp Click Strong 2 - 80%
+          39:
+            name: Long Double Sharp Click Strong 3 - 60%
+          40:
+            name: Long Double Sharp Click Strong 4 - 30%
+          41:
+            name: Long Double Sharp Click Medium 1 - 100%
+          42:
+            name: Long Double Sharp Click Medium 2 - 80%
+          43:
+            name: Long Double Sharp Click Medium 3 - 60%
+          44:
+            name: Long Double Sharp Tick 1 - 100%
+          45:
+            name: Long Double Sharp Tick 2 - 80%
+          46:
+            name: Long Double Sharp Tick 3 - 60%
+          47:
+            name: Buzz 1 - 100%
+          48:
+            name: Buzz 2 - 80%
+          49:
+            name: Buzz 3 - 60%
+          50:
+            name: Buzz 4 - 40%
+          51:
+            name: Buzz 5 - 20%
+          52:
+            name: Pulsing Strong 1 - 100%
+          53:
+            name: Pulsing Strong 2 - 60%
+          54:
+            name: Pulsing Medium 1 - 100%
+          55:
+            name: Pulsing Medium 2 - 60%
+          56:
+            name: Pulsing Sharp 1 - 100%
+          57:
+            name: Pulsing Sharp 2 - 60%
+          58:
+            name: Transition Click 1 - 100%
+          59:
+            name: Transition Click 2 - 80%
+          60:
+            name: Transition Click 3 - 60%
+          61:
+            name: Transition Click 4 - 40%
+          62:
+            name: Transition Click 5 - 20%
+          63:
+            name: Transition Click 6 - 10%
+          64:
+            name: Transition Hum 1 - 100%
+          65:
+            name: Transition Hum 2 - 80%
+          66:
+            name: Transition Hum 3 - 60%
+          67:
+            name: Transition Hum 4 - 40%
+          68:
+            name: Transition Hum 5 - 20%
+          69:
+            name: Transition Hum 6 - 10%
+          70:
+            name: Transition Ramp Down Long Smooth 1 - 100 to 0%
+          71:
+            name: Transition Ramp Down Long Smooth 2 - 100 to 0%
+          72:
+            name: Transition Ramp Down Medium Smooth 1 - 100 to 0%
+          73:
+            name: Transition Ramp Down Medium Smooth 2 - 100 to 0%
+          74:
+            name: Transition Ramp Down Short Smooth 1 - 100 to 0%
+          75:
+            name: Transition Ramp Down Short Smooth 2 - 100 to 0%
+          76:
+            name: Transition Ramp Down Long Sharp 1 - 100 to 0%
+          77:
+            name: Transition Ramp Down Long Sharp 2 - 100 to 0%
+          78:
+            name: Transition Ramp Down Medium Sharp 1 - 100 to 0%
+          79:
+            name: Transition Ramp Down Medium Sharp 2 - 100 to 0%
+          80:
+            name: Transition Ramp Down Short Sharp 1 - 100 to 0%
+          81:
+            name: Transition Ramp Down Short Sharp 2 - 100 to 0%
+          82:
+            name: Transition Ramp Up Long Smooth 1 - 0 to 100%
+          83:
+            name: Transition Ramp Up Long Smooth 2 - 0 to 100%
+          84:
+            name: Transition Ramp Up Medium Smooth 1 - 0 to 100%
+          85:
+            name: Transition Ramp Up Medium Smooth 2 - 0 to 100%
+          86:
+            name: Transition Ramp Up Short Smooth 1 - 0 to 100%
+          87:
+            name: Transition Ramp Up Short Smooth 2 - 0 to 100%
+          88:
+            name: Transition Ramp Up Long Sharp 1 - 0 to 100%
+          89:
+            name: Transition Ramp Up Long Sharp 2 - 0 to 100%
+          90:
+            name: Transition Ramp Up Medium Sharp 1 - 0 to 100%
+          91:
+            name: Transition Ramp Up Medium Sharp 2 - 0 to 100%
+          92:
+            name: Transition Ramp Up Short Sharp 1 - 0 to 100%
+          93:
+            name: Transition Ramp Up Short Sharp 2 - 0 to 100%
+          94:
+            name: Transition Ramp Down Long Smooth 1 - 50 to 0%
+          95:
+            name: Transition Ramp Down Long Smooth 2 - 50 to 0%
+          96:
+            name: Transition Ramp Down Medium Smooth 1 - 50 to 0%
+          97:
+            name: Transition Ramp Down Medium Smooth 2 - 50 to 0%
+          98:
+            name: Transition Ramp Down Short Smooth 1 - 50 to 0%
+          99:
+            name: Transition Ramp Down Short Smooth 2 - 50 to 0%
+          100:
+            name: Transition Ramp Down Long Sharp 1 - 50 to 0%
+          101:
+            name: Transition Ramp Down Long Sharp 2 - 50 to 0%
+          102:
+            name: Transition Ramp Down Medium Sharp 1 - 50 to 0%
+          103:
+            name: Transition Ramp Down Medium Sharp 2 - 50 to 0%
+          104:
+            name: Transition Ramp Down Short Sharp 1 - 50 to 0%
+          105:
+            name: Transition Ramp Down Short Sharp 2 - 50 to 0%
+          106:
+            name: Transition Ramp Up Long Smooth 1 - 0 to 50%
+          107:
+            name: Transition Ramp Up Long Smooth 2 - 0 to 50%
+          108:
+            name: Transition Ramp Up Medium Smooth 1 - 0 to 50%
+          109:
+            name: Transition Ramp Up Medium Smooth 2 - 0 to 50%
+          110:
+            name: Transition Ramp Up Short Smooth 1 - 0 to 50%
+          111:
+            name: Transition Ramp Up Short Smooth 2 - 0 to 50%
+          112:
+            name: Transition Ramp Up Long Sharp 1 - 0 to 50%
+          113:
+            name: Transition Ramp Up Long Sharp 2 - 0 to 50%
+          114:
+            name: Transition Ramp Up Medium Sharp 1 - 0 to 50%
+          115:
+            name: Transition Ramp Up Medium Sharp 2 - 0 to 50%
+          116:
+            name: Transition Ramp Up Short Sharp 1 - 0 to 50%
+          117:
+            name: Transition Ramp Up Short Sharp 2 - 0 to 50%
+          118:
+            name: Long buzz for programmatic stopping - 100%
+          119:
+            name: Smooth Hum 1 (No kick or brake pulse) - 50%
+          120:
+            name: Smooth Hum 2 (No kick or brake pulse) - 40%
+          121:
+            name: Smooth Hum 3 (No kick or brake pulse) - 30%
+          122:
+            name: Smooth Hum 4 (No kick or brake pulse) - 20%
+          123:
+            name: Smooth Hum 5 (No kick or brake pulse) - 10%
+    methods:
+      SET: null
     examples:
       - name: Medium intensity fade
         bytes: 03 23 00 40 00 01 00 01 04 57 00 00 00 02 00 01 02 01 01 01 01 21 242
@@ -1415,6 +1987,8 @@ messages:
         id: frequency
         description: Frequency of buzzer of KHz.(if frequency is sent, only duration and frequency parameters will be inside the message)
         type: float32
+    methods:
+      SET: null
     examples:
       - name: 0.5KHz for 20ms
         bytes: 03 27 00 42 00 01 00 01 04 14 00 00 00 02 00 01 05 02 20 00 04 00 00 00 63 251 238
@@ -1551,6 +2125,9 @@ messages:
         name: Prompt button 2
         id: promptButton2
         type: ascii
+    methods:
+      GET: null
+      SET: null
     examples:
       - name: Show an LB prompt on the screen for 1 second
         bytes: 3 18 0 45 0 0 0 2 0 9 10 2 76 66 1 1 187 211
@@ -1574,6 +2151,8 @@ messages:
         id: timings
         description: Array of timings in ms as uint16
         type: uint16[]
+    methods:
+      SET: null
     examples:
       - name: Play a complex sequence of sounds
         bytes: 03 231 00 46 00 01 00 01 04 68 00 00 00 02 00 06 07 140 174 71 225 62 00 00 00 00 174 71 225 62 00 00 00 00 174 71 225 62 00 00 00 00 33 176 178 62 00 00 00 00 84 227 05 63 00 00 00 00 174 71 225 62 00 00 00 00 33 176 178 62 00 00 00 00 84 227 05 63 00 00 00 00 174 71 225 62 00 00 00 00 57 180 40 63 00 00 00 00 57 180 40 63 00 00 00 00 57 180 40 63 00 00 00 00 33 176 50 63 00 00 00 00 84 227 05 63 00 00 00 00 225 122 212 62 00 00 00 00 33 176 178 62 00 00 00 00 84 227 05 63 00 00 00 00 174 71 225 62 70 144 01 50 00 144 01 50 00 144 01 50 00 44 01 50 00 100 00 50 00 144 01 50 00 44 01 50 00 100 00 50 00 32 03 50 00 144 01 50 00 144 01 50 00 144 01 50 00 44 01 50 00 100 00 50 00 144 01 50 00 44 01 50 00 100 00 50 00 32 03 219 48
@@ -1585,19 +2164,51 @@ messages:
     name: CPU2 Sleep
     id: cpu2Sleep
     alpha: This message is specified, but not actively used by the Toit SDK at this time.
-    description: Request CPU2 sleep
+    description: |
+      Request CPU2 sleep or WiFi override behaviour.
+      For METHOD_SET, Header Duration (7) controls how long a forced WiFi override remains active.
+      The same Duration timeout applies to both force-on and force-off modes.
     group: power
+    header:
+      - 5
+      - 7
     data:
-      1:
-        name: Interval
-        id: interval
-        description: Interval in ms to turn off the CPU2 for, before turning it back on
-        type: uint32
       2:
         name: Wake on Event
         id: wakeOnEvent
         description: Should CPU1 wake up CPU2 on new events / messages
         type: bool
+      10:
+        name: WiFi Override Mode
+        id: wifiOnOff
+        description: Forced WiFi override mode.
+        type: uint8
+        values:
+          0:
+            name: Force Off
+            description: Force WiFi off for the Duration timeout (or indefinitely if Duration is omitted).
+          1:
+            name: Force On
+            description: Force WiFi on for the Duration timeout (or indefinitely if Duration is omitted).
+          2:
+            name: Clear Override
+            description: Clear any forced WiFi override and return to normal WiFi power behavior.
+    methods:
+      GET: null
+      SET: null
+    examples:
+      - name: Force WiFi on to disable ESP hibernation
+        description: |
+          Send METHOD_SET with wifiOnOff=1 and wakeOnEvent=0.
+          Set Header Duration (7) to define the forced-on time in ms.
+          This forces WiFi on and prevents the ESP hibernate path while the override is active.
+          If Duration is omitted, the forced-on state remains until changed by a later request.
+        bytes: ""
+      - name: Clear WiFi override (return to normal behavior)
+        description: |
+          Send METHOD_SET with wifiOnOff=2.
+          This clears any forced WiFi override immediately, without forcing ON or OFF.
+        bytes: ""
   48:
     name: Power Info
     id: powerInfo
@@ -1671,6 +2282,8 @@ messages:
       If P1 or P2 receive this message, they will reset themselves.
       This message type is left open for future use, such as resetting co-processors, or subsystems.
     group: general
+    methods:
+      SET: null
     examples:
       - name: Reset CPU1 from CPU2
         bytes: 3 17 0 49 0 1 0 1 4 12 0 0 0 0 0 133 230
@@ -1738,6 +2351,30 @@ messages:
     description: Control Status LEDs
     group: interface
     data:
+      1:
+        name: LED Mask
+        id: ledMask
+        description: |
+          Bitfield describing the on/off state of all status LEDs in a single byte.
+          For example, 0x03 means LED 1 and LED 2 on, with the remaining LEDs off.
+          If present, this compact form takes priority over the individual LED fields (5-8).
+        type: uint8
+        bitfield:
+          1:
+            name: LED 1
+            id: led1
+          2:
+            name: LED 2
+            id: led2
+          4:
+            name: LED 3
+            id: led3
+          8:
+            name: LED 4
+            id: led4
+        parsers:
+          - id: ledMaskBits
+            parser: bitfield
       5:
         name: LED 1
         id: "1"
@@ -1754,6 +2391,9 @@ messages:
         name: LED 4
         id: "4"
         type: bool
+    methods:
+      GET: null
+      SET: null
   52:
     name: LED Control
     id: ledControl
@@ -1776,6 +2416,9 @@ messages:
         id: blue
         description: Blue LED intensity (0-255) PWM value
         type: uint8
+    methods:
+      GET: null
+      SET: null
     examples:
       - name: Set Strobe LED on P2 to green from a cloud link
         bytes: 3 17 0 52 0 1 0 14 1 1 1 0 3 1 255 194 216
@@ -1824,6 +2467,8 @@ messages:
         unit: mm
     methods:
       GET: null
+      SUBSCRIBE: null
+      UNSUBSCRIBE: null
   54:
     name: Charger Settings
     id: chargerSettings
@@ -1850,6 +2495,11 @@ messages:
         description: Target charge voltage for the battery. Typically 4.25V for lithium ion batteries.
         type: uint16
         unit: mV
+      4:
+        name: Disable PFM
+        id: disablePfm
+        description: Disable Pulse-Frequency Modulation mode on the charger IC. Reduces switching noise at light load. Only supported on Viper5 (BQ25622)
+        type: bool
     methods:
       GET: null
       SET: null
@@ -1870,6 +2520,9 @@ messages:
         id: mac
         description: MAC Address of the access point, as 6 bytes
         type: bytes
+        parsers:
+          - id: mac
+            parser: hex
       3:
         name: RSSI
         id: rssi
@@ -1906,16 +2559,27 @@ messages:
         name: Advertising Data
         id: advertisingData
         type: bytes
+        parsers:
+          - id: advertisements
+            parser: ble-advertising-v1
       2:
         name: MAC
         id: mac
         description: MAC Address of the access point, as 6 bytes
         type: bytes
+        parsers:
+          - id: mac
+            parser: hex
       3:
         name: RSSI
         id: rssi
         description: Signal strength
         type: int8
+      4:
+        name: Name
+        id: name
+        description: Device name, if available
+        type: ascii
     methods:
       SUBSCRIBE: null
     examples:
@@ -1931,6 +2595,86 @@ messages:
           description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, after BLE scan results were subscribed to from P2, and a BLE device was found, sent back to P1.
           date: "2025-10-14"
           generator: RH2 ESP32 Toit
+  57:
+    name: Accelerometer Data
+    id: _accelData
+    alpha: API is still evolving and may gain additional fields in future firmware versions.
+    description: |
+      Accelerometer metrics captured over time + events. Most values are time based (averages, highest value since X) or threshold based (highest value since the last one) - you can use the SET method to reset thresholds & baselines.
+      Values are generated on-device from FIFO samples and include tilt and g-vector summaries.
+      Everything is in 0.1g or degrees for clarity: whilst higher precision data is available, the accuracy can only really be trusted up to 0.1g or 1deg increments, and this keeps the payload size down.
+
+      **Partial messages:** When only one or more of the per-axis maximum G component fields (keys 9/10/11) change and all other fields are unchanged, the device emits two messages back-to-back. First, a sparse MT_ACCEL_DATA message containing only the changed component field(s) at Q_ChangesOnly level, allowing subscribers to react immediately to axis-level changes. Second, a full MT_ACCEL_DATA message (all fields) at Q_Valid level. In all other cases only one full message is emitted, at Q_ChangesOnly if any field changed or Q_Valid if the store is unchanged.
+    group: ungrouped
+    data:
+      1:
+        name: Version
+        id: version
+        description: Payload version / flags. Currently 0.
+        type: uint8
+      2:
+        name: Latest Tilt
+        id: latestTilt
+        description: Latest tilt angles as signed int8 [x, y, z] in degrees.
+        type: bytes
+      3:
+        name: Baseline Tilt
+        id: baselineTilt
+        description: Baseline tilt angles as signed int8 [x, y, z] in degrees.
+        type: bytes
+      4:
+        name: Maximum Tilt
+        id: maxTilt
+        description: Tilt angles as signed int8 [x, y, z] at the maximum observed tilt delta from baseline.
+        type: bytes
+      5:
+        name: Maximum Tilt Time
+        id: maxTiltTs
+        description: Unix timestamp for the maximum tilt event.
+        type: uint32
+        unit: s since epoch
+      6:
+        name: Average G Vector
+        id: avgG
+        description: Average vector as signed int8 [x, y, z, magnitude] in 0.1g units.
+        type: bytes
+      7:
+        name: Maximum G Vector
+        id: maxG
+        description: Maximum magnitude vector as signed int8 [x, y, z, magnitude] in 0.1g units.
+        type: bytes
+      8:
+        name: Maximum G Time
+        id: maxGTs
+        description: Unix timestamp for the maximum g event.
+        type: uint32
+        unit: s since epoch
+      9:
+        name: Maximum G Component X
+        id: maxGComponentX
+        description: Per-axis absolute maximum on X in 0.1g units.
+        type: int8
+      10:
+        name: Maximum G Component Y
+        id: maxGComponentY
+        description: Per-axis absolute maximum on Y in 0.1g units.
+        type: int8
+      11:
+        name: Maximum G Component Z
+        id: maxGComponentZ
+        description: Per-axis absolute maximum on Z in 0.1g units.
+        type: int8
+      12:
+        name: Variance
+        id: varianceMg
+        description: Variance indicator derived from the running standard deviation magnitude, clamped to 0..255 mg.
+        type: uint8
+        unit: mg
+    methods:
+      GET: null
+      SET: null
+      SUBSCRIBE: null
+      UNSUBSCRIBE: null
   1004:
     name: LORA
     id: lora
@@ -2021,6 +2765,52 @@ messages:
     codegen:
       exclude:
         - toit
+  2100:
+    name: EPO Data
+    id: epoData
+    description: Data relating to EPO (Extended Prediction Orbit) transfer requests and payload chunks.
+    group: ""
+    header:
+      - 5
+    data:
+      1:
+        name: Segment
+        id: segment
+        description: 6-hour segment index (0-based).
+        type: uint16
+      2:
+        name: Chunk
+        id: chunk
+        description: Chunk index within the segment (0-based).
+        type: uint8
+      3:
+        name: Chunk Size
+        id: chunkSize
+        description: |
+          Requested chunk size in bytes. Sent by the device in GET requests.
+          The server must respond with exactly this many bytes of payload (split across keys 10-19),
+          or return status=2 if it cannot satisfy the request.
+        type: uint16
+      4:
+        name: Total Segments
+        id: totalSegments
+        description: Total number of segments available in the cached EPO file.
+        type: uint16
+      5:
+        name: Status
+        id: status
+        description: Device/server status for EPO transfer (0=need data, 2=error).
+        type: uint8
+      10:
+        name: Payload
+        id: payload
+        description: |
+          Payload fragment data. The server may emit consecutive keys from 10 to 19,
+          each up to 255 bytes, to represent one chunk payload.
+        type: bytes
+    methods:
+      GET: null
+      NONE: null
   10008:
     name: Base Page
     id: basePage
