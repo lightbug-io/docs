@@ -16,7 +16,7 @@ When devices are activated, or when the monthly billing cycle occurs, the device
 
 If no credits are available of the required type, one of the below options will occur:
 - The plan will be purchased automatically, and added to the pool, if the account is pre pay and has billing details set up.
-- The plan will be automatically allocated, and billed in the next invoice, if the account is post pay and the device is ont he post pay account.
+- The plan will be automatically allocated, and billed in the next invoice, if the account is post pay and the device is on the post pay account.
 - The device will be deactivated, if the account is pre pay and has no billing details set up, and no remaining plan credits are available.
 
 This pool is shared between all devices on the account.
@@ -63,6 +63,40 @@ Upgrades and downgrades of plans can be done at any time.
 - Post Pay:
    - If you upgrade, downgrade, or cancel a plan, you will be billed for the partial days used (with a minimum spend also applied) in the next invoice.
 
+## Post pay invoice calculations
+
+For post pay and other post pay billing, invoice line items are calculated from the individual plan allocations used during the billing month, then grouped by SKU on the invoice.
+
+### How the quantity is calculated
+
+The quantity shown on a post pay invoice is the sum of the partial month usage for all allocations of that SKU during the billing month.
+
+- Usage is prorated by the number of calendar days used in the billing month. (For example, April is divided by 30 days, while May is divided by 31 days)
+- Days are counted inclusively, so an allocation that starts and ends on the same calendar day still counts as 1 day of usage.
+
+For example, if a plan is active for 15 days in a 30 day month, it contributes 0.5 to the invoice quantity for that SKU.
+
+### How the price is chosen
+
+For post pay plans, the unit price is selected from the default pricing bands, and any custom pricing bands that may be set up for the account.
+
+This is based on the total quantity of that SKU used in the billing month, and the price bands that are set up for that SKU.
+
+Once the correct price band has been selected, that unit price is applied to each SKU's prorated quantity on the invoice.
+
+### Why the same device can appear multiple times
+
+Billing is based on plan allocations, not only on unique devices.
+
+This means a device can contribute multiple billed entries within the same month if it is:
+
+- activated part way through the month
+- upgraded or downgraded
+- moved between plans more than once
+- deactivated and reactivated
+
+In these cases, each allocation records its own consumed and removed dates, and each contributes its own prorated amount to the monthly invoice.
+
 ## Examples
 
 ### 1. Pre Pay: One renewing, one new device, no billing
@@ -91,3 +125,19 @@ The invoice for the month would summarize this information, and show the total a
 Any additional information about which plans were used by which devices, and when they were activated, is available in the plans section of the admin portal.
 
 ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/aEESGKE.png)
+
+### 3. Post Pay: Multiple activation periods
+
+<!-- This example is based on a single device, which is activated for a period of 5 days, and then a period of 10 days in a 30 day month. -->
+
+A device is activated for 5 days, then deactivated for 10 days, then reactivated for 10 days in a 30 day month.
+
+
+- Activation 1: On Day 1 of the month, a month plan is consumed by the device.
+- Deactivation: On Day 5 of the month, the device is deactivated, the same month plan is marked as removed.
+- Activation 2: On Day 15 of the month, a month plan is consumed by the device again (This is a new plan, and allocation, separate from the first activation).
+- Deactivation: On Day 25 of the month, the device is deactivated again, and the second month plan is marked as removed.
+
+This results in 15 days of usage, which contributes 0.5 to the invoice quantity for that SKU.
+
+The invoice would show a quantity of 0.5 for that SKU, and the unit price would be selected based on the total quantity of that SKU used in the billing month, and the price bands that are set up for that SKU.
