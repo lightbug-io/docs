@@ -63,11 +63,17 @@ Upgrades and downgrades of plans can be done at any time.
 - Post Pay:
    - If you upgrade, downgrade, or cancel a plan, you will be billed for the partial days used (with a minimum spend also applied) in the next invoice.
 
-## Post pay invoice calculations
+## Calculations
+
+### Pre Pay
+
+See [Initial activation](#initial-activation) and [Plan changes](#plan-changes) for how pre pay billing is calculated.
+
+### Post Pay
 
 For post pay and other post pay billing, invoice line items are calculated from the individual plan allocations used during the billing month, then grouped by SKU on the invoice.
 
-### How the quantity is calculated
+#### How the quantity is calculated
 
 The quantity shown on a post pay invoice is the sum of the partial month usage for all allocations of that SKU during the billing month.
 
@@ -76,7 +82,7 @@ The quantity shown on a post pay invoice is the sum of the partial month usage f
 
 For example, if a plan is active for 15 days in a 30 day month, it contributes 0.5 to the invoice quantity for that SKU.
 
-### How the price is chosen
+#### How the price is chosen
 
 For post pay plans, the unit price is selected from the default pricing bands, and any custom pricing bands that may be set up for the account.
 
@@ -84,7 +90,7 @@ This is based on the total quantity of that SKU used in the billing month, and t
 
 Once the correct price band has been selected, that unit price is applied to each SKU's prorated quantity on the invoice.
 
-### Why the same device can appear multiple times
+#### Why the same device can appear multiple times
 
 Billing is based on plan allocations, not only on unique devices.
 
@@ -110,7 +116,7 @@ Device B was activated part way through the current month, and needs some credit
 
 Assuming a price of $13 for 1 month of the unlimited plan, the invoice was credited $2.86, which covers this 22%.
 
-![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/sKw7mQ7.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/sKw7mQ7.png){.center}{width=600}
 
 ### 2. Post Pay
 
@@ -124,7 +130,7 @@ The invoice for the month would summarize this information, and show the total a
 
 Any additional information about which plans were used by which devices, and when they were activated, is available in the plans section of the admin portal.
 
-![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/aEESGKE.png)
+![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/aEESGKE.png){.center}{width=600}
 
 ### 3. Post Pay: Multiple activation periods
 
