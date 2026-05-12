@@ -383,6 +383,7 @@ export default withMermaid(defineConfig({
             { text: 'Devices', link: '/terminology/devices' },
             { text: 'Points', link: '/terminology/points' },
             { text: 'Readings', link: '/terminology/readings' },
+            { text: 'Plans', link: '/terminology/plans' },
             { text: 'Billing', link: '/terminology/billing' },
           ],
         },

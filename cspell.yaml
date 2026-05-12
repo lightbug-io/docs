@@ -73,6 +73,8 @@ words:
   - bootserver
   - backendnote
   - devicemessage
+  - ONLYUK
+  - ONLYUS
 
   # Other tech / code terms
   - mqtts

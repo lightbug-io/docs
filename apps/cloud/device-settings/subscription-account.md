@@ -34,6 +34,8 @@ Doing so will prompt you to enter the device's serial number.
 
 You'll then be prompted to select a plan for the device, setting billing details if required, and then the device will be activated.
 
+For tier comparison, SKU naming, and generic plan meaning used across Cloud, Admin, and API docs, see [Terminology: Plans](/terminology/plans).
+
 <v-img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/zSSs8BK.png" style="height:350px"/>
 
 If you have no billing details set up, you will be prompted to enter them before the device will then be activated and the plan consumed.

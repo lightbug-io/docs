@@ -13,4 +13,5 @@ Right now the section is split into a few broad areas, starting with positioning
 - [Devices](/terminology/devices)
 - [Points](/terminology/points)
 - [Readings](/terminology/readings)
+- [Plans](/terminology/plans)
 - [Billing](/terminology/billing)
