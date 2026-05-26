@@ -10,7 +10,9 @@ Forwarding allows you to forward data from your devices to other services, via a
 
 This will replace similar messaging based on [Notifications](/apps/cloud/account/notifications), which is only accessible via API or the Cloud app.
 
-You can access sharing on supported devices, via the <IconWithLabel iconName="arrow-forward-outline" label="Forwarding" size="1.5em" /> device action on <LinkWithDestination href="https://admin.lightbug.cloud/#/pages/devices" label="the devices admin page" destination="ADMIN" />.
+## Configure forwarding
+
+You can access forwarding on supported devices, via the <IconWithLabel iconName="arrow-forward-outline" label="Forwarding" size="1.5em" /> device action on <LinkWithDestination href="https://admin.lightbug.cloud/#/pages/devices" label="the devices admin page" destination="ADMIN" />.
 
 ![](https://upload.r2.lb.chasm.cloud/2025/10/He9gWHUObe.png)
 
@@ -18,11 +20,20 @@ For multiple device selection, you can also access forwarding via the <IconWithL
 
 ![](https://upload.r2.lb.chasm.cloud/2025/10/Yhgf34LAel.png)
 
-## Selection
+## Device assignment
+
+There are two ways that devices can be assigned to a forwarder:
+
+1) **Forward for all devices**: This will forward messages from all devices on your user / the org that owns the forwarder.
+    - <small>It doesn't matter what devices you selected in the step above.</small>
+2) **Forward for selected devices**: This will only forward messages from the devices you specifically select and add to the forwarder.
+    - <small>You should select all the devices you want to forward messages from.</small>
+
+## Select Forwarder
 
 If you already have a forwarder set up, it should appear in the list of forwarders ready to select.
 
-If no forwarders have been set up, you'll see an empty list.
+If no forwarders have been set up, you'll see an empty list, and you'll need to [create a forwarder](#configure-forwarder) before you can select one.
 
 :::tabs
 == Single device
@@ -31,9 +42,21 @@ If no forwarders have been set up, you'll see an empty list.
 ![](https://upload.r2.lb.chasm.cloud/2025/10/chrome_bXJ5YB7FYB.png)
 :::
 
-## Create a Forwarder
+## Configure Devices
 
-Hit the `New` button to create a new forwarder.
+With a forwarder selected, you can then configure which devices to forward messages from.
+
+All other decisions around how the forwarder operates (which messages and frequency, and where to forward to) are determined by the forwarder configuration, which you can managed by Editing the forwarder itself (see [Configure Forwarder](#configure-forwarder) below).
+
+Based on the devices you selected when accessing forwarding, the list of devices will be pre-populated with those devices. You can then add or remove devices from the forwarder as needed, by assigning or un-assigning devices to the forwarder.
+
+![](https://upload.r2.lb.chasm.cloud/2026/05/chrome_ZCrRrH5OWW.png)
+
+If the forwarder is in "Forward for all devices" mode, you'll be able to see this here. To disable this mode and select specific devices, you'll need to edit the forwarder itself (see [Configure Forwarder](#configure-forwarder) below).
+
+## Configure Forwarder
+
+Hit the `New` button to create a new forwarder, or the `Edit` button to edit an existing forwarder.
 
 You'll then be presented with a dialog to configure the forwarder.
 
