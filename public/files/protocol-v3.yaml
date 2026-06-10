@@ -363,6 +363,29 @@ header:
       Constrained clients may set less bytes, and the server will construct a full UUID v7 matching the provided bytes for the session.
       Server systems may also add this to messages they receive, if not already present.
     type: bytes
+  60:
+    name: Encryption
+    id: encryption
+    description: |
+      Encryption related information for the message.
+      If present, the message payload is encrypted, and this field contains the necessary information to decrypt it.
+      Usually contains the uint32 Tag and uint32 IV
+    type: uint32[]
+    listKeys:
+      - name: Tag
+        id: tag
+        description: Truncated AES-GCM authentication tag prefix (currently 4 bytes)
+      - name: IV
+        id: iv
+        description: AES-GCM IV/counter value in little-endian, auto-sized in final list position
+  61:
+    name: Encryption Type
+    id: encryptionType
+    description: ""
+    values:
+      0:
+        name: Default
+        id: default
   99:
     name: Timestamp
     id: ts
@@ -393,6 +416,29 @@ header:
       Should start at 1 and increment by 1 for each message received on a single connection.
       A sequence number of 1 can thus indicate the start of a new connection, has happened, and the device may want to be resent any commands.
     type: uint
+  102:
+    name: Received via
+    id: receivedVia
+    description: |
+      Transport used by the server to receive this message.
+      Cloud systems may add this when recording ingress metadata.
+    type: uint8
+    values:
+      0:
+        name: Unknown
+        id: unknown
+      1:
+        name: HTTP
+        id: http
+      2:
+        name: MQTT
+        id: mqtt
+      3:
+        name: UDP
+        id: udp
+      4:
+        name: TCP
+        id: tcp
   103:
     name: Received with
     id: receivedWith
@@ -406,6 +452,16 @@ header:
     parsers:
       - id: v3messages
         parser: v3-messages
+  104:
+    name: Chunk Index
+    id: chunkIndex
+    description: Index of the current chunk (0-based)
+    type: uint8
+  105:
+    name: Encryption Tag
+    id: encryptionTag
+    description: Encryption tag
+    type: uint32
 messages:
   3:
     name: Event
@@ -643,6 +699,35 @@ messages:
             name: Secondary Server
             id: secondaryServer
             description: A FQDN or IP of a secondary server for the second link.
+          28:
+            name: Primary Server
+            id: primaryServer
+            description: FQDN or IP of the primary server for the first link.
+          30:
+            name: Link 2 Timeout
+            id: link2TimeoutS
+            description: Timeout in seconds for the secondary link before it is considered dropped. Triggers the "No Connection" screen and alerts.
+          31:
+            name: Quiet Mode
+            id: quietMode
+            description: When non-zero, suppresses notifications (buzzer, LEDs, etc.).
+          32:
+            name: USB Lock
+            id: usbLock
+            description: When non-zero, USB access is locked (usb pins are switched to i2c bus).
+          33:
+            name: LED Resting Armed Color
+            id: ledRestingArmedColor
+            description: RGB color when armed = true (3 bytes RGB  + 1 mode). [m,R,G,B] for the status LED when armed. m=2 enables breathing
+          34:
+            name: BLE Name Filter Prefix
+            id: bleNameFilterPrefix
+            description: Collection of null terminated strings. Expected format is [prefix1]\0[prefix2]\0[prefix3]\0
+          50:
+            name: Arming Mode
+            id: armingMode
+            description: |
+              Bitmask controlling device behaviour when armed. Value 0x00 = default (active when armed).
       9:
         name: Payload
         id: payload
@@ -2465,6 +2550,13 @@ messages:
         description: Protection level in the Z direction
         type: uint32
         unit: mm
+      6:
+        name: Probability
+        id: probability
+        description: |
+          Protection level probability as a float32.
+          For UBX NAV-PL this is computed from TMIR coefficient/exponent as coeff * 10^exp.
+        type: float32
     methods:
       GET: null
       SUBSCRIBE: null
