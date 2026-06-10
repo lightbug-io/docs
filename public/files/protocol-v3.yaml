@@ -35,7 +35,7 @@ header:
       ID identifying the message.
       Can be used by a receiver to ACK, respond to, deduplicate, resend or otherwise track messages.
       Some clients and services may require or desire an incrementing message ID for each message sent, acting as a sequence number.
-    type: uint32
+    type: uint
   2:
     name: Client ID
     id: client
@@ -50,7 +50,7 @@ header:
     description: |
       ID of the message that is being responded to
       (Message ID of the request or subscription)
-    type: uint32
+    type: uint
   4:
     name: Status
     id: status
