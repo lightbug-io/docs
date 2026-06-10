@@ -69,6 +69,7 @@ Click any example below to load it into the parser:
   <button @click="loadExample('1 8 6 55 3 14 0 13 0 0 0 1 0 6 1 84 103 57 0 0 1 2 3 3 14 0 13 0 0 0 1 0 6 1 84 103 57 9 8 7 6')" class="example-btn">2 Heartbeats with Noise</button>
   <button @click="loadExample('3 19 0 148 38 1 0 201 1 3 1 0 202 3 102 111 111 112 94')" class="example-btn">Custom Message</button>
   <button @click="loadExample('AzgAIgACAAECBBcGAAAIA22hAAAAAAAIAAEDBwoCBAUGAUEBAAQACQAAATABZAEEAg8AAuoA+mY=')" class="example-btn">Base64 Encoded</button>
+  <button @click="loadExample('031c0005000200033c019c08db368adf60d4753647bafa64226b9438')" class="example-btn example-encrypted">Encrypted Message</button>
 </div>
 
 #### Partial or Messy Input
@@ -141,5 +142,28 @@ These examples demonstrate the parser's ability to detect partially correct mess
   background-color: #fbbf24;
   border-color: #f59e0b;
   color: #333;
+}
+
+.example-btn.example-encrypted {
+  border-color: #17a2b8;
+  background-color: #d1ecf1;
+}
+
+.example-btn.example-encrypted:hover {
+  background-color: #17a2b8;
+  border-color: #138496;
+  color: white;
+}
+
+.dark .example-btn.example-encrypted {
+  border-color: #17a2b8;
+  background-color: #0c5460;
+  color: #d1ecf1;
+}
+
+.dark .example-btn.example-encrypted:hover {
+  background-color: #17a2b8;
+  border-color: #138496;
+  color: white;
 }
 </style>

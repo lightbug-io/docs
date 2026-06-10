@@ -25,6 +25,7 @@
                                 @mouseenter="setHoverAnnotation(sectionIndex, 'label', -1)"
                                 @mouseleave="clearHoverAnnotation()"
                             >
+                                <v-icon v-if="section.isEncryptedPayload" size="x-small" color="info" class="mr-1">mdi-lock</v-icon>
                                 {{ section.label }}
                             </span>
                             <template v-if="section.structure && section.structure.length > 0">
@@ -122,6 +123,10 @@
                         />
                     </div>
                 </div>
+            </div>
+            <div v-if="isEncrypted" class="encrypted-badge-inline">
+                <v-icon size="small" color="info">mdi-lock</v-icon>
+                <span>ENCRYPTED</span>
             </div>
             <div class="byte-controls">
                 <v-btn
@@ -322,6 +327,7 @@ interface ByteSection {
     conversion?: number | string;
     isArray?: boolean;
     arrayLength?: number;
+    isEncryptedPayload?: boolean;
 }
 
 export default defineComponent({
@@ -364,6 +370,10 @@ export default defineComponent({
                 payload?: Record<number, string>;
             }>,
             default: () => ({})
+        },
+        isEncrypted: {
+            type: Boolean,
+            default: false
         }
     },
     setup(props) {
@@ -717,7 +727,21 @@ export default defineComponent({
                 }
             }
 
-            // Payload field count
+            // Payload field count - handle encrypted vs normal
+            if (props.isEncrypted) {
+                // For encrypted messages, the remaining bytes before checksum are the encrypted payload
+                const checksumStartIndex = bytes.length - 2;
+                const encryptedPayloadBytes = bytes.slice(index, checksumStartIndex);
+                if (encryptedPayloadBytes.length > 0) {
+                    sections.push({
+                        label: 'Encrypted Payload',
+                        value: `${encryptedPayloadBytes.length} bytes (encrypted)`,
+                        bytes: byteArray.value.slice(index, checksumStartIndex),
+                        isEncryptedPayload: true
+                    });
+                    index = checksumStartIndex;
+                }
+            } else {
             const numPayloadFieldsRaw = readUint16LE(bytes[index], bytes[index + 1]);
             const numPayloadFields = Math.min(numPayloadFieldsRaw, MAX_FIELDS);
             let payloadCountValue = String(numPayloadFieldsRaw);
@@ -863,6 +887,7 @@ export default defineComponent({
                     index += 1 + payloadLength;
                 }
             }
+            } // end of encrypted/not-encrypted payload handling
 
             // Checksum
             const checksumStartIndex = index;
@@ -1257,6 +1282,26 @@ export default defineComponent({
 
 .dark .byte-header {
     background-color: #1e1e1e;
+}
+
+.encrypted-badge-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-left: 16px;
+    white-space: nowrap;
+}
+
+.dark .encrypted-badge-inline {
+    background-color: #0c5460;
+    color: #d1ecf1;
 }
 
 .byte-visualization-wrapper {

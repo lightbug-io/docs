@@ -167,7 +167,7 @@
             </h2>
             <div
                 v-for="(msg, index) in foundMessages"
-                :key="index"
+                :key="`${msg.startIndex}-${msg.endIndex}-${msg.messageType ?? 'unknown'}-${msg.isPartial ? 'partial' : 'full'}`"
                 class="message-wrapper"
                 :class="{ 'message-partial': msg.isPartial }"
                 @mouseenter="hoveredMessageIndex = index"
@@ -182,6 +182,10 @@
                         <span v-if="msg.isPartial" class="message-partial-badge">
                             <v-icon size="small" color="warning">mdi-alert-circle</v-icon>
                             PARTIAL
+                        </span>
+                        <span v-if="msg.isEncrypted" class="message-encrypted-badge">
+                            <v-icon size="small" color="info">mdi-lock</v-icon>
+                            ENCRYPTED
                         </span>
                     </span>
                 </div>
@@ -198,6 +202,7 @@
                     :yamlData="yamlData"
                     :showValidation="true"
                     :showGeneratorLink="true"
+                    :isEncrypted="msg.isEncrypted || false"
                 />
             </div>
         </div>
@@ -268,6 +273,7 @@ interface FoundMessage {
     checksumError?: boolean;
     expectedChecksum?: number;
     actualChecksum?: number;
+    isEncrypted?: boolean;
 }
 
 export default defineComponent({
@@ -410,6 +416,7 @@ export default defineComponent({
 
                         // Get message type name from yaml data
                         const messageTypeName = props.yamlData?.messages?.[parsedMessage.messageType]?.name;
+                        const isEncrypted = parsedMessage.encrypted === true || parsedMessage.header?.[60] !== undefined;
 
                         // Valid message found!
                         const messageStart = i;
@@ -422,7 +429,8 @@ export default defineComponent({
                             byteString: bytes.slice(messageStart, messageEnd + 1).join(' '),
                             messageType: parsedMessage.messageType,
                             messageTypeName: messageTypeName,
-                            isPartial: false
+                            isPartial: false,
+                            isEncrypted
                         });
 
                         // Track valid message parsing for analytics
@@ -543,10 +551,12 @@ export default defineComponent({
                         // Get message type name from yaml data
                         let messageTypeName: string | undefined;
                         let messageType: number | undefined;
+                        let isEncrypted = false;
 
                         if (parsedMessage) {
                             messageType = parsedMessage.messageType;
                             messageTypeName = props.yamlData?.messages?.[parsedMessage.messageType]?.name;
+                            isEncrypted = parsedMessage.encrypted === true || parsedMessage.header?.[60] !== undefined;
                         } else if (messageBytes.length >= 5) {
                             // Try to at least extract message type even if parsing failed
                             messageType = messageBytes[3] | (messageBytes[4] << 8);
@@ -567,7 +577,8 @@ export default defineComponent({
                             partialReason: partialReason,
                             checksumError: checksumError,
                             expectedChecksum: expectedCRC,
-                            actualChecksum: actualCRC
+                            actualChecksum: actualCRC,
+                            isEncrypted
                         });
 
                         // Mark these bytes as used
@@ -1340,6 +1351,24 @@ export default defineComponent({
 .dark .message-partial-badge {
     background-color: #664d03;
     color: #ffc107;
+}
+
+.message-encrypted-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.dark .message-encrypted-badge {
+    background-color: #0c5460;
+    color: #d1ecf1;
 }
 
 .message-warning {

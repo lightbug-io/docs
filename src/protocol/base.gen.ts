@@ -17,6 +17,10 @@ export interface V3Message {
   header: HeaderData;
   /** Payload data */
   data: MessageData;
+  /** True when the message payload is encrypted */
+  encrypted?: boolean;
+  /** Raw encrypted payload bytes, when the payload is opaque */
+  encryptedPayload?: number[];
 }
 
 /**
@@ -74,32 +78,48 @@ export function parseRawMessage(bytes: number[]): V3Message {
 
   // Header field data
   const header: HeaderData = {};
+  let encrypted = false;
   for (let i = 0; i < numHeaderFields; i++) {
     const fieldType = headerFieldTypes[i];
     const dataLength = bytes[index++];
     const data = bytes.slice(index, index + dataLength);
     index += dataLength;
     header[fieldType] = data;
+    if (fieldType === 60) {
+      encrypted = true;
+    }
   }
 
-  // Number of payload fields
-  const numPayloadFields = readUint16LE(bytes, index);
-  index += 2;
-
-  // Payload field types
-  const payloadFieldTypes: number[] = [];
-  for (let i = 0; i < numPayloadFields; i++) {
-    payloadFieldTypes.push(bytes[index++]);
-  }
-
-  // Payload field data
   const data: MessageData = {};
-  for (let i = 0; i < numPayloadFields; i++) {
-    const fieldType = payloadFieldTypes[i];
-    const dataLength = bytes[index++];
-    const fieldData = bytes.slice(index, index + dataLength);
-    index += dataLength;
-    data[fieldType] = fieldData;
+  let encryptedPayload: number[] | undefined;
+
+  if (encrypted) {
+    const checksumIndex = bytes.length - 2;
+    if (checksumIndex < index) {
+      throw new Error('Insufficient bytes for encrypted payload');
+    }
+
+    encryptedPayload = bytes.slice(index, checksumIndex);
+    index = checksumIndex;
+  } else {
+    // Number of payload fields
+    const numPayloadFields = readUint16LE(bytes, index);
+    index += 2;
+
+    // Payload field types
+    const payloadFieldTypes: number[] = [];
+    for (let i = 0; i < numPayloadFields; i++) {
+      payloadFieldTypes.push(bytes[index++]);
+    }
+
+    // Payload field data
+    for (let i = 0; i < numPayloadFields; i++) {
+      const fieldType = payloadFieldTypes[i];
+      const dataLength = bytes[index++];
+      const fieldData = bytes.slice(index, index + dataLength);
+      index += dataLength;
+      data[fieldType] = fieldData;
+    }
   }
 
   // Checksum (last 2 bytes)
@@ -113,6 +133,8 @@ export function parseRawMessage(bytes: number[]): V3Message {
     messageTypeName: '', // Will be set by specific message class
     header,
     data,
+    encrypted,
+    encryptedPayload,
   };
 }
 
