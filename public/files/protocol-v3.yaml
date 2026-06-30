@@ -624,12 +624,12 @@ messages:
           description: This example is captured from an RH2 device, where Toit on the ESP32 co-processor is sending a heartbeat to the RH2 over I2C
           date: "2025-10-10"
           generator: RH2 ESP32 Toit
-      - name: With arbitrary data in payload field 202
+      - name: With arbitrary data in payload field 108
         description: |
           If you are sending a heartbeat between systems you control
-          You can add arbitrary data in payload fields 200 and above,
+          You can add arbitrary data in payload fields 108-127 (uint8 length), and 236-255 (uint16 length),
           Such as these additional bytes, which are "hello" in ascii.
-        bytes: 3 18 0 13 0 0 0 1 0 202 5 104 101 108 108 111 145 78
+        bytes: 3 18 0 13 0 0 0 1 0 108 5 104 101 108 108 111 187 42
   14:
     name: Config
     id: config
