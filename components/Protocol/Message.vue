@@ -610,13 +610,16 @@ export default defineComponent({
                     // Skip if we don't have at least one byte for the length field
                     if (index >= bytes.length) break;
 
-                    const headerLength = bytes[index];
                     const headerType = bytes[headerTypesIndex + i];
+                    const headerLengthPrefixSize = headerType < 128 ? 1 : 2;
+                    const headerLength = headerType < 128
+                        ? bytes[index]
+                        : readUint16LE(bytes[index], bytes[index + 1]);
                     const headerFieldDef = props.yamlData?.header?.[headerType];
                     const customHeaderType = props.customFieldTypes?.headers?.[headerType];
                     const headerName = headerFieldDef?.name || `Header ${headerType}`;
 
-                    const dataBytes = bytes.slice(index + 1, index + 1 + headerLength);
+                    const dataBytes = bytes.slice(index + headerLengthPrefixSize, index + headerLengthPrefixSize + headerLength);
                     let displayValue: string;
                     let isUndefined = false;
                     let parseAs = 'bytes';
@@ -657,11 +660,11 @@ export default defineComponent({
                         // Validate byte length against expected type size
                         if (props.showValidation) {
                             const expectedSize = getExpectedByteSize(headerValueType);
+                            const maxLength = headerType < 128 ? 255 : 65535;
                             if (expectedSize !== null && headerLength !== expectedSize) {
                                 displayValue += ` ❌ (expected ${expectedSize} bytes, got ${headerLength})`;
-                            } else if (expectedSize === null && headerLength > 255) {
-                                // Variable-length fields have a max of 255 bytes
-                                displayValue += ` ❌ (exceeds max length of 255 bytes)`;
+                            } else if (expectedSize === null && headerLength > maxLength) {
+                                displayValue += ` ❌ (exceeds max length of ${maxLength} bytes)`;
                             }
                         }
                     } else if (customHeaderType) {
@@ -673,10 +676,11 @@ export default defineComponent({
                             // Validate byte length against expected type size
                             if (props.showValidation) {
                                 const expectedSize = getExpectedByteSize(customHeaderType);
+                                const maxLength = headerType < 128 ? 255 : 65535;
                                 if (expectedSize !== null && headerLength !== expectedSize) {
                                     displayValue += ` ❌ (expected ${expectedSize} bytes, got ${headerLength})`;
-                                } else if (expectedSize === null && headerLength > 255) {
-                                    displayValue += ` ❌ (exceeds max length of 255 bytes)`;
+                                } else if (expectedSize === null && headerLength > maxLength) {
+                                    displayValue += ` ❌ (exceeds max length of ${maxLength} bytes)`;
                                 }
                             }
                         } catch (e) {
@@ -709,9 +713,9 @@ export default defineComponent({
                     sections.push({
                         label: headerName,
                         value: displayValue,
-                        bytes: byteArray.value.slice(index, index + 1 + headerLength),
+                        bytes: byteArray.value.slice(index, index + headerLengthPrefixSize + headerLength),
                         structure: [
-                            { label: 'len', count: 1 },
+                            { label: 'len', count: headerLengthPrefixSize },
                             { label: 'data', count: headerLength }
                         ],
                         isUndefined,
@@ -723,7 +727,7 @@ export default defineComponent({
                         isArray: isArrayField,
                         arrayLength: isArrayField ? dataBytes.length : undefined
                     });
-                    index += 1 + headerLength;
+                    index += headerLengthPrefixSize + headerLength;
                 }
             }
 
@@ -770,13 +774,16 @@ export default defineComponent({
                     // Skip if we don't have at least one byte for the length field
                     if (index >= bytes.length) break;
 
-                    const payloadLength = bytes[index];
                     const payloadType = bytes[payloadTypesIndex + i];
+                    const payloadLengthPrefixSize = payloadType < 128 ? 1 : 2;
+                    const payloadLength = payloadType < 128
+                        ? bytes[index]
+                        : readUint16LE(bytes[index], bytes[index + 1]);
                     const payloadFieldDef = props.yamlData?.messages?.[messageType]?.data?.[payloadType];
                     const customPayloadType = props.customFieldTypes?.payload?.[payloadType];
                     const payloadName = payloadFieldDef?.name || `Field ${payloadType}`;
 
-                    const dataBytes = bytes.slice(index + 1, index + 1 + payloadLength);
+                    const dataBytes = bytes.slice(index + payloadLengthPrefixSize, index + payloadLengthPrefixSize + payloadLength);
                     let displayValue: string;
                     let isUndefined = false;
                     let parseAs = 'bytes';
@@ -817,11 +824,11 @@ export default defineComponent({
                         // Validate byte length against expected type size
                         if (props.showValidation) {
                             const expectedSize = getExpectedByteSize(payloadValueType);
+                            const maxLength = payloadType < 128 ? 255 : 65535;
                             if (expectedSize !== null && payloadLength !== expectedSize) {
                                 displayValue += ` ❌ (expected ${expectedSize} bytes, got ${payloadLength})`;
-                            } else if (expectedSize === null && payloadLength > 255) {
-                                // Variable-length fields have a max of 255 bytes
-                                displayValue += ` ❌ (exceeds max length of 255 bytes)`;
+                            } else if (expectedSize === null && payloadLength > maxLength) {
+                                displayValue += ` ❌ (exceeds max length of ${maxLength} bytes)`;
                             }
                         }
                     } else if (customPayloadType) {
@@ -833,10 +840,11 @@ export default defineComponent({
                             // Validate byte length against expected type size
                             if (props.showValidation) {
                                 const expectedSize = getExpectedByteSize(customPayloadType);
+                                const maxLength = payloadType < 128 ? 255 : 65535;
                                 if (expectedSize !== null && payloadLength !== expectedSize) {
                                     displayValue += ` ❌ (expected ${expectedSize} bytes, got ${payloadLength})`;
-                                } else if (expectedSize === null && payloadLength > 255) {
-                                    displayValue += ` ❌ (exceeds max length of 255 bytes)`;
+                                } else if (expectedSize === null && payloadLength > maxLength) {
+                                    displayValue += ` ❌ (exceeds max length of ${maxLength} bytes)`;
                                 }
                             }
                         } catch (e) {
@@ -870,9 +878,9 @@ export default defineComponent({
                     sections.push({
                         label: payloadName,
                         value: displayValue,
-                        bytes: byteArray.value.slice(index, index + 1 + payloadLength),
+                        bytes: byteArray.value.slice(index, index + payloadLengthPrefixSize + payloadLength),
                         structure: [
-                            { label: 'len', count: 1 },
+                            { label: 'len', count: payloadLengthPrefixSize },
                             { label: 'data', count: payloadLength }
                         ],
                         isUndefined,
@@ -884,7 +892,7 @@ export default defineComponent({
                         isArray: isArrayField,
                         arrayLength: isArrayField ? dataBytes.length : undefined
                     });
-                    index += 1 + payloadLength;
+                    index += payloadLengthPrefixSize + payloadLength;
                 }
             }
             } // end of encrypted/not-encrypted payload handling

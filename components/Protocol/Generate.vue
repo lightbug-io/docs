@@ -663,7 +663,11 @@ export default defineComponent({
             // Header field data
             for (const field of allHeaderFields) {
                 const fieldBytes = convertToBytes(field.value, field.type);
-                bytes.push(fieldBytes.length);
+                if (field.id < 128) {
+                    bytes.push(fieldBytes.length);
+                } else {
+                    bytes.push(fieldBytes.length & 0xff, (fieldBytes.length >> 8) & 0xff);
+                }
                 bytes.push(...fieldBytes);
             }
 
@@ -703,7 +707,11 @@ export default defineComponent({
             // Payload field data
             for (const field of allPayloadFields) {
                 const fieldBytes = convertToBytes(field.value, field.type);
-                bytes.push(fieldBytes.length);
+                if (field.id < 128) {
+                    bytes.push(fieldBytes.length);
+                } else {
+                    bytes.push(fieldBytes.length & 0xff, (fieldBytes.length >> 8) & 0xff);
+                }
                 bytes.push(...fieldBytes);
             }
 

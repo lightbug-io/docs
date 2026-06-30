@@ -5,7 +5,9 @@ import {
     readTypedData,
     readArrayData,
     writeTypedData,
-    writeArrayData
+    writeArrayData,
+    messageToBytesHelper,
+    parseRawMessage
 } from './base.gen';
 
 describe('base.gen basic type functions', () => {
@@ -263,6 +265,52 @@ describe('base.gen array type functions', () => {
             const written = writeTypedData(original, 'uint8[]');
             const read = readTypedData(written, 'uint8[]');
             expect(read).toEqual([1, 2, 3]);
+        });
+    });
+
+    describe('variable-length field length prefixes', () => {
+        it('should use a 1-byte length prefix for field IDs below 128', () => {
+            const bytes = messageToBytesHelper({
+                messageType: 13,
+                header: { 1: [1, 2, 3] },
+            });
+
+            // version(1) + length(2) + msgType(2) + headerCount(2) + headerType(1) + headerLen(1) + headerData(3)
+            // + payloadCount(2) + checksum(2)
+            const headerLenIndex = 1 + 2 + 2 + 2 + 1;
+            expect(bytes[headerLenIndex]).toBe(3);
+        });
+
+        it('should use a 2-byte little-endian length prefix for field IDs 128 and above', () => {
+            const fieldData = new Array(300).fill(7);
+            const bytes = messageToBytesHelper({
+                messageType: 13,
+                header: { 200: fieldData },
+            });
+
+            const headerLenIndex = 1 + 2 + 2 + 2 + 1;
+            expect(bytes[headerLenIndex] | (bytes[headerLenIndex + 1] << 8)).toBe(300);
+        });
+
+        it('should round-trip a message with a sub-128 field ID', () => {
+            const original = messageToBytesHelper({
+                messageType: 13,
+                header: { 1: [42] },
+            });
+
+            const parsed = parseRawMessage(original);
+            expect(parsed.header[1]).toEqual([42]);
+        });
+
+        it('should round-trip a message with a field ID >= 128 carrying more than 255 bytes', () => {
+            const fieldData = Array.from({ length: 300 }, (_, i) => i % 256);
+            const original = messageToBytesHelper({
+                messageType: 13,
+                data: { 200: fieldData },
+            });
+
+            const parsed = parseRawMessage(original);
+            expect(parsed.data[200]).toEqual(fieldData);
         });
     });
 });

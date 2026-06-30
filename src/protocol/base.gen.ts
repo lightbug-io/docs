@@ -81,7 +81,13 @@ export function parseRawMessage(bytes: number[]): V3Message {
   let encrypted = false;
   for (let i = 0; i < numHeaderFields; i++) {
     const fieldType = headerFieldTypes[i];
-    const dataLength = bytes[index++];
+    let dataLength: number;
+    if (fieldType < 128) {
+      dataLength = bytes[index++];
+    } else {
+      dataLength = readUint16LE(bytes, index);
+      index += 2;
+    }
     const data = bytes.slice(index, index + dataLength);
     index += dataLength;
     header[fieldType] = data;
@@ -115,7 +121,13 @@ export function parseRawMessage(bytes: number[]): V3Message {
     // Payload field data
     for (let i = 0; i < numPayloadFields; i++) {
       const fieldType = payloadFieldTypes[i];
-      const dataLength = bytes[index++];
+      let dataLength: number;
+      if (fieldType < 128) {
+        dataLength = bytes[index++];
+      } else {
+        dataLength = readUint16LE(bytes, index);
+        index += 2;
+      }
       const fieldData = bytes.slice(index, index + dataLength);
       index += dataLength;
       data[fieldType] = fieldData;
@@ -173,7 +185,11 @@ export function messageToBytesHelper(msg: {
   // Header field data
   for (const fieldType of headerFieldTypes) {
     const fieldData = header[fieldType] || [];
-    bytes.push(fieldData.length);
+    if (fieldType < 128) {
+      bytes.push(fieldData.length);
+    } else {
+      bytes.push(...writeUint16LE(fieldData.length));
+    }
     bytes.push(...fieldData);
   }
 
@@ -189,7 +205,11 @@ export function messageToBytesHelper(msg: {
   // Payload field data
   for (const fieldType of payloadFieldTypes) {
     const fieldData = data[fieldType] || [];
-    bytes.push(fieldData.length);
+    if (fieldType < 128) {
+      bytes.push(fieldData.length);
+    } else {
+      bytes.push(...writeUint16LE(fieldData.length));
+    }
     bytes.push(...fieldData);
   }
 

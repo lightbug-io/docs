@@ -29,8 +29,15 @@ The example data includes `2` data fields, the first of type `1`, with value byt
 
 #### bBytes
 
-bBytes are a byte array that represents a length and then the data itself.
+bBytes are a byte array that represents a length and then the data itself. The size of the length prefix depends on the field's data type ID:
 
-For example, `[1 8]` would represent a byte array of length 1, with the value 8.
+- Data type IDs **0–127**: the length prefix is a `uint8` (1 byte), allowing up to 255 bytes of data.
+- Data type IDs **128–255**: the length prefix is a `uint16` little-endian value (2 bytes), allowing up to 65535 bytes of data, though on device messages are generally limited to 2000 bytes.
 
-Or `[3 9 9 9]` would represent a byte array of length 3, with the values 9, 9, 9.
+All data type IDs currently assigned are below 128, so existing messages are unaffected by this change. IDs 128 and above are reserved for fields that need to carry more than 255 bytes of data.
+
+For example, for a field with data type ID `1` (< 128), `[1 8]` would represent a byte array of length 1, with the value 8.
+
+Or for a field with data type ID `3` (< 128), `[3 9 9 9]` would represent a byte array of length 3, with the values 9, 9, 9.
+
+For a field with data type ID `200` (>= 128), the length prefix is 2 bytes little-endian, so `[3 0 9 9 9]` would represent a byte array of length 3, with the values 9, 9, 9.
