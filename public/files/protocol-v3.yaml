@@ -35,7 +35,7 @@ header:
       ID identifying the message.
       Can be used by a receiver to ACK, respond to, deduplicate, resend or otherwise track messages.
       Some clients and services may require or desire an incrementing message ID for each message sent, acting as a sequence number.
-    type: uint
+    type: uint32
   2:
     name: Client ID
     id: client
@@ -50,7 +50,7 @@ header:
     description: |
       ID of the message that is being responded to
       (Message ID of the request or subscription)
-    type: uint
+    type: uint32
   4:
     name: Status
     id: status
@@ -223,9 +223,29 @@ header:
   10:
     name: Forwarded For
     id: forwardedFor
-    description: ID of the client sending the original message that is being forwarded. Forward for type alters the meaning of this field
-    type: uint
+    description: |
+      Link ID of the client that sent the original message being forwarded.
+      Current standardized link IDs are shared with Forward To and command logging: 0 = Chasm, 1 = ESP32, 2 = Link2, 5 = UART link.
+      Forward For Type may add context for non-link forwarding cases such as LoRa, but link forwarding should use these IDs directly.
+    type: uint8
     alpha: Forwarding is currently a new feature, and may not be perfectly documented
+    values:
+      0:
+        name: Chasm
+        id: chasm
+        description: Primary Chasm/cloud link
+      1:
+        name: ESP32
+        id: esp32
+        description: ESP32 co-processor link
+      2:
+        name: Link2
+        id: link2
+        description: Secondary Chasm/cloud link
+      5:
+        name: UART Link
+        id: uartLink
+        description: UART command link
   11:
     name: Forwarded RSSI
     id: forwardedRssi
@@ -257,10 +277,28 @@ header:
     name: Forward To
     id: forwardTo
     description: |
-      ID of the client to forward the message to.
-      Forwarding to type alters the meaning of this field.
+      Link ID of the client to forward the message to.
+      Current standardized link IDs are shared with Forwarded For and command logging: 0 = Chasm, 1 = ESP32, 2 = Link2, 5 = UART link.
+      Forwarding To Type may add context for non-link forwarding cases such as LoRa, but link forwarding should use these IDs directly.
     type: uint8
     alpha: Forwarding is currently a new feature, and may not be perfectly documented
+    values:
+      0:
+        name: Chasm
+        id: chasm
+        description: Primary Chasm/cloud link
+      1:
+        name: ESP32
+        id: esp32
+        description: ESP32 co-processor link
+      2:
+        name: Link2
+        id: link2
+        description: Secondary Chasm/cloud link
+      5:
+        name: UART Link
+        id: uartLink
+        description: UART command link
   15:
     name: Storage Level
     id: storageLevel
@@ -578,6 +616,17 @@ messages:
       Explicit indicator for a connection about to close.
       Can be used to differentiate between deliberate and accidental disconnections.
     group: general
+    data:
+      6:
+        name: Arm State
+        id: armState
+        description: |
+          Arm state of the device at the time of close. Only values 0 and 1 are used presently;
+          all other values are reserved.
+          Primary use is with the "Wake On Move" setting (config key ArmingMode = 50),
+          so that the remote can determine if the device is "sleeping" (armed) or "off" (disarmed).
+          0 = disarmed/off, 1 = armed/sleeping.
+        type: uint8
     examples:
       - name: Close with device and message IDs
         description: A close sent from device 123456, using message ID 1002
@@ -877,6 +926,14 @@ messages:
             name: rtk
             id: rtk
             description: Position has come from an RTK module. This does not mean the position is RTK corrected.
+          2:
+            name: os
+            id: os
+            description: Position determined by OS-level location services.
+          3:
+            name: ip
+            id: ip
+            description: Position inferred from public IP geolocation.
         parsers:
           - id: sourceName
             parser: values
@@ -1227,7 +1284,7 @@ messages:
       8:
         name: SIM2 ICCID
         id: sim2Iccid
-        description: SIM2 ICCID if known, read-only
+        description: SIM2 ICCID if known, read-only. This value may be cached from a previous read and stale.
         type: ascii
     methods:
       GET: null
@@ -1367,6 +1424,11 @@ messages:
         name: ICCID
         id: iccid
         description: ICCID - 19 to 22 characters
+        type: ascii
+      8:
+        name: Cached SIM2 ICCID
+        id: cachedIccid2
+        description: SIM2 ICCID cached from a previous read. This value may be stale.
         type: ascii
     methods:
       GET: null
@@ -2768,71 +2830,249 @@ messages:
       SUBSCRIBE: null
       UNSUBSCRIBE: null
   1004:
-    name: LORA
+    name: LoRa
     id: lora
-    alpha: LORA interactions are currently in an experimental phase, and the API may change in future, and documentation may be incomplete.
+    alpha: LoRa API is being modernized. payload field 2 is preserved for alpha compatibility.
     description: |
-      Interaction with LORA.
-      Used to interact with LORA on the device.
+      LoRa action/status/event API.
+      NONE and SET with payload transmit raw LoRa bytes.
+      GET returns LoRa runtime status (not radio configuration).
+      SUBSCRIBE controls LoRa event streaming and receive window behavior.
+      UNSUBSCRIBE cancels receiver-owned queued/infinite receive windows and restores low-power idle when appropriate.
+
+      Alpha migration notes:
+      - Alterations made in FW 2578+
+      - LoRa config moved to MT_LoraConfig (1005).
+      - MT_Lora SET now transmits when payload is present.
+      - MT_Lora GET now returns status, not config.
+      - Old alpha config field numbers on MT_Lora are no longer valid.
+      - payload field key 2 is preserved.
     group: ungrouped
     header:
       - 5
+      - 7
+      - 8
     data:
+      1:
+        name: V4 Message Type
+        id: v4MessageType
+        type: uint8
+        values:
+          0:
+            name: Reserved
+            id: reserved
+          1:
+            name: ACK
+            id: ack
+          2:
+            name: Announce
+            id: announce
+          10:
+            name: Position Update Basic
+            id: positionUpdateBasic
+          11:
+            name: Config Update Basic
+            id: configUpdateBasic
+          12:
+            name: LORA Config Basic
+            id: loraConfigBasic
+          13:
+            name: Tracker Status
+            id: trackerStatus
+          20:
+            name: Position Update Encrypted
+            id: positionUpdateEncrypted
       2:
         name: Payload
         id: payload
         type: bytes
-      4:
-        name: Spread Factor
-        id: spreadFactor
-        description: 8-12
-        type: uint8
-      5:
-        name: Coding Rate
-        id: codingRate
-        description: '1-4. [1: 4/5, 2: 4/6, 3: 4/7, 4: 4/8]'
-        type: uint8
-      6:
-        name: Bandwidth
-        id: bandwidth
-        description: '0-2. [0: 125 kHz, 1: 250 kHz, 2: 500 kHz]'
-        type: uint8
-      7:
-        name: Center Frequency
-        id: centerFrequency
-        description: 860000000-925000000. value in hz
-        type: uint32
-      8:
-        name: TX Power
-        id: txPower
-        description: 0-22
-        type: uint8
-      9:
-        name: Preamble Length
-        id: preambleLength
-        description: 4-128
-        type: uint8
-      10:
-        name: Receive Ms
-        id: receiveMs
-        description: How long to listen for after a transmit, in ms
-        type: uint32
-      11:
-        name: Sleep
-        id: sleep
-        description: True will tell the LORA to stop all activity now
-        type: bool
-      12:
+      40:
         name: State
         id: state
-        type: uint
+        type: uint8
         readonly: true
+        values:
+          0:
+            name: Sleep
+            id: sleep
+          1:
+            name: Receiving
+            id: receiving
+          2:
+            name: Transmitting
+            id: transmitting
+          3:
+            name: Unknown
+            id: unknown
+      41:
+        name: Event
+        id: event
+        type: uint8
+        readonly: true
+        values:
+          0:
+            name: None
+            id: none
+          1:
+            name: RX Done
+            id: rxDone
+          2:
+            name: RX Timeout
+            id: rxTimeout
+          3:
+            name: TX Done
+            id: txDone
+          4:
+            name: TX Timeout
+            id: txTimeout
+      42:
+        name: Status Flags
+        id: statusFlags
+        description: Bitfield (listening, busy, queuedRx, subscriptionActive).
+        type: uint32
+        readonly: true
+      43:
+        name: Active Config Slot
+        id: activeConfigSlot
+        type: uint8
+        readonly: true
+      44:
+        name: Pending RX Window Count
+        id: pendingRxWindowCount
+        type: uint8
+        readonly: true
+      45:
+        name: Next RX Window ID
+        id: nextRxWindowId
+        description: |
+          Window ID for the earliest queued finite RX window.
+          Set to 0 when no finite RX window is queued.
+        type: uint16
+        readonly: true
+      46:
+        name: Next RX Config Slot
+        id: nextRxConfigSlot
+        description: |
+          Config slot for the earliest queued finite RX window.
+          Only meaningful when pendingRxWindowCount is greater than 0.
+        type: uint8
+        readonly: true
+      50:
+        name: RX Duration
+        id: rxDurationMs
+        description: |
+          RX window duration.
+          On SUBSCRIBE, explicit value 0 means infinite RX (only valid when explicitly supplied on this field).
+        type: uint32
+        unit: ms
+      51:
+        name: RX Start Time
+        id: rxStartTimeMs
+        description: Absolute module-local Timer::millis() target time for RX start.
+        type: uint32
+        unit: ms
+      52:
+        name: Event Time
+        id: eventTimeMs
+        description: Module-local Timer::millis() at TX/RX/timeout event time.
+        type: uint32
+        readonly: true
+        unit: ms
+      53:
+        name: RX Window ID
+        id: rxWindowId
+        type: uint16
+      54:
+        name: Config Slot
+        id: configSlot
+        type: uint8
     methods:
       GET: null
       NONE: null
       SET: null
       SUBSCRIBE: null
       UNSUBSCRIBE: null
+  1005:
+    name: LoRa Config
+    id: loraConfig
+    description: |
+      Persistent LoRa radio configuration API.
+      SET updates one config slot (partial update allowed).
+      GET returns one slot (defaults to slot 0 if omitted).
+
+      Introduced in FW 2578+
+    group: ungrouped
+    header:
+      - 5
+    data:
+      1:
+        name: Config Slot
+        id: configSlot
+        type: uint8
+      2:
+        name: Spread Factor
+        id: spreadFactor
+        description: 7..12
+        type: uint8
+      3:
+        name: Coding Rate
+        id: codingRate
+        description: 1..4 maps to 4/5,4/6,4/7,4/8
+        type: uint8
+      4:
+        name: Bandwidth
+        id: bandwidth
+        description: 0..2 maps to 125/250/500kHz
+        type: uint8
+      5:
+        name: Center Frequency
+        id: centerFrequency
+        description: 860000000..950000000
+        type: uint32
+        unit: hz
+      6:
+        name: TX Power
+        id: txPower
+        description: 0..22
+        type: uint8
+      7:
+        name: Preamble Length
+        id: preambleLength
+        description: 4..128
+        type: uint8
+      8:
+        name: CRC On
+        id: crcOn
+        type: bool
+      9:
+        name: IQ Inverted
+        id: iqInverted
+        type: bool
+      10:
+        name: Fixed Length
+        id: fixedLength
+        type: bool
+      11:
+        name: Payload Length
+        id: payloadLength
+        description: 0..64
+        type: uint8
+      12:
+        name: Max Payload Length
+        id: maxPayloadLength
+        description: 1..64
+        type: uint8
+      13:
+        name: Symbol Timeout
+        id: symbolTimeout
+        type: uint16
+      14:
+        name: Public Network
+        id: publicNetwork
+        type: bool
+    methods:
+      GET: null
+      SET: null
   2000:
     name: RTCM Data
     id: rtcmData
