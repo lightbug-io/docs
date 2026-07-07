@@ -136,24 +136,35 @@
                     </v-btn>
                 </div>
             </div>
+            <button
+                v-if="isByteStreamTruncated || byteStreamExpanded"
+                type="button"
+                class="byte-stream-toggle"
+                @click="byteStreamExpanded = !byteStreamExpanded"
+            >
+                {{ byteStreamExpanded ? 'Show less' : `Show all ${processedBytesForDisplay.length} bytes…` }}
+            </button>
             <div class="byte-stream">
                 <template v-if="byteDisplayFormat === 'printf'">
-                    <span class="byte-item-printf">{{ processedBytesForDisplay.join('') }}</span>
+                    <span class="byte-item-printf">{{ printfDisplayString }}</span>
                 </template>
                 <template v-else>
-                    <template v-for="(byte, index) in processedBytesForDisplay" :key="index">
-                        <span
-                            class="byte-item"
-                            :class="getByteClass(index)"
-                            @mouseenter="hoveredByteIndex = index"
-                            @mouseleave="hoveredByteIndex = null"
-                        >{{ byte }}</span><span
-                            v-if="streamCopyCommas && index < processedBytesForDisplay.length - 1"
-                            class="byte-separator-comma"
-                        >,</span><span
-                            v-if="streamCopySpaces && index < processedBytesForDisplay.length - 1"
-                            class="byte-separator-space"
-                        > </span>
+                    <template v-for="(entry, i) in visibleByteStreamEntries" :key="i">
+                        <span v-if="entry.type === 'ellipsis'" class="byte-stream-ellipsis">…</span>
+                        <template v-else>
+                            <span
+                                class="byte-item"
+                                :class="getByteClass(entry.index)"
+                                @mouseenter="hoveredByteIndex = entry.index"
+                                @mouseleave="hoveredByteIndex = null"
+                            >{{ entry.byte }}</span><span
+                                v-if="streamCopyCommas && i < visibleByteStreamEntries.length - 1 && visibleByteStreamEntries[i + 1].type === 'byte'"
+                                class="byte-separator-comma"
+                            >,</span><span
+                                v-if="streamCopySpaces && i < visibleByteStreamEntries.length - 1 && visibleByteStreamEntries[i + 1].type === 'byte'"
+                                class="byte-separator-space"
+                            > </span>
+                        </template>
                     </template>
                 </template>
             </div>
@@ -302,6 +313,10 @@ export default defineComponent({
         const streamCopySpaces = ref(true);
         const streamCopyCommas = ref(false);
 
+        // Byte stream collapse settings (the raw stream is just a visual overview of the whole input)
+        const byteStreamExpanded = ref(false);
+        const byteStreamPreviewLimit = 100;
+
         // File drag-and-drop state
         const isDraggingOver = ref(false);
         const isLoadingFile = ref(false);
@@ -337,6 +352,44 @@ export default defineComponent({
 
             return formattedBytes;
         });
+
+        // Truncate the raw byte stream preview when it's very long — it's just a visual
+        // overview of the whole input, not something you need to scroll through in full.
+        const isByteStreamTruncated = computed(() =>
+            !byteStreamExpanded.value && processedBytesForDisplay.value.length > byteStreamPreviewLimit
+        );
+
+        // Index of the first byte after every detected message — anything from here
+        // to the end of the stream is "extra"/ignored, and worth showing even when collapsed.
+        const trailingStartIndex = computed(() => {
+            let max = -1;
+            foundMessages.value.forEach(msg => {
+                if (msg.endIndex > max) max = msg.endIndex;
+            });
+            return max + 1;
+        });
+
+        const visibleByteStreamEntries = computed(() => {
+            const all = processedBytesForDisplay.value;
+            if (!isByteStreamTruncated.value) {
+                return all.map((byte, index) => ({ type: 'byte' as const, byte, index }));
+            }
+            const head = all.slice(0, byteStreamPreviewLimit).map((byte, index) => ({ type: 'byte' as const, byte, index }));
+            const entries: Array<{ type: 'byte'; byte: string; index: number } | { type: 'ellipsis' }> = [...head];
+
+            const tailStart = Math.max(trailingStartIndex.value, byteStreamPreviewLimit);
+            if (tailStart < all.length) {
+                const tail = all.slice(tailStart).map((byte, i) => ({ type: 'byte' as const, byte, index: tailStart + i }));
+                entries.push({ type: 'ellipsis' }, ...tail);
+            } else {
+                entries.push({ type: 'ellipsis' });
+            }
+            return entries;
+        });
+
+        const printfDisplayString = computed(() =>
+            visibleByteStreamEntries.value.map(entry => entry.type === 'byte' ? entry.byte : '...').join('')
+        );
 
         // Hunt for valid messages in the byte stream
         const foundMessages = computed(() => {
@@ -859,6 +912,10 @@ export default defineComponent({
             inputByteString,
             processedBytes,
             processedBytesForDisplay,
+            byteStreamExpanded,
+            isByteStreamTruncated,
+            visibleByteStreamEntries,
+            printfDisplayString,
             foundMessages,
             detectedPatterns,
             byteStatistics,
@@ -1094,10 +1151,48 @@ export default defineComponent({
     background-color: #1e1e1e;
 }
 
+.byte-stream-toggle {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: white;
+    border: none;
+    border-bottom: 1px solid #eee;
+    padding: 8px 16px;
+    color: #3eaf7c;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.byte-stream-toggle:hover {
+    text-decoration: underline;
+}
+
+.dark .byte-stream-toggle {
+    background: #1e1e1e;
+    border-bottom-color: #333;
+    color: #4dd390;
+}
+
+.byte-stream-ellipsis {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 4px;
+    color: #999;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.dark .byte-stream-ellipsis {
+    color: #777;
+}
+
 .byte-item {
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    font-size: 12px;
-    padding: 4px 6px;
+    font-size: 11px;
+    padding: 2px 4px;
     border: 1px solid #ddd;
     border-radius: 3px;
     background-color: #fafafa;
