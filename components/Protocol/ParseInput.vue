@@ -388,7 +388,7 @@ export default defineComponent({
                     const length = bytes[msgStartIndex + 1] | (bytes[msgStartIndex + 2] << 8);
 
                     // Validate length is reasonable
-                    if (length < 11 || length > 1000) {
+                    if (length < 11 || length > 2000) {
                         continue;
                     }
 
