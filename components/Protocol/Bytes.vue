@@ -1,23 +1,33 @@
 <template>
-    <div class="byte-row">
-        <span
-            v-for="(byte, byteIndex) in bytes"
-            :key="byteIndex"
-            class="byte"
-            :class="[
-                getByteColorClass(colorIndex),
-                { 'byte-highlight': shouldHighlight(byteIndex) }
-            ]"
-            @mouseenter="$emit('mouseenter', byteIndex)"
-            @mouseleave="$emit('mouseleave', byteIndex)"
+    <div class="byte-row-wrapper">
+        <button
+            v-if="canTruncate"
+            type="button"
+            class="byte-row-toggle"
+            @click="expanded = !expanded"
         >
-            {{ formatByte(byte) }}
-        </span>
+            {{ expanded ? 'Show less' : `Show ${bytes.length - previewLimit} more…` }}
+        </button>
+        <div class="byte-row">
+            <span
+                v-for="(byte, byteIndex) in visibleBytes"
+                :key="byteIndex"
+                class="byte"
+                :class="[
+                    getByteColorClass(colorIndex),
+                    { 'byte-highlight': shouldHighlight(byteIndex), 'byte-prefix': byteIndex < prefixCount }
+                ]"
+                @mouseenter="$emit('mouseenter', byteIndex)"
+                @mouseleave="$emit('mouseleave', byteIndex)"
+            >
+                {{ formatByte(byte) }}
+            </span>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from 'vue';
+import { defineComponent, PropType, ref, computed } from 'vue';
 
 export default defineComponent({
     name: 'Bytes',
@@ -41,10 +51,26 @@ export default defineComponent({
         upperCase: {
             type: Boolean,
             default: true
+        },
+        prefixCount: {
+            type: Number,
+            default: 0
         }
     },
     emits: ['mouseenter', 'mouseleave'],
     setup(props) {
+        const previewLimit = 64;
+        const expanded = ref(false);
+
+        const canTruncate = computed(() => props.bytes.length > previewLimit);
+
+        const visibleBytes = computed(() => {
+            if (!canTruncate.value || expanded.value) {
+                return props.bytes;
+            }
+            return props.bytes.slice(0, previewLimit);
+        });
+
         const formatByte = (byte: string): string => {
             let formattedByte = '';
             if (props.displayType === 'hex') {
@@ -67,6 +93,10 @@ export default defineComponent({
         };
 
         return {
+            previewLimit,
+            expanded,
+            canTruncate,
+            visibleBytes,
             formatByte,
             getByteColorClass,
             shouldHighlight
@@ -76,9 +106,39 @@ export default defineComponent({
 </script>
 
 <style scoped>
+.byte-row-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-width: 0;
+    max-width: 100%;
+}
+
 .byte-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 2px;
+    max-width: 100%;
+}
+
+.byte-row-toggle {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #3eaf7c;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.byte-row-toggle:hover {
+    text-decoration: underline;
+}
+
+.dark .byte-row-toggle {
+    color: #4dd390;
 }
 
 .byte {
@@ -104,6 +164,10 @@ export default defineComponent({
     transform: scale(1.05);
     z-index: 10;
     position: relative;
+}
+
+.byte-prefix {
+    border-style: dashed;
 }
 
 .color-0 {

@@ -9,16 +9,7 @@
                         :key="sectionIndex"
                         class="byte-section"
                     >
-                        <Bytes
-                            :bytes="section.bytes"
-                            :color-index="sectionIndex"
-                            :highlighted-indices="getHighlightedByteIndices(sectionIndex)"
-                            :display-type="byteDisplayType"
-                            :upper-case="byteUpperCase"
-                            @mouseenter="setHoverByte(sectionIndex, $event)"
-                            @mouseleave="clearHoverByte()"
-                        />
-                        <div class="byte-annotation">
+                        <div class="byte-annotation byte-annotation-top">
                             <span
                                 class="annotation-label"
                                 :class="{ 'annotation-highlight': isAnnotationHighlighted(sectionIndex, 'label') }"
@@ -27,16 +18,22 @@
                             >
                                 <v-icon v-if="section.isEncryptedPayload" size="x-small" color="info" class="mr-1">mdi-lock</v-icon>
                                 {{ section.label }}
+                                <v-icon v-if="section.validation === 'valid'" size="x-small" color="success" class="ml-1">mdi-check-circle</v-icon>
+                                <v-icon v-else-if="section.validation === 'invalid'" size="x-small" color="error" class="ml-1">mdi-close-circle</v-icon>
                             </span>
+                        </div>
+                        <Bytes
+                            :bytes="section.bytes"
+                            :color-index="sectionIndex"
+                            :highlighted-indices="getHighlightedByteIndices(sectionIndex)"
+                            :prefix-count="section.structure && section.structure[0] ? section.structure[0].count : 0"
+                            :display-type="byteDisplayType"
+                            :upper-case="byteUpperCase"
+                            @mouseenter="setHoverByte(sectionIndex, $event)"
+                            @mouseleave="clearHoverByte()"
+                        />
+                        <div class="byte-annotation byte-annotation-bottom">
                             <template v-if="section.structure && section.structure.length > 0">
-                                <span
-                                    class="annotation-detail"
-                                    :class="{ 'annotation-highlight': isAnnotationHighlighted(sectionIndex, 'length') }"
-                                    @mouseenter="setHoverAnnotation(sectionIndex, 'length', -1)"
-                                    @mouseleave="clearHoverAnnotation()"
-                                >
-                                    Length: {{ section.structure[1].count }}
-                                </span>
                                 <span
                                     class="annotation-detail annotation-value-container"
                                     :class="{ 'annotation-highlight': isAnnotationHighlighted(sectionIndex, 'value') }"
@@ -44,13 +41,13 @@
                                     @mouseleave="clearHoverAnnotation()"
                                 >
                                     <template v-if="section.isArray && section.value">
-                                        Value: <span
+                                        <span
                                             v-for="(val, valIndex) in section.value.split(',')"
                                             :key="valIndex"
                                         >{{ val }}<span v-if="valIndex < section.value.split(',').length - 1">,</span></span>
                                     </template>
                                     <template v-else>
-                                        Value: {{ section.value }}
+                                        {{ section.value }}
                                     </template>
                                     <span
                                         v-if="section.isUndefined"
@@ -328,6 +325,7 @@ interface ByteSection {
     isArray?: boolean;
     arrayLength?: number;
     isEncryptedPayload?: boolean;
+    validation?: 'valid' | 'invalid';
 }
 
 export default defineComponent({
@@ -556,17 +554,20 @@ export default defineComponent({
             // Length
             const length = readUint16LE(bytes[index], bytes[index + 1]);
             let lengthValue = `${length} bytes`;
+            let lengthValidation: 'valid' | 'invalid' | undefined;
             if (props.showValidation) {
                 // Expected length is total bytes minus prefix (if present)
                 const expectedLength = hasPrefix ? bytes.length - 2 : bytes.length;
                 const isValidLength = length === expectedLength;
+                lengthValidation = isValidLength ? 'valid' : 'invalid';
                 lengthValue = isValidLength
-                    ? `${length} bytes ✅`
-                    : `${length} bytes ❌ (expected ${expectedLength})`;
+                    ? `${length} bytes`
+                    : `${length} bytes (expected ${expectedLength})`;
             }
             sections.push({
                 label: 'Length',
                 value: lengthValue,
+                validation: lengthValidation,
                 bytes: byteArray.value.slice(index, index + 2)
             });
             index += 2;
@@ -626,6 +627,7 @@ export default defineComponent({
                     let unit: string | undefined;
                     let rawUnit: string | undefined;
                     let conversion: number | string | undefined;
+                    let validation: 'valid' | 'invalid' | undefined;
 
                     // If field is defined in spec, parse and validate it
                     if (headerFieldDef) {
@@ -662,9 +664,11 @@ export default defineComponent({
                             const expectedSize = getExpectedByteSize(headerValueType);
                             const maxLength = headerType < 128 ? 255 : 65535;
                             if (expectedSize !== null && headerLength !== expectedSize) {
-                                displayValue += ` ❌ (expected ${expectedSize} bytes, got ${headerLength})`;
+                                validation = 'invalid';
+                                displayValue += ` (expected ${expectedSize} bytes, got ${headerLength})`;
                             } else if (expectedSize === null && headerLength > maxLength) {
-                                displayValue += ` ❌ (exceeds max length of ${maxLength} bytes)`;
+                                validation = 'invalid';
+                                displayValue += ` (exceeds max length of ${maxLength} bytes)`;
                             }
                         }
                     } else if (customHeaderType) {
@@ -678,9 +682,11 @@ export default defineComponent({
                                 const expectedSize = getExpectedByteSize(customHeaderType);
                                 const maxLength = headerType < 128 ? 255 : 65535;
                                 if (expectedSize !== null && headerLength !== expectedSize) {
-                                    displayValue += ` ❌ (expected ${expectedSize} bytes, got ${headerLength})`;
+                                    validation = 'invalid';
+                                    displayValue += ` (expected ${expectedSize} bytes, got ${headerLength})`;
                                 } else if (expectedSize === null && headerLength > maxLength) {
-                                    displayValue += ` ❌ (exceeds max length of ${maxLength} bytes)`;
+                                    validation = 'invalid';
+                                    displayValue += ` (exceeds max length of ${maxLength} bytes)`;
                                 }
                             }
                         } catch (e) {
@@ -725,7 +731,8 @@ export default defineComponent({
                         rawUnit,
                         conversion,
                         isArray: isArrayField,
-                        arrayLength: isArrayField ? dataBytes.length : undefined
+                        arrayLength: isArrayField ? dataBytes.length : undefined,
+                        validation
                     });
                     index += headerLengthPrefixSize + headerLength;
                 }
@@ -790,6 +797,7 @@ export default defineComponent({
                     let unit: string | undefined;
                     let rawUnit: string | undefined;
                     let conversion: number | string | undefined;
+                    let validation: 'valid' | 'invalid' | undefined;
 
                     // If field is defined in spec, parse and validate it
                     if (payloadFieldDef) {
@@ -826,9 +834,11 @@ export default defineComponent({
                             const expectedSize = getExpectedByteSize(payloadValueType);
                             const maxLength = payloadType < 128 ? 255 : 65535;
                             if (expectedSize !== null && payloadLength !== expectedSize) {
-                                displayValue += ` ❌ (expected ${expectedSize} bytes, got ${payloadLength})`;
+                                validation = 'invalid';
+                                displayValue += ` (expected ${expectedSize} bytes, got ${payloadLength})`;
                             } else if (expectedSize === null && payloadLength > maxLength) {
-                                displayValue += ` ❌ (exceeds max length of ${maxLength} bytes)`;
+                                validation = 'invalid';
+                                displayValue += ` (exceeds max length of ${maxLength} bytes)`;
                             }
                         }
                     } else if (customPayloadType) {
@@ -842,9 +852,11 @@ export default defineComponent({
                                 const expectedSize = getExpectedByteSize(customPayloadType);
                                 const maxLength = payloadType < 128 ? 255 : 65535;
                                 if (expectedSize !== null && payloadLength !== expectedSize) {
-                                    displayValue += ` ❌ (expected ${expectedSize} bytes, got ${payloadLength})`;
+                                    validation = 'invalid';
+                                    displayValue += ` (expected ${expectedSize} bytes, got ${payloadLength})`;
                                 } else if (expectedSize === null && payloadLength > maxLength) {
-                                    displayValue += ` ❌ (exceeds max length of ${maxLength} bytes)`;
+                                    validation = 'invalid';
+                                    displayValue += ` (exceeds max length of ${maxLength} bytes)`;
                                 }
                             }
                         } catch (e) {
@@ -890,7 +902,8 @@ export default defineComponent({
                         rawUnit,
                         conversion,
                         isArray: isArrayField,
-                        arrayLength: isArrayField ? dataBytes.length : undefined
+                        arrayLength: isArrayField ? dataBytes.length : undefined,
+                        validation
                     });
                     index += payloadLengthPrefixSize + payloadLength;
                 }
@@ -903,24 +916,27 @@ export default defineComponent({
 
             // Calculate expected CRC for validation (never includes prefix bytes)
             let checksumValue = String(crc);
+            let checksumValidation: 'valid' | 'invalid' | undefined;
             if (props.showValidation) {
                 // CRC is calculated from protocol version onwards, excluding prefix
                 const checksumBytes = hasPrefix ? bytes.slice(2, checksumStartIndex) : bytes.slice(0, checksumStartIndex);
                 const expectedCRC = crc16(Buffer.from(checksumBytes));
                 const isValid = crc === expectedCRC;
+                checksumValidation = isValid ? 'valid' : 'invalid';
                 if (isValid) {
-                    checksumValue = `${crc} ✅`;
+                    checksumValue = `${crc}`;
                 } else {
                     // Show expected CRC with individual bytes in little-endian format
                     const expectedLowByte = expectedCRC & 0xFF;
                     const expectedHighByte = (expectedCRC >> 8) & 0xFF;
-                    checksumValue = `${crc} ❌ (expected ${expectedCRC} [${expectedLowByte} ${expectedHighByte}])`;
+                    checksumValue = `${crc} (expected ${expectedCRC} [${expectedLowByte} ${expectedHighByte}])`;
                 }
             }
 
             sections.push({
                 label: 'Checksum',
                 value: checksumValue,
+                validation: checksumValidation,
                 bytes: byteArray.value.slice(index, index + 2)
             });
 
@@ -1341,6 +1357,8 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .byte-structure {
@@ -1368,6 +1386,7 @@ export default defineComponent({
     font-size: 11px;
     padding-left: 2px;
 }
+
 
 .annotation-label {
     font-weight: 600;
