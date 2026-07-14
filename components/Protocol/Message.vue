@@ -521,6 +521,27 @@ export default defineComponent({
             }
         };
 
+        // For fixed-size integer types, allow equal or smaller widths.
+        // Examples:
+        // - uint32 accepts 1..4 bytes
+        // - uint64 accepts 1..8 bytes
+        const isCompatibleFixedTypeLength = (type: string, actualLength: number): boolean => {
+            const normalized = type.toLowerCase();
+            const expectedSize = getExpectedByteSize(normalized);
+
+            if (expectedSize === null) {
+                return true;
+            }
+
+            const isFixedInteger = /^(u?int)(8|16|32|64)$/.test(normalized);
+            if (isFixedInteger) {
+                return actualLength >= 1 && actualLength <= expectedSize;
+            }
+
+            // Non-integer fixed-size types (e.g. float32/float64) must match exactly.
+            return actualLength === expectedSize;
+        };
+
         // Create annotated byte sections for display
         const byteSections = computed(() => {
             const bytes = byteArray.value.map(s => parseInt(s, 10));
@@ -663,7 +684,7 @@ export default defineComponent({
                         if (props.showValidation) {
                             const expectedSize = getExpectedByteSize(headerValueType);
                             const maxLength = headerType < 128 ? 255 : 65535;
-                            if (expectedSize !== null && headerLength !== expectedSize) {
+                            if (expectedSize !== null && !isCompatibleFixedTypeLength(headerValueType, headerLength)) {
                                 validation = 'invalid';
                                 displayValue += ` (expected ${expectedSize} bytes, got ${headerLength})`;
                             } else if (expectedSize === null && headerLength > maxLength) {
@@ -681,7 +702,7 @@ export default defineComponent({
                             if (props.showValidation) {
                                 const expectedSize = getExpectedByteSize(customHeaderType);
                                 const maxLength = headerType < 128 ? 255 : 65535;
-                                if (expectedSize !== null && headerLength !== expectedSize) {
+                                if (expectedSize !== null && !isCompatibleFixedTypeLength(customHeaderType, headerLength)) {
                                     validation = 'invalid';
                                     displayValue += ` (expected ${expectedSize} bytes, got ${headerLength})`;
                                 } else if (expectedSize === null && headerLength > maxLength) {
@@ -833,7 +854,7 @@ export default defineComponent({
                         if (props.showValidation) {
                             const expectedSize = getExpectedByteSize(payloadValueType);
                             const maxLength = payloadType < 128 ? 255 : 65535;
-                            if (expectedSize !== null && payloadLength !== expectedSize) {
+                            if (expectedSize !== null && !isCompatibleFixedTypeLength(payloadValueType, payloadLength)) {
                                 validation = 'invalid';
                                 displayValue += ` (expected ${expectedSize} bytes, got ${payloadLength})`;
                             } else if (expectedSize === null && payloadLength > maxLength) {
@@ -851,7 +872,7 @@ export default defineComponent({
                             if (props.showValidation) {
                                 const expectedSize = getExpectedByteSize(customPayloadType);
                                 const maxLength = payloadType < 128 ? 255 : 65535;
-                                if (expectedSize !== null && payloadLength !== expectedSize) {
+                                if (expectedSize !== null && !isCompatibleFixedTypeLength(customPayloadType, payloadLength)) {
                                     validation = 'invalid';
                                     displayValue += ` (expected ${expectedSize} bytes, got ${payloadLength})`;
                                 } else if (expectedSize === null && payloadLength > maxLength) {
