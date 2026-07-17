@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps({
   // Function that returns PDF data for generation
@@ -37,6 +37,13 @@ const displayOverlay = computed(() => {
 
 let jsPDFLoaded = false;
 
+const jsPDFScript = {
+  src: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
+  integrity: 'sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==',
+  crossOrigin: 'anonymous',
+  referrerPolicy: 'no-referrer'
+};
+
 // Text sizes
 const titleSize = 20;
 const sectionTitleSize = 12;
@@ -57,11 +64,15 @@ const headerBg = orange;
 const borderColor = [221, 221, 221];
 const subsectionBg = [252, 232, 220];
 
-function loadScript(src) {
+function loadScript({ src, integrity, crossOrigin, referrerPolicy }) {
   return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src='${src}']`)) return resolve();
+    const existingScript = document.querySelector(`script[src='${src}']`);
+    if (existingScript) return resolve();
     const script = document.createElement('script');
     script.src = src;
+    if (integrity) script.integrity = integrity;
+    if (crossOrigin) script.crossOrigin = crossOrigin;
+    if (referrerPolicy) script.referrerPolicy = referrerPolicy;
     script.onload = resolve;
     script.onerror = reject;
     document.head.appendChild(script);
@@ -79,12 +90,6 @@ function loadFontScript(src) {
   });
 }
 
-onMounted(async () => {
-  if (!jsPDFLoaded) {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-    jsPDFLoaded = true;
-  }
-});
 
 function parseHtmlForPdfLinks(html) {
   if (!html || typeof html !== 'string') return [{ text: html || '', isLink: false }];
@@ -202,7 +207,7 @@ async function cropImageToDataUrl(imgSrc, cropX, cropY, cropWidth, cropHeight) {
 
 async function handleClick() {
   if (!jsPDFLoaded) {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    await loadScript(jsPDFScript);
     jsPDFLoaded = true;
   }
 
