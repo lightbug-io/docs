@@ -29,7 +29,7 @@ If your last location update was 2 days ago, the information here (including bat
 
 Each device row contains the following information:
  - Device name
- - Device color
+ - Device colour and status indicator
  - Last known address (if any)
  - Movement state
  - Time of last transmission (or activation state)
@@ -38,12 +38,33 @@ Each device row contains the following information:
  - Tags (if any)
  - Current zones (if any)
 
+### Status circle
+
+The circle at the left of each row has two independent parts:
+
+ - **Fill**: the device's selected colour. This is a user-customizable colour and does not, by itself, indicate movement, battery, signal, or activation.
+ - **Border**: an indication of the device's most recent usable activity or location update:
+
+| Border | Meaning |
+| --- | --- |
+| Green | The device was moving when it last reported its location. |
+| Red | The device was stationary when it last reported its location. |
+| Orange | The device is configured to report at regular intervals rather than tracking movement. |
+| Yellow | A vehicle tracker was powered on but stationary when it last reported. |
+| Purple | The latest report included a button press. |
+| Grey/translucent | The location is approximate, for example because GPS was unavailable. |
+| No visible border | There is no usable activity or location status to display, or the device is a Bluetooth beacon. |
+
+An empty-looking circle means that no device colour has been saved. The border can still show the device's latest status even when the fill is empty. A deactivated device can also retain the border from its last report, so the border does not mean that the device is currently active or subscribed. The text below the name and the last-update time provide that context.
+
+Depending on the device, the row may show battery level or powered/ignition status. The information shown is from the device's latest report.
+
 Here are some examples of what the device rows can look like:
 
 | Image | Description |
 | --- | --- |
 | ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/6iKfpTu.png){.center} | An active device, that has just transmitted data, and was charging on last transmit |
-| ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/yeynpZl.png){.center} | An active device, that transmitted data 3 minutes ago, and was charging on last transmit
+| ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/yeynpZl.png){.center} | An active device, that transmitted data 3 minutes ago, and was charging on last transmit |
 | ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/0Ws7yNs.png){.center} | An active device, that has not connected since 29 August 2024, and had very little battery on last transmitted |
 | ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/ZYZseSF.png){.center} | A deactivated device, that last reported being on 72% battery |
 | ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/MrymS6o.png){.center} | A deactivated device, that last reported being on 74% battery, and in the "Bristol area" zone. |
