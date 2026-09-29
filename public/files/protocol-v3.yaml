@@ -24,9 +24,6 @@ groups:
   server:
     name: Server
     description: Server side events
-  trkSvr:
-    name: Tracking Server
-    description: Tracking server internal messages
   ungrouped:
     name: Ungrouped
     description: A collection of ungrouped messages
@@ -765,13 +762,6 @@ messages:
             description: |
               Controls the built-in device menu. Value 0 shows the default menu and default e-ink home "Menu" / "Actions" buttons. Value 1 disables the default menu and removes those default home buttons.
               Currently, any non-zero value disables the default menu and shows only "Menu disabled by admin" if the menu is opened, but all values above 1 are reserved for future use.
-          36:
-            name: Command Logging
-            id: commandLogging
-            description: |
-              Bitfield controlling blanket forwarding of received V3 messages for command logging. The low 16 bits select source links to log, and the high 16 bits select destination links to receive those logs.
-              Link bits use the same standardized link IDs as Forwarded For and Forward To: 0 = Chasm, 1 = ESP32, 2 = Link2, 3 = P1, 5 = UART link, 7 = USB host.
-              Matching messages are copied with Forward To removed, Forwarded For set to the source link, and storage forced to None if the target link does not support storage.
           50:
             name: Arming Mode
             id: armingMode
