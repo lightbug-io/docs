@@ -24,6 +24,9 @@ groups:
   server:
     name: Server
     description: Server side events
+  trkSvr:
+    name: Tracking Server
+    description: Tracking server internal messages
   ungrouped:
     name: Ungrouped
     description: A collection of ungrouped messages
@@ -202,30 +205,12 @@ header:
       Example: GPS subscribe with Message Level 'Valid' and Timeout 60000ms
     type: uint32
     unit: ms
-  9:
-    name: Forward For Type
-    id: forwardForType
-    description: 'FOR FUTURE USE: Type of client that the message is being forwarded for.'
-    alpha: Forwarding is currently a new feature, and may not be perfectly documented
-    values:
-      1:
-        name: LoRa
-        id: lora
-        description: Message is being forwarded for another Lightbug device over LoRa
-      2:
-        name: I2C
-        id: i2c
-        description: Message is being forwarded for an I2C connection, typically from the ESP32 co-processor.
-      3:
-        name: Cloud
-        id: cloud
-        description: Message is being forwarded for a cloud link. Typically used when cloud messages are being forwarded to the ESP32 co-processor.
   10:
     name: Forwarded For
     id: forwardedFor
     description: |
       Link ID of the client that sent the original message being forwarded.
-      Current standardized link IDs are shared with Forward To and command logging: 0 = Chasm, 1 = ESP32, 2 = Link2, 5 = UART link.
+      Current standardized link IDs are shared with Forward To and command logging: 0 = Chasm, 1 = ESP32, 2 = Link2, 3 = P1, 5 = UART link, 7 = USB host.
       Forward For Type may add context for non-link forwarding cases such as LoRa, but link forwarding should use these IDs directly.
     type: uint8
     alpha: Forwarding is currently a new feature, and may not be perfectly documented
@@ -242,10 +227,18 @@ header:
         name: Link2
         id: link2
         description: Secondary Chasm/cloud link
+      3:
+        name: P1
+        id: p1
+        description: P1 link reached from P2 over I2C
       5:
-        name: UART Link
-        id: uartLink
+        name: UART
+        id: uart
         description: UART command link
+      7:
+        name: USB Host
+        id: usbHost
+        description: Host computer link, mainly reached from P2 over USB
   11:
     name: Forwarded RSSI
     id: forwardedRssi
@@ -254,31 +247,12 @@ header:
     name: Forwarded SNR
     id: forwardedSnr
     description: SNR of forwarded message, when forwarded over radio
-  13:
-    name: Forwarding To Type
-    id: forwardingToType
-    description: Type of client to forward the message to.
-    type: uint
-    alpha: Forwarding is currently a new feature, and may not be perfectly documented
-    values:
-      1:
-        name: LoRa
-        id: lora
-        description: Message is being forwarded for another Lightbug device over LoRa
-      2:
-        name: I2C
-        id: i2c
-        description: Message is being forwarded for an I2C connection, typically from the ESP32 co-processor.
-      3:
-        name: Cloud
-        id: cloud
-        description: Message is being forwarded for a cloud link. Typically used when cloud messages are being forwarded to the ESP32 co-processor.
   14:
     name: Forward To
     id: forwardTo
     description: |
       Link ID of the client to forward the message to.
-      Current standardized link IDs are shared with Forwarded For and command logging: 0 = Chasm, 1 = ESP32, 2 = Link2, 5 = UART link.
+      Current standardized link IDs are shared with Forwarded For and command logging: 0 = Chasm, 1 = ESP32, 2 = Link2, 3 = P1, 5 = UART link, 7 = USB host.
       Forwarding To Type may add context for non-link forwarding cases such as LoRa, but link forwarding should use these IDs directly.
     type: uint8
     alpha: Forwarding is currently a new feature, and may not be perfectly documented
@@ -295,10 +269,18 @@ header:
         name: Link2
         id: link2
         description: Secondary Chasm/cloud link
+      3:
+        name: P1
+        id: p1
+        description: P1 link reached from P2 over I2C
       5:
         name: UART Link
         id: uartLink
         description: UART command link
+      7:
+        name: USB Host
+        id: usbHost
+        description: Host computer link reached from P2 over USB
   15:
     name: Storage Level
     id: storageLevel
@@ -490,11 +472,6 @@ header:
     parsers:
       - id: v3messages
         parser: v3-messages
-  104:
-    name: Chunk Index
-    id: chunkIndex
-    description: Index of the current chunk (0-based)
-    type: uint8
   105:
     name: Encryption Tag
     id: encryptionTag
@@ -683,6 +660,12 @@ messages:
     name: Config
     id: config
     alpha: Config interactions are currently in an experimental phase, and the API may change in future, and documentation may be incomplete.
+    description: |
+      Configuration storage and maintenance message.
+
+      GET behaviour:
+      - If Key (data field 7 / `key`) is omitted, the response returns a config summary payload (data field 5 / `summary16`).
+      - If Key is provided, the response returns the value for that specific key in Payload (data field 9).
     group: ungrouped
     data:
       3:
@@ -721,6 +704,10 @@ messages:
       7:
         name: Key
         id: key
+        description: |
+          Config key identifier.
+          Required for SET.
+          Optional for GET: when omitted, GET returns a key summary instead of an individual key value.
         type: uint16
         values:
           1:
@@ -772,11 +759,30 @@ messages:
             name: BLE Name Filter Prefix
             id: bleNameFilterPrefix
             description: Collection of null terminated strings. Expected format is [prefix1]\0[prefix2]\0[prefix3]\0
+          35:
+            name: Menu Config
+            id: menuConfig
+            description: |
+              Controls the built-in device menu. Value 0 shows the default menu and default e-ink home "Menu" / "Actions" buttons. Value 1 disables the default menu and removes those default home buttons.
+              Currently, any non-zero value disables the default menu and shows only "Menu disabled by admin" if the menu is opened, but all values above 1 are reserved for future use.
+          36:
+            name: Command Logging
+            id: commandLogging
+            description: |
+              Bitfield controlling blanket forwarding of received V3 messages for command logging. The low 16 bits select source links to log, and the high 16 bits select destination links to receive those logs.
+              Link bits use the same standardized link IDs as Forwarded For and Forward To: 0 = Chasm, 1 = ESP32, 2 = Link2, 3 = P1, 5 = UART link, 7 = USB host.
+              Matching messages are copied with Forward To removed, Forwarded For set to the source link, and storage forced to None if the target link does not support storage.
           50:
             name: Arming Mode
             id: armingMode
             description: |
               Bitmask controlling device behaviour when armed. Value 0x00 = default (active when armed).
+          100:
+            name: P2 Firmware MD5 Cache
+            id: p2fwMd5Cache
+            description: |
+              Cached 16-byte MD5 digest reported by the ESP32 ROM after the most recent OTA verification.
+              Allows the server to decide whether the device already has the expected firmware and whether the previous update succeeded.
       9:
         name: Payload
         id: payload
@@ -788,6 +794,24 @@ messages:
       GET: null
       NONE: null
       SET: null
+    examples:
+      - name: Set ArmingMode - keep modem on and GPS on (highest power, fastest reconnect)
+        description: |
+          Sets ArmingMode (key 50) to 0x84 (bits 2+7): keep GPS on in standby and keep modem connection open.
+          Flipping to active requires a command to toggle armed state. GPS stays on but RTK only connects when actively armed.
+        bytes: 3 21 0 14 0 1 0 5 1 1 2 0 7 9 2 50 0 1 132 101 99
+      - name: Set ArmingMode - keep modem on, GPS on, wake on move
+        description: |
+          Sets ArmingMode (key 50) to 0x85 (bits 0+2+7): keep GPS on, keep modem on, and automatically wake when moving.
+        bytes: 3 21 0 14 0 1 0 5 1 1 2 0 7 9 2 50 0 1 133 68 115
+      - name: Set ArmingMode - low power (GPS off until moved, modem stays on)
+        description: |
+          Sets ArmingMode (key 50) to 0x81 (bits 0+7): GPS turns on only when moving, modem stays connected. Lower power than above as GPS is off at rest.
+        bytes: 3 21 0 14 0 1 0 5 1 1 2 0 7 9 2 50 0 1 129 192 51
+      - name: Set Menu Config - disable default menu
+        description: |
+          Sets Menu Config (key 35) to 1: disables the default device menu and shows only "Menu disabled by admin".
+        bytes: 3 22 0 14 0 1 0 5 1 1 2 0 7 9 2 35 0 2 1 0 243 88
   15:
     name: Position
     id: position
@@ -1373,7 +1397,11 @@ messages:
       7:
         name: Firmware Version
         id: fw
-        description: Firmware version as a single integer, e.g. 2287
+        description: |
+          Firmware version
+          Can be a literal integer, or an encoded version number.
+          Lightbug devices use a single integer for firmware version, e.g. 2287.
+          ESP devices encode a semver version into an int, MAJOR*10000 + MINOR*100 + PATCH. `0.18.0 => 1800` and `1.1.1 => 10101`
         type: uint32
       10:
         name: Device Type
@@ -2734,8 +2762,29 @@ messages:
         id: name
         description: Device name, if available
         type: ascii
+      5:
+        name: Scan Response
+        id: scanResponse
+        description: Raw scan response payload, if available
+        type: bytes
+      6:
+        name: Active Scan Request
+        id: activeScanRequest
+        description: Perform an active scan, valid only for SUBSCRIBE
+        type: bool
+      7:
+        name: Scan Interval
+        id: scanInterval
+        description: BLE scan interval in 0.625 ms controller units. Omit or set to 0 to retain the ESP default.
+        type: uint8
+      8:
+        name: Scan Window
+        id: scanWindow
+        description: BLE scan window in 0.625 ms controller units. Omit or set to 0 to retain the ESP default.
+        type: uint8
     methods:
       SUBSCRIBE: null
+      UNSUBSCRIBE: null
     examples:
       - name: Subscribe to BLE scan results
         bytes: 3 26 0 56 0 3 0 5 7 1 1 3 4 184 11 0 0 4 212 7 0 0 0 0 167 130
@@ -2931,6 +2980,22 @@ messages:
         description: Bitfield (listening, busy, queuedRx, subscriptionActive).
         type: uint32
         readonly: true
+        bitfield:
+          1:
+            name: Listening
+            id: listening
+          2:
+            name: Busy
+            id: busy
+          4:
+            name: Queued RX
+            id: queuedRx
+          8:
+            name: Subscription Active
+            id: subscriptionActive
+        parsers:
+          - id: statusFlagsBits
+            parser: bitfield
       43:
         name: Active Config Slot
         id: activeConfigSlot
@@ -2968,13 +3033,17 @@ messages:
       51:
         name: RX Start Time
         id: rxStartTimeMs
-        description: Absolute module-local Timer::millis() target time for RX start.
+        description: |
+          Absolute module-local target uptime time for RX start in milliseconds.
+          This is not an absolute timestamp, but rather a module-local uptime time in milliseconds.
         type: uint32
         unit: ms
       52:
         name: Event Time
         id: eventTimeMs
-        description: Module-local Timer::millis() at TX/RX/timeout event time.
+        description: |
+          Absolute module-local target uptime time for TX/RX/timeout event in milliseconds.
+          This is not an absolute timestamp, but rather a module-local uptime time in milliseconds.
         type: uint32
         readonly: true
         unit: ms
@@ -3139,6 +3208,94 @@ messages:
         description: |
           Payload fragment data. The server may emit consecutive keys from 10 to 19,
           each up to 255 bytes, to represent one chunk payload.
+        type: bytes
+      129:
+        name: Payload Extended
+        id: payloadExtended
+        description: |
+          Extended-length payload data (uint16 length prefix because key >= 128).
+          Can be used for single-field payload responses and request-mode signalling.
+        type: bytes
+    methods:
+      GET: null
+      NONE: null
+  2101:
+    name: File Data
+    id: fileData
+    description: Generic file transfer requests and payload chunks for module firmware and other downloads.
+    group: ""
+    header:
+      - 5
+    data:
+      1:
+        name: File Type
+        id: fileType
+        description: File class. 1 = ESP32 firmware.
+        type: uint8
+        values:
+          1:
+            name: ESP32 Firmware
+            id: esp32Firmware
+      2:
+        name: File ID
+        id: fileId
+        description: Firmware/file id or version requested by the device.
+        type: uint64
+      3:
+        name: Chunk
+        id: chunk
+        description: Chunk index, 0-based. Omitted from a GET request when requesting file metadata only.
+        type: uint16
+      4:
+        name: Chunk Size
+        id: chunkSize
+        description: Requested chunk size in bytes. Current ESP32 OTA requests 768-byte chunks. Included in both metadata and chunk requests so the server can calculate totalChunks for the requested transfer shape.
+        type: uint16
+      5:
+        name: Total Size
+        id: totalSize
+        description: Total file size in bytes. Returned by the server in the metadata response and repeated on chunk responses when practical.
+        type: uint
+        unit: byte
+      6:
+        name: Total Chunks
+        id: totalChunks
+        description: Total number of chunks in the file for the requested chunkSize. Required in the metadata response before the device starts chunk requests.
+        type: uint16
+      7:
+        name: Status
+        id: status
+        description: Device/server status for file transfer (0=ok or need data, 2=error).
+        type: uint8
+      8:
+        name: Target Address
+        id: targetAddress
+        description: Target module flash address, when relevant.
+        type: uint
+      9:
+        name: MD5
+        id: md5
+        description: 16-byte whole-file MD5, when available.
+        type: bytes
+      10:
+        name: Chunk Count
+        id: chunkCount
+        description: Number of sequential chunks requested starting at chunk. If omitted, assume 1. Servers should respond with one File Data response per requested chunk, not a combined payload.
+        type: uint8
+      11:
+        name: Target Erase Size
+        id: targetEraseSize
+        description: Optional flash erase extent from targetAddress. Used when the target must erase a whole image or partition region even though the transferred file is smaller.
+        type: uint
+        unit: byte
+      129:
+        name: Payload
+        id: payload
+        description: |
+          Extended-length payload field containing one complete chunk. Not included in
+          metadata responses. Field id 129 uses
+          a two-byte little-endian V3 length prefix, so a 768-byte ESP32 OTA chunk fits
+          in a single field.
         type: bytes
     methods:
       GET: null
