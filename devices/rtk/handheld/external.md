@@ -43,7 +43,7 @@ The device features two difference sets of RGB LEDs:
 ![](https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-back.png)
 :::
 
-An 82dB IP67 rated siren for audible alerts.
+An 82dB siren for audible alerts.
 
 KickFast mount for easy attachment to belts, bags, tripods, poles, etc.
 

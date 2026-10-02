@@ -21,7 +21,7 @@ product:
     certifications:
       CE: "yes"
     rating:
-      ip: "IP67"
+      ip: "IP66"
       operating temperature_c: "-20 to +60"
     construction:
       material: "Polycarbonate-ABS"
@@ -220,7 +220,6 @@ product:
     siren:
       decibel: 82
       purpose: "Audible alert for personnel"
-      waterproof_rating: "IP67"
     display:
       type: "2.13\" E-Paper"
       front_light: "yes"
