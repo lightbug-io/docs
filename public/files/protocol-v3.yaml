@@ -2429,13 +2429,17 @@ messages:
       8:
         name: Charge Current
         id: chargeCurrent
-        description: Current used to charge the device; present only while charging and when the cached charge current is nonzero.
+        description: Firmware-labelled cached charge-current value; present only while charging and when nonzero. Physical interpretation depends on the charger driver.
         type: float32
         unit: mA
       9:
         name: Input Current
         id: inputCurrent
-        description: Current from the external input; present only while charging and when the cached input current is nonzero.
+        description: |
+          Firmware-labelled cached input-current value; present only while charging and when nonzero.
+          On BQ2589x-based devices (including Viper 6 build 2644), this comes from REG13 IDPM_LIM:
+          the input-current limit in effect, not measured input current. Do not interpret it as
+          actual device consumption. Physical interpretation on other hardware depends on its charger driver.
         type: float32
         unit: mA
       10:
