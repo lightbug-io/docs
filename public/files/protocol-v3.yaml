@@ -1443,6 +1443,11 @@ messages:
         id: iccid
         description: ICCID - 19 to 22 characters
         type: ascii
+      4:
+        name: Serial
+        id: serial
+        description: Device serial number. Currently only available on some device types.
+        type: uint32
       8:
         name: Cached SIM2 ICCID
         id: cachedIccid2
@@ -2562,7 +2567,7 @@ messages:
     name: Status LED Control
     id: statusLedControl
     alpha: This message was only defined on 06/01/2026 and is subject to change.
-    description: Control Status LEDs
+    description: Control between four and six status LEDs, depending on the device hardware.
     group: interface
     data:
       1:
@@ -2570,8 +2575,11 @@ messages:
         id: ledMask
         description: |
           Bitfield describing the on/off state of all status LEDs in a single byte.
-          For example, 0x03 means LED 1 and LED 2 on, with the remaining LEDs off.
-          If present, this compact form takes priority over the individual LED fields (5-8).
+          For example, 0x03 means LED 1 and LED 2 on, with the remaining LEDs off;
+          0x3f turns on all six LEDs.
+          LEDs 1-4 are available on all supported devices; LEDs 5-6 apply only to
+          devices fitted with six status LEDs and must be ignored by four-LED devices.
+          If present, this compact form takes priority over the individual LED fields (5-10).
         type: uint8
         bitfield:
           1:
@@ -2586,6 +2594,12 @@ messages:
           8:
             name: LED 4
             id: led4
+          16:
+            name: LED 5
+            id: led5
+          32:
+            name: LED 6
+            id: led6
         parsers:
           - id: ledMaskBits
             parser: bitfield
@@ -2604,6 +2618,16 @@ messages:
       8:
         name: LED 4
         id: "4"
+        type: bool
+      9:
+        name: LED 5
+        id: "5"
+        description: Optional status LED, present only on six-LED devices.
+        type: bool
+      10:
+        name: LED 6
+        id: "6"
+        description: Optional status LED, present only on six-LED devices.
         type: bool
     methods:
       GET: null
@@ -2931,25 +2955,25 @@ messages:
       In tracking-session uploads, field 129 can instead carry pending Transmit Now upload
       data. In that context field 1 still describes the down-synced message box, so it must
       not be treated as the checksum of the upload payload.
+    group: info
     header:
       - 5
-    methods:
-      GET:
-      SUBSCRIBE:
-      UNSUBSCRIBE:
-    group: info
     data:
       1:
         name: CRC
         id: crc
+        description: Stored checksum of the down-synced message box, separate from the outer message-frame CRC. Integer encoding may omit a high zero byte.
         type: uint16
         readonly: true
-        description: Stored checksum of the down-synced message box, separate from the outer message-frame CRC. Integer encoding may omit a high zero byte.
       129:
         name: Full Payload
         id: fullPayload
-        type: bytes
         description: Down-synced message-box bytes in GET responses and subscription updates (up to 1024 bytes in build 2644). Uses a uint16 little-endian length prefix. Tracking-session uploads may use this field for independent Transmit Now data instead.
+        type: bytes
+    methods:
+      GET: null
+      SUBSCRIBE: null
+      UNSUBSCRIBE: null
     examples:
       - name: Synthetic GET request (not a hardware capture)
         bytes: 3 17 0 58 0 2 0 1 5 1 1 1 2 0 0 218 13
