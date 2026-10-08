@@ -1537,6 +1537,13 @@ messages:
   37:
     name: Cell Info
     id: cellInfo
+    description: |
+      Returns the cached cellular-network information held by the device; GET does not trigger
+      a fresh modem query or wait for network registration. Fields may therefore be unchanged
+      between requests, or zero before a usable sample is available.
+      In firmware build 2644, the cache is replaced when network identity changes or a signal
+      metric changes by more than 3 raw units. Smaller signal changes alone do not replace it.
+      GET and subscription support is firmware-dependent; older builds may not implement these requests.
     group: info
     header:
       - 5
@@ -2379,6 +2386,10 @@ messages:
     id: powerInfo
     description: |
       See how much power is or has been used by the device, as well as current power usage and if the device is charging.
+      Field availability depends on hardware, firmware and charging state. The conditional fields
+      below describe firmware build 2644; do not assume that every device sends every field.
+      Numeric values are little-endian. Integer fields may omit high zero bytes; float32 fields
+      retain their four-byte IEEE 754 representation.
     group: power
     header:
       - 5
@@ -2387,9 +2398,9 @@ messages:
         name: Total power since profile
         id: totalPower
         description: |
-          Total power used, since a point in time decided by the method used.
-          For messages from a SUBSCRIBE, this is the mAH used since the subscription was started
-          For a GET response, this is the mAH used since the device was turned on
+          Accumulated charge usage in mAh. In build 2644, starting a power-profile subscription
+          resets the shared accumulator; GET returns that same accumulator. Before any such reset
+          it covers usage since startup. Present only when current monitoring is available.
         type: float32
         unit: mAh
       4:
@@ -2403,6 +2414,44 @@ messages:
         id: charging
         description: Is the device currently charging
         type: bool
+      6:
+        name: External Voltage
+        id: externalVoltage
+        description: Measured external voltage; omitted when the cached voltage is zero.
+        type: float32
+        unit: V
+      7:
+        name: Total power since last TX
+        id: totalPowerSinceLastTx
+        description: Charge used since the last transmission; present only when the build has a current monitor and its current-usage object is available.
+        type: float32
+        unit: mAh
+      8:
+        name: Charge Current
+        id: chargeCurrent
+        description: Firmware-labelled cached charge-current value; present only while charging and when nonzero. Physical interpretation depends on the charger driver.
+        type: float32
+        unit: mA
+      9:
+        name: Input Current
+        id: inputCurrent
+        description: |
+          Firmware-labelled cached input-current value; present only while charging and when nonzero.
+          On BQ2589x-based devices (including Viper 6 build 2644), this comes from REG13 IDPM_LIM:
+          the input-current limit in effect, not measured input current. Do not interpret it as
+          actual device consumption. Physical interpretation on other hardware depends on its charger driver.
+        type: float32
+        unit: mA
+      10:
+        name: Average Current
+        id: averageCurrent
+        description: |
+          Average current in mA, rounded to the nearest integer and clamped to 0..65535.
+          In build 2644 this is always included, and is zero before current samples are available.
+          Uses the accumulated current-sampling window when nonempty, otherwise the previous
+          completed window (nominally 3 seconds). Encoded in one or two little-endian bytes.
+        type: uint16
+        unit: mA
     methods:
       GET: null
       SUBSCRIBE:
@@ -2868,6 +2917,42 @@ messages:
       SET: null
       SUBSCRIBE: null
       UNSUBSCRIBE: null
+  58:
+    name: Message Box
+    id: _msgBox
+    description: |
+      Read or subscribe to the device's cached down-synced message box on supported firmware.
+      Build 2644 GET responses and subscription updates use field 1 for the stored message-box
+      CRC and field 129 for its content. An empty payload is omitted. Unsupported products
+      return Not Supported (response code 7).
+      Field 129 uses a two-byte little-endian length prefix, even for payloads shorter than
+      256 bytes. Older firmware used chunk fields 10..14 with one-byte lengths; do not parse
+      field 129 with that legacy layout. The message-frame CRC is separate from field 1.
+      In tracking-session uploads, field 129 can instead carry pending Transmit Now upload
+      data. In that context field 1 still describes the down-synced message box, so it must
+      not be treated as the checksum of the upload payload.
+    header:
+      - 5
+    methods:
+      GET:
+      SUBSCRIBE:
+      UNSUBSCRIBE:
+    group: info
+    data:
+      1:
+        name: CRC
+        id: crc
+        type: uint16
+        readonly: true
+        description: Stored checksum of the down-synced message box, separate from the outer message-frame CRC. Integer encoding may omit a high zero byte.
+      129:
+        name: Full Payload
+        id: fullPayload
+        type: bytes
+        description: Down-synced message-box bytes in GET responses and subscription updates (up to 1024 bytes in build 2644). Uses a uint16 little-endian length prefix. Tracking-session uploads may use this field for independent Transmit Now data instead.
+    examples:
+      - name: Synthetic GET request (not a hardware capture)
+        bytes: 3 17 0 58 0 2 0 1 5 1 1 1 2 0 0 218 13
   1004:
     name: LoRa
     id: lora
