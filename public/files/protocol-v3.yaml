@@ -2433,14 +2433,14 @@ messages:
       8:
         name: Charge Current
         id: chargeCurrent
-        description: Charge current reported by the charger on supported BQ-equipped devices; present only while charging and when nonzero. Values are refreshed periodically.
+        description: Charge current reported by the charger on supported BQ-equipped devices such as RH2, PR2, Viper 6 and Lifepass4; present only while charging and when nonzero. Values are refreshed periodically.
         type: float32
         unit: mA
       9:
         name: Input Current
         id: inputCurrent
         description: |
-          Available on supported BQ-equipped devices; present only while charging and when nonzero.
+          Available on supported BQ-equipped devices such as RH2, PR2, Viper 6 and Lifepass4; present only while charging and when nonzero.
           On BQ2589x devices, this is the input-current limit in effect, not measured input draw.
           Values are refreshed periodically; GET does not trigger a fresh charger read.
         type: float32
