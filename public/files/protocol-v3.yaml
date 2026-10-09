@@ -345,9 +345,16 @@ header:
   20:
     name: Session ID
     id: sessionId
+    alpha: New feature, subject to alterations, possibly for internal only usage
     description: The message ID of the session, associated with a session start message
     type: uint32
-    alpha: New feature, subject to alterations, possibly for internal only usage
+  22:
+    name: Message Version
+    id: msgVersion
+    type: uint8
+    description: |
+      Selects a breaking message-format version for the message being requested.
+      Supported values are defined by each message. If omitted, the message's legacy format is used.
   50:
     name: App Name
     id: app
@@ -2944,18 +2951,24 @@ messages:
     id: _msgBox
     description: |
       Read or subscribe to the device's cached down-synced message box on supported firmware.
-      GET responses and subscription updates use field 1 for the stored message-box
-      CRC and field 129 for its content. An empty payload is omitted. Unsupported products
-      return Not Supported (response code 7).
-      Field 129 uses a two-byte little-endian length prefix, even for payloads shorter than
-      256 bytes. The legacy MsgBox format uses chunked fields 10..14 with one-byte lengths.
-      Field 129 does not use that chunked layout. The message-frame CRC is separate from field 1.
+      For GET and SUBSCRIBE requests, Header Message Version omitted or set to 1 selects the
+      legacy chunked response: CRC in field 1 and payload chunks in fields 10..14, each with a
+      one-byte length prefix and at most 255 payload bytes. Set Header Message Version to 2 to
+      receive the CRC in field 1 and the complete payload in extended-length field 129. Each
+      subscription retains its requested version; subscriptions for the same receiver with
+      different versions receive separate updates. Replacing a subscription updates its version,
+      and UNSUBSCRIBE with the same Subscription ID removes only that subscription and its
+      version. Other values or a version field that is not exactly one byte return Invalid
+      Parameter (response code 4). An empty payload is omitted.
+      The message-frame CRC is separate from field 1. Unsupported products return Not Supported
+      (response code 7).
       In tracking-session uploads, field 129 can instead carry pending Transmit Now upload
       data. In that context field 1 still describes the down-synced message box, so it must
       not be treated as the checksum of the upload payload.
     group: info
     header:
       - 5
+      - 22
     data:
       1:
         name: CRC
@@ -2963,6 +2976,31 @@ messages:
         description: Stored checksum of the down-synced message box, separate from the outer message-frame CRC. Integer encoding may omit a high zero byte.
         type: uint16
         readonly: true
+      10:
+        name: Legacy Payload Chunk 1
+        id: legacyChunk1
+        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
+        type: bytes
+      11:
+        name: Legacy Payload Chunk 2
+        id: legacyChunk2
+        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
+        type: bytes
+      12:
+        name: Legacy Payload Chunk 3
+        id: legacyChunk3
+        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
+        type: bytes
+      13:
+        name: Legacy Payload Chunk 4
+        id: legacyChunk4
+        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
+        type: bytes
+      14:
+        name: Legacy Payload Chunk 5
+        id: legacyChunk5
+        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
+        type: bytes
       129:
         name: Full Payload
         id: fullPayload
