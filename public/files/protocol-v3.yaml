@@ -2957,9 +2957,9 @@ messages:
       receive the CRC in field 1 and the complete payload in extended-length field 129. Each
       subscription retains its requested version; subscriptions for the same receiver with
       different versions receive separate updates. Replacing a subscription updates its version,
-      and UNSUBSCRIBE removes that version with the subscription. Other values or a version field
-      that is not exactly one byte return Invalid Parameter (response code 4). An empty payload
-      is omitted.
+      and UNSUBSCRIBE with the same Subscription ID removes only that subscription and its
+      version. Other values or a version field that is not exactly one byte return Invalid
+      Parameter (response code 4). An empty payload is omitted.
       The message-frame CRC is separate from field 1. Unsupported products return Not Supported
       (response code 7).
       In tracking-session uploads, field 129 can instead carry pending Transmit Now upload
