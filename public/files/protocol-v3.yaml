@@ -345,6 +345,7 @@ header:
   20:
     name: Session ID
     id: sessionId
+    alpha: New feature, subject to alterations, possibly for internal only usage
     description: The message ID of the session, associated with a session start message
     type: uint32
   22:
@@ -354,7 +355,6 @@ header:
     description: |
       Selects a breaking message-format version for the message being requested.
       Supported values are defined by each message. If omitted, the message's legacy format is used.
-    alpha: New feature, subject to alterations, possibly for internal only usage
   50:
     name: App Name
     id: app
