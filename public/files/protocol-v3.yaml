@@ -2951,12 +2951,15 @@ messages:
     id: _msgBox
     description: |
       Read or subscribe to the device's cached down-synced message box on supported firmware.
-      For GET requests, Header Message Version omitted or set to 1 returns the legacy chunked
-      response: CRC in field 1 and payload chunks in fields 10..14, each with a one-byte length
-      prefix and at most 255 payload bytes. Set Header Message Version to 2 to receive the CRC in
-      field 1 and the complete payload in extended-length field 129. Other values or a version
-      field that is not exactly one byte return Invalid Parameter (response code 4). An empty
-      payload is omitted. Subscription updates continue to use field 129.
+      For GET and SUBSCRIBE requests, Header Message Version omitted or set to 1 selects the
+      legacy chunked response: CRC in field 1 and payload chunks in fields 10..14, each with a
+      one-byte length prefix and at most 255 payload bytes. Set Header Message Version to 2 to
+      receive the CRC in field 1 and the complete payload in extended-length field 129. Each
+      subscription retains its requested version; subscriptions for the same receiver with
+      different versions receive separate updates. Replacing a subscription updates its version,
+      and UNSUBSCRIBE removes that version with the subscription. Other values or a version field
+      that is not exactly one byte return Invalid Parameter (response code 4). An empty payload
+      is omitted.
       The message-frame CRC is separate from field 1. Unsupported products return Not Supported
       (response code 7).
       In tracking-session uploads, field 129 can instead carry pending Transmit Now upload
