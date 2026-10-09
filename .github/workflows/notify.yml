@@ -17,12 +17,12 @@ jobs:
               id: action-message
               with:
                     script: |
-                            const commits = ${{ toJSON(github.event.commits) }}
-                            const repo = "${{ github.repository }}"
-                            const pusher = "${{ github.event.pusher.name }}"
-                            const branch = "${{ github.event.ref }}"
+                            const commits = context.payload.commits
+                            const repo = `${context.repo.owner}/${context.repo.repo}`
+                            const pusher = context.payload.pusher.name
+                            const branch = context.payload.ref
                             const numberOfCommits = commits.length;
-                            const forced = ${{ github.event.forced}};
+                            const forced = context.payload.forced;
                             const forcedText = forced ? ' (force)' : '';
                             const repoUrl = `https://github.com/${repo}`;
                             let actionMessage = `<${repoUrl}|${repo}>: ${pusher}${forcedText} pushed ${numberOfCommits} new commits to ${branch}:\n`;
