@@ -129,6 +129,10 @@ header:
         description: |
           The receiver was expected to be able to decrypt the message, but decryption failed
           e.g., due to incorrect keys or corrupted data
+      99:
+        name: Unknown Message
+        id: unknownMessage
+        description: The firmware receiving the request does not recognize its message type.
     parsers:
       - id: statusName
         parser: values
