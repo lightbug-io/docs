@@ -2951,15 +2951,15 @@ messages:
     id: _msgBox
     description: |
       Read or subscribe to the device's cached down-synced message box on supported firmware.
-      For GET and SUBSCRIBE requests, Header Message Version omitted or set to 1 selects the
-      legacy chunked response: CRC in field 1 and payload chunks in fields 10..14, each with a
-      one-byte length prefix and at most 255 payload bytes. Set Header Message Version to 2 to
-      receive the CRC in field 1 and the complete payload in extended-length field 129. The
-      device starts with version 1 selected. Every valid SUBSCRIBE selects the format used by
-      subsequent GET requests that omit Header Message Version and by published message-box
-      updates, across all receivers and subscriptions. An omitted version on SUBSCRIBE selects
-      version 1. A GET with an explicit version uses that format for only its response and does
-      not change the selected format. UNSUBSCRIBE and subscription expiry do not change it.
+      Explicit Header Message Version 1 selects the legacy chunked response: CRC in field 1 and
+      payload chunks in fields 10..14, each with a one-byte length prefix and at most 255 payload
+      bytes. Header Message Version 2 selects the CRC in field 1 and the complete payload in
+      extended-length field 129. The device starts with version 1 selected. A GET that omits
+      Header Message Version uses the currently selected version. A valid SUBSCRIBE selects the
+      format used by subsequent GET requests that omit Header Message Version and by published
+      message-box updates, across all receivers and subscriptions; omitting the version on
+      SUBSCRIBE selects version 1. A GET with an explicit version uses it for only that response
+      and does not change the selected format. UNSUBSCRIBE and subscription expiry do not change it.
       Other values or a version field that is not exactly one byte return Invalid Parameter
       (response code 4) without changing the selected format or subscription. An empty payload
       is omitted.
