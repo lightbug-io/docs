@@ -1,89 +1,68 @@
 product:
-  name: "RTKZero"
-  tagline: "Preliminary compact RTK tracker"
+  name: RTKZero
+  tagline: Compact dual-band RTK tracker
   description: >-
-    PRELIMINARY — for design review. Draft design specification for a compact
-    RTK tracker derived from the RH2 architecture. Selected means current design
-    intent awaiting validation; target means a prototype goal, not a verified
-    product claim; RH2 reference means not yet confirmed for RTKZero; TBD means
-    unapproved or unvalidated. Estimates are illustrative only. This is not a
-    production specification or performance guarantee.
-  version: 1
+    A compact, lightweight RTK tracker with dual-band, multi-constellation GNSS,
+    cellular, LoRa, Wi-Fi and Bluetooth connectivity. External helical antenna,
+    simple button and LED controls, NFC card detection, rechargeable battery,
+    and body-worn mounting options. *Preliminary product figures and estimates.
+  version: Customer preview
   physical:
-    rating:
-      environmental_protection: "Design requirement: IP65 minimum; IP67 is a target only. Neither rating has been validated or certified."
     size:
-      dimensions: "TBD — final enclosure and assembled dimensions are not approved."
-      weight: "TBD — final weight is not approved."
-    construction:
-      material: "TBD — no enclosure material is approved."
+      body_dimensions: Approx. 53 × 91 × 15 mm* (antenna excluded)
+      antenna_extension: Approx. 55 mm* added to body length
+    weight: Approx. 90 g*
     mounting:
-      concepts: "Design intent includes a top-entry number-plate mount, low-profile belt-clip insert and backup/security loop. Final geometry, attachment interface and load limits are TBD; a mount should fail safely before the tracker or wearer is harmed."
+      options: Top-entry number-plate mount, low-profile belt-clip insert and backup loop.
   integrations:
     processing:
-      main_processor: "STM32G0B1, 512 KB flash / 144 KB RAM; pin-compatible G0C is an option if additional security features are needed."
-      wireless_module: "ESP32-S31 module; full Wi-Fi and Bluetooth are design requirements. Exact versions and feature support are TBD."
+      main_processor: STMicroelectronics STM32G0B1 32-bit Arm Cortex-M0+ MCU; up to 64 MHz, 512 KB Flash, 144 KB SRAM, 1.7–3.6 V supply.
+      wireless_processor: Espressif ESP32-S31; two high-performance RISC-V cores and one low-power RISC-V core. 2.4 GHz Wi-Fi 6, Bluetooth 5.4 LE and Bluetooth Classic.*
     dock:
-      interface_intent: "Five-contact RH2-compatible dock concept with I2C retained. Pinout and electrical limits are TBD."
-    software_and_cloud:
-      rh2_reference: "RH2 documentation describes Lightbug Cloud streaming/API access, cloud forwarding, device APIs over UART/I2C/UDP, and Toit or lower-level message integrations. These are reference capabilities only; RTKZero firmware, cloud provisioning, interfaces and compatibility are not yet confirmed or validated."
-      candidate_forwarding: "The RH2 specification lists UDP/TCP and MQTT, HTTP(S) and WebSocket. RTKZero support is TBD."
-      developer_tools: "RH2 references Toit, ESP-IDF, Arduino and PlatformIO support for the ESP32 co-processor. RTKZero toolchain and SDK support are TBD."
-      external_interfaces: "RH2 lists I2C and USB-C virtual COM. RTKZero retains I2C at the dock by design intent; USB-C and external API access are not confirmed."
+      interface: Five-contact charging dock compatible with the RH2 dock.*
+    optional_add_ons:
+      options: '[Optional Add on] Wireless charging; higher-spec GNSS receiver; alternate antenna configurations; low-temperature battery; serviceable battery, backplate and contact assembly; breakaway belt clip.'
   connectivity:
     cellular:
-      module: "A7683E selected; 2G is omitted from the design. Supported bands, territories, SIM arrangements and certifications are TBD."
-      sim_configuration: "TELE2 is the recorded operator design intent; SIM format and provisioning details are TBD."
+      modem: SIMCom A7683E LTE Cat 1bis modem.
+      bands: LTE-FDD bands B1, B3, B5, B7, B8, B20 and B28.*
+      data_rate: Up to 10 Mbps downlink and 5 Mbps uplink.*
     lora:
-      radio: "Semtech LR2021 selected for 868 MHz and 2.4 GHz operation. Region, protocol, range and final RF performance are TBD. Satellite uplink is not in the current design intent."
+      radio: Semtech LR2021 LoRa transceiver for 868 MHz and 2.4 GHz ISM operation.*
+      modes: LoRa and FLRC modulation.*
     wifi_bluetooth:
-      module: "ESP32-S31 module"
-      capabilities: "Wi-Fi and Bluetooth are required. Versions, roles, ranges and interoperability are TBD."
+      module: Espressif ESP32-S31.
+      features: 2.4 GHz Wi-Fi 6, Bluetooth 5.4 LE and Bluetooth Classic.*
   positioning:
     gnss:
-      receiver: "Quectel LC29HEA selected design intent (L1/L5 RTK-capable receiver)."
-      antenna: "External helical GNSS antenna through an SMA pigtail; final antenna and RF placement require validation."
-      performance: "Centimetre-class RTK is a prototype acceptance target with suitable correction coverage, not a validated accuracy or guarantee."
-      update_rate: "Reliable 5 Hz reporting is a prototype acceptance target; supported rates and sustained performance remain to be validated."
-      datum_and_height_reference: "TBD."
+      receiver: Quectel LC29HEA, the same GNSS module used in RH2.
+      bands: GPS/QZSS L1 C/A and L5; GLONASS L1; Galileo E1 and E5a; BeiDou B1I and B2a; NavIC L5.
+      performance: Dual-band RTK positioning, with centimeter-class positioning capability.*
+      update_rate: 5 Hz position reporting.*
+      antenna: External helical GNSS antenna with SMA pigtail; approximately 55 mm additional length.*
   sensors:
     motion:
-      accelerometer: "LIS2DH selected."
-      six_axis_sensor: "RH2-style six-axis motion sensor intended; exact part and performance are TBD."
-  components:
+      accelerometer: ST LIS2DH three-axis accelerometer; selectable ±2 g, ±4 g, ±8 g or ±16 g range.*
     nfc:
-      reader: "Renesas PTX105R selected for low-power card detection."
-      antenna: "LP5-style flex antenna preferred where practical; final antenna and detection range are TBD."
-    exploratory_options:
-      wireless_charging: "Optional concept only; not in the current baseline and not validated."
-      gnss_and_antennas: "Higher-spec GNSS receivers and alternate antenna configurations are optional concepts for evaluation; they do not replace the current LC29HEA/external-helical baseline."
-      cold_weather_battery: "A low-temperature battery option remains under evaluation; no operating-temperature range is approved."
-      serviceability: "A serviceable battery, backplate and contact assembly was proposed for evaluation; not approved."
-      mounting_variants: "Alternative belt-clip arrangements, including a plastic breakaway clip, are optional concepts. The backup/security loop remains in the baseline design intent; materials, retention and safe-release behavior are TBD."
-    source_and_status:
-      primary_design_notes: "Current RTKZero hardware design notes, last edited 11 October 2026. LC29HEA is the current receiver design intent; a later clarification resolves the stale MS34SN2 checkbox in favor of the LC29H family. Dock I2C compatibility is retained; satellite-uplink TCXO is declined."
-      rh2_comparison: "RH2 reference data is in https://docs.lightbug.io/device-specs/rtk/v2.yaml and existing API/developer documentation. RH2 reports 6700 mAh and more than 50 hours; the illustrative battery ratio uses the requested 6600 mAh comparison basis. No other unconfirmed RH2 specifications are inherited."
+      reader: Renesas PTX105R 13.56 MHz NFC reader with low-power card detection.
+      interfaces: I2C, SPI or UART host interface capability.*
   battery:
     overall:
-      capacity_mah: 2000
-      chemistry: "LiPo design intent; exact cell and cold-weather variant are TBD."
-      measured_runtime: "TBD — no RTKZero runtime measurements are available."
-      runtime_estimate: "Illustrative capacity-only scaling: 2000 mAh is about 30% of the 6600 mAh RH2 comparison basis (about 3.3 times lower capacity). Using 50 hours only as a nominal illustration gives about 15 hours at that ratio under identical operating conditions. RH2's published YAML says more than 50 hours at 6700 mAh; that lower-bound wording does not transfer to RTKZero. This is not measured runtime, a guarantee or a forecast. Actual load, radio use, GNSS conditions, temperature and firmware may change runtime substantially."
-    measurement:
-      monitor: "INA236 selected for battery measurement."
+      capacity: 2,000 mAh LiPo battery.*
+      runtime: Approximately 15 hours.*
+    monitoring:
+      monitor: Texas Instruments INA236 16-bit current, voltage and power monitor with I2C interface.
   charging:
     charger:
-      family: "BQ25890/BQ25895 family under consideration; exact variant is TBD."
-      dock: "Five-contact RH2-compatible dock concept with I2C retained; pinout, charge settings and validation are TBD."
-      tray: "Multi-device charging tray is a design concept. Drainage and allowance for dirt are required design considerations; capacity, geometry and validation are TBD."
+      method: Five-contact charging dock.*
+      accessory: Multi-device charging tray. [Optional Add on]
   user interface:
     controls:
-      button: "One physical button. Firmware behavior is TBD."
+      button: One physical button.
     indicators:
-      led: "One RGB LED; behavior and visibility are TBD."
-      audio: "Piezo intended. Behavior and acoustic output are TBD. No local speaker is intended."
+      led: One RGB status LED.
+      audio: Piezo audio indicator.
     omitted:
-      display: "No display."
-      haptics: "No haptic actuator."
-      strobe: "No strobe light."
-      uwb: "No UWB."
+      display: No screen.
+      haptics: No haptic actuator.
+      strobe: No strobe light.
