@@ -2951,18 +2951,15 @@ messages:
     id: _msgBox
     description: |
       Read or subscribe to the device's cached down-synced message box on supported firmware.
-      Explicit Header Message Version 1 selects the legacy chunked response: CRC in field 1 and
-      payload chunks in fields 10..14, each with a one-byte length prefix and at most 255 payload
-      bytes. Header Message Version 2 selects the CRC in field 1 and the complete payload in
-      extended-length field 129. The device starts with version 1 selected. A GET that omits
-      Header Message Version uses the currently selected version. A valid SUBSCRIBE selects the
-      format used by subsequent GET requests that omit Header Message Version and by published
-      message-box updates, across all receivers and subscriptions; omitting the version on
-      SUBSCRIBE selects version 1. A GET with an explicit version uses it for only that response
-      and does not change the selected format. UNSUBSCRIBE and subscription expiry do not change it.
-      Other values or a version field that is not exactly one byte return Invalid Parameter
-      (response code 4) without changing the selected format or subscription. An empty payload
-      is omitted.
+      Message Box responses default to version 1: CRC in field 1 and legacy payload chunks in
+      fields 10..14 (up to 255 bytes each). Version 2 is an optional, opt-in format for clients
+      that prefer one complete payload in extended field 129, with CRC still in field 1.
+      Header Message Version (22) selects the requested format. The initial selection is version 1.
+      Each valid SUBSCRIBE sets the format used for published updates and later GETs that omit
+      the header; an omitted version on SUBSCRIBE resets it to version 1. An explicit GET version
+      applies only to that response. UNSUBSCRIBE and expiry do not reset the selection. Unsupported
+      values or a version header that is not exactly one byte return Invalid Parameter (4) without
+      changing the selection or subscription. Empty payload data is omitted.
       SET replaces the cached message box (maximum 1024 bytes). Field 1 is the stored additive
       checksum: the sum of payload bytes modulo 65536. A non-empty SET includes both field 1
       and the complete bytes in field 129; the checksum must match. To clear the cache, send
