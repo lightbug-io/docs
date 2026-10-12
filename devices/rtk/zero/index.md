@@ -9,30 +9,35 @@ import loadSpec from '../../../utils/loadSpec'
 const specs = loadSpec(spec)
 </script>
 
-# RTKZero — Draft Product Specification
+# Lightbug RTKZero
 
-> **PRELIMINARY — for design review.** This page records current design intent, RH2-derived assumptions and unresolved items. It is not a production specification, certification claim, or performance guarantee.
+### Compact dual-band RTK tracker
 
-RTKZero is a proposed compact, lighter RTK tracker based on the RH2 architecture for body-mounted positioning applications. Compared with RH2, the current product direction omits the screen, haptics and strobe and uses an approximately 2,000 mAh battery rather than the 6,600 mAh RH2 comparison basis. Final form factor and body-mounted performance remain unvalidated.
+<div class="rtkzero-hero">
+  <div>
+    <p class="rtkzero-lead">Accurate positioning in a compact, lightweight tracker designed for body-worn use.</p>
+    <p class="rtkzero-connectivity">Dual-band GNSS · LTE Cat 1bis · LoRa · Wi-Fi · Bluetooth</p>
+    <span class="rtkzero-preview-label">Customer preview · * marks provisional figures</span>
+  </div>
+  <div class="rtkzero-stats" aria-label="Preliminary product figures">
+    <div><strong>53 × 91 × 15 mm*</strong><span>Core dimensions</span></div>
+    <div><strong>~90 g*</strong><span>Estimated weight</span></div>
+    <div><strong>2,000 mAh*</strong><span>Rechargeable battery</span></div>
+    <div><strong>~15 hours*</strong><span>Estimated battery life</span></div>
+  </div>
+</div>
 
-## Status key
+## Product specifications
 
-- **Selected design intent** means the current hardware direction in the RTKZero design notes; it remains subject to prototype validation.
-- **Target** means a design or prototype acceptance goal, not a verified product claim.
-- **Estimate** means a calculation from RH2 reference data, not an RTKZero measurement.
-- **TBD** means the value or decision is not yet approved or validated.
-
-## Preliminary specification
-
-<DeviceSpecSection :spec="specs" sectionName="integrations" />
-
-<DeviceSpecSection :spec="specs" sectionName="connectivity" />
+<DeviceSpecSection :spec="specs" sectionName="physical" />
 
 <DeviceSpecSection :spec="specs" sectionName="positioning" />
 
-<DeviceSpecSection :spec="specs" sectionName="sensors" />
+<DeviceSpecSection :spec="specs" sectionName="connectivity" />
 
-<DeviceSpecSection :spec="specs" sectionName="components" />
+<DeviceSpecSection :spec="specs" sectionName="integrations" />
+
+<DeviceSpecSection :spec="specs" sectionName="sensors" />
 
 <DeviceSpecSection :spec="specs" sectionName="battery" />
 
@@ -40,51 +45,71 @@ RTKZero is a proposed compact, lighter RTK tracker based on the RH2 architecture
 
 <DeviceSpecSection :spec="specs" sectionName="user interface" />
 
-<DeviceSpecSection :spec="specs" sectionName="physical" />
+<DeviceSpecSection :spec="specs" sectionName="components" />
 
-## Current design summary
+* Preliminary product figures and estimates; specifications may change before launch.
 
-The selected design direction names an STM32G0B1 main processor, an ESP32-S31 wireless module, A7683E cellular, LC29HEA GNSS, Semtech LR2021 radio, PTX105R NFC reader, LIS2DH accelerometer, an RH2-style six-axis sensor, INA236 battery monitor and a BQ25890/BQ25895-family charger. The charger variant, exact six-axis part, battery cell and final antenna/RF layout remain open.
+<DownloadSpecButton :spec="specs" device-title="RTKZero — Customer Preview" pdf-url="https://github.com/lightbug-io/docs/pull/10" label="Download product preview PDF" />
 
-The Notion design notes describe low-power NFC card detection with a Renesas PTX105R, with an LP5-style flex antenna where practical. The detailed NFC operating range and wake behavior remain to be validated. Full Wi-Fi and Bluetooth are design requirements, while exact radio versions and capabilities are still TBD. A satellite-uplink TCXO was considered and declined; satellite uplink is not part of this draft baseline.
+<style scoped>
+.rtkzero-hero {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 1.5rem 0 2rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, var(--vp-c-bg-soft), var(--vp-c-bg));
+}
 
-## Mounting, servicing and charging concepts
+.rtkzero-lead {
+  max-width: 46rem;
+  margin: 0 0 .6rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
 
-The enclosure design intent includes a top-entry number-plate mount, a low-profile belt-clip insert and a backup/security loop. The mounting system should fail safely before harming the tracker or wearer; attachment geometry, load limits and safe-release behavior have not been established. A multi-device charging tray is also a design concept, with drainage and allowance for dirt called out as design considerations. Tray capacity, geometry, contacts and electrical behavior remain TBD.
+.rtkzero-connectivity {
+  margin: 0 0 1rem;
+  color: var(--vp-c-text-2);
+}
 
-## RH2 software and cloud references — RTKZero support unconfirmed
+.rtkzero-preview-label {
+  display: inline-block;
+  padding: .35rem .7rem;
+  border-radius: 999px;
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand-1);
+  font-size: .85rem;
+  font-weight: 600;
+}
 
-The RH2 specification and existing Lightbug API documentation describe cloud streaming and API access, Lightbug Cloud hosting (including hosted or on-premise deployments), forwarding to other services, device APIs over UART, I2C or UDP, and native UDP/TCP transport. The RH2 specification lists forwarding via MQTT, HTTP(S) and WebSocket. Its developer references include the Lightbug Toit SDK, lower-level message APIs and ESP32 development using ESP-IDF; the RH2 YAML also lists Arduino and PlatformIO. RH2 lists USB-C virtual COM and I2C external interfaces.
+.rtkzero-stats {
+  display: grid;
+  gap: .75rem;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
 
-These are **RH2 reference capabilities**, not RTKZero commitments. RTKZero's ESP32-S31 module and retained dock-I2C intent provide a basis for investigation, but firmware ports, SDK/toolchain support, cloud provisioning, data/API behavior, USB-C and externally accessible interfaces have not been confirmed or validated for RTKZero. No interoperability, firmware-update path or cloud service is promised by this draft.
+.rtkzero-stats div {
+  display: flex;
+  min-height: 4rem;
+  flex-direction: column;
+  justify-content: center;
+  gap: .25rem;
+  padding: .8rem;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: .75rem;
+  background: var(--vp-c-bg);
+}
 
-## Optional concepts under evaluation
+.rtkzero-stats strong {
+  font-size: 1.05rem;
+}
 
-The following ideas are outside the current baseline and require design approval and validation: wireless charging; higher-spec GNSS receivers; alternate antenna configurations; a low-temperature battery option; a serviceable battery/backplate/contact assembly; and alternate breakaway-clip arrangements. The backup/security loop remains part of current baseline design intent. They do not replace or add to the selected design by implication.
-
-## Battery estimate and limits
-
-The draft battery capacity is approximately 2,000 mAh LiPo, subject to cell selection. This is about 30% of the 6,600 mAh RH2 comparison basis, or roughly 3.3 times lower capacity. RH2's current YAML lists more than 50 hours at 6,700 mAh. Using 50 hours only as an illustrative nominal baseline and scaling by 2,000/6,600 gives **about 15 hours illustrative scaling** under identical operating conditions. The RH2 lower-bound wording does not transfer to RTKZero. This is not measured runtime, a guarantee or a forecast; no RTKZero runtime has been measured.
-
-## RH2-derived assumptions
-
-This draft uses RH2 only as an architectural and comparison reference. It does not carry over RH2 dimensions, weight, materials, certifications, ingress rating, operating-temperature range, battery chemistry/cell, connector pinout, radio bands or powers, protocol versions, GNSS datum, accuracy figures, update-rate support, or optional functions. The five-contact dock with I2C is included because RTKZero design notes explicitly retain RH2 dock compatibility; its final pinout and electrical limits are not established here.
-
-## Unresolved before a production specification
-
-- Approve enclosure outline, antenna keep-outs, mounts, materials, assembled dimensions and weight.
-- Select and characterize the battery cell, optional cold-weather version, SIM arrangement, charge settings and exact charger variant.
-- Validate GNSS performance on-body, antenna placement, RF coexistence, sustained 5 Hz reporting and correction coverage behavior.
-- Define GNSS datum/height reference, radio versions, regions, bands, output powers, antenna details and certifications.
-- Validate cellular connectivity, Wi-Fi/Bluetooth interoperability, LoRa operation, NFC detection/wake behavior and sensor characteristics.
-- Measure sleep current, runtime and operating-temperature limits across representative configurations.
-- Validate the dock pinout and electrical behavior, enclosure sealing and the IP65 minimum design requirement; IP67 remains only a target.
-- Define button, LED, piezo and firmware behavior, plus production approvals and labeling.
-
-## Source and traceability
-
-Primary design source: the current RTKZero hardware design notes (last edited 11 October 2026). The current component table names LC29HEA; a later clarification resolves the stale MS34SN2 remaining-decision checkbox in favor of the LC29H family. Later notes retain I2C dock compatibility and decline the satellite-uplink TCXO.
-
-RH2 comparison source: the [published RH2 specification data](/device-specs/rtk/v2.yaml), which lists a 6,700 mAh battery and more than 50 hours continuous-use figure. The capacity comparison uses the explicit 6,600 mAh RH2 basis from the request; the small mismatch with the RH2 YAML's 6,700 mAh figure is retained as a comparison caveat. RH2 software references are in the [RTK API overview](/devices/api/) and [Toit SDK documentation](/devices/api/sdks/toit/).
-
-<DownloadSpecButton :spec="specs" device-title="RTKZero — Draft Product Specification" label="Download draft specification PDF" />
+.rtkzero-stats span {
+  color: var(--vp-c-text-2);
+  font-size: .85rem;
+}
+</style>
