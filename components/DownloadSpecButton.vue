@@ -23,6 +23,16 @@ const props = defineProps({
     type: String,
     default: 'Download PDF'
   },
+  imagePlaceholders: {
+    type: Array,
+    required: false,
+    default: () => []
+  },
+  pdfSectionOrder: {
+    type: Array,
+    required: false,
+    default: () => []
+  },
   pdfUrl: {
     type: String,
     required: false,
@@ -51,6 +61,13 @@ function getPdfData() {
   }
   if (props.pdfUrl) {
     data.pdfUrl = props.pdfUrl
+  }
+  if (props.imagePlaceholders.length) {
+    data.imagePlaceholders = props.imagePlaceholders
+  }
+  if (props.pdfSectionOrder.length) {
+    const order = props.pdfSectionOrder.map(section => section.toLowerCase())
+    data.sections.sort((a, b) => order.indexOf(a.title.toLowerCase()) - order.indexOf(b.title.toLowerCase()))
   }
   return data
 }
