@@ -2963,6 +2963,17 @@ messages:
       Other values or a version field that is not exactly one byte return Invalid Parameter
       (response code 4) without changing the selected format or subscription. An empty payload
       is omitted.
+      SET replaces the cached message box (maximum 1024 bytes). Field 1 is the stored additive
+      checksum: the sum of payload bytes modulo 65536. A non-empty SET includes both field 1
+      and the complete bytes in field 129; the checksum must match. To clear the cache, send
+      field 1 with value zero and omit field 129. Invalid or oversized updates return Invalid
+      Parameter and leave the cache unchanged. A successful update is persisted and published
+      to current subscribers; SET does not change the selected response format. The device
+      accepts SET from any authorized link; server-side mailbox policy is outside this protocol.
+      The 16-bit additive checksum can collide for different payloads; synchronization that
+      compares only this value cannot detect same-sum content changes.
+      Tracking sessions report the stored checksum, including zero for an empty cache. A server
+      can compare it with its configured message box and send SET when the checksums differ.
       The message-frame CRC is separate from field 1. Unsupported products return Not Supported
       (response code 7).
       In tracking-session uploads, field 129 can instead carry pending Transmit Now upload
@@ -2976,9 +2987,8 @@ messages:
       1:
         name: CRC
         id: crc
-        description: Stored checksum of the down-synced message box, separate from the outer message-frame CRC. Integer encoding may omit a high zero byte.
+        description: Stored additive checksum (sum of payload bytes modulo 65536), separate from the outer message-frame CRC. Required by SET and included in tracking sessions, including an empty cache as zero. The one- or two-byte little-endian integer encoding may omit a high zero byte.
         type: uint16
-        readonly: true
       10:
         name: Legacy Payload Chunk 1
         id: legacyChunk1
@@ -3007,10 +3017,11 @@ messages:
       129:
         name: Full Payload
         id: fullPayload
-        description: Down-synced message-box bytes in GET responses and subscription updates (up to 1024 bytes). Uses a uint16 little-endian length prefix. Tracking-session uploads may use this field for independent Transmit Now data instead.
+        description: Complete message-box bytes in SET requests, GET responses, and subscription updates (up to 1024 bytes). SET omits this field only to clear the cache when field 1 is zero. Uses an extended-length field with a uint16 little-endian length prefix. Tracking-session uploads may use this field for independent Transmit Now data instead.
         type: bytes
     methods:
       GET: null
+      SET: null
       SUBSCRIBE: null
       UNSUBSCRIBE: null
     examples:
