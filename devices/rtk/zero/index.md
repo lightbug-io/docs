@@ -47,7 +47,7 @@ const specs = loadSpec(spec)
 
 <DeviceSpecSection :spec="specs" sectionName="components" />
 
-* Preliminary product figures and estimates; specifications may change before launch.
+* Preliminary product figure.
 
 <DownloadSpecButton :spec="specs" device-title="RTKZero — Customer Preview" pdf-url="https://github.com/lightbug-io/docs/pull/10" label="Download product preview PDF" />
 
