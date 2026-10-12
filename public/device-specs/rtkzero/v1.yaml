@@ -17,7 +17,7 @@ product:
   integrations:
     processing:
       primary_controller: STM32G0B1 application MCU.
-      wireless_and_sensor_controller: ESP32-S31 wireless co-processor; the six-axis IMU and barometric pressure sensor connect to this processor.
+      wireless_and_sensor_controller: ESP32-S31 wireless co-processor; it provides I2C connectivity for the six-axis IMU and magnetometer and connects to the pressure sensor.
     external_interfaces:
       dock: Five-contact charging and data dock with I2C.*
   connectivity:
@@ -56,8 +56,10 @@ product:
       module_interfaces: Two UARTs, I2C up to 400 kbps, and multiplexed SPI.
   sensors:
     motion:
-      main_processor_accelerometer: ST LIS2DH three-axis accelerometer; selectable ±2 g, ±4 g, ±8 g and ±16 g ranges; 1 Hz–5.3 kHz output data rate; 1.71–3.6 V supply; -40 to +85 °C component operating range.
-      esp32_six_axis_imu: Six-axis accelerometer and gyroscope connected to the ESP32-S31. Sensor part number and measurement ranges are not specified.
+      main_processor_accelerometer: ST LIS3DH three-axis accelerometer; selectable ±2 g, ±4 g, ±8 g and ±16 g ranges; 1 Hz–5.3 kHz output data rate; 1.71–3.6 V supply; -40 to +85 °C component operating range.
+      six_axis_imu: ST LSM6DS3TR six-axis inertial module with three-axis accelerometer and three-axis gyroscope. Accelerometer ranges are ±2/±4/±8/±16 g; gyroscope ranges are ±125/±245/±500/±1000/±2000 dps. I2C interface; -40 to +85 °C component operating range.
+    magnetometer:
+      three_axis: ST LIS2MDL three-axis digital magnetometer; ±50 gauss magnetic range and 16-bit output. I2C interface; -40 to +85 °C component operating range.
     pressure:
       barometer: Barometric pressure sensor connected to the ESP32-S31. Sensor part number and accuracy are not specified.
     nfc:
@@ -82,6 +84,21 @@ product:
       strobe: No strobe light.
       uwb: No UWB radio.
   components:
+    main_accelerometer:
+      manufacturer_and_model: STMicroelectronics LIS3DH.
+      capabilities: Three-axis digital accelerometer; selectable ±2/±4/±8/±16 g full scales; output data rates from 1 Hz to 5.3 kHz.
+      supply_voltage: 1.71–3.6 V.
+      component_operating_temperature: -40 to +85 °C.
+    six_axis_imu:
+      manufacturer_and_model: STMicroelectronics LSM6DS3TR.
+      capabilities: Three-axis digital accelerometer with ±2/±4/±8/±16 g full scales and three-axis digital gyroscope with ±125/±245/±500/±1000/±2000 dps full scales.
+      interface: I2C.
+      component_operating_temperature: -40 to +85 °C.
+    magnetometer:
+      manufacturer_and_model: STMicroelectronics LIS2MDL.
+      capabilities: Three-axis digital magnetometer with ±50 gauss magnetic range and 16-bit output.
+      interface: I2C.
+      component_operating_temperature: -40 to +85 °C.
     main_processor:
       manufacturer_and_model: STMicroelectronics STM32G0B1.
       cpu_and_clock: 32-bit Arm Cortex-M0+ CPU, up to 64 MHz.
