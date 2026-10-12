@@ -211,10 +211,9 @@ async function cropImageToDataUrl(imgSrc, cropX, cropY, cropWidth, cropHeight) {
 }
 
 async function downloadPdf() {
-  await loadFontScript('/fonts/Raleway-VariableFont_wght-normal.js');
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  doc.setFont('Raleway-VariableFont_wgh');
+  doc.setFont('helvetica');
   const data = props.getPdfData ? props.getPdfData() : null;
   let y = 20;
   if (!data) return;
@@ -407,7 +406,7 @@ async function downloadPdf() {
       }
       isFirstSection = false;
       // Section title as table header
-      if (y + rowHeight > pageHeight - bottomMargin) {
+      if (y + rowHeight * 3 > pageHeight - bottomMargin) {
         doc.addPage();
         y = topMargin;
       }
@@ -424,7 +423,7 @@ async function downloadPdf() {
       doc.setFontSize(tableTextSize);
       for (const subsection of section.subsections) {
         // Subsection heading row
-        if (y + rowHeight > pageHeight - bottomMargin) {
+        if (y + rowHeight * 2 > pageHeight - bottomMargin) {
           doc.addPage();
           y = topMargin;
         }
@@ -483,7 +482,7 @@ async function downloadPdf() {
   }
 
   // Footer
-  let url = window.location.href;
+  let url = data.pdfUrl || window.location.href;
   // Remove anchor/hash from URL
   url = url.split('#')[0];
   // Format date as '1 May 2025'
