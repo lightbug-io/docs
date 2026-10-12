@@ -12,16 +12,12 @@ product:
       body_dimensions: Approx. 53 × 91 × 15 mm* (antenna excluded)
       antenna_extension: Approx. 55 mm* added to body length
     weight: Approx. 90 g*
-    mounting:
-      options: Top-entry number-plate mount, low-profile belt-clip insert and backup loop.
   integrations:
     processing:
       main_processor: STMicroelectronics STM32G0B1 32-bit Arm Cortex-M0+ MCU; up to 64 MHz, 512 KB Flash, 144 KB SRAM, 1.7–3.6 V supply.
       wireless_processor: Espressif ESP32-S31; two high-performance RISC-V cores and one low-power RISC-V core. 2.4 GHz Wi-Fi 6, Bluetooth 5.4 LE and Bluetooth Classic.*
-    dock:
-      interface: Five-contact charging dock compatible with the RH2 dock.*
     optional_add_ons:
-      options: '[Optional Add on] Wireless charging; higher-spec GNSS receiver; alternate antenna configurations; low-temperature battery; serviceable battery, backplate and contact assembly; breakaway belt clip.'
+      options: '[Optional Add on] Multi-device charging tray; wireless charging; higher-spec GNSS receiver; alternate antenna configurations; low-temperature battery; serviceable battery, backplate and contact assembly; breakaway belt clip.'
   connectivity:
     cellular:
       modem: SIMCom A7683E LTE Cat 1bis modem.
@@ -39,23 +35,18 @@ product:
       bands: GPS/QZSS L1 C/A and L5; GLONASS L1; Galileo E1 and E5a; BeiDou B1I and B2a; NavIC L5.
       performance: Dual-band RTK positioning, with centimeter-class positioning capability.*
       update_rate: 5 Hz position reporting.*
-      antenna: External helical GNSS antenna with SMA pigtail; approximately 55 mm additional length.*
+      antenna: External helical GNSS antenna; approximately 55 mm additional length.*
   sensors:
     motion:
       accelerometer: ST LIS2DH three-axis accelerometer; selectable ±2 g, ±4 g, ±8 g or ±16 g range.*
     nfc:
       reader: Renesas PTX105R 13.56 MHz NFC reader with low-power card detection.
-      interfaces: I2C, SPI or UART host interface capability.*
   battery:
     overall:
       capacity: 2,000 mAh LiPo battery.*
       runtime: Approximately 15 hours.*
     monitoring:
       monitor: Texas Instruments INA236 16-bit current, voltage and power monitor with I2C interface.
-  charging:
-    charger:
-      method: Five-contact charging dock.*
-      accessory: Multi-device charging tray. [Optional Add on]
   user interface:
     controls:
       button: One physical button.
