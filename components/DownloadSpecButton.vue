@@ -23,6 +23,11 @@ const props = defineProps({
     type: String,
     default: 'Download PDF'
   },
+  pdfUrl: {
+    type: String,
+    required: false,
+    default: ''
+  },
   // Optional mapping from term -> url
   termLinkMap: {
     type: Object,
@@ -43,6 +48,9 @@ function getPdfData() {
   const data = getBasePdfData()
   if (props.deviceTitle) {
     data.title = props.deviceTitle
+  }
+  if (props.pdfUrl) {
+    data.pdfUrl = props.pdfUrl
   }
   return data
 }
