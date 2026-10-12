@@ -13,7 +13,7 @@ product:
     weight: Approx. 90 g.*
     environmental:
       ingress_protection: IP65 minimum; IP67 target.*
-      operating_temperature: -20 to +60 °C.*
+      operating_temperature: Not specified.
   integrations:
     processing:
       primary_controller: STM32G0B1 application MCU.
