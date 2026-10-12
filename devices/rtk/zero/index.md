@@ -63,7 +63,7 @@ RTKZero is a compact wearable RTK tracker with dual-band, multi-constellation GN
 
 <DeviceSpecSection :spec="specs" sectionName="user interface" />
 
-* Preliminary mechanical and environmental values.
+* Preliminary mechanical values; IP figures are design targets.
 
 <DownloadSpecButton :spec="specs" :image-placeholders="imagePlaceholders" :pdf-section-order="['physical', 'positioning', 'connectivity', 'sensors', 'battery', 'charging', 'integrations', 'user interface', 'components']" device-title="RTKZero Hardware Datasheet" pdf-url="https://github.com/lightbug-io/docs/pull/10" label="Download hardware datasheet PDF" />
 
