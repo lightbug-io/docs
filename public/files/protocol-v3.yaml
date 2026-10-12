@@ -2963,10 +2963,13 @@ messages:
       SET replaces the cached message box (maximum 1024 bytes). Field 1 is the stored additive
       checksum: the sum of payload bytes modulo 65536. A non-empty SET includes both field 1
       and the complete bytes in field 129; the checksum must match. To clear the cache, send
-      field 1 with value zero and omit field 129. Invalid or oversized updates return Invalid
-      Parameter and leave the cache unchanged. A successful update is persisted and published
-      to current subscribers; SET does not change the selected response format. The device
-      accepts SET from any authorized link; server-side mailbox policy is outside this protocol.
+      field 1 with value zero and omit field 129. Missing field 1 returns Missing Parameter (2);
+      malformed, duplicate, oversized, or checksum-mismatched fields return Invalid Parameter (4)
+      without changing the cache. A changed payload is accepted even when its checksum matches
+      the previous checksum. An identical retry does not persist or publish another update.
+      Successful changes are persisted and published to current subscribers; SET does not change
+      the selected response format. The device accepts SET from any authorized link; server-side
+      mailbox policy is outside this protocol.
       The 16-bit additive checksum can collide for different payloads; synchronization that
       compares only this value cannot detect same-sum content changes.
       Tracking sessions report the stored checksum, including zero for an empty cache. A server
