@@ -11,7 +11,7 @@ let jsPDFLoaded = false;
 // Text sizes
 const titleSize = 20;
 const sectionTitleSize = 12;
-const tableTextSize = 8;
+const tableTextSize = 9;
 const textSize = 10;
 const footerSize = 10;
 
@@ -330,6 +330,37 @@ async function downloadPdf() {
     y += maxHeight + 10;
   }
 
+  // Simple labeled image slots keep draft datasheets ready for approved artwork.
+  if (data.imagePlaceholders && data.imagePlaceholders.length) {
+    const gap = 6;
+    const boxWidth = (180 - gap * (Math.min(data.imagePlaceholders.length, 2) - 1)) / Math.min(data.imagePlaceholders.length, 2);
+    const boxHeight = 38;
+    const placeholders = data.imagePlaceholders;
+    for (let i = 0; i < placeholders.length; i += 2) {
+      if (y + boxHeight > pageHeight - bottomMargin) {
+        doc.addPage();
+        y = topMargin;
+      }
+      const row = placeholders.slice(i, i + 2);
+      row.forEach((placeholder, index) => {
+        const x = 10 + index * (boxWidth + gap);
+        doc.setFillColor(247, 248, 250);
+        doc.setDrawColor(...borderColor);
+        doc.roundedRect(x, y, boxWidth, boxHeight, 2, 2, 'FD');
+        doc.setTextColor(110, 116, 124);
+        doc.setFontSize(11);
+        doc.setFont(undefined, 'bold');
+        doc.text('RTKZero', x + boxWidth / 2, y + 15, { align: 'center' });
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'normal');
+        doc.text(placeholder.label || 'Product view', x + boxWidth / 2, y + 24, { align: 'center' });
+        doc.text('Image placeholder', x + boxWidth / 2, y + 31, { align: 'center' });
+      });
+      doc.setTextColor(0, 0, 0);
+      y += boxHeight + 8;
+    }
+  }
+
   // Main Table
   if (data.mainTable) {
     // Calculate total height needed for main table
@@ -406,7 +437,8 @@ async function downloadPdf() {
       }
       isFirstSection = false;
       // Section title as table header
-      if (y + rowHeight * 3 > pageHeight - bottomMargin) {
+      // Start each section with enough room for its subsection and first row.
+      if (y + rowHeight * 5 > pageHeight - bottomMargin) {
         doc.addPage();
         y = topMargin;
       }
@@ -423,9 +455,20 @@ async function downloadPdf() {
       doc.setFontSize(tableTextSize);
       for (const subsection of section.subsections) {
         // Subsection heading row
-        if (y + rowHeight * 2 > pageHeight - bottomMargin) {
+      // Keep the subsection heading with room for its first data row.
+      if (y + rowHeight * 4 > pageHeight - bottomMargin) {
           doc.addPage();
           y = topMargin;
+        doc.setFillColor(...orange);
+        doc.setDrawColor(...borderColor);
+        doc.rect(10, y, 180, rowHeight, 'F');
+        doc.setFontSize(sectionTitleSize);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(255, 255, 255);
+        doc.text(section.title, 12, y + rowHeight - cellPadding);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont(undefined, 'normal');
+        y += rowHeight;
         }
         doc.setFillColor(...subsectionBg); // Use light orange for subsection
         doc.setDrawColor(...borderColor);
@@ -453,6 +496,16 @@ async function downloadPdf() {
           if (y + thisRowHeight > pageHeight - bottomMargin) {
             doc.addPage();
             y = topMargin;
+            doc.setFillColor(...orange);
+            doc.setDrawColor(...borderColor);
+            doc.rect(10, y, 180, rowHeight, 'F');
+            doc.setFontSize(sectionTitleSize);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(255, 255, 255);
+            doc.text(section.title, 12, y + rowHeight - cellPadding);
+            doc.setTextColor(0, 0, 0);
+            doc.setFont(undefined, 'normal');
+            y += rowHeight;
             // Redraw subsection header on new page
             doc.setFillColor(...subsectionBg);
             doc.setDrawColor(...borderColor);
