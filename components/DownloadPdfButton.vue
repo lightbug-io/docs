@@ -137,7 +137,9 @@ function renderTextWithLinks(doc, segments, x, y, maxWidth) {
   words.forEach((word, index) => {
     const wordWidth = doc.getTextWidth(word.text);
     const nextSpaceWidth = index < words.length - 1 ? spaceWidth : 0;
-    if (currentX + wordWidth + nextSpaceWidth > x + maxWidth && currentX > x) {
+    // currentX already includes the preceding word's space; do not reserve the
+    // following space here or wrapping will exceed splitTextToSize's line count.
+    if (currentX + wordWidth > x + maxWidth && currentX > x) {
       currentX = x;
       currentY += lineHeight;
       usedHeight += lineHeight;
@@ -501,6 +503,7 @@ async function downloadPdf() {
   const blobUrl = URL.createObjectURL(pdfBlob);
   window.open(blobUrl, '_blank');
 }
+
 </script>
 
 <style scoped>
