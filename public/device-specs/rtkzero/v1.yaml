@@ -1,0 +1,69 @@
+product:
+  name: "RTKZero"
+  tagline: "Preliminary compact RTK tracker"
+  description: >-
+    Draft design specification for a compact RTK tracker derived from the RH2
+    architecture. This document records current design intent and clearly labels
+    targets and estimates; it is not a production specification or a performance
+    guarantee.
+  version: 1
+  physical:
+    rating:
+      environmental_protection: "Design requirement: IP65 minimum; IP67 is a target only. Neither rating has been validated or certified."
+    size:
+      dimensions: "TBD — final enclosure and assembled dimensions are not approved."
+      weight: "TBD — final weight is not approved."
+    construction:
+      material: "TBD — no enclosure material is approved."
+  integrations:
+    processing:
+      main_processor: "STM32G0B1, 512 KB flash / 144 KB RAM; pin-compatible G0C is an option if additional security features are needed."
+      wireless_module: "ESP32-S31 module; full Wi-Fi and Bluetooth are design requirements. Exact versions and feature support are TBD."
+    dock:
+      interface_intent: "Five-contact RH2-compatible dock concept with I2C retained. Pinout and electrical limits are TBD."
+  connectivity:
+    cellular:
+      module: "A7683E selected; 2G is omitted from the design. Supported bands, territories, SIM arrangements and certifications are TBD."
+    lora:
+      radio: "Semtech LR2021 selected for 868 MHz and 2.4 GHz operation. Region, protocol, range and final RF performance are TBD. Satellite uplink is not in the current design intent."
+    wifi_bluetooth:
+      module: "ESP32-S31 module"
+      capabilities: "Wi-Fi and Bluetooth are required. Versions, roles, ranges and interoperability are TBD."
+  positioning:
+    gnss:
+      receiver: "Quectel LC29HEA selected design intent (L1/L5 RTK-capable receiver)."
+      antenna: "External helical GNSS antenna through an SMA pigtail; final antenna and RF placement require validation."
+      performance: "Centimetre-class RTK is a prototype acceptance target with suitable correction coverage, not a validated accuracy or guarantee."
+      update_rate: "Reliable 5 Hz reporting is a prototype acceptance target; supported rates and sustained performance remain to be validated."
+      datum_and_height_reference: "TBD."
+  sensors:
+    motion:
+      accelerometer: "LIS2DH selected."
+      six_axis_sensor: "RH2-style six-axis motion sensor intended; exact part and performance are TBD."
+  components:
+    nfc:
+      reader: "Renesas PTX105R selected for low-power card detection."
+      antenna: "LP5-style flex antenna preferred where practical; final antenna and detection range are TBD."
+  battery:
+    overall:
+      capacity_mah: 2000
+      chemistry: "LiPo design intent; exact cell and cold-weather variant are TBD."
+      measured_runtime: "TBD — no RTKZero runtime measurements are available."
+      runtime_estimate: "Capacity-only comparison: 2000 mAh is about 30% of the 6600 mAh RH2 comparison basis (about 3.3 times lower capacity). Applying that factor to the RH2 YAML's >50 h figure gives a coarse >15 h mathematical equivalent under identical operating conditions only. This is not measured RTKZero runtime, a guarantee, or a forecast for other operating conditions. Actual load, radio use, GNSS conditions, temperature and firmware may change runtime substantially."
+    measurement:
+      monitor: "INA236 selected for battery measurement."
+  charging:
+    charger:
+      family: "BQ25890/BQ25895 family under consideration; exact variant is TBD."
+      dock: "Five-contact RH2-compatible dock concept with I2C retained; pinout, charge settings and validation are TBD."
+  user interface:
+    controls:
+      button: "One physical button. Firmware behavior is TBD."
+    indicators:
+      led: "One RGB LED; behavior and visibility are TBD."
+      audio: "Piezo intended. Behavior and acoustic output are TBD. No local speaker is intended."
+    omitted:
+      display: "No display."
+      haptics: "No haptic actuator."
+      strobe: "No strobe light."
+      uwb: "No UWB."
