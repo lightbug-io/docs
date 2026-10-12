@@ -50,7 +50,7 @@ The Notion design notes describe low-power NFC card detection with a Renesas PTX
 
 ## Mounting, servicing and charging concepts
 
-The enclosure design intent includes a top-entry number-plate mount, a low-profile belt-clip insert and a backup loop. The mounting system should fail safely before harming the tracker or wearer; attachment geometry, load limits and safe-release behavior have not been established. A multi-device charging tray is also a design concept, with drainage and allowance for dirt called out as design considerations. Tray capacity, geometry, contacts and electrical behavior remain TBD.
+The enclosure design intent includes a top-entry number-plate mount, a low-profile belt-clip insert and a backup/security loop. The mounting system should fail safely before harming the tracker or wearer; attachment geometry, load limits and safe-release behavior have not been established. A multi-device charging tray is also a design concept, with drainage and allowance for dirt called out as design considerations. Tray capacity, geometry, contacts and electrical behavior remain TBD.
 
 ## RH2 software and cloud references — RTKZero support unconfirmed
 
@@ -60,7 +60,7 @@ These are **RH2 reference capabilities**, not RTKZero commitments. RTKZero's ESP
 
 ## Optional concepts under evaluation
 
-The following ideas are outside the current baseline and require design approval and validation: wireless charging; higher-spec GNSS receivers; alternate antenna configurations; a low-temperature battery option; a serviceable battery/backplate/contact assembly; and alternate breakaway-clip and security-loop arrangements. They do not replace or add to the selected design by implication.
+The following ideas are outside the current baseline and require design approval and validation: wireless charging; higher-spec GNSS receivers; alternate antenna configurations; a low-temperature battery option; a serviceable battery/backplate/contact assembly; and alternate breakaway-clip arrangements. The backup/security loop remains part of current baseline design intent. They do not replace or add to the selected design by implication.
 
 ## Battery estimate and limits
 

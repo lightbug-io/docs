@@ -129,44 +129,32 @@ function renderTextWithLinks(doc, segments, x, y, maxWidth) {
   const lineHeight = doc.getLineHeight() * 0.352778; // convert pt to mm
   let usedHeight = lineHeight;
 
-  for (const segment of segments) {
-    if (!segment.text) continue;
+  const words = segments.flatMap(segment =>
+    (segment.text || '').trim().split(/\s+/).filter(Boolean).map(text => ({ ...segment, text }))
+  );
+  const spaceWidth = doc.getTextWidth(' ');
 
-    // Split text into words for proper wrapping
-    const words = segment.text.split(/\s+/);
-
-    for (let i = 0; i < words.length; i++) {
-      const word = words[i];
-      const wordWidth = doc.getTextWidth(word + ' ');
-
-      // Check if we need to wrap to next line
-      if (currentX + wordWidth > x + maxWidth && currentX > x) {
-        currentX = x;
-        currentY += lineHeight;
-        usedHeight += lineHeight;
-      }
-
-      // Render the word
-      if (segment.isLink) {
-        // Make absolute URLs for relative links
-        let fullUrl = segment.url;
-        if (fullUrl.startsWith('/')) {
-          fullUrl = window.location.origin + fullUrl;
-        }
-        doc.textWithLink(word, currentX, currentY, { url: fullUrl });
-      } else {
-        doc.text(word, currentX, currentY);
-      }
-
-      currentX += wordWidth;
-
-      // Add space after word (except for last word)
-      if (i < words.length - 1) {
-        const spaceWidth = doc.getTextWidth(' ');
-        currentX += spaceWidth;
-      }
+  words.forEach((word, index) => {
+    const wordWidth = doc.getTextWidth(word.text);
+    const nextSpaceWidth = index < words.length - 1 ? spaceWidth : 0;
+    if (currentX + wordWidth + nextSpaceWidth > x + maxWidth && currentX > x) {
+      currentX = x;
+      currentY += lineHeight;
+      usedHeight += lineHeight;
     }
-  }
+
+    if (word.isLink) {
+      let fullUrl = word.url;
+      if (fullUrl.startsWith('/')) {
+        fullUrl = window.location.origin + fullUrl;
+      }
+      doc.textWithLink(word.text, currentX, currentY, { url: fullUrl });
+    } else {
+      doc.text(word.text, currentX, currentY);
+    }
+
+    currentX += wordWidth + nextSpaceWidth;
+  });
 
   return usedHeight;
 }

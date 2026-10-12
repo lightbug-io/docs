@@ -18,7 +18,7 @@ product:
     construction:
       material: "TBD — no enclosure material is approved."
     mounting:
-      concepts: "Design intent includes a top-entry number-plate mount, low-profile belt-clip insert and backup loop. Final geometry, attachment interface and load limits are TBD; a mount should fail safely before the tracker or wearer is harmed."
+      concepts: "Design intent includes a top-entry number-plate mount, low-profile belt-clip insert and backup/security loop. Final geometry, attachment interface and load limits are TBD; a mount should fail safely before the tracker or wearer is harmed."
   integrations:
     processing:
       main_processor: "STM32G0B1, 512 KB flash / 144 KB RAM; pin-compatible G0C is an option if additional security features are needed."
@@ -33,7 +33,7 @@ product:
   connectivity:
     cellular:
       module: "A7683E selected; 2G is omitted from the design. Supported bands, territories, SIM arrangements and certifications are TBD."
-      sim_configuration: "SIM format, operator and provisioning are TBD; no network service configuration is claimed."
+      sim_configuration: "TELE2 is the recorded operator design intent; SIM format and provisioning details are TBD."
     lora:
       radio: "Semtech LR2021 selected for 868 MHz and 2.4 GHz operation. Region, protocol, range and final RF performance are TBD. Satellite uplink is not in the current design intent."
     wifi_bluetooth:
@@ -59,7 +59,7 @@ product:
       gnss_and_antennas: "Higher-spec GNSS receivers and alternate antenna configurations are optional concepts for evaluation; they do not replace the current LC29HEA/external-helical baseline."
       cold_weather_battery: "A low-temperature battery option remains under evaluation; no operating-temperature range is approved."
       serviceability: "A serviceable battery, backplate and contact assembly was proposed for evaluation; not approved."
-      mounting_variants: "A plastic breakaway belt clip and security loop are optional concepts; materials, retention and safe-release behavior are TBD."
+      mounting_variants: "Alternative belt-clip arrangements, including a plastic breakaway clip, are optional concepts. The backup/security loop remains in the baseline design intent; materials, retention and safe-release behavior are TBD."
     source_and_status:
       primary_design_notes: "Current RTKZero hardware design notes, last edited 11 October 2026. LC29HEA is the current receiver design intent; a later clarification resolves the stale MS34SN2 checkbox in favor of the LC29H family. Dock I2C compatibility is retained; satellite-uplink TCXO is declined."
       rh2_comparison: "RH2 reference data is in https://docs.lightbug.io/device-specs/rtk/v2.yaml and existing API/developer documentation. RH2 reports 6700 mAh and more than 50 hours; the illustrative battery ratio uses the requested 6600 mAh comparison basis. No other unconfirmed RH2 specifications are inherited."
