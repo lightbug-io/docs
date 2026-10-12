@@ -13,7 +13,7 @@ const specs = loadSpec(spec)
 
 > **PRELIMINARY — for design review.** This page records current design intent, RH2-derived assumptions and unresolved items. It is not a production specification, certification claim, or performance guarantee.
 
-RTKZero is a proposed compact, lighter RTK tracker based on the RH2 architecture. Compared with RH2, the current product direction omits the screen, haptics and strobe and uses an approximately 2,000 mAh battery rather than the 6,600 mAh RH2 comparison basis.
+RTKZero is a proposed compact, lighter RTK tracker based on the RH2 architecture for body-mounted positioning applications. Compared with RH2, the current product direction omits the screen, haptics and strobe and uses an approximately 2,000 mAh battery rather than the 6,600 mAh RH2 comparison basis. Final form factor and body-mounted performance remain unvalidated.
 
 ## Status key
 
@@ -48,9 +48,23 @@ The selected design direction names an STM32G0B1 main processor, an ESP32-S31 wi
 
 The Notion design notes describe low-power NFC card detection with a Renesas PTX105R, with an LP5-style flex antenna where practical. The detailed NFC operating range and wake behavior remain to be validated. Full Wi-Fi and Bluetooth are design requirements, while exact radio versions and capabilities are still TBD. A satellite-uplink TCXO was considered and declined; satellite uplink is not part of this draft baseline.
 
+## Mounting, servicing and charging concepts
+
+The enclosure design intent includes a top-entry number-plate mount, a low-profile belt-clip insert and a backup loop. The mounting system should fail safely before harming the tracker or wearer; attachment geometry, load limits and safe-release behavior have not been established. A multi-device charging tray is also a design concept, with drainage and allowance for dirt called out as design considerations. Tray capacity, geometry, contacts and electrical behavior remain TBD.
+
+## RH2 software and cloud references — RTKZero support unconfirmed
+
+The RH2 specification and existing Lightbug API documentation describe cloud streaming and API access, Lightbug Cloud hosting (including hosted or on-premise deployments), forwarding to other services, device APIs over UART, I2C or UDP, and native UDP/TCP transport. The RH2 specification lists forwarding via MQTT, HTTP(S) and WebSocket. Its developer references include the Lightbug Toit SDK, lower-level message APIs and ESP32 development using ESP-IDF; the RH2 YAML also lists Arduino and PlatformIO. RH2 lists USB-C virtual COM and I2C external interfaces.
+
+These are **RH2 reference capabilities**, not RTKZero commitments. RTKZero's ESP32-S31 module and retained dock-I2C intent provide a basis for investigation, but firmware ports, SDK/toolchain support, cloud provisioning, data/API behavior, USB-C and externally accessible interfaces have not been confirmed or validated for RTKZero. No interoperability, firmware-update path or cloud service is promised by this draft.
+
+## Optional concepts under evaluation
+
+The following ideas are outside the current baseline and require design approval and validation: wireless charging; higher-spec GNSS receivers; alternate antenna configurations; a low-temperature battery option; a serviceable battery/backplate/contact assembly; and alternate breakaway-clip and security-loop arrangements. They do not replace or add to the selected design by implication.
+
 ## Battery estimate and limits
 
-The draft battery capacity is approximately 2,000 mAh LiPo, subject to cell selection. This is about 30% of the 6,600 mAh RH2 comparison basis, or roughly 3.3 times lower capacity. RH2's current YAML lists a runtime of **more than 50 hours** with a 6,700 mAh battery. A simple capacity-only scaling against the requested 6,600 mAh comparison basis gives a mathematical equivalent of more than 15 hours. That calculation assumes identical operating conditions and says nothing reliable about actual RTKZero runtime; no RTKZero runtime has been measured.
+The draft battery capacity is approximately 2,000 mAh LiPo, subject to cell selection. This is about 30% of the 6,600 mAh RH2 comparison basis, or roughly 3.3 times lower capacity. RH2's current YAML lists more than 50 hours at 6,700 mAh. Using 50 hours only as an illustrative nominal baseline and scaling by 2,000/6,600 gives **about 15 hours illustrative scaling** under identical operating conditions. The RH2 lower-bound wording does not transfer to RTKZero. This is not measured runtime, a guarantee or a forecast; no RTKZero runtime has been measured.
 
 ## RH2-derived assumptions
 
@@ -59,7 +73,7 @@ This draft uses RH2 only as an architectural and comparison reference. It does n
 ## Unresolved before a production specification
 
 - Approve enclosure outline, antenna keep-outs, mounts, materials, assembled dimensions and weight.
-- Select and characterize the battery cell, cold-weather option, charge settings and exact charger variant.
+- Select and characterize the battery cell, optional cold-weather version, SIM arrangement, charge settings and exact charger variant.
 - Validate GNSS performance on-body, antenna placement, RF coexistence, sustained 5 Hz reporting and correction coverage behavior.
 - Define GNSS datum/height reference, radio versions, regions, bands, output powers, antenna details and certifications.
 - Validate cellular connectivity, Wi-Fi/Bluetooth interoperability, LoRa operation, NFC detection/wake behavior and sensor characteristics.
@@ -71,6 +85,6 @@ This draft uses RH2 only as an architectural and comparison reference. It does n
 
 Primary design source: the current RTKZero hardware design notes (last edited 11 October 2026). The current component table names LC29HEA; a later clarification resolves the stale MS34SN2 remaining-decision checkbox in favor of the LC29H family. Later notes retain I2C dock compatibility and decline the satellite-uplink TCXO.
 
-RH2 comparison source: the [published RH2 specification data](/device-specs/rtk/v2.yaml), which lists a 6,700 mAh battery and >50 h continuous-use figure. The capacity comparison uses the explicit 6,600 mAh RH2 basis from the request; the small mismatch with the RH2 YAML's 6,700 mAh figure is retained as a comparison caveat.
+RH2 comparison source: the [published RH2 specification data](/device-specs/rtk/v2.yaml), which lists a 6,700 mAh battery and more than 50 hours continuous-use figure. The capacity comparison uses the explicit 6,600 mAh RH2 basis from the request; the small mismatch with the RH2 YAML's 6,700 mAh figure is retained as a comparison caveat. RH2 software references are in the [RTK API overview](/devices/api/) and [Toit SDK documentation](/devices/api/sdks/toit/).
 
 <DownloadSpecButton :spec="specs" device-title="RTKZero — Draft Product Specification" label="Download draft specification PDF" />

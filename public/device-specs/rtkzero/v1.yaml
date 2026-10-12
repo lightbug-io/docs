@@ -2,10 +2,12 @@ product:
   name: "RTKZero"
   tagline: "Preliminary compact RTK tracker"
   description: >-
-    Draft design specification for a compact RTK tracker derived from the RH2
-    architecture. This document records current design intent and clearly labels
-    targets and estimates; it is not a production specification or a performance
-    guarantee.
+    PRELIMINARY — for design review. Draft design specification for a compact
+    RTK tracker derived from the RH2 architecture. Selected means current design
+    intent awaiting validation; target means a prototype goal, not a verified
+    product claim; RH2 reference means not yet confirmed for RTKZero; TBD means
+    unapproved or unvalidated. Estimates are illustrative only. This is not a
+    production specification or performance guarantee.
   version: 1
   physical:
     rating:
@@ -15,15 +17,23 @@ product:
       weight: "TBD — final weight is not approved."
     construction:
       material: "TBD — no enclosure material is approved."
+    mounting:
+      concepts: "Design intent includes a top-entry number-plate mount, low-profile belt-clip insert and backup loop. Final geometry, attachment interface and load limits are TBD; a mount should fail safely before the tracker or wearer is harmed."
   integrations:
     processing:
       main_processor: "STM32G0B1, 512 KB flash / 144 KB RAM; pin-compatible G0C is an option if additional security features are needed."
       wireless_module: "ESP32-S31 module; full Wi-Fi and Bluetooth are design requirements. Exact versions and feature support are TBD."
     dock:
       interface_intent: "Five-contact RH2-compatible dock concept with I2C retained. Pinout and electrical limits are TBD."
+    software_and_cloud:
+      rh2_reference: "RH2 documentation describes Lightbug Cloud streaming/API access, cloud forwarding, device APIs over UART/I2C/UDP, and Toit or lower-level message integrations. These are reference capabilities only; RTKZero firmware, cloud provisioning, interfaces and compatibility are not yet confirmed or validated."
+      candidate_forwarding: "The RH2 specification lists UDP/TCP and MQTT, HTTP(S) and WebSocket. RTKZero support is TBD."
+      developer_tools: "RH2 references Toit, ESP-IDF, Arduino and PlatformIO support for the ESP32 co-processor. RTKZero toolchain and SDK support are TBD."
+      external_interfaces: "RH2 lists I2C and USB-C virtual COM. RTKZero retains I2C at the dock by design intent; USB-C and external API access are not confirmed."
   connectivity:
     cellular:
       module: "A7683E selected; 2G is omitted from the design. Supported bands, territories, SIM arrangements and certifications are TBD."
+      sim_configuration: "SIM format, operator and provisioning are TBD; no network service configuration is claimed."
     lora:
       radio: "Semtech LR2021 selected for 868 MHz and 2.4 GHz operation. Region, protocol, range and final RF performance are TBD. Satellite uplink is not in the current design intent."
     wifi_bluetooth:
@@ -44,18 +54,28 @@ product:
     nfc:
       reader: "Renesas PTX105R selected for low-power card detection."
       antenna: "LP5-style flex antenna preferred where practical; final antenna and detection range are TBD."
+    exploratory_options:
+      wireless_charging: "Optional concept only; not in the current baseline and not validated."
+      gnss_and_antennas: "Higher-spec GNSS receivers and alternate antenna configurations are optional concepts for evaluation; they do not replace the current LC29HEA/external-helical baseline."
+      cold_weather_battery: "A low-temperature battery option remains under evaluation; no operating-temperature range is approved."
+      serviceability: "A serviceable battery, backplate and contact assembly was proposed for evaluation; not approved."
+      mounting_variants: "A plastic breakaway belt clip and security loop are optional concepts; materials, retention and safe-release behavior are TBD."
+    source_and_status:
+      primary_design_notes: "Current RTKZero hardware design notes, last edited 11 October 2026. LC29HEA is the current receiver design intent; a later clarification resolves the stale MS34SN2 checkbox in favor of the LC29H family. Dock I2C compatibility is retained; satellite-uplink TCXO is declined."
+      rh2_comparison: "RH2 reference data is in https://docs.lightbug.io/device-specs/rtk/v2.yaml and existing API/developer documentation. RH2 reports 6700 mAh and more than 50 hours; the illustrative battery ratio uses the requested 6600 mAh comparison basis. No other unconfirmed RH2 specifications are inherited."
   battery:
     overall:
       capacity_mah: 2000
       chemistry: "LiPo design intent; exact cell and cold-weather variant are TBD."
       measured_runtime: "TBD — no RTKZero runtime measurements are available."
-      runtime_estimate: "Capacity-only comparison: 2000 mAh is about 30% of the 6600 mAh RH2 comparison basis (about 3.3 times lower capacity). Applying that factor to the RH2 YAML's >50 h figure gives a coarse >15 h mathematical equivalent under identical operating conditions only. This is not measured RTKZero runtime, a guarantee, or a forecast for other operating conditions. Actual load, radio use, GNSS conditions, temperature and firmware may change runtime substantially."
+      runtime_estimate: "Illustrative capacity-only scaling: 2000 mAh is about 30% of the 6600 mAh RH2 comparison basis (about 3.3 times lower capacity). Using 50 hours only as a nominal illustration gives about 15 hours at that ratio under identical operating conditions. RH2's published YAML says more than 50 hours at 6700 mAh; that lower-bound wording does not transfer to RTKZero. This is not measured runtime, a guarantee or a forecast. Actual load, radio use, GNSS conditions, temperature and firmware may change runtime substantially."
     measurement:
       monitor: "INA236 selected for battery measurement."
   charging:
     charger:
       family: "BQ25890/BQ25895 family under consideration; exact variant is TBD."
       dock: "Five-contact RH2-compatible dock concept with I2C retained; pinout, charge settings and validation are TBD."
+      tray: "Multi-device charging tray is a design concept. Drainage and allowance for dirt are required design considerations; capacity, geometry and validation are TBD."
   user interface:
     controls:
       button: "One physical button. Firmware behavior is TBD."
