@@ -2966,9 +2966,9 @@ messages:
       synchronization. The outer message-frame CRC protects the SET request itself. Missing
       field 129 returns Missing Parameter (2); payloads over 1024 bytes return Invalid Parameter
       (4). Changed content is applied even if its checksum matches the previous checksum.
-      Identical retries do not persist or publish another update. Successful changes are
-      persisted and published to current subscribers; SET does not change the selected response
-      format. The device accepts SET from any authorized link; server-side mailbox policy is
+      Every accepted SET is persisted and published to current subscribers, including repeated
+      identical payloads. SET does not change the selected response format. The device accepts
+      SET from any authorized link; server-side mailbox policy is
       outside this protocol. The 16-bit additive checksum can collide for different payloads.
       Tracking sessions report the stored checksum, including zero for an empty cache. A server
       can compare it with its configured message box and send SET when the checksums differ.
@@ -2985,7 +2985,7 @@ messages:
       1:
         name: CRC
         id: crc
-        description: Stored additive checksum (sum of payload bytes modulo 65536), separate from the outer message-frame CRC. Returned with cached Message Box content and tracking-session uploads, including an empty cache as zero. Not required in SET; the device calculates it from field 129. One- or two-byte little-endian encoding may omit a high zero byte.
+        description: Stored additive checksum (sum of payload bytes modulo 65536), separate from the outer message-frame CRC. Returned with cached Message Box content and tracking-session uploads, including an empty cache as zero. Not required in SET; the device calculates it from field 129. One- or two-byte little-endian encoding may omit a high zero byte. Implemented only on Viper devices.
         type: uint16
         readonly: true
       10:
