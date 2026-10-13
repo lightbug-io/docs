@@ -2966,8 +2966,9 @@ messages:
       synchronization. The outer message-frame CRC protects the SET request itself. Missing
       field 129 returns Missing Parameter (2); payloads over 1024 bytes return Invalid Parameter
       (4). Changed content is applied even if its checksum matches the previous checksum.
-      Every accepted SET is persisted and published to current subscribers, including repeated
-      identical payloads. SET does not change the selected response format. The device accepts
+      Every accepted SET updates the cache and is published to current subscribers, including
+      repeated identical payloads. When persistent Message Box storage is enabled, every accepted
+      SET is also written to storage. SET does not change the selected response format. The device accepts
       SET from any authorized link; server-side mailbox policy is
       outside this protocol. The 16-bit additive checksum can collide for different payloads.
       Tracking sessions report the stored checksum, including zero for an empty cache. A server
