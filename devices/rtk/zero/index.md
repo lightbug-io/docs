@@ -17,7 +17,7 @@ const imagePlaceholders = [
 
 <div class="rtkzero-sheet-label">Preliminary hardware specification</div>
 
-RTKZero is a compact wearable RTK tracker with dual-band, multi-constellation GNSS, LTE Cat 1bis, LoRa, Wi-Fi, Bluetooth, NFC and onboard motion and pressure sensing.
+RTKZero is a compact wearable RTK tracker with dual-band, multi-constellation GNSS, LTE Cat 1bis, LoRa, Wi-Fi, Bluetooth, NFC and onboard motion sensing.
 
 <div class="rtkzero-image-grid" aria-label="RTKZero product image placeholders">
   <figure><div class="rtkzero-placeholder-mark">RTKZero</div><figcaption>Device views</figcaption></figure>
