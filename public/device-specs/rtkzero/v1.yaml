@@ -4,7 +4,7 @@ product:
   description: >-
     Preliminary hardware datasheet for a compact wearable RTK tracker with
     multi-constellation L1/L5 GNSS, LTE Cat 1bis, LoRa, Wi-Fi, Bluetooth, NFC,
-    motion and pressure sensing, and a rechargeable 2,000 mAh battery.
+    motion sensing, and a rechargeable 2,000 mAh battery.
   version: Preliminary hardware datasheet
   physical:
     dimensions:
@@ -17,7 +17,7 @@ product:
   integrations:
     processing:
       primary_controller: STM32G0B1 application MCU.
-      wireless_and_sensor_controller: ESP32-S31 wireless co-processor; it provides I2C connectivity for the six-axis IMU and magnetometer and connects to the pressure sensor.
+      wireless_and_sensor_controller: ESP32-S31 wireless co-processor.
     external_interfaces:
       dock: Five-contact charging and data dock with I2C.*
   connectivity:
@@ -25,22 +25,19 @@ product:
       modem: SIMCom A7683E LTE Cat 1bis.
       bands: LTE-FDD B1, B3, B5, B7, B8, B20 and B28.
       peak_data_rate: Up to 10 Mbps downlink and 5 Mbps uplink.
-      modem_electrical: 3.4–4.2 V supply; -40 to +85 °C module operating range.
-      modem_interfaces: UART, USB 2.0, I2C, GPIO and 1.8 V/3.0 V SIM support at the modem.
     lora:
       transceiver: Semtech LR2021.
       configured_bands: 868 MHz and 2.4 GHz ISM.
       modulations: LoRa and FLRC.
       chip_rate_limits: LoRa up to 125 kbps; FLRC up to 2.6 Mbps.
       chip_frequency_ranges: 150–960 MHz and 1.5–2.5 GHz.
-      chip_electrical_environment: 1.8–3.7 V supply; -40 to +85 °C component operating range.
     wifi_bluetooth:
       controller: Espressif ESP32-S31.
       wifi: 2.4 GHz Wi-Fi 6 (IEEE 802.11ax), 2412–2484 MHz.
-      bluetooth: Bluetooth 5.4 LE and Bluetooth Classic.
+      bluetooth: Bluetooth 5.4 LE, Bluetooth Classic and Bluetooth Audio support.
       other_chip_protocols: Zigbee 3.0 and Thread 1.4 (IEEE 802.15.4) silicon support.
   positioning:
-    gnss:
+    GNSS RTK:
       receiver: Quectel LC29HEA multi-constellation, dual-band GNSS receiver with RTK.
       constellations_and_bands: GPS/QZSS L1 C/A and L5; GLONASS L1; Galileo E1 and E5a; BeiDou B1I and B2a; NavIC L5.
       positioning_rate: Up to 10 Hz.
@@ -52,26 +49,20 @@ product:
       dynamic_limits: Maximum altitude 10,000 m; maximum velocity 500 m/s; maximum acceleration 4 g.
       antenna: External high-gain helical GNSS antenna; L1/L2/L5; approximately 55 mm added length.*
       rf_connection: SMA antenna feed.*
-      module_electrical_environment: 3.1–3.6 V supply; -40 to +85 °C operating; -40 to +90 °C storage.
-      module_interfaces: Two UARTs, I2C up to 400 kbps, and multiplexed SPI.
   sensors:
     motion:
       main_processor_accelerometer: ST LIS3DH three-axis accelerometer; selectable ±2 g, ±4 g, ±8 g and ±16 g ranges; 1 Hz–5.3 kHz output data rate; 1.71–3.6 V supply; -40 to +85 °C component operating range.
-      six_axis_imu: ST LSM6DS3TR six-axis inertial module with three-axis accelerometer and three-axis gyroscope. Accelerometer ranges are ±2/±4/±8/±16 g; gyroscope ranges are ±125/±245/±500/±1000/±2000 dps. I2C interface; -40 to +85 °C component operating range.
-    magnetometer:
-      three_axis: ST LIS2MDL three-axis digital magnetometer; ±50 gauss magnetic range and 16-bit output. I2C interface; -40 to +85 °C component operating range.
-    pressure:
-      barometer: Barometric pressure sensor connected to the ESP32-S31. Sensor part number and accuracy are not specified.
-    nfc:
+      6-axis: ST LSM6DS3TR six-axis inertial module with three-axis accelerometer and three-axis gyroscope. Accelerometer ranges are ±2/±4/±8/±16 g; gyroscope ranges are ±125/±245/±500/±1000/±2000 dps. I2C interface; -40 to +85 °C component operating range.
+      3-axis magnetometer: ST LIS2MDL three-axis digital magnetometer; ±50 gauss magnetic range and 16-bit output. I2C interface; -40 to +85 °C component operating range.
+    NFC:
       reader: Renesas PTX105R 13.56 MHz NFC reader with low-power card detection.
       chip_host_interfaces: I2C, SPI and UART support.
   battery:
     pack:
       capacity: 2,000 mAh LiPo.
       runtime: 15 hours at 1 Hz positioning with full RTK.
-      monitor: Texas Instruments INA236 16-bit current, voltage and power monitor.
   charging:
-    electrical_input: Not specified.
+    electrical_input: 5–14 V input; charge rate up to 3 A.
   user interface:
     controls:
       button: One physical button.
@@ -82,14 +73,13 @@ product:
       display: No display.
       haptics: No haptic actuator.
       strobe: No strobe light.
-      uwb: No UWB radio.
   components:
     main_accelerometer:
       manufacturer_and_model: STMicroelectronics LIS3DH.
       capabilities: Three-axis digital accelerometer; selectable ±2/±4/±8/±16 g full scales; output data rates from 1 Hz to 5.3 kHz.
       supply_voltage: 1.71–3.6 V.
       component_operating_temperature: -40 to +85 °C.
-    six_axis_imu:
+    6-axis:
       manufacturer_and_model: STMicroelectronics LSM6DS3TR.
       capabilities: Three-axis digital accelerometer with ±2/±4/±8/±16 g full scales and three-axis digital gyroscope with ±125/±245/±500/±1000/±2000 dps full scales.
       interface: I2C.
@@ -103,7 +93,6 @@ product:
       manufacturer_and_model: STMicroelectronics STM32G0B1.
       cpu_and_clock: 32-bit Arm Cortex-M0+ CPU, up to 64 MHz.
       memory: Up to 512 KB flash and 144 KB SRAM.
-      supply_voltage: 1.7–3.6 V.
       peripheral_capabilities: Six USARTs, ADC, DAC, FDCAN, SPI and I2C peripherals.
       component_temperature_grades: -40 °C to +85 °C, +105 °C or +125 °C depending on fitted device grade.
     wireless_processor:
