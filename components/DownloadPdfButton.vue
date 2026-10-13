@@ -6,6 +6,7 @@
 
 <script setup>
 import { onMounted } from 'vue';
+import { measurePdfTableRow, setPdfTableFont, wrapPdfTextWithLinks } from '../utils/PdfTableLayout';
 let jsPDFLoaded = false;
 
 // Text sizes
@@ -124,63 +125,29 @@ function parseHtmlForPdfLinks(html) {
  * @returns {number} Height used by the rendered text
  */
 function renderTextWithLinks(doc, segments, x, y, maxWidth) {
-  let currentX = x;
-  let currentY = y;
+  const lines = wrapPdfTextWithLinks(doc, segments, maxWidth);
   const lineHeight = doc.getLineHeight() * 0.352778; // convert pt to mm
-  let usedHeight = lineHeight;
-
-  const words = segments.flatMap(segment =>
-    (segment.text || '').trim().split(/\s+/).filter(Boolean).map(text => ({ ...segment, text }))
-  );
   const spaceWidth = doc.getTextWidth(' ');
 
-  words.forEach((word, index) => {
-    const wordWidth = doc.getTextWidth(word.text);
-    const nextSpaceWidth = index < words.length - 1 ? spaceWidth : 0;
-    // currentX already includes the preceding word's space; do not reserve the
-    // following space here or wrapping will exceed splitTextToSize's line count.
-    if (currentX + wordWidth > x + maxWidth && currentX > x) {
-      currentX = x;
-      currentY += lineHeight;
-      usedHeight += lineHeight;
-    }
-
-    if (word.isLink) {
-      let fullUrl = word.url;
-      if (fullUrl.startsWith('/')) {
-        fullUrl = window.location.origin + fullUrl;
+  lines.forEach((line, lineIndex) => {
+    let currentX = x;
+    const currentY = y + lineIndex * lineHeight;
+    line.forEach((word, wordIndex) => {
+      if (word.isLink) {
+        let fullUrl = word.url;
+        if (fullUrl.startsWith('/')) {
+          fullUrl = window.location.origin + fullUrl;
+        }
+        doc.textWithLink(word.text, currentX, currentY, { url: fullUrl });
+      } else {
+        doc.text(word.text, currentX, currentY);
       }
-      doc.textWithLink(word.text, currentX, currentY, { url: fullUrl });
-    } else {
-      doc.text(word.text, currentX, currentY);
-    }
 
-    currentX += wordWidth + nextSpaceWidth;
+      currentX += doc.getTextWidth(word.text) + (wordIndex < line.length - 1 ? spaceWidth : 0);
+    });
   });
 
-  return usedHeight;
-}
-
-/**
- * Convert HTML anchor tags to plain text "label (href)" and strip other HTML tags.
- * @param {string} html - HTML string that may contain anchor tags
- * @returns {string} Plain text with links converted to "text (href)" format
- */
-function htmlAnchorsToPlainText(html) {
-  if (!html || typeof html !== 'string') return html;
-
-  // Replace anchor tags with 'text (href)'
-  const anchorRe = /<a\s+[^>]*href=(?:"|')([^"']*)(?:"|')[^>]*>(.*?)<\/a>/gi;
-  let out = html.replace(anchorRe, (match, href, text) => {
-    // Clean up the text content and decode basic HTML entities
-    const cleanText = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-    return `${cleanText} (${href})`;
-  });
-
-  // Strip any remaining HTML tags
-  out = out.replace(/<[^>]+>/g, '');
-
-  return out;
+  return lines.length * lineHeight;
 }
 
 /**
@@ -365,16 +332,12 @@ async function downloadPdf() {
   if (data.mainTable) {
     // Calculate total height needed for main table
     let mainTableHeight = rowHeight; // header
+    doc.setFontSize(tableTextSize);
     for (const [attr, val] of Object.entries(data.mainTable)) {
       if (val) {
-        const attrLines = doc.splitTextToSize(`${attr}:`, 50 - 2 * cellPadding);
-        const valLines = doc.splitTextToSize(val, 130 - 2 * cellPadding);
-        const lineCount = Math.max(attrLines.length, valLines.length);
-        // Calculate height based on font size and line count
-        const lineHeightPt = doc.getLineHeight();
-        const lineHeight = lineHeightPt * 0.352778; // convert pt to mm
-        const thisRowHeight = lineHeight * lineCount + 2 * cellPadding;
-        mainTableHeight += thisRowHeight;
+        const valueSegments = parseHtmlForPdfLinks(String(val));
+        const layout = measurePdfTableRow(doc, attr, valueSegments, 50 - 2 * cellPadding, 130 - 2 * cellPadding, tableTextSize, cellPadding);
+        mainTableHeight += layout.rowHeight;
       }
     }
     if (y + mainTableHeight > pageHeight - bottomMargin) {
@@ -392,36 +355,25 @@ async function downloadPdf() {
     doc.setTextColor(0,0,0); // Reset to black
     doc.setFont(undefined, 'normal');
     y += rowHeight;
-    doc.setFontSize(tableTextSize);
+    setPdfTableFont(doc, tableTextSize);
     for (const [attr, val] of Object.entries(data.mainTable)) {
       if (val) {
-        const attrLines = doc.splitTextToSize(`${attr}:`, 50 - 2 * cellPadding);
-
-        // Parse value for links
         const valSegments = parseHtmlForPdfLinks(String(val));
-
-        // For now, estimate height using plain text method for layout
-        const cleanVal = typeof val === 'string' ? htmlAnchorsToPlainText(val) : String(val);
-        const valLines = doc.splitTextToSize(cleanVal, 130 - 2 * cellPadding);
-        const lineCount = Math.max(attrLines.length, valLines.length);
-        // Calculate height based on font size and line count
-        const lineHeightPt = doc.getLineHeight();
-        const lineHeight = lineHeightPt * 0.352778; // convert pt to mm
-        const thisRowHeight = lineHeight * lineCount + 2 * cellPadding;
+        const layout = measurePdfTableRow(doc, attr, valSegments, 50 - 2 * cellPadding, 130 - 2 * cellPadding, tableTextSize, cellPadding);
         // Draw cell backgrounds and borders
         doc.setFillColor(255,255,255);
         doc.setDrawColor(...borderColor);
-        doc.rect(10, y, 50, thisRowHeight, 'F');
-        doc.rect(60, y, 130, thisRowHeight, 'F');
+        doc.rect(10, y, 50, layout.rowHeight, 'F');
+        doc.rect(60, y, 130, layout.rowHeight, 'F');
         // Text
-        doc.setFont(undefined, 'bold');
-        doc.text(attrLines, 12, y + cellPadding + lineHeight * 0.75, { maxWidth: 50 - 2 * cellPadding });
-        doc.setFont(undefined, 'normal');
+        doc.setFont('helvetica', 'bold');
+        doc.text(layout.labelLines, 12, y + cellPadding + layout.lineHeight * 0.75, { maxWidth: 50 - 2 * cellPadding });
+        doc.setFont('helvetica', 'normal');
 
         // Render value with clickable links
-        renderTextWithLinks(doc, valSegments, 62, y + cellPadding + lineHeight * 0.75, 130 - 2 * cellPadding);
+        renderTextWithLinks(doc, valSegments, 62, y + cellPadding + layout.lineHeight * 0.75, 130 - 2 * cellPadding);
 
-        y += thisRowHeight;
+        y += layout.rowHeight;
       }
     }
     // Add spacing after main table before sections
@@ -452,7 +404,7 @@ async function downloadPdf() {
       doc.setTextColor(0,0,0); // Reset to black
       doc.setFont(undefined, 'normal');
       y += rowHeight;
-      doc.setFontSize(tableTextSize);
+      setPdfTableFont(doc, tableTextSize);
       for (const subsection of section.subsections) {
         // Subsection heading row
       // Keep the subsection heading with room for its first data row.
@@ -469,6 +421,7 @@ async function downloadPdf() {
         doc.setTextColor(0, 0, 0);
         doc.setFont(undefined, 'normal');
         y += rowHeight;
+        setPdfTableFont(doc, tableTextSize);
         }
         doc.setFillColor(...subsectionBg); // Use light orange for subsection
         doc.setDrawColor(...borderColor);
@@ -477,23 +430,14 @@ async function downloadPdf() {
         doc.text(subsection.title, 12, y + rowHeight - cellPadding);
         doc.setFont(undefined, 'normal');
         y += rowHeight;
+        setPdfTableFont(doc, tableTextSize);
         for (const row of subsection.rows) {
-          const attrLines = doc.splitTextToSize(`${row.label}:`, 50 - 2 * cellPadding);
-
           // Convert HTML links and preserve line breaks, then parse for links
           const valRaw = String(row.value).replace(/<br\s*\/?\s*>/gi, '\n');
           const valSegments = parseHtmlForPdfLinks(valRaw);
-
-          // For layout estimation, use plain text
-          const cleanVal = htmlAnchorsToPlainText(valRaw);
-          const valLines = doc.splitTextToSize(cleanVal, 130 - 2 * cellPadding);
-          const lineCount = Math.max(attrLines.length, valLines.length);
-          // Calculate height based on font size and line count
-          const lineHeightPt = doc.getLineHeight();
-          const lineHeight = lineHeightPt * 0.352778; // convert pt to mm
-          const thisRowHeight = lineHeight * lineCount + 2 * cellPadding;
+          const layout = measurePdfTableRow(doc, row.label, valSegments, 50 - 2 * cellPadding, 130 - 2 * cellPadding, tableTextSize, cellPadding);
           // If row doesn't fit, add a new page
-          if (y + thisRowHeight > pageHeight - bottomMargin) {
+          if (y + layout.rowHeight > pageHeight - bottomMargin) {
             doc.addPage();
             y = topMargin;
             doc.setFillColor(...orange);
@@ -506,6 +450,7 @@ async function downloadPdf() {
             doc.setTextColor(0, 0, 0);
             doc.setFont(undefined, 'normal');
             y += rowHeight;
+            setPdfTableFont(doc, tableTextSize);
             // Redraw subsection header on new page
             doc.setFillColor(...subsectionBg);
             doc.setDrawColor(...borderColor);
@@ -514,21 +459,22 @@ async function downloadPdf() {
             doc.text(subsection.title, 12, y + rowHeight - cellPadding);
             doc.setFont(undefined, 'normal');
             y += rowHeight;
+            setPdfTableFont(doc, tableTextSize);
           }
           // Draw cell backgrounds and borders
           doc.setFillColor(255,255,255);
           doc.setDrawColor(...borderColor);
-          doc.rect(10, y, 50, thisRowHeight, 'F'); // Change to S to see the grid
-          doc.rect(60, y, 130, thisRowHeight, 'F'); // Change to S to see the grid
+          doc.rect(10, y, 50, layout.rowHeight, 'F'); // Change to S to see the grid
+          doc.rect(60, y, 130, layout.rowHeight, 'F'); // Change to S to see the grid
           // Text
-          doc.setFont(undefined, 'bold');
-          doc.text(attrLines, 12, y + cellPadding + lineHeight * 0.75, { maxWidth: 50 - 2 * cellPadding });
-          doc.setFont(undefined, 'normal');
+          doc.setFont('helvetica', 'bold');
+          doc.text(layout.labelLines, 12, y + cellPadding + layout.lineHeight * 0.75, { maxWidth: 50 - 2 * cellPadding });
+          doc.setFont('helvetica', 'normal');
 
           // Render value with clickable links
-          renderTextWithLinks(doc, valSegments, 62, y + cellPadding + lineHeight * 0.75, 130 - 2 * cellPadding);
+          renderTextWithLinks(doc, valSegments, 62, y + cellPadding + layout.lineHeight * 0.75, 130 - 2 * cellPadding);
 
-          y += thisRowHeight;
+          y += layout.rowHeight;
         }
       }
     }
