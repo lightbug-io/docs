@@ -2959,9 +2959,9 @@ messages:
       A GET with Message Version omitted or set to 1 always returns version 1, regardless of any
       subscription selection. GET accepts only one-byte values 1 and 2; zero, malformed-width, and
       unsupported values return Invalid Parameter (4).
-      SUBSCRIBE selects the format for its published updates. An omitted Message Version selects
-      version 1; explicit values must be one byte and equal 1 or 2. Invalid values return Invalid
-      Parameter (4) without changing the selection or subscription. UNSUBSCRIBE and expiry do not
+      The latest valid SUBSCRIBE selects the shared format for all MsgBox publications. An omitted
+      Message Version selects version 1; explicit values must be one byte and equal 1 or 2. Invalid
+      values return Invalid Parameter (4) without changing the selection or subscription. UNSUBSCRIBE and expiry do not
       reset the selection. Version 1 updates keep the legacy chunked layout; version 2 updates
       include Message Version 2, field 2, and field 129. Empty payload data is omitted.
       SET requires Message Version 2 and field 129 (maximum 1024 bytes); an explicit zero-length
@@ -2974,9 +2974,10 @@ messages:
       matches the previous CRC. Every accepted SET updates the cache, is written to persistent
       storage when enabled, and is published to current subscribers, including for identical bytes.
       SET does not change the selected subscription format. The 16-bit CRC can collide for different
-      payloads. Tracking-session messages always use Message Version 2 and report the cached-message
-      CRC in field 2, including zero for an empty cache. In that context, field 129 may contain
-      independent Transmit Now upload data and does not form part of the cached-message CRC.
+      payloads. Tracking-session messages always use Message Version 2. When Message Box support is
+      enabled, they report the cached-message CRC in field 2, including zero for an empty cache. In
+      that context, field 129 may contain independent Transmit Now upload data and does not form
+      part of the cached-message CRC.
       Unsupported products return Not Supported (response code 7).
     group: info
     header:
