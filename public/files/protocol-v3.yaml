@@ -2325,7 +2325,7 @@ messages:
       6:
         name: Frequencies
         id: frequencies
-        description: Array of frequencies in Hz as floats
+        description: Array of requested frequencies in kHz as floats; zero is a rest
         type: float32[]
       7:
         name: Timings
@@ -2341,6 +2341,31 @@ messages:
           description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
           date: "2025-10-14"
           generator: RH2 ESP32 Toit
+      - name: Play the classic Nokia tune
+        description: |
+          Original monophonic arrangement of the Gran vals phrase by Francisco Tárrega (1902),
+          widely known as the classic Nokia tune. The composition is public domain;
+          these bytes do not use a Nokia recording or a modern arrangement.
+          METHOD_SET, message ID 72; 25 segments, 3300 ms encoded duration.
+          Frequencies use requested kHz; zero is a rest. Hardware playback may differ.
+        bytes: 03AE002E0002000105044800000001010200060764F1C4A83F000000003A5B963F00000000E96F3D3F00000000D1A2543F00000000E2EA8D3F0000000046DE7C3F000000003A5B163F00000000F1C4283F0000000046DE7C3F00000000AE47613F00000000E2EA0D3F00000000F1C4283F00000000AE47613F328C000A008C000A0022010A0022010A008C000A008C000A0022010A0022010A008C000A008C000A0022010A0022010A0058027819
+      - name: Play Fur Elise
+        description: |
+          Original monophonic arrangement of the opening of Für Elise by Ludwig van Beethoven.
+          The composition is public domain; left-hand accompaniment is omitted.
+          Score: https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931
+          METHOD_SET, message ID 75; 40 segments, 9600 ms encoded duration.
+          Frequencies use requested kHz; zero is a rest. Hardware playback may differ.
+        bytes: 0308012E0002000105044B000000010102000607A0F1C4283F094C1F3FF1C4283F094C1F3FF1C4283F46DEFC3E3A5B163FC9F3053FAE47E13E00000000C9F3853EF1C4A83EAE47E13E46DEFC3E00000000F1C4A83ED1A2D43E46DEFC3EC9F3053F00000000F1C4A83EF1C4283F094C1F3FF1C4283F094C1F3FF1C4283F46DEFC3E3A5B163FC9F3053FAE47E13E00000000C9F3853EF1C4A83EAE47E13E46DEFC3E00000000F1C4A83EC9F3053F46DEFC3EAE47E13E50C800C800C800C800C800C800C800C8009001C800C800C800C8009001C800C800C800C8009001C800C800C800C800C800C800C800C800C800C8009001C800C800C800C8009001C800C800C800C800200377AE
+      - name: Play the William Tell overture
+        description: |
+          Original monophonic arrangement of the gallop theme from William Tell by Gioachino Rossini.
+          The composition is public domain; violin melody raised one octave, at a moderate tempo.
+          Source: Breitkopf & Härtel 1899 full score, pages 28–29, pickup and bars 244–250.
+          https://vmirror.imslp.org/files/imglnks/usimg/6/6d/IMSLP33461-PMLP07234-Rossini_-_Guillaume_Tell_Overture_(full_score).pdf
+          METHOD_SET, message ID 77; 60 segments, 8120 ms encoded duration.
+          Frequencies use requested kHz; zero is a rest. Hardware playback may differ.
+        bytes: 0380012E0002000105044D000000010102000607F046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3EF1C4283FE96F3D3FD1A2543F46DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3EF1C4283FE96F3D3F00000000E96F3D3F00000000E96F3D3F094C1F3F46DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3EF1C4283FE96F3D3FD1A2543FF1C4283FD1A2543F46DE7C3FAE47613FD1A2543FE96F3D3F78780014007800140004011400780014007800140004011400780014008C00180118011801780014007800140004011400780014008C00180178001400780014001801180104011400780014007800140004011400780014007800140004011400780014008C001801180118018C008C00BC028C008C008C003993
   47:
     name: CPU2 Sleep
     id: cpu2Sleep
@@ -3905,3 +3930,4 @@ messages:
           description: Generated using a Toit example on an RH2 ESP32
           date: "2025-10-17"
           generator: RH2 ESP32 Toit
+
