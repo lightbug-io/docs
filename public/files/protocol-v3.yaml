@@ -2344,15 +2344,17 @@ messages:
       - name: Play the classic Nokia tune
         description: |
           Original monophonic arrangement of the Gran vals phrase by Francisco Tárrega (1902),
-          widely known as the classic Nokia tune. The composition is public domain;
-          these bytes do not use a Nokia recording or a modern arrangement.
+          widely known as the classic Nokia tune.
+          Underlying composition: public domain in the UK; no recording included.
+          Nokia branding/trademark rights are separate.
           METHOD_SET, message ID 72; 25 segments, 3300 ms encoded duration.
           Frequencies use requested kHz; zero is a rest. Hardware playback may differ.
         bytes: 03AE002E0002000105044800000001010200060764F1C4A83F000000003A5B963F00000000E96F3D3F00000000D1A2543F00000000E2EA8D3F0000000046DE7C3F000000003A5B163F00000000F1C4283F0000000046DE7C3F00000000AE47613F00000000E2EA0D3F00000000F1C4283F00000000AE47613F328C000A008C000A0022010A0022010A008C000A008C000A0022010A0022010A008C000A008C000A0022010A0022010A0058027819
       - name: Play Fur Elise
         description: |
           Original monophonic arrangement of the opening of Für Elise by Ludwig van Beethoven.
-          The composition is public domain; left-hand accompaniment is omitted.
+          Underlying composition: public domain in the UK; no recording included.
+          Left-hand accompaniment is omitted.
           Score: https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931
           METHOD_SET, message ID 75; 40 segments, 9600 ms encoded duration.
           Frequencies use requested kHz; zero is a rest. Hardware playback may differ.
@@ -2360,8 +2362,10 @@ messages:
       - name: Play the William Tell overture
         description: |
           Original monophonic arrangement of the gallop theme from William Tell by Gioachino Rossini.
-          The composition is public domain; violin melody raised one octave, at a moderate tempo.
-          Source: Breitkopf & Härtel 1899 full score, pages 28–29, pickup and bars 244–250.
+          Underlying composition: public domain in the UK; no recording included.
+          Violin melody raised one octave, at a moderate tempo.
+          Source: Breitkopf & Härtel 1899 full score (arr. Fritz Hoffmann),
+          pages 28–29, pickup and bars 244–250.
           https://vmirror.imslp.org/files/imglnks/usimg/6/6d/IMSLP33461-PMLP07234-Rossini_-_Guillaume_Tell_Overture_(full_score).pdf
           METHOD_SET, message ID 77; 60 segments, 8120 ms encoded duration.
           Frequencies use requested kHz; zero is a rest. Hardware playback may differ.
