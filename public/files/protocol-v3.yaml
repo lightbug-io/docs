@@ -2955,22 +2955,25 @@ messages:
       fields 10..14 (up to 255 bytes each). Version 2 is an optional, opt-in format for clients
       that prefer one complete payload in extended field 129, with CRC still in field 1.
       Header Message Version (22) selects the requested format. The initial selection is version 1.
-      Each valid SUBSCRIBE sets the format used for published updates and later GETs that omit
-      the header; an omitted version on SUBSCRIBE resets it to version 1. An explicit GET version
-      applies only to that response. UNSUBSCRIBE and expiry do not reset the selection. Unsupported
-      values or a version header that is not exactly one byte return Invalid Parameter (4) without
-      changing the selection or subscription. Empty payload data is omitted.
+      Each SUBSCRIBE sets the format used for published updates and later GETs that omit the
+      header. SUBSCRIBE defaults to version 1 when Message Version is omitted, zero, or not one
+      byte long; nonzero values other than 1 or 2 return Invalid Parameter (4) without changing
+      the selection or subscription. GET without a version uses the current selection; an explicit
+      GET version applies only to that response. GET rejects zero, unsupported values, and headers
+      that are not exactly one byte with Invalid Parameter (4). UNSUBSCRIBE and expiry do not reset
+      the selection. Empty payload data is omitted.
       SET replaces the cached message box with field 129 (maximum 1024 bytes); an explicit
       zero-length field 129 clears it. Field 1 is not required on SET. The device calculates
-      and stores the additive payload checksum (sum modulo 65536), used for cache integrity and
-      synchronization. The outer message-frame CRC protects the SET request itself. Missing
+      and stores CRC-16/XMODEM of the payload (polynomial 0x1021, initial value 0x0000, no input
+      or output reflection, final XOR 0x0000), used for cache integrity and synchronization. The
+      outer message-frame CRC protects the SET request itself. Missing
       field 129 returns Missing Parameter (2); payloads over 1024 bytes return Invalid Parameter
       (4). Changed content is applied even if its checksum matches the previous checksum.
       Every accepted SET updates the cache and is published to current subscribers, including
       repeated identical payloads. When persistent Message Box storage is enabled, every accepted
       SET is also written to storage. SET does not change the selected response format. The device accepts
       SET from any authorized link; server-side mailbox policy is
-      outside this protocol. The 16-bit additive checksum can collide for different payloads.
+      outside this protocol. The 16-bit CRC can collide for different payloads.
       Tracking sessions report the stored checksum, including zero for an empty cache. A server
       can compare it with its configured message box and send SET when the checksums differ.
       The message-frame CRC is separate from field 1. Unsupported products return Not Supported
@@ -2986,7 +2989,7 @@ messages:
       1:
         name: CRC
         id: crc
-        description: Stored additive checksum (sum of payload bytes modulo 65536), separate from the outer message-frame CRC. Returned with cached Message Box content and tracking-session uploads, including an empty cache as zero. Not required in SET; the device calculates it from field 129. One- or two-byte little-endian encoding may omit a high zero byte. Implemented only on Viper devices.
+        description: CRC-16/XMODEM of the payload (polynomial 0x1021, initial value 0x0000, no input or output reflection, final XOR 0x0000), separate from the outer message-frame CRC. Returned with cached Message Box content and tracking-session uploads, including an empty cache as zero (0x0000). Not required in SET; the device calculates it from field 129. One- or two-byte little-endian encoding may omit a high zero byte. Implemented only on Viper devices.
         type: uint16
         readonly: true
       10:
