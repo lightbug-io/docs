@@ -129,6 +129,10 @@ header:
         description: |
           The receiver was expected to be able to decrypt the message, but decryption failed
           e.g., due to incorrect keys or corrupted data
+      99:
+        name: Unknown Message
+        id: unknownMessage
+        description: The firmware receiving the request does not recognize its message type.
     parsers:
       - id: statusName
         parser: values
@@ -345,16 +349,9 @@ header:
   20:
     name: Session ID
     id: sessionId
-    alpha: New feature, subject to alterations, possibly for internal only usage
     description: The message ID of the session, associated with a session start message
     type: uint32
-  22:
-    name: Message Version
-    id: msgVersion
-    type: uint8
-    description: |
-      Selects a breaking message-format version for the message being requested or subscribed to.
-      Supported values and the effect of omitting this header are defined by each message.
+    alpha: New feature, subject to alterations, possibly for internal only usage
   50:
     name: App Name
     id: app
@@ -2328,7 +2325,7 @@ messages:
       6:
         name: Frequencies
         id: frequencies
-        description: Array of frequencies in Hz as floats
+        description: Array of requested frequencies in kHz as floats; zero is a rest
         type: float32[]
       7:
         name: Timings
@@ -2344,6 +2341,35 @@ messages:
           description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
           date: "2025-10-14"
           generator: RH2 ESP32 Toit
+      - name: Play the classic Nokia tune
+        description: |
+          Original monophonic arrangement of the Gran vals phrase by Francisco Tárrega (1902),
+          widely known as the classic Nokia tune.
+          Underlying composition: public domain in the UK; no recording included.
+          Nokia branding/trademark rights are separate.
+          METHOD_SET, message ID 72; 25 segments, 3300 ms encoded duration.
+          Frequencies use requested kHz; zero is a rest. Hardware playback may differ.
+        bytes: 03AE002E0002000105044800000001010200060764F1C4A83F000000003A5B963F00000000E96F3D3F00000000D1A2543F00000000E2EA8D3F0000000046DE7C3F000000003A5B163F00000000F1C4283F0000000046DE7C3F00000000AE47613F00000000E2EA0D3F00000000F1C4283F00000000AE47613F328C000A008C000A0022010A0022010A008C000A008C000A0022010A0022010A008C000A008C000A0022010A0022010A0058027819
+      - name: Play Fur Elise
+        description: |
+          Original monophonic arrangement of the opening of Für Elise by Ludwig van Beethoven.
+          Underlying composition: public domain in the UK; no recording included.
+          Left-hand accompaniment is omitted.
+          Score: https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931
+          METHOD_SET, message ID 75; 40 segments, 9600 ms encoded duration.
+          Frequencies use requested kHz; zero is a rest. Hardware playback may differ.
+        bytes: 0308012E0002000105044B000000010102000607A0F1C4283F094C1F3FF1C4283F094C1F3FF1C4283F46DEFC3E3A5B163FC9F3053FAE47E13E00000000C9F3853EF1C4A83EAE47E13E46DEFC3E00000000F1C4A83ED1A2D43E46DEFC3EC9F3053F00000000F1C4A83EF1C4283F094C1F3FF1C4283F094C1F3FF1C4283F46DEFC3E3A5B163FC9F3053FAE47E13E00000000C9F3853EF1C4A83EAE47E13E46DEFC3E00000000F1C4A83EC9F3053F46DEFC3EAE47E13E50C800C800C800C800C800C800C800C8009001C800C800C800C8009001C800C800C800C8009001C800C800C800C800C800C800C800C800C800C8009001C800C800C800C8009001C800C800C800C800200377AE
+      - name: Play the William Tell overture
+        description: |
+          Original monophonic arrangement of the gallop theme from William Tell by Gioachino Rossini.
+          Underlying composition: public domain in the UK; no recording included.
+          Violin melody raised one octave, at a moderate tempo.
+          Source: Breitkopf & Härtel 1899 full score (arr. Fritz Hoffmann),
+          pages 28–29, pickup and bars 244–250.
+          https://vmirror.imslp.org/files/imglnks/usimg/6/6d/IMSLP33461-PMLP07234-Rossini_-_Guillaume_Tell_Overture_(full_score).pdf
+          METHOD_SET, message ID 77; 60 segments, 8120 ms encoded duration.
+          Frequencies use requested kHz; zero is a rest. Hardware playback may differ.
+        bytes: 0380012E0002000105044D000000010102000607F046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3EF1C4283FE96F3D3FD1A2543F46DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3EF1C4283FE96F3D3F00000000E96F3D3F00000000E96F3D3F094C1F3F46DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3E0000000046DEFC3EF1C4283FE96F3D3FD1A2543FF1C4283FD1A2543F46DE7C3FAE47613FD1A2543FE96F3D3F78780014007800140004011400780014007800140004011400780014008C00180118011801780014007800140004011400780014008C00180178001400780014001801180104011400780014007800140004011400780014007800140004011400780014008C001801180118018C008C00BC028C008C008C003993
   47:
     name: CPU2 Sleep
     id: cpu2Sleep
@@ -2440,14 +2466,14 @@ messages:
       8:
         name: Charge Current
         id: chargeCurrent
-        description: Charge current reported by the charger on supported BQ-equipped devices such as RH2, PR2, Viper 6 and Lifepass4; present only while charging and when nonzero. Values are refreshed periodically.
+        description: Charge current reported by the charger on supported BQ-equipped devices; present only while charging and when nonzero. Values are refreshed periodically.
         type: float32
         unit: mA
       9:
         name: Input Current
         id: inputCurrent
         description: |
-          Available on supported BQ-equipped devices such as RH2, PR2, Viper 6 and Lifepass4; present only while charging and when nonzero.
+          Available on supported BQ-equipped devices; present only while charging and when nonzero.
           On BQ2589x devices, this is the input-current limit in effect, not measured input draw.
           Values are refreshed periodically; GET does not trigger a fresh charger read.
         type: float32
@@ -2951,84 +2977,32 @@ messages:
     id: _msgBox
     description: |
       Read or subscribe to the device's cached down-synced message box on supported firmware.
-      Version 1 is the legacy response layout: additive payload checksum (sum modulo 65536) in
-      field 1 and payload chunks in fields 10..14 (up to 255 bytes each). Its wire layout is
-      unchanged and the response omits Message Version. Version 2 is selected with the one-byte
-      Message Version (22) header value 2; responses include that header, CRC-16/XMODEM in field 2,
-      and the complete payload in extended field 129. Field 1 is absent from version 2 responses.
-      A GET with Message Version omitted or set to 1 always returns version 1, regardless of any
-      subscription selection. GET accepts only one-byte values 1 and 2; zero, malformed-width, and
-      unsupported values return Invalid Parameter (4).
-      The latest valid SUBSCRIBE selects the shared format for all MsgBox publications. An omitted
-      Message Version selects version 1; explicit values must be one byte and equal 1 or 2. Invalid
-      values return Invalid Parameter (4) without changing the selection or subscription. UNSUBSCRIBE and expiry do not
-      reset the selection. Version 1 updates keep the legacy chunked layout; version 2 updates
-      include Message Version 2, field 2, and field 129. Empty payload data is omitted.
-      SET requires Message Version 2 and field 129 (maximum 1024 bytes); an explicit zero-length
-      field 129 clears the cache. Omitted, malformed, or non-2 Message Version values return Invalid
-      Parameter (4). Missing field 129 returns Missing Parameter (2); payloads over 1024 bytes also
-      return Invalid Parameter (4). Field 2 is optional in SET and is ignored; the device calculates
-      and stores CRC-16/XMODEM of the payload (polynomial 0x1021, initial value 0x0000, no input or
-      output reflection, final XOR 0x0000). Field 1, if present, is also ignored in SET. The outer
-      message-frame CRC protects the SET request itself. Changed content is applied even if its CRC
-      matches the previous CRC. Every accepted SET updates the cache, is written to persistent
-      storage when enabled, and is published to current subscribers, including for identical bytes.
-      SET does not change the selected subscription format. The 16-bit CRC can collide for different
-      payloads. Tracking-session messages always use Message Version 2. When Message Box support is
-      enabled, they report the cached-message CRC in field 2, including zero for an empty cache. In
-      that context, field 129 may contain independent Transmit Now upload data and does not form
-      part of the cached-message CRC.
-      Unsupported products return Not Supported (response code 7).
+      GET responses and subscription updates use field 1 for the stored message-box
+      CRC and field 129 for its content. An empty payload is omitted. Unsupported products
+      return Not Supported (response code 7).
+      Field 129 uses a two-byte little-endian length prefix, even for payloads shorter than
+      256 bytes. The legacy MsgBox format uses chunked fields 10..14 with one-byte lengths.
+      Field 129 does not use that chunked layout. The message-frame CRC is separate from field 1.
+      In tracking-session uploads, field 129 can instead carry pending Transmit Now upload
+      data. In that context field 1 still describes the down-synced message box, so it must
+      not be treated as the checksum of the upload payload.
     group: info
     header:
       - 5
-      - 22
     data:
       1:
-        name: Legacy Checksum
-        id: legacyChecksum
-        description: Legacy additive checksum (sum of payload bytes modulo 65536), used in version 1 responses with the legacy chunk fields. Absent from version 2 responses. Optional and ignored in SET.
-        type: uint16
-        readonly: true
-      2:
         name: CRC
         id: crc
-        description: CRC-16/XMODEM of the cached payload (polynomial 0x1021, initial value 0x0000, no input or output reflection, final XOR 0x0000), separate from the outer message-frame CRC. Returned in version 2 responses and tracking-session messages, including an empty cache as zero (0x0000). Optional and ignored in SET; the device calculates it from field 129. One- or two-byte little-endian encoding may omit a high zero byte. Implemented only on Viper devices.
+        description: Stored checksum of the down-synced message box, separate from the outer message-frame CRC. Integer encoding may omit a high zero byte.
         type: uint16
         readonly: true
-      10:
-        name: Legacy Payload Chunk 1
-        id: legacyChunk1
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
-        type: bytes
-      11:
-        name: Legacy Payload Chunk 2
-        id: legacyChunk2
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
-        type: bytes
-      12:
-        name: Legacy Payload Chunk 3
-        id: legacyChunk3
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
-        type: bytes
-      13:
-        name: Legacy Payload Chunk 4
-        id: legacyChunk4
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
-        type: bytes
-      14:
-        name: Legacy Payload Chunk 5
-        id: legacyChunk5
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
-        type: bytes
       129:
         name: Full Payload
         id: fullPayload
-        description: Complete message-box bytes in SET requests, GET responses, and subscription updates (up to 1024 bytes). SET must include this field; an explicit zero-length value clears the cache. Uses an extended-length field with a uint16 little-endian length prefix. Tracking-session uploads may use this field for independent Transmit Now data instead.
+        description: Down-synced message-box bytes in GET responses and subscription updates (up to 1024 bytes). Uses a uint16 little-endian length prefix. Tracking-session uploads may use this field for independent Transmit Now data instead.
         type: bytes
     methods:
       GET: null
-      SET: null
       SUBSCRIBE: null
       UNSUBSCRIBE: null
     examples:
