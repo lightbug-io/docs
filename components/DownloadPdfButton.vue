@@ -6,12 +6,13 @@
 
 <script setup>
 import { onMounted } from 'vue';
+import { measurePdfTableRow, setPdfTableFont, wrapPdfTextWithLinks } from '../utils/PdfTableLayout';
 let jsPDFLoaded = false;
 
 // Text sizes
 const titleSize = 20;
 const sectionTitleSize = 12;
-const tableTextSize = 8;
+const tableTextSize = 9;
 const textSize = 10;
 const footerSize = 10;
 
@@ -124,73 +125,29 @@ function parseHtmlForPdfLinks(html) {
  * @returns {number} Height used by the rendered text
  */
 function renderTextWithLinks(doc, segments, x, y, maxWidth) {
-  let currentX = x;
-  let currentY = y;
+  const lines = wrapPdfTextWithLinks(doc, segments, maxWidth);
   const lineHeight = doc.getLineHeight() * 0.352778; // convert pt to mm
-  let usedHeight = lineHeight;
+  const spaceWidth = doc.getTextWidth(' ');
 
-  for (const segment of segments) {
-    if (!segment.text) continue;
-
-    // Split text into words for proper wrapping
-    const words = segment.text.split(/\s+/);
-
-    for (let i = 0; i < words.length; i++) {
-      const word = words[i];
-      const wordWidth = doc.getTextWidth(word + ' ');
-
-      // Check if we need to wrap to next line
-      if (currentX + wordWidth > x + maxWidth && currentX > x) {
-        currentX = x;
-        currentY += lineHeight;
-        usedHeight += lineHeight;
-      }
-
-      // Render the word
-      if (segment.isLink) {
-        // Make absolute URLs for relative links
-        let fullUrl = segment.url;
+  lines.forEach((line, lineIndex) => {
+    let currentX = x;
+    const currentY = y + lineIndex * lineHeight;
+    line.forEach((word, wordIndex) => {
+      if (word.isLink) {
+        let fullUrl = word.url;
         if (fullUrl.startsWith('/')) {
           fullUrl = window.location.origin + fullUrl;
         }
-        doc.textWithLink(word, currentX, currentY, { url: fullUrl });
+        doc.textWithLink(word.text, currentX, currentY, { url: fullUrl });
       } else {
-        doc.text(word, currentX, currentY);
+        doc.text(word.text, currentX, currentY);
       }
 
-      currentX += wordWidth;
-
-      // Add space after word (except for last word)
-      if (i < words.length - 1) {
-        const spaceWidth = doc.getTextWidth(' ');
-        currentX += spaceWidth;
-      }
-    }
-  }
-
-  return usedHeight;
-}
-
-/**
- * Convert HTML anchor tags to plain text "label (href)" and strip other HTML tags.
- * @param {string} html - HTML string that may contain anchor tags
- * @returns {string} Plain text with links converted to "text (href)" format
- */
-function htmlAnchorsToPlainText(html) {
-  if (!html || typeof html !== 'string') return html;
-
-  // Replace anchor tags with 'text (href)'
-  const anchorRe = /<a\s+[^>]*href=(?:"|')([^"']*)(?:"|')[^>]*>(.*?)<\/a>/gi;
-  let out = html.replace(anchorRe, (match, href, text) => {
-    // Clean up the text content and decode basic HTML entities
-    const cleanText = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-    return `${cleanText} (${href})`;
+      currentX += doc.getTextWidth(word.text) + (wordIndex < line.length - 1 ? spaceWidth : 0);
+    });
   });
 
-  // Strip any remaining HTML tags
-  out = out.replace(/<[^>]+>/g, '');
-
-  return out;
+  return lines.length * lineHeight;
 }
 
 /**
@@ -221,10 +178,9 @@ async function cropImageToDataUrl(imgSrc, cropX, cropY, cropWidth, cropHeight) {
 }
 
 async function downloadPdf() {
-  await loadFontScript('/fonts/Raleway-VariableFont_wght-normal.js');
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  doc.setFont('Raleway-VariableFont_wgh');
+  doc.setFont('helvetica');
   const data = props.getPdfData ? props.getPdfData() : null;
   let y = 20;
   if (!data) return;
@@ -341,20 +297,47 @@ async function downloadPdf() {
     y += maxHeight + 10;
   }
 
+  // Simple labeled image slots keep draft datasheets ready for approved artwork.
+  if (data.imagePlaceholders && data.imagePlaceholders.length) {
+    const gap = 6;
+    const boxWidth = (180 - gap * (Math.min(data.imagePlaceholders.length, 2) - 1)) / Math.min(data.imagePlaceholders.length, 2);
+    const boxHeight = 38;
+    const placeholders = data.imagePlaceholders;
+    for (let i = 0; i < placeholders.length; i += 2) {
+      if (y + boxHeight > pageHeight - bottomMargin) {
+        doc.addPage();
+        y = topMargin;
+      }
+      const row = placeholders.slice(i, i + 2);
+      row.forEach((placeholder, index) => {
+        const x = 10 + index * (boxWidth + gap);
+        doc.setFillColor(247, 248, 250);
+        doc.setDrawColor(...borderColor);
+        doc.roundedRect(x, y, boxWidth, boxHeight, 2, 2, 'FD');
+        doc.setTextColor(110, 116, 124);
+        doc.setFontSize(11);
+        doc.setFont(undefined, 'bold');
+        doc.text('RTKZero', x + boxWidth / 2, y + 15, { align: 'center' });
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'normal');
+        doc.text(placeholder.label || 'Product view', x + boxWidth / 2, y + 24, { align: 'center' });
+        doc.text('Image placeholder', x + boxWidth / 2, y + 31, { align: 'center' });
+      });
+      doc.setTextColor(0, 0, 0);
+      y += boxHeight + 8;
+    }
+  }
+
   // Main Table
   if (data.mainTable) {
     // Calculate total height needed for main table
     let mainTableHeight = rowHeight; // header
+    doc.setFontSize(tableTextSize);
     for (const [attr, val] of Object.entries(data.mainTable)) {
       if (val) {
-        const attrLines = doc.splitTextToSize(`${attr}:`, 50 - 2 * cellPadding);
-        const valLines = doc.splitTextToSize(val, 130 - 2 * cellPadding);
-        const lineCount = Math.max(attrLines.length, valLines.length);
-        // Calculate height based on font size and line count
-        const lineHeightPt = doc.getLineHeight();
-        const lineHeight = lineHeightPt * 0.352778; // convert pt to mm
-        const thisRowHeight = lineHeight * lineCount + 2 * cellPadding;
-        mainTableHeight += thisRowHeight;
+        const valueSegments = parseHtmlForPdfLinks(String(val));
+        const layout = measurePdfTableRow(doc, attr, valueSegments, 50 - 2 * cellPadding, 130 - 2 * cellPadding, tableTextSize, cellPadding);
+        mainTableHeight += layout.rowHeight;
       }
     }
     if (y + mainTableHeight > pageHeight - bottomMargin) {
@@ -372,36 +355,25 @@ async function downloadPdf() {
     doc.setTextColor(0,0,0); // Reset to black
     doc.setFont(undefined, 'normal');
     y += rowHeight;
-    doc.setFontSize(tableTextSize);
+    setPdfTableFont(doc, tableTextSize);
     for (const [attr, val] of Object.entries(data.mainTable)) {
       if (val) {
-        const attrLines = doc.splitTextToSize(`${attr}:`, 50 - 2 * cellPadding);
-
-        // Parse value for links
         const valSegments = parseHtmlForPdfLinks(String(val));
-
-        // For now, estimate height using plain text method for layout
-        const cleanVal = typeof val === 'string' ? htmlAnchorsToPlainText(val) : String(val);
-        const valLines = doc.splitTextToSize(cleanVal, 130 - 2 * cellPadding);
-        const lineCount = Math.max(attrLines.length, valLines.length);
-        // Calculate height based on font size and line count
-        const lineHeightPt = doc.getLineHeight();
-        const lineHeight = lineHeightPt * 0.352778; // convert pt to mm
-        const thisRowHeight = lineHeight * lineCount + 2 * cellPadding;
+        const layout = measurePdfTableRow(doc, attr, valSegments, 50 - 2 * cellPadding, 130 - 2 * cellPadding, tableTextSize, cellPadding);
         // Draw cell backgrounds and borders
         doc.setFillColor(255,255,255);
         doc.setDrawColor(...borderColor);
-        doc.rect(10, y, 50, thisRowHeight, 'F');
-        doc.rect(60, y, 130, thisRowHeight, 'F');
+        doc.rect(10, y, 50, layout.rowHeight, 'F');
+        doc.rect(60, y, 130, layout.rowHeight, 'F');
         // Text
-        doc.setFont(undefined, 'bold');
-        doc.text(attrLines, 12, y + cellPadding + lineHeight * 0.75, { maxWidth: 50 - 2 * cellPadding });
-        doc.setFont(undefined, 'normal');
+        doc.setFont('helvetica', 'bold');
+        doc.text(layout.labelLines, 12, y + cellPadding + layout.lineHeight * 0.75, { maxWidth: 50 - 2 * cellPadding });
+        doc.setFont('helvetica', 'normal');
 
         // Render value with clickable links
-        renderTextWithLinks(doc, valSegments, 62, y + cellPadding + lineHeight * 0.75, 130 - 2 * cellPadding);
+        renderTextWithLinks(doc, valSegments, 62, y + cellPadding + layout.lineHeight * 0.75, 130 - 2 * cellPadding);
 
-        y += thisRowHeight;
+        y += layout.rowHeight;
       }
     }
     // Add spacing after main table before sections
@@ -417,7 +389,8 @@ async function downloadPdf() {
       }
       isFirstSection = false;
       // Section title as table header
-      if (y + rowHeight > pageHeight - bottomMargin) {
+      // Start each section with enough room for its subsection and first row.
+      if (y + rowHeight * 5 > pageHeight - bottomMargin) {
         doc.addPage();
         y = topMargin;
       }
@@ -431,12 +404,24 @@ async function downloadPdf() {
       doc.setTextColor(0,0,0); // Reset to black
       doc.setFont(undefined, 'normal');
       y += rowHeight;
-      doc.setFontSize(tableTextSize);
+      setPdfTableFont(doc, tableTextSize);
       for (const subsection of section.subsections) {
         // Subsection heading row
-        if (y + rowHeight > pageHeight - bottomMargin) {
+      // Keep the subsection heading with room for its first data row.
+      if (y + rowHeight * 4 > pageHeight - bottomMargin) {
           doc.addPage();
           y = topMargin;
+        doc.setFillColor(...orange);
+        doc.setDrawColor(...borderColor);
+        doc.rect(10, y, 180, rowHeight, 'F');
+        doc.setFontSize(sectionTitleSize);
+        doc.setFont(undefined, 'bold');
+        doc.setTextColor(255, 255, 255);
+        doc.text(section.title, 12, y + rowHeight - cellPadding);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont(undefined, 'normal');
+        y += rowHeight;
+        setPdfTableFont(doc, tableTextSize);
         }
         doc.setFillColor(...subsectionBg); // Use light orange for subsection
         doc.setDrawColor(...borderColor);
@@ -445,25 +430,27 @@ async function downloadPdf() {
         doc.text(subsection.title, 12, y + rowHeight - cellPadding);
         doc.setFont(undefined, 'normal');
         y += rowHeight;
+        setPdfTableFont(doc, tableTextSize);
         for (const row of subsection.rows) {
-          const attrLines = doc.splitTextToSize(`${row.label}:`, 50 - 2 * cellPadding);
-
           // Convert HTML links and preserve line breaks, then parse for links
           const valRaw = String(row.value).replace(/<br\s*\/?\s*>/gi, '\n');
           const valSegments = parseHtmlForPdfLinks(valRaw);
-
-          // For layout estimation, use plain text
-          const cleanVal = htmlAnchorsToPlainText(valRaw);
-          const valLines = doc.splitTextToSize(cleanVal, 130 - 2 * cellPadding);
-          const lineCount = Math.max(attrLines.length, valLines.length);
-          // Calculate height based on font size and line count
-          const lineHeightPt = doc.getLineHeight();
-          const lineHeight = lineHeightPt * 0.352778; // convert pt to mm
-          const thisRowHeight = lineHeight * lineCount + 2 * cellPadding;
+          const layout = measurePdfTableRow(doc, row.label, valSegments, 50 - 2 * cellPadding, 130 - 2 * cellPadding, tableTextSize, cellPadding);
           // If row doesn't fit, add a new page
-          if (y + thisRowHeight > pageHeight - bottomMargin) {
+          if (y + layout.rowHeight > pageHeight - bottomMargin) {
             doc.addPage();
             y = topMargin;
+            doc.setFillColor(...orange);
+            doc.setDrawColor(...borderColor);
+            doc.rect(10, y, 180, rowHeight, 'F');
+            doc.setFontSize(sectionTitleSize);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(255, 255, 255);
+            doc.text(section.title, 12, y + rowHeight - cellPadding);
+            doc.setTextColor(0, 0, 0);
+            doc.setFont(undefined, 'normal');
+            y += rowHeight;
+            setPdfTableFont(doc, tableTextSize);
             // Redraw subsection header on new page
             doc.setFillColor(...subsectionBg);
             doc.setDrawColor(...borderColor);
@@ -472,28 +459,29 @@ async function downloadPdf() {
             doc.text(subsection.title, 12, y + rowHeight - cellPadding);
             doc.setFont(undefined, 'normal');
             y += rowHeight;
+            setPdfTableFont(doc, tableTextSize);
           }
           // Draw cell backgrounds and borders
           doc.setFillColor(255,255,255);
           doc.setDrawColor(...borderColor);
-          doc.rect(10, y, 50, thisRowHeight, 'F'); // Change to S to see the grid
-          doc.rect(60, y, 130, thisRowHeight, 'F'); // Change to S to see the grid
+          doc.rect(10, y, 50, layout.rowHeight, 'F'); // Change to S to see the grid
+          doc.rect(60, y, 130, layout.rowHeight, 'F'); // Change to S to see the grid
           // Text
-          doc.setFont(undefined, 'bold');
-          doc.text(attrLines, 12, y + cellPadding + lineHeight * 0.75, { maxWidth: 50 - 2 * cellPadding });
-          doc.setFont(undefined, 'normal');
+          doc.setFont('helvetica', 'bold');
+          doc.text(layout.labelLines, 12, y + cellPadding + layout.lineHeight * 0.75, { maxWidth: 50 - 2 * cellPadding });
+          doc.setFont('helvetica', 'normal');
 
           // Render value with clickable links
-          renderTextWithLinks(doc, valSegments, 62, y + cellPadding + lineHeight * 0.75, 130 - 2 * cellPadding);
+          renderTextWithLinks(doc, valSegments, 62, y + cellPadding + layout.lineHeight * 0.75, 130 - 2 * cellPadding);
 
-          y += thisRowHeight;
+          y += layout.rowHeight;
         }
       }
     }
   }
 
   // Footer
-  let url = window.location.href;
+  let url = data.pdfUrl || window.location.href;
   // Remove anchor/hash from URL
   url = url.split('#')[0];
   // Format date as '1 May 2025'
@@ -513,6 +501,7 @@ async function downloadPdf() {
   const blobUrl = URL.createObjectURL(pdfBlob);
   window.open(blobUrl, '_blank');
 }
+
 </script>
 
 <style scoped>
