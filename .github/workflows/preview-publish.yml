@@ -30,14 +30,22 @@ jobs:
         id: check
         with:
           script: await require('./.github/preview/check.cjs').check({ github, context, core });
-  publish:
-    name: Publish PR ${{ needs.resolve.outputs.pr }} at ${{ needs.resolve.outputs.sha }}
+  approval:
+    name: Approve PR ${{ needs.resolve.outputs.pr }} at ${{ needs.resolve.outputs.sha }}
     needs: resolve
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
     # Required reviewers and prevent-self-review must be configured before enabling.
     # Same-repository branches are automatic; forks require environment approval.
+    # Waiting for approval must not hold the shared publish/cleanup lock.
     environment: ${{ needs.resolve.outputs.environment }}
+    permissions: {}
+    steps:
+      - run: echo 'Approval gate passed'
+  publish:
+    name: Publish PR ${{ needs.resolve.outputs.pr }} at ${{ needs.resolve.outputs.sha }}
+    needs: [resolve, approval]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     concurrency:
       group: pages-preview-publisher
       cancel-in-progress: false

@@ -18,13 +18,14 @@ Publication stays off until all of these are done:
    branch deployment/cleanup. Keep fork write tokens/secrets disabled and require
    approval for untrusted fork workflow runs.
 3. Set repository variable `PREVIEWS_ENABLED=true`. Re-run a PR's **Preview build**
-   to publish it. For forks, approve the **Publish PR … at …** environment request
+   to publish it. For forks, approve the **Approve PR … at …** environment request
    only after reviewing the displayed commit. No custom review comment or
    approval script is involved.
 
 The two preview environments select approval/branch rules, not separate hosting,
 runners or token permissions. Both publish into the same Pages site. The internal
-name lets one shared publish job select its gate without duplicating the workflow.
+name lets one approval job select its gate without duplicating the workflow.
+Approval waits do not hold the shared publish/cleanup lock.
 
 The build checks out the exact PR commit with a read-only token, no secrets and
 no shared cache. The publisher runs only trusted default-branch code: it binds

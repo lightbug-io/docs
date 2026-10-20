@@ -96,3 +96,20 @@ test('publisher and cleanup use full checkouts for the deploy action worktree', 
   const privilegedJobs = workflow.slice(workflow.indexOf('  publish:\n'));
   assert.doesNotMatch(privilegedJobs, /sparse-checkout:|merge-multiple:/);
 });
+test('approval completes before acquiring the shared publish/cleanup lock', () => {
+  const workflow = fs.readFileSync(path.join(__dirname, '../workflows/preview-publish.yml'), 'utf8');
+  const approval = workflow.split('  approval:\n')[1].split('  publish:\n')[0];
+  const publish = workflow.split('  publish:\n')[1].split('  cleanup:\n')[0];
+  const cleanup = workflow.split('  cleanup:\n')[1];
+  assert.match(approval, /needs: resolve\n/);
+  assert.match(approval, /environment: \$\{\{ needs.resolve.outputs.environment \}\}/);
+  assert.match(approval, /permissions: \{\}/);
+  assert.doesNotMatch(approval, /concurrency:|continue-on-error:|uses:/);
+  assert.match(publish, /needs: \[resolve, approval\]\n/);
+  assert.doesNotMatch(publish, /environment:|if:|continue-on-error:/);
+  for (const job of [publish, cleanup]) {
+    assert.match(job, /concurrency:\n      group: pages-preview-publisher\n      cancel-in-progress: false\n      queue: max/);
+  }
+  assert.match(publish, /EXPECTED: \$\{\{ toJSON\(needs.resolve.outputs\) \}\}/);
+  assert.match(publish, /await check\(\{ github, context, core, expected: JSON.parse\(process.env.EXPECTED\) \}\);[\s\S]*uses: JamesIves\//);
+});
