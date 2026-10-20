@@ -1,7 +1,6 @@
 # PR previews
 
-PRs targeting `main` use `https://lightbug-io.github.io/docs/pr/<number>/`. No custom domain,
-AWS credentials or changes to the existing S3/CloudFront deployments are needed.
+PRs targeting `main` use `https://lightbug-io.github.io/docs/pr/<number>/`.
 The pinned [JamesIves action](https://github.com/JamesIves/github-pages-deploy-action/tree/fa24774553152dd7873cd16ebd8d959b010c5445)
 updates one PR folder on `gh-pages`; closing the PR cleans that folder.
 
@@ -22,6 +21,10 @@ Publication stays off until all of these are done:
    to publish it. For forks, approve the **Publish PR … at …** environment request
    only after reviewing the displayed commit. No custom review comment or
    approval script is involved.
+
+The two preview environments select approval/branch rules, not separate hosting,
+runners or token permissions. Both publish into the same Pages site. The internal
+name lets one shared publish job select its gate without duplicating the workflow.
 
 The build checks out the exact PR commit with a read-only token, no secrets and
 no shared cache. The publisher runs only trusted default-branch code: it binds
