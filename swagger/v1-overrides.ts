@@ -1,4 +1,5 @@
 import { notificationTriggerTypes } from "./v1-enums.js";
+// cspell:words urlencode
 
 export const v1SummaryOverrides = {
     'post-users-login': 'Login',
@@ -47,6 +48,55 @@ export const v1SummaryOverrides = {
 };
 
 export const v1DescriptionOverrides = {
+    'get-devices-id-nearbyDevices': `Returns nearby devices detected by a tracker, including ZeroN devices and BleTag beacons; results are not restricted to BleTag.
+
+Use GET \`https://api.lightbug.cloud/api/devices/{trackerId}/nearbyDevices\`, where \`trackerId\` is the detecting tracker's ID (the \`id\` path parameter). Send your [API token](/apis/authentication) in the \`Authorization\` header.
+
+Supply either a \`correlationId\` from a [location point](/apis/v1/get-devices-id-points) or \`dateRange\`, a JSON array of two Unix-millisecond timestamps. At least one filter is needed: supplying neither returns an empty array. If both are supplied, \`correlationId\` takes precedence.
+
+### Requests
+
+Replace the placeholders with your token, tracker ID and location point's correlation ID. The date range below is illustrative.
+
+\`\`\`sh
+curl --get 'https://api.lightbug.cloud/api/devices/TRACKER_ID/nearbyDevices' \\
+  --header 'Authorization: YOUR_API_TOKEN' \\
+  --data-urlencode 'correlationId=POINT_CORRELATION_ID'
+
+curl --get 'https://api.lightbug.cloud/api/devices/TRACKER_ID/nearbyDevices' \\
+  --header 'Authorization: YOUR_API_TOKEN' \\
+  --data-urlencode 'dateRange=[1735689600000,1735693200000]'
+\`\`\`
+
+### Response
+
+Each array entry contains \`device\` metadata (\`id\`, \`name\`, \`btMac\`, \`ownerId\`, \`tags\`, \`type\`, \`meta\`) and \`readings\` keyed by reading type. Metadata fields can be null or omitted; availability also depends on ownership. Non-BleTag devices are returned only for their owner.
+
+Reading timestamps are Unix milliseconds. For \`ble_seen\`, \`rssi\` is BLE signal strength in dBm and \`value\` mirrors \`rssi\`. The example below is entirely synthetic and illustrates only this reading type.
+
+Date-range results contain the latest reading per nearby device and reading type, not every historical observation. Use [nearbyDeviceData](/apis/v1/get-devices-id-nearbyDeviceData) for a nearby device's time series.
+
+Clients can map detections to their own known fixed beacon locations. This endpoint returns detections; it does not calculate an indoor position.`,
+    'get-devices-id-nearbyDeviceData': `Returns readings for one nearby device detected by the specified tracker during a date range.
+
+Use GET \`https://api.lightbug.cloud/api/devices/{trackerId}/nearbyDeviceData\` with your [API token](/apis/authentication) in the \`Authorization\` header. Both \`nearbyId\` (the nearby device's \`device.id\` from [nearbyDevices](/apis/v1/get-devices-id-nearbyDevices)) and \`dateRange\` are required. Encode \`dateRange\` as a JSON array of two Unix-millisecond timestamps.
+
+Replace the placeholders below. The date range is illustrative.
+
+\`\`\`sh
+curl --get 'https://api.lightbug.cloud/api/devices/TRACKER_ID/nearbyDeviceData' \\
+  --header 'Authorization: YOUR_API_TOKEN' \\
+  --data-urlencode 'nearbyId=NEARBY_DEVICE_ID' \\
+  --data-urlencode 'dateRange=[1735689600000,1735693200000]'
+\`\`\`
+
+The response is an object keyed by reading type, with arrays of \`[timestamp, value]\` pairs ordered by time. Returned timestamps are rounded Unix **seconds**, even though the date-range inputs and nearbyDevices reading timestamps use **milliseconds**. For \`ble_seen\`, the returned value is BLE RSSI in dBm. No matching readings returns \`{}\`.
+
+Synthetic example (BLE detections only):
+
+\`\`\`json
+{"ble_seen": [[1735689660, -65], [1735689720, -70]]}
+\`\`\``,
     'get-devices-id-points': `Gets one or more points for a device, based on filtering.
 
 ### Filter limitations
@@ -184,6 +234,23 @@ export const V1ParamExamples = {
 };
 
 export const V1ResponseExamples = {
+    'get-devices-id-nearbyDevices': {
+        '200': {
+            'application/json': {
+                schema: { type: 'array', items: { type: 'object' } },
+                examples: { synthetic: { summary: 'Synthetic BLE detections', value: [
+                    {
+                        device: { id: 1001, name: 'Example ZeroN', btMac: '02:00:00:00:00:01', ownerId: 2001, tags: [], type: 'ZeroN', meta: null },
+                        readings: { ble_seen: { timestamp: 1735689660000, value: -65, correlationId: 'example-point-a', rssi: -65 } }
+                    },
+                    {
+                        device: { id: 1002, name: 'Example beacon', btMac: '02:00:00:00:00:02', ownerId: 2001, tags: [], type: 'BleTag', meta: null },
+                        readings: { ble_seen: { timestamp: 1735689660000, value: -72, correlationId: 'example-point-a', rssi: -72 } }
+                    }
+                ] } }
+            }
+        }
+    },
     'get-users-id-getDeviceSummary': {
         '200': {
             'application/json': {
@@ -381,6 +448,16 @@ export const V1BodyExamples = {
 };
 
 export const V1ParamDescriptions = {
+    'get-devices-id-nearbyDevices': {
+        'id': 'The detecting tracker ID.',
+        'dateRange': 'JSON array [start, end] of Unix-millisecond timestamps. Returns the latest reading per nearby device and reading type. Required unless correlationId is supplied.',
+        'correlationId': 'Correlation ID from a tracker location point. Takes precedence over dateRange. Required unless dateRange is supplied.',
+    },
+    'get-devices-id-nearbyDeviceData': {
+        'id': 'The detecting tracker ID.',
+        'nearbyId': 'The nearby device ID (device.id from nearbyDevices).',
+        'dateRange': 'Required JSON array [start, end] of Unix-millisecond timestamps. Response time-series timestamps use Unix seconds.',
+    },
     'get-devices-id-points': {
         'filter': 'Filter criteria for fetching device points.',
     },
