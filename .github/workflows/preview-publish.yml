@@ -3,72 +3,117 @@ on:
   workflow_run:
     workflows: [Preview build]
     types: [completed]
-  workflow_dispatch:
-  # Metadata-only cleanup: this workflow never checks out or executes PR code.
   pull_request_target:
-    types: [closed, synchronize, converted_to_draft]
-  schedule:
-    - cron: '17 * * * *'
+    branches: [main]
+    types: [closed]
 permissions: {}
-# All publications and closed/stale PR cleanup share this lock. Never cancel a deployment.
-concurrency:
-  group: pages-preview-publisher
-  cancel-in-progress: false
 jobs:
-  publish:
-    if: vars.PREVIEWS_ENABLED == 'true' && github.ref == 'refs/heads/main'
+  resolve:
+    if: vars.PREVIEWS_ENABLED == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    environment: github-pages
     permissions:
       contents: read
       actions: read
       pull-requests: read
-      pages: write
-      id-token: write
+    outputs:
+      pr: ${{ steps.check.outputs.pr }}
+      sha: ${{ steps.check.outputs.sha }}
+      artifact: ${{ steps.check.outputs.artifact }}
+      environment: ${{ steps.check.outputs.environment }}
     steps:
-      # Only trusted default-branch code; no PR checkout, npm, caches or artifact execution.
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: ${{ github.sha }}
           persist-credentials: false
           sparse-checkout: .github/preview
-      - name: Assemble authorized current revisions
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        id: check
+        with:
+          script: await require('./.github/preview/check.cjs').check({ github, context, core });
+  publish:
+    name: Publish PR ${{ needs.resolve.outputs.pr }} at ${{ needs.resolve.outputs.sha }}
+    needs: resolve
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # Required reviewers and prevent-self-review must be configured before enabling.
+    # Same-repository branches are automatic; forks require environment approval.
+    environment: ${{ needs.resolve.outputs.environment }}
+    concurrency:
+      group: pages-preview-publisher
+      cancel-in-progress: false
+      queue: max
+    permissions:
+      contents: write
+      actions: read
+      pull-requests: read
+      pages: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: .github/preview
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          artifact-ids: ${{ needs.resolve.outputs.artifact }}
+          merge-multiple: true
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/preview
+      - name: Validate files and recheck current commit after approval
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 .github/preview/publish.py assemble
-      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
+          PREVIEW_DIRECTORY: ${{ runner.temp }}/preview
+          EXPECTED: ${{ toJSON(needs.resolve.outputs) }}
         with:
-          path: preview-site
-          retention-days: 1
-      - name: Revalidate immediately before deployment
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 .github/preview/publish.py check
-      - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
+          script: |
+            const { check, validate } = require('./.github/preview/check.cjs');
+            validate(process.env.PREVIEW_DIRECTORY);
+            await check({ github, context, core, expected: JSON.parse(process.env.EXPECTED) });
+      - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
         with:
-          timeout: '300000'
-      - name: Detect revisions changed during deployment
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: python3 .github/preview/publish.py check
-      # GitHub Pages has no atomic compare-and-swap against PR state. On any
-      # failure, replace the whole preview site with an inert page, including if
-      # the post-deployment check catches a change during deployment.
-      - name: Prepare fail-closed recovery
-        if: failure()
-        run: |
-          mkdir -p "$RUNNER_TEMP/preview-empty"
-          printf '%s' '<!doctype html><title>Previews unavailable</title>' > "$RUNNER_TEMP/preview-empty/index.html"
-      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
-        id: recovery-upload
-        if: failure()
+          branch: gh-pages
+          folder: ${{ runner.temp }}/preview
+          target-folder: pr/${{ needs.resolve.outputs.pr }}
+          clean: true
+          force: false
+      - name: Request Pages build
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
         with:
-          name: preview-empty
-          path: ${{ runner.temp }}/preview-empty
-          retention-days: 1
-      - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
-        if: failure() && steps.recovery-upload.outcome == 'success'
+          script: |
+            await github.rest.repos.requestPagesBuild(context.repo);
+            await core.summary.addLink('Preview', 'https://lightbug-io.github.io/docs/pr/${{ needs.resolve.outputs.pr }}/').write();
+  cleanup:
+    if: vars.PREVIEWS_ENABLED == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'pull_request_target'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    concurrency:
+      group: pages-preview-publisher
+      cancel-in-progress: false
+      queue: max
+    permissions:
+      contents: write
+      pull-requests: read
+      pages: write
+    steps:
+      # Trusted base only. No PR checkout, dependency installation or PR scripts.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          artifact_name: preview-empty
-          timeout: '300000'
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: .github/preview
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            await require('./.github/preview/check.cjs').cleanup({ github, context });
+            require('node:fs').mkdirSync(`${process.env.RUNNER_TEMP}/empty-preview`);
+      - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          branch: gh-pages
+          folder: ${{ runner.temp }}/empty-preview
+          target-folder: pr/${{ github.event.pull_request.number }}
+          clean: true
+          force: false
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: await github.rest.repos.requestPagesBuild(context.repo);

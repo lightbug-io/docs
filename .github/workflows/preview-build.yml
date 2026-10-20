@@ -1,6 +1,7 @@
 name: Preview build
 on:
   pull_request:
+    branches: [main]
     types: [opened, synchronize, reopened]
 permissions:
   contents: read
@@ -21,20 +22,19 @@ jobs:
         with:
           node-version: '22'
           # Deliberately no shared cache.
-      - run: python3 -m unittest discover -s .github/preview -p 'test_*.py'
+      - run: node --test .github/preview/check.test.cjs
       - run: npm ci
+      - run: npm test -- --runInBand
       - name: Build static preview
         env:
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_SHA: ${{ github.event.pull_request.head.sha }}
-          PREVIEW_PREFIX: ${{ vars.PREVIEW_PATH_PREFIX || '/docs' }}
           DEPLOYMENT_NAME: Preview
         run: |
-          export PREVIEW_BASE="${PREVIEW_PREFIX%/}/pr/$PR_NUMBER/$PR_SHA/"
+          export PREVIEW_BASE="/docs/pr/$PR_NUMBER/"
           npm run build
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: preview-static
+          name: preview-static-${{ github.event.pull_request.head.sha }}-${{ github.run_attempt }}
           path: .vitepress/dist/
           if-no-files-found: error
           retention-days: 7

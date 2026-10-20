@@ -1,74 +1,51 @@
 # PR previews
 
-`Preview build` runs PR code on a disposable GitHub-hosted runner with a read-only
-contents token, no secrets and no shared cache. `Publish previews` executes only
-trusted default-branch code and parses bounded static ZIPs; it never executes PR
-code. Existing next/production S3 and CloudFront workflows are unchanged.
+PRs targeting `main` use `https://lightbug-io.github.io/docs/pr/<number>/`. No custom domain,
+AWS credentials or changes to the existing S3/CloudFront deployments are needed.
+The pinned [JamesIves action](https://github.com/JamesIves/github-pages-deploy-action/tree/fa24774553152dd7873cd16ebd8d959b010c5445)
+updates one PR folder on `gh-pages`; closing the PR cleans that folder.
 
-Publication is off until an administrator completes this setup:
+## One-time administrator setup
 
-- Review/merge these files, then enable GitHub Pages **GitHub Actions** publishing
-  for this repository. Use a dedicated preview hostname, preferably on a separate
-  registrable domain from production. Configure DNS/HTTPS separately; do not
-  redirect the live documentation hostname here.
-- Protect `github-pages` so only `main` may deploy. Review changes to these
-  workflows/scripts as security-sensitive. Keep fork workflow write tokens and
-  secrets disabled, do not expose privileged/self-hosted runners to PRs, and require GitHub's approval for untrusted fork workflow runs.
-  No PAT, cloud credentials or additional persistent access is needed.
-- Verify the repository's `GITHUB_TOKEN` can read collaborator permissions. A 403
-  fails closed; do not add a broader credential to bypass it.
-- Set `PREVIEW_PATH_PREFIX` to `/docs` for the default project Pages URL, or `/`
-  for a custom hostname.
-  Set `PREVIEWS_ENABLED=true` only after the above checks. Run **Publish previews**
-  on `main` to reconcile. This PR does not configure or enable any of these.
+Publication stays off until all of these are done:
 
-The VitePress base defaults to `/` outside previews. Preview URLs are
-`<Pages URL>/pr/<number>/<40-character-head-SHA>/`; the publisher summary lists
-paths. There is deliberately no mutable `pr/<number>/` alias. For a custom
-hostname set `PREVIEW_PATH_PREFIX` to `/`; the build normalizes the trailing slash.
-Rebuild open PRs after changing the prefix. Review hard-coded root-relative links
-in content when using a project Pages path; VitePress cannot rewrite arbitrary
-application strings.
+1. Review and merge the workflows. Create `gh-pages` with an empty `.nojekyll`
+   file at its root, then select **Settings → Pages → Deploy from a branch →
+   gh-pages / (root)**. Leave the custom-domain field empty.
+2. Create `preview-internal` and `preview-external` environments, allowing only
+   `main`. Require maintainer reviewers and prevent self-review on
+   `preview-external`; same-repository branches use `preview-internal` without
+   approval. Allow `gh-pages` in GitHub's `github-pages` environment for automatic
+   branch deployment/cleanup. Keep fork write tokens/secrets disabled and require
+   approval for untrusted fork workflow runs.
+3. Set repository variable `PREVIEWS_ENABLED=true`. Re-run a PR's **Preview build**
+   to publish it. For forks, approve the **Publish PR … at …** environment request
+   only after reviewing the displayed commit. No custom review comment or
+   approval script is involved.
 
-Automatic publication requires a same-repository PR and current repository
-write/maintain/admin permission for its author, original run actor and rerun
-actor. `CONTRIBUTOR` association is never sufficient. Forks and other untrusted
-PRs require a non-author maintainer with verified write access to submit an
-**Approve** review on the exact current commit, with only this body:
+The build checks out the exact PR commit with a read-only token, no secrets and
+no shared cache. The publisher runs only trusted default-branch code: it binds
+GitHub's run/artifact metadata to the current PR commit and rechecks after
+approval. The pinned download action extracts into a separate temporary folder;
+small checks reject filesystem links, hidden/control files and oversized output. PR files
+are never executed by the publisher. A Pages build is explicitly requested after
+branch updates because `GITHUB_TOKEN` pushes do not themselves trigger one.
 
-```
-Publish preview: <full current head SHA>
-```
+Each approved update replaces `/pr/<number>/`; the previous preview stays until
+then. Builds expire after seven days; rerun the build if approval takes longer.
+If publishing or cleanup fails, rerun that workflow. The shared publish queue
+retains up to 100 pending jobs. Removal is asynchronous, not instant revocation,
+and CDN/browser caches may retain content. All previews are public and share the
+`lightbug-io.github.io` origin with other project Pages sites. Do not use real
+credentials, customer data or trusted browser sessions there.
 
-Then run **Publish previews** on `main`, or wait for the hourly reconciliation.
-Approval applies only to that SHA, is rechecked on every publication, and is
-invalidated by a later changes-requested/dismissed review from that reviewer.
-An ordinary code approval does not authorize preview publication. If GitHub omits
-fork PR provenance from the build run, publication is refused; do not bypass it.
+## Checks
 
-Each reconciliation constructs a fresh site from successful, unexpired artifacts
-for open non-draft PRs. Closing/updating a PR or converting it to draft triggers
-metadata-only cleanup; hourly reconciliation also removes closed, stale,
-revoked and expired entries. Artifacts expire after seven days: rerun the build
-for a fresh preview. Limits: 20 previews, 50 MiB compressed/100 MiB expanded per
-preview, 20 MiB per file, 10,000 entries and 300 MiB total. API/validation failures
-attempt an inert replacement of the entire preview site, so one bad preview
-cannot intentionally preserve other stale previews.
+- `node --test .github/preview/check.test.cjs`
+- `npm test -- --runInBand`
+- `DEPLOYMENT_NAME=Preview PREVIEW_BASE=/docs/pr/13/ npm run build`
+- Run `actionlint` on both preview workflows. Older versions do not recognize
+  GitHub's documented [`queue: max`](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency#example-queueing-multiple-pending-runs).
 
-Pages deployment is not transactional with GitHub PR state. Publications are
-serialized, validate immediately before and after deployment, and attempt an
-immediate empty-site replacement if checks fail. A change during deployment can
-briefly leave an old immutable URL accessible; outages, job cancellation/timeouts,
-GitHub scheduling delays and browser/CDN caches can prolong removal. If that
-residual exposure is unacceptable, leave previews disabled. This is public
-content, not an access-controlled review system.
-
-All PR directories share an origin: preview HTML/JavaScript is hostile even after
-archive validation. Never use real login sessions, API tokens, customer data or
-production cookies on this site. A dedicated hostname does not isolate PRs from
-one another, including service workers. Do not use preview browser state as trust.
-
-Run boundary tests with
-`python3 -m unittest discover -s .github/preview -p 'test_*.py'`.
-See GitHub's [secure workflow guidance](https://docs.github.com/en/actions/reference/security/secure-use)
-and [Pages workflow setup](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+VitePress defaults to `/` for normal builds. Hard-coded root-relative content
+links may need updating separately for the project Pages path.
