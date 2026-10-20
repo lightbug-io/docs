@@ -1,0 +1,124 @@
+name: Publish previews
+on:
+  workflow_run:
+    workflows: [Preview build]
+    types: [completed]
+  pull_request_target:
+    branches: [main]
+    types: [closed]
+permissions: {}
+jobs:
+  resolve:
+    if: vars.PREVIEWS_ENABLED == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: read
+    outputs:
+      pr: ${{ steps.check.outputs.pr }}
+      sha: ${{ steps.check.outputs.sha }}
+      artifact: ${{ steps.check.outputs.artifact }}
+      environment: ${{ steps.check.outputs.environment }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: .github/preview
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        id: check
+        with:
+          script: await require('./.github/preview/check.cjs').check({ github, context, core });
+  approval:
+    name: Approve PR ${{ needs.resolve.outputs.pr }} at ${{ needs.resolve.outputs.sha }}
+    needs: resolve
+    runs-on: ubuntu-24.04
+    # Required reviewers and prevent-self-review must be configured before enabling.
+    # Same-repository branches are automatic; forks require environment approval.
+    # Waiting for approval must not hold the shared publish/cleanup lock.
+    environment: ${{ needs.resolve.outputs.environment }}
+    permissions: {}
+    steps:
+      - run: echo 'Approval gate passed'
+  publish:
+    name: Publish PR ${{ needs.resolve.outputs.pr }} at ${{ needs.resolve.outputs.sha }}
+    needs: [resolve, approval]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    concurrency:
+      group: pages-preview-publisher
+      cancel-in-progress: false
+      queue: max
+    permissions:
+      contents: write
+      actions: read
+      pull-requests: read
+      pages: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          artifact-ids: ${{ needs.resolve.outputs.artifact }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/preview
+      - name: Validate files and recheck current commit after approval
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          PREVIEW_DIRECTORY: ${{ runner.temp }}/preview
+          EXPECTED: ${{ toJSON(needs.resolve.outputs) }}
+        with:
+          script: |
+            const { check, validate } = require('./.github/preview/check.cjs');
+            validate(process.env.PREVIEW_DIRECTORY);
+            await check({ github, context, core, expected: JSON.parse(process.env.EXPECTED) });
+      - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          branch: gh-pages
+          folder: ${{ runner.temp }}/preview
+          target-folder: pr/${{ needs.resolve.outputs.pr }}
+          clean: true
+          force: false
+      - name: Request Pages build
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            await github.rest.repos.requestPagesBuild(context.repo);
+            await core.summary.addLink('Preview', 'https://lightbug-io.github.io/docs/pr/${{ needs.resolve.outputs.pr }}/').write();
+  cleanup:
+    if: vars.PREVIEWS_ENABLED == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'pull_request_target'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    concurrency:
+      group: pages-preview-publisher
+      cancel-in-progress: false
+      queue: max
+    permissions:
+      contents: write
+      pull-requests: read
+      pages: write
+    steps:
+      # Trusted base only. No PR checkout, dependency installation or PR scripts.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            await require('./.github/preview/check.cjs').cleanup({ github, context });
+            require('node:fs').mkdirSync(`${process.env.RUNNER_TEMP}/empty-preview`);
+      - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
+        with:
+          branch: gh-pages
+          folder: ${{ runner.temp }}/empty-preview
+          target-folder: pr/${{ github.event.pull_request.number }}
+          clean: true
+          force: false
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: await github.rest.repos.requestPagesBuild(context.repo);

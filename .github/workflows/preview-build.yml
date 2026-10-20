@@ -1,0 +1,41 @@
+name: Preview build
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+permissions:
+  contents: read
+concurrency:
+  group: preview-build-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          submodules: recursive
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          # Deliberately no shared cache.
+      - run: node --test .github/preview/check.test.cjs
+      - run: npm ci
+      - run: npm test -- --runInBand
+      - name: Build static preview
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          DEPLOYMENT_NAME: Preview
+        run: |
+          export PREVIEW_BASE="/docs/pr/$PR_NUMBER/"
+          npm run build
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: preview-static-${{ github.event.pull_request.head.sha }}-${{ github.run_attempt }}
+          path: .vitepress/dist/
+          if-no-files-found: error
+          retention-days: 7
+          include-hidden-files: false

@@ -193,6 +193,8 @@ function reorder(
 
 // https://vitepress.dev/reference/site-config
 export default withMermaid(defineConfig({
+  // Preview builds use the GitHub Pages PR path; production keeps `/`.
+  base: process.env.PREVIEW_BASE || "/",
   title: "Lightbug Documentation",
   description: "home for everything Lightbug",
   lang: 'en-GB',
