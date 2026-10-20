@@ -83,3 +83,16 @@ test('cleanup accepts closed PRs but refuses a reopened PR', async () => {
   f.pr.state = 'closed';
   await cleanup(f.args);
 });
+
+test('rejects CNAME because the deploy action preserves it during cleanup', t => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'preview-cname-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(directory, 'index.html'), '<p>preview</p>');
+  fs.writeFileSync(path.join(directory, 'CNAME'), 'unexpected.example');
+  assert.throws(() => validate(directory), /Reserved Pages filename/);
+});
+test('publisher and cleanup use full checkouts for the deploy action worktree', () => {
+  const workflow = fs.readFileSync(path.join(__dirname, '../workflows/preview-publish.yml'), 'utf8');
+  const privilegedJobs = workflow.slice(workflow.indexOf('  publish:\n'));
+  assert.doesNotMatch(privilegedJobs, /sparse-checkout:|merge-multiple:/);
+});

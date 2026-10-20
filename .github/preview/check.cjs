@@ -47,6 +47,7 @@ function validate(directory) {
   let bytes = 0;
   function visit(parent) {
     for (const name of fs.readdirSync(parent)) {
+      assert(name !== 'CNAME', 'Reserved Pages filename');
       assert(!name.startsWith('.') && !/[\\:\x00-\x1f\x7f]/.test(name), 'Unsafe artifact filename');
       const file = path.join(parent, name);
       const stat = fs.lstatSync(file);
