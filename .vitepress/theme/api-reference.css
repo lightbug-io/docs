@@ -155,7 +155,6 @@
 }
 .api-reference-page .VPSidebarItem.is-active > .item {
   background: var(--vp-c-brand-soft);
-  border-left: 2px solid var(--vp-c-brand-1);
   border-radius: 4px;
 }
 .api-reference-page .VPSidebar .OASidebarItem-text {
@@ -199,4 +198,14 @@
 .dark .api-reference-page {
   --vp-c-brand-1: #f4a775;
   --vp-c-brand-2: #e58d54;
+}
+
+/* Examples precede optional execution in both DOM and visual order. */
+.api-reference-request { margin-bottom: 20px; }
+.api-reference .api-reference-request h2 {
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  font-size: 13px;
+  font-weight: 600;
 }

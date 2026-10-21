@@ -5,10 +5,15 @@ request generation, schema rendering, response status/content selectors, JSON
 views, copy buttons, authentication, and requests remain owned by
 `vitepress-openapi` (the existing lockfile resolves version 0.1.12).
 
-The wrapper uses the public `useOpenapi` parser to resolve responses, suppresses
-the original response slot, then mounts the native `OAResponses` component in
-the playground slot. Native code samples keep their original DOM and keyboard order after it. The
-native playground remains in an initially open, keyboard-operable disclosure.
+The wrapper uses the public `useOpenapi` parser to resolve responses and code
+samples, suppresses their original slots, and composes native `OACodeSamples`,
+`OAResponses`, then `OAPlayground` in the playground slot. This gives request
+example, documented response, then optional execution the same visual, DOM and
+keyboard order without CSS reordering. The playground is initially collapsed
+in a keyboard-operable disclosure; its native state and request generation
+remain mounted. Authorization, parameters, and request-body reference remain
+in the left column. The native response schema/example toggle stays together
+on the right rather than duplicating or replacing renderer controls.
 No responses, methods, navigation entries, or code samples are fabricated here.
 
 CSS is scoped to the `api-reference-page` page class and `api-reference` wrapper.
