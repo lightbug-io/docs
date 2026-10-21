@@ -5,11 +5,11 @@ pageClass: api-reference-page
 ---
 
 <script setup lang="ts">
-import { useRoute } from 'vitepress'
+import { useRoute, withBase } from 'vitepress'
 import { computed } from 'vue'
 import ApiReference from '../../.vitepress/theme/components/ApiReference.vue'
 import { loadSpec } from '../../swagger/load'
-const spec = loadSpec(2)
+const spec = loadSpec(2, withBase)
 const route = useRoute()
 const operationId = computed(() => route.data.params.operationId)
 </script>

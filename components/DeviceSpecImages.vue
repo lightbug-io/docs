@@ -3,7 +3,7 @@
     <img
       v-for="(img, idx) in specs.product.images"
       :key="img"
-      :src="img.startsWith('https://lightbug.io/') || img.startsWith('https://lightbug.cloud/') || img.startsWith('https://upload.r2.lb.chasm.cloud/') ? `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(img)}` : img"
+      :src="img.startsWith('https://lightbug.io/') || img.startsWith('https://lightbug.cloud/') || img.startsWith('https://upload.r2.lb.chasm.cloud/') ? `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(img)}` : withBase(img)"
       :alt="`Device image ${idx+1}`"
       class="device-image"
     />
@@ -11,6 +11,7 @@
 </template>
 
 <script setup>
+import { withBase } from 'vitepress'
 import { computed } from 'vue'
 import { useDeviceSpec } from '../composables/useDeviceSpec.js'
 

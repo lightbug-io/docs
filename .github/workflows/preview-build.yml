@@ -22,8 +22,8 @@ jobs:
         with:
           node-version: '22'
           # Deliberately no shared cache.
-      - run: node --test .github/preview/*.test.cjs
       - run: npm ci
+      - run: node --test .github/preview/*.test.cjs
       - run: npm test -- --runInBand
       - name: Build static preview
         env:
@@ -32,6 +32,7 @@ jobs:
         run: |
           export PREVIEW_BASE="/docs/pr/$PR_NUMBER/"
           npm run build
+          node .github/preview/check-base-paths.cjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: preview-static-${{ github.event.pull_request.head.sha }}-${{ github.run_attempt }}

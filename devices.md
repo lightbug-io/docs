@@ -2,6 +2,10 @@
 aside: true
 ---
 
+<script setup>
+import { withBase } from 'vitepress'
+</script>
+
 # Devices
 
 We make a range of GPS tracking devices for different applications, split into three main categories: Core, RTK, and Custom.
@@ -14,25 +18,25 @@ Our core products have been rigorously tested in the field since and iterated on
 
 <div class="device-gallery core-gallery">
   <div class="device-item">
-    <a href="/devices/zero/">
+    <a :href="withBase('/devices/zero/')">
       <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-ZE2.png" alt="Zero GPS Tracker" />
     </a>
     <p><strong>Zero</strong> - Our smallest GPS tracking device, and indeed one of the smallest in the world.</p>
   </div>
   <div class="device-item">
-    <a href="/devices/pro/">
+    <a :href="withBase('/devices/pro/')">
       <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-PR2.png" alt="Pro GPS Tracker" />
     </a>
     <p><strong>Pro</strong> - Our larger, industrial grade tracker.</p>
   </div>
   <div class="device-item">
-    <a href="/devices/vehicle/">
+    <a :href="withBase('/devices/vehicle/')">
       <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-VT3.png" alt="Vehicle GPS Tracker" />
     </a>
     <p><strong>Vehicle</strong> - Our wired tracker, designed for use where a power source is available.</p>
   </div>
   <div class="device-item">
-    <a href="/devices/enviro/">
+    <a :href="withBase('/devices/enviro/')">
       <img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/DlyOzj4.png" alt="Enviro GPS Tracker" />
     </a>
     <p><strong>Enviro</strong> - Like a pro, but with high accuracy built-in sensors for monitoring temperature, humidity and absolute pressure.</p>
@@ -45,13 +49,13 @@ Our RTK products are designed for high accuracy applications, down to the centim
 
 <div class="device-gallery rtk-gallery">
   <div class="device-item">
-    <a href="/devices/rtk/handheld">
+    <a :href="withBase('/devices/rtk/handheld')">
       <img src="https://upload.r2.lb.chasm.cloud/2025/10/imgur/5EtRBMH.png" alt="RTK GPS Tracker" />
     </a>
     <p><strong>RTK</strong> - Our high accuracy indoor and outdoor capable tracker.</p>
   </div>
   <div class="device-item">
-    <a href="/devices/rtk/vehicle">
+    <a :href="withBase('/devices/rtk/vehicle')">
       <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-VT3.png" alt="RTK Vehicle GPS Tracker" />
     </a>
     <p><strong>RTK</strong> - Our high accuracy indoor and outdoor capable tracker, with wired power.</p>

@@ -8,7 +8,7 @@
       <a
         v-for="device in devices"
         :key="device.id"
-        :href="device.link"
+        :href="device.link ? withBase(device.link) : undefined"
         class="device-chip"
       >
         {{ device.name }}
@@ -18,6 +18,7 @@
 </template>
 
 <script setup>
+import { withBase } from 'vitepress'
 import { computed } from 'vue';
 
 const props = defineProps({

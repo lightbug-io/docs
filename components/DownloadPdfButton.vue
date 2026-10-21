@@ -5,6 +5,7 @@
 </template>
 
 <script setup>
+import { withBase } from 'vitepress'
 import { htmlAnchorsToPlainText, parseHtmlForPdfLinks } from '../utils/PdfText'
 import { onMounted } from 'vue';
 let jsPDFLoaded = false;
@@ -151,7 +152,7 @@ async function cropImageToDataUrl(imgSrc, cropX, cropY, cropWidth, cropHeight) {
 }
 
 async function downloadPdf() {
-  await loadFontScript('/fonts/Raleway-VariableFont_wght-normal.js');
+  await loadFontScript(withBase('/fonts/Raleway-VariableFont_wght-normal.js'));
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   doc.setFont('Raleway-VariableFont_wgh');

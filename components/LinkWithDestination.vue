@@ -1,11 +1,12 @@
 <template>
-  <a :href="href" :class="['link-with-destination', isExternal ? 'external' : 'internal']">
+  <a :href="withBase(href)" :class="['link-with-destination', isExternal ? 'external' : 'internal']">
     <span class="link-label">{{ label }}</span>
     <span class="destination-chip" v-if="destinationType">{{ destinationType }}</span>
   </a>
 </template>
 
 <script setup>
+import { withBase } from 'vitepress'
 import { computed } from 'vue'
 
 const props = defineProps({
