@@ -1,7 +1,7 @@
 <template>
   <div class="download-btn-wrapper" @click="handleClick" :title="`Download ${props.label}`">
     <div class="download-card">
-      <img v-if="props.previewImage" :src="props.previewImage" alt="File preview" class="preview-image" />
+      <img v-if="props.previewImage" :src="withBase(props.previewImage)" alt="File preview" class="preview-image" />
       <div class="overlay">{{ displayOverlay }}</div>
     </div>
     <div class="label-under">{{ props.label }}</div>
@@ -9,6 +9,7 @@
 </template>
 
 <script setup>
+import { withBase } from 'vitepress'
 import { htmlAnchorsToPlainText, parseHtmlForPdfLinks } from '../utils/PdfText'
 import { computed } from 'vue'
 
@@ -165,7 +166,7 @@ async function handleClick() {
     return;
   }
 
-  await loadFontScript('/fonts/Raleway-VariableFont_wght-normal.js');
+  await loadFontScript(withBase('/fonts/Raleway-VariableFont_wght-normal.js'));
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   doc.setFont('Raleway-VariableFont_wgh');

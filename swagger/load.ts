@@ -21,14 +21,15 @@ var apiKeyDescription = "API Key for authentication. Retrieval from either API v
 // var apiKeyExample = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTY3Mjc2NjAyOCwiZXhwIjoxNjc0NDk0MDI4fQ.kCak9sLJr74frSRVQp0_27BY4iBCgQSmoT3vQVWKzJg"
 var apiKeyExample = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 
-export function loadSpec(version: number): any {
+export function loadSpec(version: number, resolveLink = (url: string) => url): any {
+    const authenticationDescription = apiKeyDescription.replace('/apis/authentication', resolveLink('/apis/authentication'))
     if (version === 1) {
         (spec1.components as any).securitySchemes = {
             ApiKeyAuth: {
                 in: 'header',
                 name: 'Authorization',
                 type: 'apiKey',
-                description: apiKeyDescription,
+                description: authenticationDescription,
                 example: apiKeyExample
             }
         }
@@ -158,7 +159,7 @@ export function loadSpec(version: number): any {
         }
         // Add description to ApiKeyAuth if it exists
         if (spec2.components && spec2.components.securitySchemes && spec2.components.securitySchemes.ApiKeyAuth) {
-            spec2.components.securitySchemes.ApiKeyAuth.description = apiKeyDescription
+            spec2.components.securitySchemes.ApiKeyAuth.description = authenticationDescription
             spec2.components.securitySchemes.ApiKeyAuth.example = apiKeyExample
         }
         return spec2

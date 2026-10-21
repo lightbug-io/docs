@@ -4,8 +4,9 @@
 import DefaultTheme from 'vitepress/theme'
 import { inBrowser, useData, useRouter } from 'vitepress'
 import { watch } from 'vue'
+import { resolveLegacyRedirect } from '../../utils/LegacyRedirect'
 
-const { page } = useData()
+const { page, site } = useData()
 const { go } = useRouter()
 
 const redirects = Object.entries({
@@ -26,30 +27,14 @@ watch(
   (isNotFound) => {
     if (!isNotFound || !inBrowser) return
 
-    console.log('[Layout 404] Checking redirects for:', window.location.pathname)
-    const redirect = redirects.find(([from]) => window.location.pathname.startsWith(from))
-
-    if (!redirect) {
-      console.log('[Layout 404] No redirect found for:', window.location.pathname)
-      return
-    }
-
-    const newPath = redirect[1] + window.location.pathname.slice(redirect[0].length)
-    const search = window.location.search
-    const hash = window.location.hash
-    const fullNewUrl = newPath + search + hash
-
-    console.log('[Layout 404] Redirect found:', {
-      from: redirect[0],
-      to: redirect[1],
-      originalPath: window.location.pathname,
-      newPath,
-      search,
-      hash,
-      fullNewUrl
-    })
-
-    go(fullNewUrl)
+    const destination = resolveLegacyRedirect(
+      window.location.pathname,
+      window.location.search,
+      window.location.hash,
+      site.value.base,
+      redirects,
+    )
+    if (destination) go(destination)
   },
   { immediate: true }
 )

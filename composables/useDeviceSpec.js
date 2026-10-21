@@ -1,5 +1,6 @@
 import { ref, watchEffect } from 'vue'
 import yaml from 'js-yaml'
+import { withBase } from 'vitepress'
 
 // An allowed list of keys to use from the YAML for now.. (and order)
 const sectionKeys = ['physical','integrations','user interface','connectivity','positioning','sensors','battery','charging','components']
@@ -29,7 +30,7 @@ function linkTerms(text, termLinkMap = {}) {
   const keys = Object.keys(map).sort((a, b) => b.length - a.length)
   let out = text
   for (const key of keys) {
-    const url = map[key]
+    const url = withBase(map[key])
     const re = new RegExp('\\b' + key.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&') + '\\b', 'gi')
     out = out.replace(re, match => `<a href="${url}" class="term-link">${match}</a>`)
   }
@@ -218,7 +219,7 @@ export function useDeviceSpec(specOrYaml, options = {}) {
     const images = (specs.value?.product?.images || []).map(img =>
       img.startsWith('https://lightbug.io/') || img.startsWith('https://lightbug.cloud/') || img.startsWith('https://upload.r2.lb.chasm.cloud/')
         ? `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(img)}`
-        : img
+        : withBase(img)
     )
     return {
       title: deviceTitle.value,

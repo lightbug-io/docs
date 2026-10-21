@@ -305,6 +305,7 @@
 </template>
 
 <script lang="ts">
+import { withBase } from 'vitepress';
 import { defineComponent, ref, computed, PropType } from 'vue';
 import { readTypedData } from '../../src/protocol/base.gen';
 import crc16 from 'crc/crc16xmodem';
@@ -1003,7 +1004,7 @@ export default defineComponent({
 
         const navigateToGenerate = (event: MouseEvent) => {
             const url = new URL(window.location.href);
-            url.pathname = '/devices/api/tools/generate';
+            url.pathname = withBase('/devices/api/tools/generate');
             url.searchParams.set('bytes', props.byteString);
             if (event.ctrlKey || event.metaKey) {
                 window.open(url.toString(), '_blank');

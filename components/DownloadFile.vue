@@ -1,7 +1,7 @@
 <template>
   <div class="download-btn-wrapper" @click="openBooklet" :title="`Download ${props.label}`">
     <div class="download-card">
-      <img v-if="props.previewImage" :src="props.previewImage" alt="File preview" class="preview-image" />
+      <img v-if="props.previewImage" :src="withBase(props.previewImage)" alt="File preview" class="preview-image" />
       <div class="overlay">{{ displayOverlay }}</div>
     </div>
     <div class="label-under">{{ props.label }}</div>
@@ -9,6 +9,7 @@
 </template>
 
 <script setup>
+import { withBase } from 'vitepress'
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -43,7 +44,7 @@ const displayOverlay = computed(() => {
 });
 
 function openBooklet() {
-  let finalUrl = props.url
+  let finalUrl = withBase(props.url)
   window.open(finalUrl, '_blank')
 }
 </script>
