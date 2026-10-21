@@ -21,7 +21,8 @@ async function announce({ github, context, core, expected, sleep = setTimeout })
   for (let attempt = 0; attempt < 48; attempt++) {
     const runs = (await pagesRuns()).filter(run => !previousRuns.has(run.id));
     const deployment = runs.sort((a, b) => b.id - a.id)[0];
-    if (deployment?.status === 'completed') {
+    // GitHub may cancel a redundant automatic Pages run when the request queues another.
+    if (deployment?.status === 'completed' && deployment.conclusion !== 'cancelled') {
       assert(deployment.conclusion === 'success', 'Pages deployment failed; no preview announced');
       published = true;
       break;

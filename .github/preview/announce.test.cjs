@@ -41,9 +41,10 @@ test('publishes one linked comment only after matching Pages build completes', a
   const f = fixture();
   f.builds.unshift({ head_sha: 'c'.repeat(40), status: 'completed' },
     { id: 1, head_sha: f.pagesSha, path: 'dynamic/pages/pages-build-deployment', status: 'completed', conclusion: 'failure' },
+    { id: 9, head_sha: f.pagesSha, path: 'dynamic/pages/pages-build-deployment', status: 'completed', conclusion: 'cancelled' },
     { id: 10, head_sha: f.pagesSha, path: 'dynamic/pages/pages-build-deployment', status: 'in_progress' });
   await announce(f.args);
-  assert.equal(f.calls.filter(c => c === 'sleep').length, 3);
+  assert.equal(f.calls.filter(c => c === 'sleep').length, 4);
   const comment = f.calls.find(c => c.create).create;
   assert.equal(comment.issue_number, 14);
   assert.match(comment.body, /\[Open preview\]\(https:\/\/lightbug-io.github.io\/docs\/pr\/14\/\)/);
@@ -66,7 +67,7 @@ for (const [name, change, error] of [
   ['Pages timeout', f => f.builds[0].status = 'in_progress', /eight minutes/],
   ['unrelated successful Pages commit', f => f.builds[0].head_sha = 'c'.repeat(40), /eight minutes/],
   ['unrelated workflow', f => f.builds[0].path = '.github/workflows/other.yml', /eight minutes/],
-  ['cancelled deployment', f => f.builds[0].conclusion = 'cancelled', /Pages deployment failed/],
+  ['cancelled deployment', f => f.builds[0].conclusion = 'cancelled', /eight minutes/],
   ['superseded PR head', f => f.pr.head.sha = 'd'.repeat(40), /exact build commit/],
   ['closed PR', f => f.pr.state = 'closed', /exact build commit/],
 ]) test(`${name} does not announce success or touch a comment`, async () => {
