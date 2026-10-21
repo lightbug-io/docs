@@ -2990,36 +2990,39 @@ messages:
     id: _msgBox
     description: |
       Read or subscribe to the device's cached down-synced message box on supported firmware.
-      Version 1 is the legacy response layout: additive payload checksum (sum modulo 65536) in
-      field 1 and payload chunks in fields 10..14 (up to 255 bytes each). Its wire layout is
-      unchanged and the response omits Message Version. Version 2 is selected with the one-byte
-      Message Version (22) header value 2; responses include that header, CRC-16/XMODEM in field 2,
-      and the complete payload in extended field 129. Field 1 is absent from version 2 responses.
-      GET uses version 1 when Message Version resolves to 0 (omitted, explicitly zero, or malformed
-      width) or is set to 1, regardless of subscription selection. Value 2 selects version 2;
-      decoded values above 2 return Invalid Parameter (4).
-      The latest valid SUBSCRIBE selects the shared format for all MsgBox publications. A Message
-      Version resolving to 0 (omitted, explicitly zero, or malformed width), or set to 1, selects
-      version 1; value 2 selects version 2. Decoded values above 2 return Invalid Parameter (4)
-      without changing the selection or subscription. UNSUBSCRIBE and expiry do not reset the
-      selection. Version 1 updates use the legacy chunks; version 2 updates include Message Version
-      2, field 2, and field 129. Empty payload data is omitted.
-      SET requires Message Version 2 and field 129 (maximum 1024 bytes); an explicit zero-length
-      field 129 clears the cache. A missing or malformed-width Message Version, or any value other
-      than 2, returns Invalid Parameter (4). Missing field 129 returns Missing Parameter (2);
-      payloads over 1024 bytes also return Invalid Parameter (4). Field 2 is optional and ignored in SET.
-      The device calculates and stores CRC-16/XMODEM of the payload (polynomial 0x1021, initial
-      value 0x0000, no input or
-      output reflection, final XOR 0x0000). Field 1, if present, is also ignored in SET. The outer
-      message-frame CRC protects the SET request itself. Changed content is applied even if its CRC
-      matches the previous CRC. Every accepted SET updates the cache, is written to persistent
-      storage when enabled, and is published to current subscribers, including for identical bytes.
-      SET does not change the selected subscription format. The 16-bit CRC can collide for different
-      payloads. Tracking-session messages always use Message Version 2. When Message Box support is
-      enabled, they report the cached-message CRC in field 2, including zero for an empty cache. In
-      that context, field 129 may contain independent Transmit Now upload data and does not form
-      part of the cached-message CRC.
       Unsupported products return Not Supported (response code 7).
+
+      GET
+      • GET uses version 1 when Message Version resolves to 0 (omitted, explicitly zero, or malformed width) or is set to 1, regardless of subscription selection.
+      • Value 2 selects version 2; decoded values above 2 return Invalid Parameter (4).
+
+      SET
+      • SET requires Message Version 2 and field 129 (maximum 1024 bytes); an explicit zero-length field 129 clears the cache.
+      • A missing or malformed-width Message Version, or any value other than 2, returns Invalid Parameter (4).
+      • Missing field 129 returns Missing Parameter (2); payloads over 1024 bytes also return Invalid Parameter (4).
+      • Field 2 is optional and ignored in SET. Field 1, if present, is also ignored in SET.
+      • Every accepted SET updates the cache, is written to persistent storage when enabled, and is published to current subscribers, including for identical bytes.
+      • SET does not change the selected subscription format.
+
+      SUBSCRIBE / UNSUBSCRIBE
+      • The latest valid SUBSCRIBE selects the shared format for all MsgBox publications.
+      • A Message Version resolving to 0 (omitted, explicitly zero, or malformed width), or set to 1, selects version 1; value 2 selects version 2.
+      • Decoded values above 2 return Invalid Parameter (4) without changing the selection or subscription.
+      • UNSUBSCRIBE and expiry do not reset the selection.
+      • Version 1 updates use the legacy chunks; version 2 updates include Message Version 2, field 2, and field 129. Empty payload data is omitted.
+
+      RESPONSE FORMATS
+      • Version 1 is the legacy response layout: additive payload checksum (sum modulo 65536) in field 1 and payload chunks in fields 10..14 (up to 255 bytes each). Its wire layout is unchanged and the response omits Message Version.
+      • Version 2 is selected with the one-byte Message Version (22) header value 2; responses include that header, CRC-16/XMODEM in field 2, and the complete payload in extended field 129. Field 1 is absent from version 2 responses.
+
+      CHECKSUMS
+      • The device calculates and stores CRC-16/XMODEM of the payload (polynomial 0x1021, initial value 0x0000, no input or output reflection, final XOR 0x0000).
+      • The outer message-frame CRC protects the SET request itself.
+      • Changed content is applied even if its CRC matches the previous CRC. The 16-bit CRC can collide for different payloads.
+
+      TRACKING-SESSION MESSAGES
+      • Tracking-session messages always use Message Version 2. When Message Box support is enabled, they report the cached-message CRC in field 2, including zero for an empty cache.
+      • In that context, field 129 may contain independent Transmit Now upload data and does not form part of the cached-message CRC.
     group: info
     header:
       - 5
