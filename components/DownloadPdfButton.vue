@@ -5,6 +5,7 @@
 </template>
 
 <script setup>
+import { htmlAnchorsToPlainText, parseHtmlForPdfLinks } from '../utils/PdfText'
 import { onMounted } from 'vue';
 let jsPDFLoaded = false;
 
@@ -66,55 +67,6 @@ onMounted(async () => {
 });
 
 /**
- * Parse HTML text and extract links for PDF rendering with clickable links.
- * @param {string} html - HTML string that may contain anchor tags
- * @returns {Array} Array of text segments with link information
- */
-function parseHtmlForPdfLinks(html) {
-  if (!html || typeof html !== 'string') return [{ text: html || '', isLink: false }];
-
-  const segments = [];
-  const anchorRe = /<a\s+[^>]*href=(?:"|')([^"']*)(?:"|')[^>]*>(.*?)<\/a>/gi;
-  let lastIndex = 0;
-  let match;
-
-  while ((match = anchorRe.exec(html)) !== null) {
-    // Add text before the link
-    if (match.index > lastIndex) {
-      const beforeText = html.substring(lastIndex, match.index);
-      const cleanBefore = beforeText.replace(/<[^>]+>/g, '');
-      if (cleanBefore) {
-        segments.push({ text: cleanBefore, isLink: false });
-      }
-    }
-
-    // Add the link
-    const href = match[1];
-    const linkText = match[2].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-    segments.push({ text: linkText, isLink: true, url: href });
-
-    lastIndex = anchorRe.lastIndex;
-  }
-
-  // Add remaining text after last link
-  if (lastIndex < html.length) {
-    const remainingText = html.substring(lastIndex);
-    const cleanRemaining = remainingText.replace(/<[^>]+>/g, '');
-    if (cleanRemaining) {
-      segments.push({ text: cleanRemaining, isLink: false });
-    }
-  }
-
-  // If no links found, return the cleaned HTML
-  if (segments.length === 0) {
-    const cleanText = html.replace(/<[^>]+>/g, '');
-    return [{ text: cleanText, isLink: false }];
-  }
-
-  return segments;
-}
-
-/**
  * Render text with clickable links in PDF
  * @param {object} doc - jsPDF document
  * @param {Array} segments - Array of text segments from parseHtmlForPdfLinks
@@ -169,28 +121,6 @@ function renderTextWithLinks(doc, segments, x, y, maxWidth) {
   }
 
   return usedHeight;
-}
-
-/**
- * Convert HTML anchor tags to plain text "label (href)" and strip other HTML tags.
- * @param {string} html - HTML string that may contain anchor tags
- * @returns {string} Plain text with links converted to "text (href)" format
- */
-function htmlAnchorsToPlainText(html) {
-  if (!html || typeof html !== 'string') return html;
-
-  // Replace anchor tags with 'text (href)'
-  const anchorRe = /<a\s+[^>]*href=(?:"|')([^"']*)(?:"|')[^>]*>(.*?)<\/a>/gi;
-  let out = html.replace(anchorRe, (match, href, text) => {
-    // Clean up the text content and decode basic HTML entities
-    const cleanText = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-    return `${cleanText} (${href})`;
-  });
-
-  // Strip any remaining HTML tags
-  out = out.replace(/<[^>]+>/g, '');
-
-  return out;
 }
 
 /**
@@ -448,8 +378,8 @@ async function downloadPdf() {
         for (const row of subsection.rows) {
           const attrLines = doc.splitTextToSize(`${row.label}:`, 50 - 2 * cellPadding);
 
-          // Convert HTML links and preserve line breaks, then parse for links
-          const valRaw = String(row.value).replace(/<br\s*\/?\s*>/gi, '\n');
+          // Convert the row value to PDF text and clickable links
+          const valRaw = String(row.value);
           const valSegments = parseHtmlForPdfLinks(valRaw);
 
           // For layout estimation, use plain text

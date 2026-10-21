@@ -9,6 +9,7 @@
 </template>
 
 <script setup>
+import { htmlAnchorsToPlainText, parseHtmlForPdfLinks } from '../utils/PdfText'
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -90,47 +91,6 @@ function loadFontScript(src) {
   });
 }
 
-
-function parseHtmlForPdfLinks(html) {
-  if (!html || typeof html !== 'string') return [{ text: html || '', isLink: false }];
-
-  const segments = [];
-  const anchorRe = /<a\s+[^>]*href=(?:"|')([^"']*)(?:"|')[^>]*>(.*?)<\/a>/gi;
-  let lastIndex = 0;
-  let match;
-
-  while ((match = anchorRe.exec(html)) !== null) {
-    if (match.index > lastIndex) {
-      const beforeText = html.substring(lastIndex, match.index);
-      const cleanBefore = beforeText.replace(/<[^>]+>/g, '');
-      if (cleanBefore) {
-        segments.push({ text: cleanBefore, isLink: false });
-      }
-    }
-
-    const href = match[1];
-    const linkText = match[2].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-    segments.push({ text: linkText, isLink: true, url: href });
-
-    lastIndex = anchorRe.lastIndex;
-  }
-
-  if (lastIndex < html.length) {
-    const remainingText = html.substring(lastIndex);
-    const cleanRemaining = remainingText.replace(/<[^>]+>/g, '');
-    if (cleanRemaining) {
-      segments.push({ text: cleanRemaining, isLink: false });
-    }
-  }
-
-  if (segments.length === 0) {
-    const cleanText = html.replace(/<[^>]+>/g, '');
-    return [{ text: cleanText, isLink: false }];
-  }
-
-  return segments;
-}
-
 function renderTextWithLinks(doc, segments, x, y, maxWidth) {
   let currentX = x;
   let currentY = y;
@@ -172,20 +132,6 @@ function renderTextWithLinks(doc, segments, x, y, maxWidth) {
   }
 
   return usedHeight;
-}
-
-function htmlAnchorsToPlainText(html) {
-  if (!html || typeof html !== 'string') return html;
-
-  const anchorRe = /<a\s+[^>]*href=(?:"|')([^"']*)(?:"|')[^>]*>(.*?)<\/a>/gi;
-  let out = html.replace(anchorRe, (match, href, text) => {
-    const cleanText = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
-    return `${cleanText} (${href})`;
-  });
-
-  out = out.replace(/<[^>]+>/g, '');
-
-  return out;
 }
 
 async function cropImageToDataUrl(imgSrc, cropX, cropY, cropWidth, cropHeight) {
@@ -424,7 +370,7 @@ async function handleClick() {
         for (const row of subsection.rows) {
           const attrLines = doc.splitTextToSize(`${row.label}:`, 50 - 2 * cellPadding);
 
-          const valRaw = String(row.value).replace(/<br\s*\/?\s*>/gi, '\n');
+          const valRaw = String(row.value);
           const valSegments = parseHtmlForPdfLinks(valRaw);
 
           const cleanVal = htmlAnchorsToPlainText(valRaw);
