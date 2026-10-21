@@ -193,6 +193,13 @@ export const v1ReTag = {
 };
 
 export const v1Removed = [
+    // These bulk DELETE operations are not registered by the Gingin V1 proxy.
+    // Individual point, reading, trigger and geofence DELETE routes remain supported.
+    // Verified against gingin 71533c8b4a8fc4470fe69fb2a777560f2a7c0c75,
+    // internal/api/router/router.go (addLoopbackProxyRoutes and NoRoute).
+    'delete-devices-id-messages',
+    'delete-devices-id-notificationTriggers',
+    'delete-users-id-geofences',
     'delete-devices-id-gatewayReadings-fk',
     'delete-devices-id-transients-fk',
     'put-devices-id-transients-fk',
