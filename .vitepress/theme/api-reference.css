@@ -187,12 +187,13 @@
 .api-reference .OAPathContentStart div:has(> div > h2) {
   margin-top: 20px;
 }
+/* Vuetify also defines .bg-primary with !important globally. Scope this override. */
 .api-reference .bg-primary {
-  background-color: var(--vp-c-brand-3);
-  color: #fff;
+  background-color: var(--vp-c-brand-3) !important;
+  color: #fff !important;
 }
 .api-reference .bg-primary:hover {
-  background-color: #a94e20;
+  background-color: #a94e20 !important;
 }
 
 .dark .api-reference-page {
