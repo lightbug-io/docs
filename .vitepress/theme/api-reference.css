@@ -1,0 +1,211 @@
+/* API reference only. Keep renderer controls and generated navigation intact. */
+.api-reference-page {
+  --vp-c-brand-1: #a94e20;
+  --vp-c-brand-2: #c86b31;
+  --vp-c-brand-3: #b35824;
+  --vp-c-brand-soft: rgba(200, 107, 49, .08);
+}
+.api-reference-page .VPDoc {
+  padding: 32px 30px 64px;
+}
+.api-reference-page .VPDoc .content {
+  padding: 0;
+}
+.api-reference-page .VPDoc .content-container {
+  max-width: 1180px !important;
+  margin: 0 auto;
+}
+.api-reference {
+  --vp-c-text-1: #283746;
+  --vp-c-text-2: #536170;
+  font-size: 14px;
+  line-height: 1.85;
+}
+.api-reference .OAPath > .relative.grid {
+  grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr);
+  column-gap: 32px;
+}
+.api-reference .OAPathContentStart,
+.api-reference .OAPathContentEnd {
+  min-width: 0;
+  padding: 0;
+}
+.api-reference .OAPathContentEnd {
+  position: static;
+  gap: 20px;
+}
+.api-reference h1 {
+  font-size: 30px;
+  line-height: 1.25;
+  letter-spacing: -.04em;
+  margin-bottom: 8px;
+}
+.api-reference h2 {
+  font-size: 18px;
+  letter-spacing: -.015em;
+  margin-top: 28px;
+  padding-top: 20px;
+}
+.api-reference p {
+  color: var(--vp-c-text-2);
+  line-height: 1.85;
+}
+.api-reference .OAPathContentEnd > :last-child h2 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--vp-c-text-2);
+  border: 0;
+  margin: 0 0 12px;
+  padding: 0;
+}
+.api-reference .vp-code-group {
+  margin: 0;
+  border: 1px solid #2d3b4f;
+  border-radius: 9px;
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(28, 43, 61, .07);
+  --vp-code-block-bg: #202c3d;
+  --vp-code-tab-bg: #283548;
+  --vp-code-tab-text-color: #aab7c8;
+  --vp-code-tab-active-text-color: #edf3fa;
+  --vp-code-tab-hover-text-color: #fff;
+  --vp-code-tab-divider: #3b4758;
+}
+.api-reference .vp-code-group pre {
+  line-height: 1.8;
+  font-size: 12px;
+}
+.api-reference .vp-code-group .shiki,
+.api-reference .vp-code-group .shiki span {
+  color: var(--shiki-dark, #e0e8f1) !important;
+  background: transparent !important;
+}
+.api-reference-responses {
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 9px;
+  padding: 0 16px 16px;
+  background: #f6f9fc;
+  overflow-wrap: anywhere;
+}
+.api-reference-responses > div > div > div:first-child {
+  margin-top: 0;
+  padding-top: 16px;
+  border-top: 0;
+}
+.api-reference-responses pre {
+  max-height: 540px;
+  overflow: auto;
+}
+.api-reference-playground {
+  margin-top: 24px;
+  border-top: 1px solid var(--vp-c-divider);
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+.api-reference-playground > summary {
+  cursor: pointer;
+  padding: 20px 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.api-reference-playground > div {
+  padding: 16px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  background: var(--vp-c-bg-soft);
+  margin-bottom: 20px;
+}
+.api-reference :is(button, input, select, textarea, summary):focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: 3px;
+}
+.dark .api-reference {
+  --vp-c-text-1: #e3e9f0;
+  --vp-c-text-2: #aebac8;
+}
+.dark .api-reference-responses {
+  background: #202832;
+}
+@media (max-width: 1100px) {
+  .api-reference .OAPath > .relative.grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 28px;
+  }
+}
+@media (max-width: 639px) {
+  .api-reference-page .VPDoc {
+    padding: 24px 20px 48px;
+  }
+  .api-reference h1 {
+    font-size: 27px;
+  }
+  .api-reference .vp-code-group {
+    margin: 0;
+  }
+}
+@media (min-width: 960px) {
+  .api-reference-page {
+    --vp-sidebar-width: 248px;
+  }
+}
+.api-reference-page .VPSidebar {
+  background: var(--vp-c-bg-alt);
+  border-right: 1px solid var(--vp-c-divider);
+}
+.api-reference-page .VPSidebarItem.is-active > .item {
+  background: var(--vp-c-brand-soft);
+  border-radius: 4px;
+}
+.api-reference-page .VPSidebar .OASidebarItem-text {
+  font-size: 12px;
+  line-height: 1.45;
+}
+/* Match the renderer's endpoint visibility to this layout's wider breakpoint. */
+@media (min-width: 640px) and (max-width: 1100px) {
+  .api-reference .OAPathContentStart > div:first-child > div:first-child {
+    display: block;
+  }
+  .api-reference .OAPathContentEnd > div:first-child {
+    display: none;
+  }
+}
+/* Flatten reference details without removing examples or editable controls. */
+.api-reference h3 {
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: -.01em;
+  margin: 24px 0 12px;
+}
+.api-reference .OAPathContentStart .p-3.gap-2.rounded.bg-muted {
+  padding: 14px 0;
+  border-radius: 0;
+  border-top: 1px solid var(--vp-c-divider);
+  background: transparent;
+}
+.api-reference .OAPathContentStart div:has(> div > h2) {
+  margin-top: 20px;
+}
+/* Vuetify also defines .bg-primary with !important globally. Scope this override. */
+.api-reference .bg-primary {
+  background-color: var(--vp-c-brand-3) !important;
+  color: #fff !important;
+}
+.api-reference .bg-primary:hover {
+  background-color: #a94e20 !important;
+}
+
+.dark .api-reference-page {
+  --vp-c-brand-1: #f4a775;
+  --vp-c-brand-2: #e58d54;
+}
+
+/* Examples precede optional execution in both DOM and visual order. */
+.api-reference-request { margin-bottom: 20px; }
+.api-reference .api-reference-request h2 {
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+  font-size: 13px;
+  font-weight: 600;
+}

@@ -212,9 +212,22 @@ export default withMermaid(defineConfig({
       ]
     },
     ssr: {
-      noExternal: ["vuetify"]
+      noExternal: ["vuetify", "vitepress-openapi"]
     },
     plugins: [
+      // Prototype adapter: 0.1.12 registers other controls publicly, but not
+      // its native samples component. Export it from the same module so
+      // operation state/injection keys are shared, without copying controls.
+      {
+        name: 'prototype-native-code-samples-export',
+        enforce: 'pre',
+        transform(code, id) {
+          if (!id.split('?')[0].endsWith('/vitepress-openapi/dist/vitepress-openapi.client.es.js')) return
+          const match = code.match(/([\w$]+) = \/\* @__PURE__ \*\/ \w+\(\{\s*__name: "OACodeSamples"/)
+          if (!match) throw new Error('Native samples adapter needs review for this renderer version')
+          return { code: code + `\nexport { ${match[1]} as OACodeSamples };\n`, map: null }
+        },
+      },
       pagefindPlugin(),
     ],
   },

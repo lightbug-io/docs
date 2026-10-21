@@ -16,6 +16,7 @@ import { createVCodeBlock } from '@wdns/vue-code-block';
 import 'vitepress-openapi/dist/style.css'
 
 import './custom.css'
+import './api-reference.css'
 
 // Import all components globally
 const componentModules = import.meta.glob('../../components/**/*.vue', { eager: true })
