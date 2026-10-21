@@ -132,7 +132,7 @@ header:
       99:
         name: Unknown Message
         id: unknownMessage
-        description: The firmware receiving the request does not recognize its message type.
+        description: The receiver does not recognize the requested message type
     parsers:
       - id: statusName
         parser: values
@@ -210,10 +210,12 @@ header:
     name: Forwarded For
     id: forwardedFor
     description: |
-      Link ID of the client that sent the original message being forwarded.
+      Client or local link ID of the sender being forwarded. Repeat this header for each hop, in origin-to-cloud order.
+      Relays append their local sender hop; replies reverse the complete chain into Forward To.
+      Values use length-sized little-endian unsigned integers, as Client ID does; small local IDs remain one byte.
       Current standardized link IDs are shared with Forward To and command logging: 0 = Chasm, 1 = ESP32, 2 = Link2, 3 = P1, 5 = UART link, 7 = USB host.
       Forward For Type may add context for non-link forwarding cases such as LoRa, but link forwarding should use these IDs directly.
-    type: uint8
+    type: uint
     alpha: Forwarding is currently a new feature, and may not be perfectly documented
     values:
       0:
@@ -252,10 +254,12 @@ header:
     name: Forward To
     id: forwardTo
     description: |
-      Link ID of the client to forward the message to.
+      Client or local link ID of the next destination. Repeat this header in delivery order.
+      Each relay consumes only its next hop; [1, 700004] routes through ESP32 to client 700004.
+      Values use length-sized little-endian unsigned integers, as Client ID does; small local IDs remain one byte.
       Current standardized link IDs are shared with Forwarded For and command logging: 0 = Chasm, 1 = ESP32, 2 = Link2, 3 = P1, 5 = UART link, 7 = USB host.
       Forwarding To Type may add context for non-link forwarding cases such as LoRa, but link forwarding should use these IDs directly.
-    type: uint8
+    type: uint
     alpha: Forwarding is currently a new feature, and may not be perfectly documented
     values:
       0:
@@ -355,10 +359,10 @@ header:
   22:
     name: Message Version
     id: msgVersion
-    type: uint8
     description: |
       Selects a breaking message-format version for the message being requested or subscribed to.
       Supported values and the effect of omitting this header are defined by each message.
+    type: uint8
   50:
     name: App Name
     id: app
@@ -2555,6 +2559,8 @@ messages:
       Control a link to the internet to send and receive messages.
       Used to control a remote device link, such as connecting to a UDP server, and using the V3 messaging protocol to communicate with it.
       Once initiated, messages can be forwarded to the link directly using the forwarding headers.
+      Enable is a common keep-open override: it applies to Link2 when Link2 is configured and available, otherwise to Link1.
+      IP Address, Port, and FQDN configure Link2 only. They do not change Link1's protected endpoint and are unsupported when Link2 is compiled out.
     group: gsm
     header:
       - 5
@@ -2562,22 +2568,22 @@ messages:
       1:
         name: IP Address
         id: ip
-        description: IP Address of the link, if not using FQDN
+        description: IP address of Link2, if not using FQDN
         type: ascii
       2:
         name: Port
         id: port
-        description: UDP Port for the link
+        description: UDP port for Link2
         type: uint16
       3:
         name: Enable
         id: enable
-        description: Enable or disable the link
+        description: Enable or disable the keep-open override; Link2 when configured and available, otherwise Link1
         type: bool
       4:
         name: FQDN
         id: fqdn
-        description: FQDN of the link, if not using IP address
+        description: FQDN of Link2, if not using IP address
         type: ascii
     methods:
       GET: null
@@ -3069,6 +3075,247 @@ messages:
     examples:
       - name: Synthetic GET request (not a hardware capture)
         bytes: 3 17 0 58 0 2 0 1 5 1 1 1 2 0 0 218 13
+  61:
+    name: GPS Diagnostics
+    id: gpsDiagnostics
+    description: |
+      Runtime GPS-module and RTCM diagnostic state.
+      GET returns NotSupported when GPS diagnostics are unavailable on the device.
+      RTCM fields 10-12 are omitted when RTK is disabled. Omitted fields are not zero readings.
+    group: location
+    header:
+      - 5
+    data:
+      1:
+        name: GPS Module State
+        id: moduleState
+        type: uint8
+        readonly: true
+        values:
+          0:
+            name: "Off"
+            id: "off"
+          1:
+            name: Waiting for Fix
+            id: waitingForFix
+          2:
+            name: Stabilizing
+            id: stabilizing
+          3:
+            name: Locked In
+            id: lockedIn
+      2:
+        name: GPS Locked
+        id: locked
+        description: Whether the GPS module is currently locked in
+        type: bool
+        readonly: true
+      10:
+        name: RTCM Last Received Age
+        id: rtcmLastReceivedAge
+        description: Time since RTCM correction data was last received; zero also indicates that no RTCM data has been received
+        type: uint32
+        readonly: true
+        unit: ms
+      11:
+        name: RTCM Receive Count
+        id: rtcmReceiveCount
+        description: Number of RTCM messages received since boot
+        type: uint32
+        readonly: true
+      12:
+        name: RTCM Remote Age
+        id: rtcmRemoteAge
+        description: Moving-average lag between received RTCM data and the receiver epoch; zero indicates no measurement
+        type: uint32
+        readonly: true
+        unit: ms
+    methods:
+      GET: null
+  62:
+    name: Cellular Diagnostics
+    id: cellularDiagnostics
+    description: |
+      Runtime cellular-module, upload-buffer, and internet-link diagnostic state.
+      GET returns NotSupported when cellular diagnostics are unavailable on the device.
+      Upload-buffer and primary-link values are zero when their runtime objects are absent.
+      Secondary-link fields 13-15 are omitted when that link is unavailable.
+    group: gsm
+    header:
+      - 5
+    data:
+      1:
+        name: Cellular Module State
+        id: moduleState
+        type: uint8
+        readonly: true
+        values:
+          0:
+            name: "Off"
+            id: "off"
+          1:
+            name: Turning On
+            id: turningOn
+          2:
+            name: Resetting
+            id: resetting
+          3:
+            name: Initializing
+            id: initializing
+          4:
+            name: Awaiting Network
+            id: awaitingNetwork
+          5:
+            name: Initializing Data
+            id: initializingData
+          6:
+            name: Ready
+            id: ready
+          7:
+            name: Sleeping
+            id: sleeping
+      2:
+        name: Network Registration
+        id: networkRegistration
+        description: Cellular network registration code reported by the modem
+        type: uint8
+        readonly: true
+        values:
+          0:
+            name: Not Connected
+            id: notConnected
+          1:
+            name: Connected
+            id: connected
+          2:
+            name: Searching
+            id: searching
+          3:
+            name: Denied
+            id: denied
+          4:
+            name: Unknown
+            id: unknown
+          5:
+            name: Roaming
+            id: roaming
+          6:
+            name: No SIM or SMS Only
+            id: noSimOrSmsOnly
+          7:
+            name: SMS Only Roaming
+            id: smsOnlyRoaming
+          11:
+            name: Emergency
+            id: emergency
+      3:
+        name: Pending Upload Files
+        id: pendingUploadFiles
+        description: Files waiting to be uploaded
+        type: uint16
+        readonly: true
+      4:
+        name: Buffer 0 Used
+        id: buffer0Used
+        type: uint8
+        readonly: true
+        unit: '%'
+      5:
+        name: Buffer 1 Used
+        id: buffer1Used
+        type: uint8
+        readonly: true
+        unit: '%'
+      6:
+        name: Buffer 2 Used
+        id: buffer2Used
+        type: uint8
+        readonly: true
+        unit: '%'
+      10:
+        name: Primary Link Open
+        id: primaryLinkOpen
+        type: bool
+        readonly: true
+      11:
+        name: Primary Link RX Count
+        id: primaryLinkRxCount
+        type: uint32
+        readonly: true
+      12:
+        name: Primary Link TX Count
+        id: primaryLinkTxCount
+        type: uint32
+        readonly: true
+      13:
+        name: Secondary Link Open
+        id: secondaryLinkOpen
+        description: Omitted when a secondary link is unavailable
+        type: bool
+        readonly: true
+      14:
+        name: Secondary Link RX Count
+        id: secondaryLinkRxCount
+        description: Omitted when a secondary link is unavailable
+        type: uint32
+        readonly: true
+      15:
+        name: Secondary Link TX Count
+        id: secondaryLinkTxCount
+        description: Omitted when a secondary link is unavailable
+        type: uint32
+        readonly: true
+    methods:
+      GET: null
+  63:
+    name: Humidity
+    id: humidity
+    description: |
+      Relative humidity information.
+      GET returns NotSupported when the environmental sensor is absent and NoData when the sensor read fails.
+    group: info
+    header:
+      - 5
+    data:
+      1:
+        name: Relative Humidity
+        id: humidity
+        description: Relative humidity, clamped to the physical range from 0 to 100 percent
+        type: float32
+        unit: '%RH'
+    methods:
+      GET: null
+  64:
+    name: Environmental Data Summary
+    id: environmentalDataSummary
+    description: |
+      Available environmental sensor readings.
+      GET returns NotSupported when neither an environmental sensor nor a pressure sensor is present, and NoData when no readings are available.
+      Only available readings are included; an omitted field is not a zero reading. Temperature and humidity are omitted together if their sensor read fails; pressure is omitted when its reading is unavailable.
+    group: info
+    header:
+      - 5
+    data:
+      1:
+        name: Temperature
+        id: temperature
+        description: Temperature in Celsius
+        type: float32
+        unit: C
+      2:
+        name: Relative Humidity
+        id: humidity
+        description: Relative humidity, clamped to the physical range from 0 to 100 percent
+        type: float32
+        unit: '%RH'
+      3:
+        name: Pressure
+        id: pressure
+        description: Atmospheric pressure in hectopascals
+        type: float32
+        unit: hPa
+    methods:
+      GET: null
   1004:
     name: LoRa
     id: lora
@@ -3511,6 +3758,10 @@ messages:
             name: Home Page
             id: homePage
             description: The preset home page programmed into the device
+          5:
+            name: Diagnostics Page
+            id: diagnosticsPage
+            description: The preset diagnostics page programmed into the device
       5:
         name: Status bar Enable
         id: statusBarEnable
@@ -3564,6 +3815,12 @@ messages:
         real:
           description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
           date: "2025-10-10"
+          generator: RH2 ESP32 Toit.
+      - name: Request the diagnostics page (page 5) to be drawn
+        bytes: 3 20 0 24 39 1 0 1 4 57 48 0 0 1 0 3 1 5 117 9
+        real:
+          description: This example was generated using the generate tool, and tested against an RH2 device, sent from Toit.
+          date: "2026-08-07"
           generator: RH2 ESP32 Toit.
   10009:
     name: Text Page
