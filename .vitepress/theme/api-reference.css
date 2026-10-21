@@ -1,8 +1,8 @@
 /* API reference only. Keep renderer controls and generated navigation intact. */
 .api-reference-page {
-  --vp-c-brand-1: #b95e28;
+  --vp-c-brand-1: #a94e20;
   --vp-c-brand-2: #c86b31;
-  --vp-c-brand-3: #c86b31;
+  --vp-c-brand-3: #b35824;
   --vp-c-brand-soft: rgba(200, 107, 49, .08);
 }
 .api-reference-page .VPDoc {
@@ -170,4 +170,32 @@
   .api-reference .OAPathContentEnd > div:first-child {
     display: none;
   }
+}
+/* Flatten reference details without removing examples or editable controls. */
+.api-reference h3 {
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: -.01em;
+  margin: 24px 0 12px;
+}
+.api-reference .OAPathContentStart .p-3.gap-2.rounded.bg-muted {
+  padding: 14px 0;
+  border-radius: 0;
+  border-top: 1px solid var(--vp-c-divider);
+  background: transparent;
+}
+.api-reference .OAPathContentStart div:has(> div > h2) {
+  margin-top: 20px;
+}
+.api-reference .bg-primary {
+  background-color: var(--vp-c-brand-3);
+  color: #fff;
+}
+.api-reference .bg-primary:hover {
+  background-color: #a94e20;
+}
+
+.dark .api-reference-page {
+  --vp-c-brand-1: #f4a775;
+  --vp-c-brand-2: #e58d54;
 }
