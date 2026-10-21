@@ -3,7 +3,7 @@ import spec1 from '../public/swagger/v1.json' with { type: 'json' }
 import spec2 from '../public/swagger/v2.json' with { type: 'json' }
 import {
     v1SummaryOverrides,
-    v1DescriptionOverrides,
+    createV1DescriptionOverrides,
     v1Deprecated,
     v1ReTag,
     v1Removed,
@@ -24,6 +24,7 @@ var apiKeyExample = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 export function loadSpec(version: number, resolveLink = (url: string) => url): any {
     const authenticationDescription = apiKeyDescription.replace('/apis/authentication', resolveLink('/apis/authentication'))
     if (version === 1) {
+        const v1DescriptionOverrides = createV1DescriptionOverrides(resolveLink);
         (spec1.components as any).securitySchemes = {
             ApiKeyAuth: {
                 in: 'header',

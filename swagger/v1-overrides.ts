@@ -47,12 +47,12 @@ export const v1SummaryOverrides = {
     'get-users-id-getRecentActivity': 'Get recent activity for a user'
 };
 
-export const v1DescriptionOverrides = {
+export const createV1DescriptionOverrides = (resolveLink = (url: string) => url) => ({
     'get-devices-id-nearbyDevices': `Returns nearby devices detected by a tracker, including ZeroN devices and BleTag beacons; results are not restricted to BleTag.
 
-Use GET \`https://api.lightbug.cloud/api/devices/{trackerId}/nearbyDevices\`, where \`trackerId\` is the detecting tracker's ID (the \`id\` path parameter). Send your [API token](/apis/authentication) in the \`Authorization\` header.
+Use GET \`https://api.lightbug.cloud/api/devices/{trackerId}/nearbyDevices\`, where \`trackerId\` is the detecting tracker's ID (the \`id\` path parameter). Send your [API token](${resolveLink('/apis/authentication')}) in the \`Authorization\` header.
 
-Supply either a \`correlationId\` from a [location point](/apis/v1/get-devices-id-points) or \`dateRange\`, a JSON array of two Unix-millisecond timestamps. At least one filter is needed: supplying neither returns an empty array. If both are supplied, \`correlationId\` takes precedence.
+Supply either a \`correlationId\` from a [location point](${resolveLink('/apis/v1/get-devices-id-points')}) or \`dateRange\`, a JSON array of two Unix-millisecond timestamps. At least one filter is needed: supplying neither returns an empty array. If both are supplied, \`correlationId\` takes precedence.
 
 ### Requests
 
@@ -74,12 +74,12 @@ Each array entry contains \`device\` metadata (\`id\`, \`name\`, \`btMac\`, \`ow
 
 Reading timestamps are Unix milliseconds. For \`ble_seen\`, \`rssi\` is BLE signal strength in dBm and \`value\` mirrors \`rssi\`. The example below is entirely synthetic and illustrates only this reading type.
 
-Date-range results contain the latest reading per nearby device and reading type, not every historical observation. Use [nearbyDeviceData](/apis/v1/get-devices-id-nearbyDeviceData) for a nearby device's time series.
+Date-range results contain the latest reading per nearby device and reading type, not every historical observation. Use [nearbyDeviceData](${resolveLink('/apis/v1/get-devices-id-nearbyDeviceData')}) for a nearby device's time series.
 
 Clients can map detections to their own known fixed beacon locations. This endpoint returns detections; it does not calculate an indoor position.`,
     'get-devices-id-nearbyDeviceData': `Returns readings for one nearby device detected by the specified tracker during a date range.
 
-Use GET \`https://api.lightbug.cloud/api/devices/{trackerId}/nearbyDeviceData\` with your [API token](/apis/authentication) in the \`Authorization\` header. Both \`nearbyId\` (the nearby device's \`device.id\` from [nearbyDevices](/apis/v1/get-devices-id-nearbyDevices)) and \`dateRange\` are required. Encode \`dateRange\` as a JSON array of two Unix-millisecond timestamps.
+Use GET \`https://api.lightbug.cloud/api/devices/{trackerId}/nearbyDeviceData\` with your [API token](${resolveLink('/apis/authentication')}) in the \`Authorization\` header. Both \`nearbyId\` (the nearby device's \`device.id\` from [nearbyDevices](${resolveLink('/apis/v1/get-devices-id-nearbyDevices')})) and \`dateRange\` are required. Encode \`dateRange\` as a JSON array of two Unix-millisecond timestamps.
 
 Replace the placeholders below. The date range is illustrative.
 
@@ -114,9 +114,9 @@ This is a special endpoint for resellers to activate a device on a reseller plan
 
 If you want to activate a device on a modern plan, see the V2 API.`,
     'get-devices-id-readings':
-`Gets [readings](/terminology/readings) that a device has taken, such as battery voltage, temperature, humidity etc.
+`Gets [readings](${resolveLink('/terminology/readings')}) that a device has taken, such as battery voltage, temperature, humidity etc.
 
-Use [filtering](/apis/v1/filtering) to get a specific [type](/terminology/readings#types).
+Use [filtering](${resolveLink('/apis/v1/filtering')}) to get a specific [type](${resolveLink('/terminology/readings#types')}).
 
 ### Filter limitations
 
@@ -126,9 +126,9 @@ A maximum of 10,000 readings can be returned in one request.`,
     'get-devices-id-setupSqsForwarding':
 `Configure SQS Notifications for a device.
 
-There is a [full guide](/guides/notifications-setup-sqs) written for this endpoint.`,
+There is a [full guide](${resolveLink('/guides/notifications-setup-sqs')}) written for this endpoint.`,
     'get-users-id-getRecentActivity': 'Gets recent activity for a user, which focuses around notifications that have been triggered.',
-};
+});
 
 export const v1Deprecated = [
     'get-devices-id-transients-fk',
