@@ -4,6 +4,16 @@ PRs targeting `main` use `https://lightbug-io.github.io/docs/pr/<number>/`.
 The pinned [JamesIves action](https://github.com/JamesIves/github-pages-deploy-action/tree/fa24774553152dd7873cd16ebd8d959b010c5445)
 updates one PR folder on `gh-pages`; closing the PR cleans that folder.
 
+A single **Documentation preview** comment on the PR links to the last successfully
+published preview and its publishing workflow. It records the exact PR commit;
+a green **Preview build** alone only means the artifact is ready, not that Pages
+has published it. The publisher waits for the Pages build-and-deployment workflow to succeed for the matching
+`gh-pages` commit, then rechecks the PR head before adding/updating the comment. Failed,
+timed-out or superseded publications do not announce a new preview.
+
+The comment automation takes effect once these workflow changes are merged into
+`main`; rerun **Preview build** for existing PRs after merging.
+
 ## One-time administrator setup
 
 Publication stays off until all of these are done:
@@ -45,7 +55,7 @@ credentials, customer data or trusted browser sessions there.
 
 ## Checks
 
-- `node --test .github/preview/check.test.cjs`
+- `node --test .github/preview/*.test.cjs`
 - `npm test -- --runInBand`
 - `DEPLOYMENT_NAME=Preview PREVIEW_BASE=/docs/pr/13/ npm run build`
 - Run `actionlint` on both preview workflows. Older versions do not recognize
