@@ -28,6 +28,8 @@ export interface DocumentationVariant {
     id: string
     title: string
     messageVersion?: number
+    /** Retain older wire formats in a collapsed compatibility reference. */
+    legacy?: boolean
     description?: string
     target?: string
     request?: DocumentationContext
@@ -45,6 +47,9 @@ export interface DocumentationOperation extends DocumentationVariant {
 export interface MessageDocumentation {
     summary: string
     target?: string
+    /** Message-specific field summaries, referencing message.data definitions. */
+    fields?: Record<string, DocumentationField>
+    legacyFields?: Record<string, DocumentationField>
     operations: DocumentationOperation[]
     notes?: { id: string; title: string; description: string }[]
 }
@@ -147,6 +152,9 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
         }
     }
 
+    validateContext({ fields: docs.fields }, 'field summary')
+    validateContext({ fields: docs.legacyFields }, 'legacy field summary')
+
     for (const operation of docs.operations) {
         if (!operation || typeof operation !== 'object') continue
         if (!operation.title?.trim()) fail(`${operation.id} needs a title`)
@@ -157,6 +165,7 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
         for (const variant of operation.variants?.length ? operation.variants : [operation]) {
             const view = operation.variants?.length ? getOperationVariant(operation, variant.id) : operation
             const label = `${operation.id}/${variant.id}`
+            if (view.legacy !== undefined && typeof view.legacy !== 'boolean') fail(`${label} has invalid legacy flag`)
             if (view.messageVersion !== undefined && (!Number.isInteger(view.messageVersion) || view.messageVersion < 0)) {
                 fail(`${label} has invalid messageVersion`)
             }

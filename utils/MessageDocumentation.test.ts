@@ -61,8 +61,10 @@ describe('optional message documentation', () => {
         const sample = clone(protocol)
         sample.messages[39].docs = {
             summary: 'Test',
+            fields: { 98: {} },
+            legacyFields: { 97: {} },
             operations: [
-                { id: 'read', title: 'Read', method: 'UNSUPPORTED', request: { headers: { 5: { value: 99 }, 250: {} }, fields: { 99: {} } }, response: { messageId: 9999 } },
+                { id: 'read', title: 'Read', method: 'UNSUPPORTED', legacy: 'yes', request: { headers: { 5: { value: 99 }, 250: {} }, fields: { 99: {} } }, response: { messageId: 9999 } },
                 { id: 'read', title: 'Duplicate' },
             ],
         }
@@ -73,6 +75,9 @@ describe('optional message documentation', () => {
         expect(errors).toContain('unknown headers id 250')
         expect(errors).toContain('unknown fields id 99')
         expect(errors).toContain('unknown message 9999')
+        expect(errors).toContain('field summary references unknown fields id 98')
+        expect(errors).toContain('legacy field summary references unknown fields id 97')
+        expect(errors).toContain('invalid legacy flag')
     })
 
     it('accepts a response payload scoped to its actual ACK message', () => {
@@ -88,6 +93,31 @@ describe('optional message documentation', () => {
     it('migrates only GPS Control and Message Box and validates their references', () => {
         expect(Object.entries(protocol.messages).filter(([, value]: [string, any]) => value.docs).map(([id]) => Number(id))).toEqual([39, 58])
         for (const id of [39, 58]) expect(validateMessageDocumentation(protocol, id)).toEqual([])
+    })
+
+    it('summarizes every message field without mixing current and legacy-only fields', () => {
+        for (const id of [39, 58]) {
+            const docs = getMessageDocumentation(protocol.messages[id])!
+            const current = Object.keys(docs.fields || {})
+            const legacy = Object.keys(docs.legacyFields || {})
+            expect([...current, ...legacy].sort()).toEqual(Object.keys(protocol.messages[id].data).sort())
+            expect(current.filter(key => legacy.includes(key))).toEqual([])
+        }
+        expect(Object.keys(protocol.messages[58].docs.fields)).toEqual(['2', '129'])
+        expect(Object.keys(protocol.messages[58].docs.legacyFields)).toEqual(['1', '10', '11', '12', '13', '14'])
+    })
+
+    it('makes Message Box v2 primary while retaining explicit legacy v1 variants', () => {
+        const docs = getMessageDocumentation(protocol.messages[58])!
+        for (const method of ['GET', 'SUBSCRIBE']) {
+            const operation = docs.operations.find(item => item.method === method)!
+            expect(getOperationVariant(operation).messageVersion).toBe(2)
+            expect(getOperationVariant(operation).legacy).not.toBe(true)
+            const legacy = operation.variants!.filter(variant => variant.legacy)
+            expect(legacy).toHaveLength(1)
+            expect(legacy[0].messageVersion).toBe(1)
+            expect(legacy[0].examples!.length).toBeGreaterThan(0)
+        }
     })
 })
 

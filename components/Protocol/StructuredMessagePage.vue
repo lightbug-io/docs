@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { withBase } from 'vitepress'
 import Message from './Message.vue'
 import MessageCodeGen from './MessageCodeGen.vue'
 import {
@@ -16,21 +17,13 @@ const props = defineProps<{
 
 const message = computed(() => props.yamlData.messages?.[props.messageId])
 const documentation = computed(() => getMessageDocumentation(message.value))
-const selectedOperationId = ref('')
-const selectedVariantId = ref('')
 const copyStatus = ref('')
-const operation = computed(() => documentation.value?.operations.find(item => item.id === selectedOperationId.value)
-  || documentation.value?.operations[0])
-const variant = computed(() => operation.value && getOperationVariant(operation.value, selectedVariantId.value))
-const activeVariantId = computed(() => operation.value?.variants?.find(item => item.id === selectedVariantId.value)?.id
-  || operation.value?.variants?.[0]?.id || '')
 const operationAnchor = (item: DocumentationOperation) => `message-${props.messageId}-operation-${item.id}`
-const activeAnchor = computed(() => operation.value
-  ? `${operationAnchor(operation.value)}${activeVariantId.value ? `-variant-${activeVariantId.value}` : ''}`
-  : `message-${props.messageId}`)
+const acknowledgmentUrl = withBase('/devices/api/messages/5-ack#header')
 const panels = computed(() => (documentation.value?.operations || []).flatMap(item => {
   const variants = item.variants?.length ? item.variants : [undefined]
-  return variants.map((selection, index) => {
+  const defaultVariant = variants.find(selection => !selection?.legacy) || variants[0]
+  return variants.map(selection => {
     const view = getOperationVariant(item, selection?.id)
     const variantId = selection?.id || ''
     const anchor = `${operationAnchor(item)}${variantId ? `-variant-${variantId}` : ''}`
@@ -43,7 +36,11 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
         description: usage.description,
         messageId: usage.messageId,
         messageName: usage.messageId === undefined ? undefined : props.yamlData.messages?.[usage.messageId]?.name,
-        groups: (['headers', 'fields'] as const).map(kind => ({
+        acknowledgment: usage.messageId === 5,
+        referenceAnchors: usage.messageId === 5
+          ? (['headers', 'fields'] as const).flatMap(kind => Object.keys(usage[kind] || {}).map(id => `${anchor}-${role}-${kind}-${id}`))
+          : [],
+        groups: usage.messageId === 5 ? [] : (['headers', 'fields'] as const).map(kind => ({
           kind,
           title: kind === 'headers' ? 'Header fields' : 'Data fields',
           fields: resolveDocumentationFields(props.yamlData, usage.messageId === undefined ? message.value : props.yamlData.messages?.[usage.messageId], usage[kind], kind),
@@ -54,15 +51,30 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
       operation: item,
       variant: view,
       variantId,
-      firstVariant: index === 0,
+      defaultVariant: selection === defaultVariant,
+      legacy: !!view.legacy,
       anchor,
-      active: operation.value?.id === item.id && activeVariantId.value === variantId,
       target: view.target || documentation.value?.target,
       contexts,
       errors: (view.errors || []).map(error => ({ ...error, name: props.yamlData.header?.[4]?.values?.[error.code]?.name })),
     }
   })
 }))
+
+// Modern operations stay in the main reading flow. Legacy definitions and
+// operations share one disclosure, but remain in the static/searchable HTML.
+const groups = computed(() => [
+  {
+    legacy: false,
+    fields: resolveDocumentationFields(props.yamlData, message.value, documentation.value?.fields, 'fields'),
+    panels: panels.value.filter(panel => !panel.legacy),
+  },
+  {
+    legacy: true,
+    fields: resolveDocumentationFields(props.yamlData, message.value, documentation.value?.legacyFields, 'fields'),
+    panels: panels.value.filter(panel => panel.legacy),
+  },
+].filter(group => !group.legacy || group.fields.length || group.panels.length))
 
 // Presentation-only view: keep the existing constants generator and its language
 // options, without repeating the full protocol narrative in every code comment.
@@ -83,36 +95,18 @@ const constantsData = computed(() => ({
 async function readHash() {
   let hash: string
   try { hash = decodeURIComponent(window.location.hash.slice(1)) } catch { return }
-  // Longer IDs win, so an operation such as read-version cannot match read first.
-  const match = [...(documentation.value?.operations || [])]
-    .sort((a, b) => operationAnchor(b).length - operationAnchor(a).length)
-    .find(item => hash === operationAnchor(item) || hash.startsWith(`${operationAnchor(item)}-`))
-  if (!match) return
-  selectedOperationId.value = match.id
-  selectedVariantId.value = [...(match.variants || [])]
-    .sort((a, b) => b.id.length - a.id.length)
-    .find(item => {
-      const anchor = `${operationAnchor(match)}-variant-${item.id}`
-      return hash === anchor || hash.startsWith(`${anchor}-`)
-    })?.id || match.variants?.[0]?.id || ''
   await nextTick()
-  document.getElementById(hash)?.scrollIntoView?.({ block: 'start' })
-}
-
-async function selectOperation(item: DocumentationOperation) {
-  selectedOperationId.value = item.id
-  selectedVariantId.value = item.variants?.[0]?.id || ''
-  copyStatus.value = ''
+  const target = document.getElementById(hash)
+  if (!target) return
+  // Old v1 and field links still resolve. Open every enclosing disclosure before
+  // scrolling, including on initial hydration and browser Back/Forward.
+  let ancestor: HTMLElement | null = target
+  while (ancestor) {
+    if (ancestor.tagName === 'DETAILS') (ancestor as HTMLDetailsElement).open = true
+    ancestor = ancestor.parentElement
+  }
   await nextTick()
-  window.location.hash = operationAnchor(item)
-}
-
-async function selectVariant(event: Event) {
-  selectedVariantId.value = (event.target as HTMLSelectElement).value
-  copyStatus.value = ''
-  await nextTick()
-  document.getElementById(`${activeAnchor.value}-variant-control`)?.focus({ preventScroll: true })
-  window.location.hash = activeAnchor.value
+  target.scrollIntoView?.({ block: 'start' })
 }
 
 async function copyBytes(bytes: string, label: string) {
@@ -125,8 +119,6 @@ async function copyBytes(bytes: string, label: string) {
 }
 
 watch(() => props.messageId, () => {
-  selectedOperationId.value = ''
-  selectedVariantId.value = ''
   copyStatus.value = ''
   if (typeof window !== 'undefined') readHash()
 })
@@ -140,42 +132,66 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div v-if="documentation && operation && variant" class="structured-message">
+  <div v-if="documentation" class="structured-message">
     <p class="message-summary">{{ documentation.summary }}</p>
     <p v-if="documentation.target" class="support-context"><strong>Applies to</strong> {{ documentation.target }}</p>
 
-    <nav class="operation-navigation" aria-label="Message operations">
-      <a
-        v-for="item in documentation.operations"
-        :key="item.id"
-        :href="`#${operationAnchor(item)}`"
-        :aria-current="operation.id === item.id ? 'true' : undefined"
-        @click.prevent="selectOperation(item)"
-      >{{ item.title }}</a>
-    </nav>
+    <div v-if="documentation.notes?.length" :id="`message-${messageId}-notes`" class="overview-notes">
+      <section v-for="note in documentation.notes" :key="note.id" class="overview-note" :aria-labelledby="`message-${messageId}-note-${note.id}`">
+        <h2 :id="`message-${messageId}-note-${note.id}`">{{ note.title }}</h2>
+        <p class="prose">{{ note.description }}</p>
+      </section>
+    </div>
 
-    <section v-for="panel in panels" v-show="panel.active" :id="panel.anchor" :key="panel.anchor" class="operation-section" :aria-labelledby="`${panel.anchor}-heading`">
-      <span v-if="panel.variantId && panel.firstVariant" :id="operationAnchor(panel.operation)" class="operation-anchor" aria-hidden="true"></span>
+    <component
+      :is="group.legacy ? 'details' : 'div'"
+      v-for="group in groups"
+      :id="group.legacy ? `message-${messageId}-legacy` : undefined"
+      :key="group.legacy ? 'legacy' : 'current'"
+      :class="group.legacy ? 'legacy-reference' : 'current-reference'"
+    >
+      <summary v-if="group.legacy">Legacy version 1: fields and operations</summary>
+      <p v-if="group.legacy" class="legacy-introduction">For existing version 1 integrations. Current-format fields and operations are documented above.</p>
+
+      <section v-if="group.fields.length" :id="`message-${messageId}-${group.legacy ? 'legacy-' : ''}fields`" class="message-fields" :aria-labelledby="`message-${messageId}-${group.legacy ? 'legacy-' : ''}fields-heading`">
+        <h2 :id="`message-${messageId}-${group.legacy ? 'legacy-' : ''}fields-heading`">{{ group.legacy ? 'Legacy fields' : 'Message fields' }}</h2>
+        <p class="section-caption">Fields specific to {{ message.name }}. Operation sections below explain when each field is used.</p>
+        <div class="field-summary-table">
+          <table>
+            <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th></tr></thead>
+            <tbody>
+              <tr v-for="field in group.fields" :id="`message-${messageId}-${group.legacy ? 'legacy-' : ''}field-${field.id}`" :key="field.id">
+                <th scope="row"><span class="summary-field-name">{{ field.name }}</span><span class="field-id">Field {{ field.id }}</span></th>
+                <td><code>{{ field.type }}</code></td>
+                <td>
+                  <p v-if="field.description" class="prose">{{ field.description }}</p>
+                  <p v-if="field.maxBytes !== undefined" class="field-limit">Maximum {{ field.maxBytes }} bytes</p>
+                  <ul v-if="field.values.length" class="field-values">
+                    <li v-for="value in field.values" :key="value.value"><code>{{ value.value }}</code><strong v-if="value.name"> {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span></li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    <section v-for="panel in group.panels" :id="panel.anchor" :key="panel.anchor" class="operation-section" :aria-labelledby="`${panel.anchor}-heading`">
+      <span v-if="panel.variantId && panel.defaultVariant" :id="operationAnchor(panel.operation)" class="operation-anchor" aria-hidden="true"></span>
       <div class="operation-toolbar">
-        <div class="wire-context" aria-label="Selected protocol context">
+        <div class="wire-context" aria-label="Protocol context">
           <span class="protocol-label">V3 protocol</span>
           <span v-if="panel.operation.method" class="method-badge">{{ panel.operation.method }}</span>
           <span>Message {{ messageId }}</span>
           <span v-if="panel.variant.messageVersion !== undefined">Message Version {{ panel.variant.messageVersion }}</span>
         </div>
-        <div v-if="panel.operation.variants?.length" class="variant-control">
-          <label :for="`${panel.anchor}-variant-control`">Format / target</label>
-          <select :id="`${panel.anchor}-variant-control`" :value="panel.variantId" @change="selectVariant">
-            <option v-for="item in panel.operation.variants" :key="item.id" :value="item.id">{{ item.title }}</option>
-          </select>
-        </div>
+
       </div>
 
       <div class="reference-columns">
         <div class="reference-description">
           <h2 :id="`${panel.anchor}-heading`" class="operation-heading">
-            {{ panel.operation.title }}
-            <a class="section-permalink" :href="`#${panel.anchor}`" :aria-label="`Link to ${panel.operation.title}`">#</a>
+            <a class="operation-heading-link" :href="`#${panel.anchor}`">{{ panel.operation.title }}</a>
           </h2>
           <p v-if="panel.operation.description" class="prose">{{ panel.operation.description }}</p>
           <p v-if="panel.variantId && panel.variant.description && panel.variant.description !== panel.operation.description" class="prose">{{ panel.variant.description }}</p>
@@ -188,8 +204,10 @@ onBeforeUnmount(() => {
             :aria-labelledby="`${panel.anchor}-${context.role}`"
           >
             <h3 :id="`${panel.anchor}-${context.role}`">{{ context.title }}</h3>
-            <p v-if="context.messageId !== undefined" class="section-caption">Message {{ context.messageId }}<template v-if="context.messageName"> · {{ context.messageName }}</template></p>
+            <span v-for="anchor in context.referenceAnchors" :id="anchor" :key="anchor" class="operation-anchor" aria-hidden="true"></span>
+            <p v-if="context.messageId !== undefined && !context.acknowledgment" class="section-caption">Message {{ context.messageId }}<template v-if="context.messageName"> · {{ context.messageName }}</template></p>
             <p v-if="context.description" class="prose">{{ context.description }}</p>
+            <p v-if="context.acknowledgment" class="acknowledgment-link"><a :href="acknowledgmentUrl">ACK message (MT5): packet format</a></p>
             <div v-for="group in context.groups" :key="group.kind" class="field-group">
               <h4>{{ group.title }}</h4>
               <dl class="field-list">
@@ -238,7 +256,7 @@ onBeforeUnmount(() => {
         <aside class="reference-examples" :aria-labelledby="`${panel.anchor}-examples`">
           <h2 :id="`${panel.anchor}-examples`" class="examples-heading">Wire examples</h2>
           <p class="examples-caption">{{ panel.operation.title }}<template v-if="panel.variantId"> · {{ panel.variant.title }}</template>. Complete V3 frames, not HTTP requests.</p>
-          <div v-if="!panel.variant.examples?.length" class="empty-examples">No wire example is documented for this selection.</div>
+          <div v-if="!panel.variant.examples?.length" class="empty-examples">No wire example is documented for this operation.</div>
           <article
             v-for="(example, exampleIndex) in panel.variant.examples || []"
             :id="`${panel.anchor}-example-${exampleIndex + 1}`"
@@ -262,7 +280,7 @@ onBeforeUnmount(() => {
               <details class="decoded-details">
                 <summary>Decoded fields and byte layout</summary>
                 <ClientOnly>
-                  <Message v-if="panel.active" :byte-string="frame.bytes" :yaml-data="yamlData" :default-collapsed="false" :show-generator-link="false" read-only />
+                  <Message :byte-string="frame.bytes" :yaml-data="yamlData" :default-collapsed="false" :show-generator-link="false" read-only />
                   <template #fallback><p class="section-caption">The interactive byte decoder is available after this page loads.</p></template>
                 </ClientOnly>
               </details>
@@ -272,25 +290,13 @@ onBeforeUnmount(() => {
         </aside>
       </div>
     </section>
+    </component>
     <p class="copy-status" role="status" aria-live="polite">{{ copyStatus }}</p>
-    <div class="reference-columns shared-reference">
-      <div>
-          <section v-if="documentation.notes?.length" class="context-section notes-section" :aria-labelledby="`message-${messageId}-notes`">
-            <h3 :id="`message-${messageId}-notes`">Shared behavior</h3>
-            <div v-for="note in documentation.notes" :key="note.id" class="shared-note">
-              <h4 :id="`message-${messageId}-note-${note.id}`">{{ note.title }}</h4>
-              <p class="prose">{{ note.description }}</p>
-            </div>
-          </section>
-      </div>
-      <div>
-          <details :id="`message-${messageId}-constants`" class="constants-details">
-            <summary>Message and field constants</summary>
-            <p class="section-caption">Identifiers only. The operation rules and limits are documented on the left.</p>
-            <MessageCodeGen :key="messageId" :message-id="messageId" :yaml-data="constantsData" />
-          </details>
-      </div>
-    </div>
+    <section :id="`message-${messageId}-constants`" class="message-constants" :aria-labelledby="`message-${messageId}-constants-heading`">
+      <h2 :id="`message-${messageId}-constants-heading`">Message and field constants</h2>
+      <p class="section-caption">Identifiers for this message type and its fields. See the operation sections above for rules and limits.</p>
+      <MessageCodeGen :key="messageId" :message-id="messageId" :yaml-data="constantsData" />
+    </section>
   </div>
 </template>
 
@@ -310,23 +316,38 @@ onBeforeUnmount(() => {
 .structured-message .message-summary { max-width: 850px; margin: 16px 0 10px; font-size: 16px; line-height: 1.8; white-space: pre-line; }
 .support-context { font-size: 12px; }
 .support-context strong, .target-context strong, .example-target strong { margin-right: 8px; font-weight: 600; }
-.operation-navigation { display: flex; flex-wrap: wrap; gap: 4px 24px; margin-top: 28px; border-bottom: 1px solid var(--vp-c-divider); }
-.operation-navigation a { display: inline-block; padding: 10px 2px 12px; border-bottom: 2px solid transparent; color: var(--reference-muted); font-weight: 600; text-decoration: none; }
-.operation-navigation a:hover { color: var(--reference-accent); }
-.operation-navigation a[aria-current] { border-bottom-color: var(--reference-accent); color: var(--reference-accent); }
+.overview-notes { margin-top: 24px; max-width: 950px; }
+.overview-note + .overview-note { margin-top: 20px; }
+.overview-note h2 { border: 0; padding: 0; margin-bottom: 6px; font-size: 17px; }
+.message-fields { margin-top: 28px; }
+.message-fields h2 { border: 0; padding: 0; margin-bottom: 8px; font-size: 22px; }
+.field-summary-table { width: 100%; margin-top: 16px; }
+.field-summary-table table { display: table; width: 100%; margin: 0; border-collapse: collapse; font-size: 13px; }
+.field-summary-table th, .field-summary-table td { padding: 12px 14px; text-align: left; vertical-align: top; border: 0; border-bottom: 1px solid var(--vp-c-divider); }
+.field-summary-table thead th { background: var(--vp-c-bg-soft); font-size: 12px; font-weight: 600; }
+.field-summary-table tbody tr { background: transparent; border: 0; }
+.field-summary-table tbody th { min-width: 150px; width: 22%; font-weight: 600; }
+.field-summary-table td:nth-child(2) { width: 15%; }
+.summary-field-name, .field-summary-table .field-id { display: block; }
+.field-summary-table .field-id { margin-top: 4px; }
+.field-summary-table .field-limit { margin-top: 6px; font-size: 12px; }
+.operation-heading-link { color: inherit; text-decoration: none; }
+.operation-heading-link:hover { text-decoration: underline; text-underline-offset: 4px; }
+.acknowledgment-link { margin-top: 8px !important; font-size: 13px; }
+.legacy-reference { margin-top: 36px; border: 1px solid var(--vp-c-divider); border-radius: 8px; padding: 0 20px 20px; }
+.legacy-reference > summary { padding: 18px 0 0; cursor: pointer; font-size: 16px; font-weight: 600; }
+.legacy-reference:not([open]) { padding-bottom: 18px; }
+.legacy-reference[open] > summary { margin-bottom: 12px; }
+.legacy-introduction { font-size: 13px; }
 .operation-anchor { display: block; height: 0; }
-.operation-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 18px 0 24px; }
+.operation-section { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--vp-c-divider); }
+.operation-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 0 0 16px; }
 .wire-context { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; font-size: 12px; color: var(--reference-muted); }
 .protocol-label { font-weight: 600; }
 .method-badge { padding: 1px 7px; border: 1px solid var(--vp-c-divider); border-radius: 4px; font-family: var(--vp-font-family-mono); color: var(--reference-text); background: var(--vp-c-bg-soft); font-weight: 600; }
-.variant-control { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 12px; }
-.variant-control label { color: var(--reference-muted); font-weight: 500; }
-.variant-control select { max-width: 100%; padding: 7px 30px 7px 10px; border: 1px solid var(--vp-c-divider); border-radius: 5px; color: var(--reference-text); background: var(--vp-c-bg-soft); font: inherit; appearance: auto; }
 .reference-columns { display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr); gap: 36px; align-items: start; }
 .reference-description, .reference-examples { min-width: 0; }
 .structured-message .operation-heading { padding: 0; border: 0; margin: 0 0 12px; font-size: 22px; line-height: 1.4; }
-.section-permalink { padding: 0 4px; color: var(--reference-muted); font-size: 16px; font-weight: 400; text-decoration: none; }
-.section-permalink:hover { color: var(--reference-accent); }
 .prose { white-space: pre-line; overflow-wrap: anywhere; }
 .reference-description > .prose + .prose { margin-top: 12px; }
 .structured-message .target-context { margin-top: 16px; border-left: 2px solid var(--vp-c-divider); padding-left: 12px; font-size: 12px; }
@@ -353,8 +374,6 @@ onBeforeUnmount(() => {
 .error-list dt { font-weight: 600; margin-bottom: 4px; }
 .error-list dt code { margin-right: 6px; }
 .error-list dd { color: var(--reference-muted); }
-.shared-note + .shared-note { margin-top: 18px; }
-.shared-note h4 { margin-bottom: 6px; font-size: 14px; }
 .structured-message .examples-heading { margin: 0 0 5px; padding: 0; border: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; }
 .examples-caption { font-size: 12px; margin-bottom: 18px !important; }
 .example-card { overflow-wrap: anywhere; border: 1px solid var(--vp-c-divider); border-radius: 9px; background: var(--vp-c-bg-soft); margin-bottom: 20px; }
@@ -381,24 +400,26 @@ onBeforeUnmount(() => {
 .copy-status { font-size: 12px; }
 .copy-status:empty { display: none; }
 .empty-examples { border: 1px dashed var(--vp-c-divider); padding: 16px; color: var(--reference-muted); font-size: 12px; }
-.constants-details { border-top: 1px solid var(--vp-c-divider); border-bottom: 1px solid var(--vp-c-divider); margin-top: 24px; }
-.constants-details > summary { cursor: pointer; padding: 16px 0; font-size: 13px; font-weight: 600; }
-.constants-details :deep(.protocol-constants-container) { margin: 12px 0 18px; border-color: var(--vp-c-divider); }
-.constants-details :deep(.constants-header) { flex-wrap: wrap; gap: 8px; padding: 8px; background: var(--vp-c-bg-soft); }
-.constants-details :deep(.language-tabs) { flex-wrap: wrap; gap: 4px; }
-.constants-details :deep(.language-tab) { font-size: 11px; padding: 4px 7px; }
-.constants-details :deep(.language-tab.active) { background: var(--vp-c-bg); border-color: var(--reference-accent); color: var(--reference-accent); }
-.constants-details :deep(pre) { white-space: pre-wrap; overflow-wrap: anywhere; }
+.message-constants { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--vp-c-divider); }
+.message-constants h2 { border: 0; padding: 0; margin-bottom: 8px; font-size: 22px; }
+
+.message-constants :deep(.protocol-constants-container) { margin: 12px 0 18px; border-color: var(--vp-c-divider); }
+.message-constants :deep(.constants-header) { flex-wrap: wrap; gap: 8px; padding: 8px; background: var(--vp-c-bg-soft); }
+.message-constants :deep(.language-tabs) { flex-wrap: wrap; gap: 4px; }
+.message-constants :deep(.language-tab) { font-size: 11px; padding: 4px 7px; }
+.message-constants :deep(.language-tab.active) { background: var(--vp-c-bg); border-color: var(--reference-accent); color: var(--reference-accent); }
+.message-constants :deep(pre) { white-space: pre-wrap; overflow-wrap: anywhere; }
 .structured-message :is(a, button, select, summary):focus-visible { outline: 2px solid var(--reference-accent); outline-offset: 4px; }
 :global(.dark) .structured-message { --reference-accent: #eda577; }
 @media (min-width: 1600px) { .structured-message { max-width: 1320px; } }
 @media (max-width: 1100px) { .reference-columns { grid-template-columns: minmax(0, 1fr); gap: 32px; } }
 @media (max-width: 639px) {
-  .operation-navigation { gap: 4px 16px; }
-  .operation-anchor { display: block; height: 0; }
-.operation-toolbar { align-items: flex-start; }
-  .variant-control { width: 100%; }
-  .variant-control select { flex: 1; min-width: 0; }
+  .operation-toolbar { align-items: flex-start; }
+  .field-summary-table th, .field-summary-table td { padding: 10px 8px; }
+  .field-summary-table tbody th { min-width: 90px; width: 25%; }
+  .field-summary-table td:nth-child(2) { width: auto; }
+  .field-summary-table { overflow-wrap: anywhere; }
+  .legacy-reference { padding-left: 12px; padding-right: 12px; }
   .structured-message .message-summary { font-size: 15px; }
   .reference-columns { gap: 28px; }
   .frame-heading { padding: 12px; }
