@@ -447,6 +447,10 @@ export default withMermaid(defineConfig({
                     { text: 'Accessories', link: '/devices/rtk/handheld/accessories' },
                   ]
                 },
+                {
+                  text: 'RTKZero (Draft)',
+                  link: '/devices/rtk/zero/',
+                },
                 { text: 'Vehicle', link: '/devices/rtk/vehicle' },
               ]
             },

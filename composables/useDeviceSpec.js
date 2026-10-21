@@ -16,6 +16,9 @@ function normalizePhrase(str) {
   let phrase = str.replace(/[_-]/g, ' ')
   // Capitalize each word
   phrase = phrase.replace(/\b\w/g, l => l.toUpperCase())
+  // Keep standard axis-count labels readable after normalizing YAML keys.
+  phrase = phrase.replace(/\b(\d+) Axis\b/g, '$1-Axis')
+  phrase = phrase.replace(/\bNfc\b/gi, 'NFC')
   // Special case: Bluetooth Le -> Bluetooth LE
   phrase = phrase.replace(/Bluetooth Le/gi, 'Bluetooth LE')
   phrase = phrase.replace(/ Mah/gi, ' mAh')
