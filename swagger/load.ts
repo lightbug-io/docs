@@ -1,3 +1,4 @@
+import { normalizeV1Responses } from './responses'
 import spec1 from '../public/swagger/v1.json' with { type: 'json' }
 import spec2 from '../public/swagger/v2.json' with { type: 'json' }
 import {
@@ -67,13 +68,6 @@ export function loadSpec(version: number): any {
                         }
                     }
                 }
-                if (operationId in V1ResponseExamples) {
-                    for (const response of Object.keys(spec1.paths[path][method].responses)) {
-                        if (response in V1ResponseExamples[operationId]) {
-                            spec1.paths[path][method].responses[response].content = V1ResponseExamples[operationId][response]
-                        }
-                    }
-                }
                 if (operationId in V1ParamDescriptions) {
                     for (const param of spec1.paths[path][method].parameters) {
                         if (param.name in V1ParamDescriptions[operationId]) {
@@ -118,21 +112,10 @@ export function loadSpec(version: number): any {
                     spec1.paths[path][method].description = spec1.paths[path][method].description.replace('RTK>', '')
                 }
 
-                // Remove everything except application/json from them all
-                if (spec1.paths[path][method].responses) {
-                    for (const response of Object.keys(spec1.paths[path][method].responses)) {
-                        if (response === '200' && spec1.paths[path][method].responses[response].content) {
-                            const content = spec1.paths[path][method].responses[response].content
-                            for (const type of Object.keys(content)) {
-                                if (type !== 'application/json') {
-                                    delete content[type]
-                                }
-                            }
-                        } else {
-                            delete spec1.paths[path][method].responses[response]
-                        }
-                    }
-                }
+                normalizeV1Responses(
+                    spec1.paths[path][method].responses,
+                    V1ResponseExamples[operationId]
+                )
             }
         }
 
