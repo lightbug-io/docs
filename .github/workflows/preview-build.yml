@@ -22,8 +22,8 @@ jobs:
         with:
           node-version: '22'
           # Deliberately no shared cache.
-      - run: node --test .github/preview/*.test.cjs
       - run: npm ci
+      - run: node --test .github/preview/*.test.cjs
       - run: npm test -- --runInBand
       - name: Build static preview
         env:

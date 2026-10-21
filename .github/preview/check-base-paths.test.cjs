@@ -33,3 +33,20 @@ test('ignores API examples, non-URL attributes, comments and script data', () =>
     <script>const example = '<a href="/api/example">Example</a>';</script>`;
   assert.deepEqual(findBasePathErrors(html, '/docs/pr/99/'), []);
 });
+
+
+test('parses quoted delimiters, unquoted URLs and HTML entities like a browser', () => {
+  const html = `<img alt="size > max" src="/images/device.png">
+    <a href=/devices/zero/>Device</a><a href="&#47;files/spec.yaml">Spec</a>`;
+  assert.deepEqual(findBasePathErrors(html, '/docs/pr/99/'), [
+    'URL escapes base: /images/device.png', 'URL escapes base: /devices/zero/',
+    'URL escapes base: /files/spec.yaml',
+  ]);
+});
+
+test('does not interpret script/comment contents as rendered links', () => {
+  const html = `<script>const sample = '<a href="/api/example">';</script\t\n bar>
+    <!-- outer <!-- <img src="/comment.png"> -->
+    <a href="/docs/pr/99/devices/">Device</a>`;
+  assert.deepEqual(findBasePathErrors(html, '/docs/pr/99/'), []);
+});
