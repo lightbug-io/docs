@@ -147,7 +147,7 @@
                     <v-icon size="small">mdi-cog</v-icon>
                 </v-btn>
                 <v-btn
-                    v-if="showGeneratorLink"
+                    v-if="showGeneratorLink && !readOnly"
                     size="x-small"
                     variant="text"
                     icon
@@ -167,7 +167,7 @@
                 >
                     <v-icon size="small">mdi-content-copy</v-icon>
                 </v-btn>
-                <v-menu offset-y>
+                <v-menu v-if="!readOnly" offset-y>
                     <template v-slot:activator="{ props }">
                         <v-btn
                             size="x-small"
@@ -265,7 +265,7 @@
         </v-dialog>
 
         <!-- Host Configuration Dialog -->
-        <v-dialog v-model="showHostDialog" max-width="500px" :persistent="isValidatingHost">
+        <v-dialog v-if="!readOnly" v-model="showHostDialog" max-width="500px" :persistent="isValidatingHost">
             <v-card>
                 <v-card-title class="modal-title">Set Device Address</v-card-title>
                 <v-card-text class="pa-4">
@@ -347,6 +347,10 @@ export default defineComponent({
             type: Boolean,
             default: false
         },
+        readOnly: {
+            type: Boolean,
+            default: false
+        },
         showGeneratorLink: {
             type: Boolean,
             default: true
@@ -388,7 +392,9 @@ export default defineComponent({
 
         // Host and endpoint for sending messages - load from localStorage
         const STORAGE_KEY = 'protocol-message-device-host';
-        const hostInput = ref(localStorage.getItem(STORAGE_KEY) || '');
+        const hostInput = ref(!props.readOnly && typeof localStorage !== 'undefined'
+            ? localStorage.getItem(STORAGE_KEY) || ''
+            : '');
         const showHostDialog = ref(false);
         const isValidatingHost = ref(false);
 
@@ -1003,6 +1009,7 @@ export default defineComponent({
         };
 
         const navigateToGenerate = (event: MouseEvent) => {
+            if (props.readOnly) return;
             const url = new URL(window.location.href);
             url.pathname = withBase('/devices/api/tools/generate');
             url.searchParams.set('bytes', props.byteString);
@@ -1035,6 +1042,7 @@ export default defineComponent({
 
         // Save host to localStorage
         const saveHost = async () => {
+            if (props.readOnly) return;
             if (!hostInput.value) {
                 showHostDialog.value = false;
                 return;
@@ -1070,12 +1078,14 @@ export default defineComponent({
 
         // Forget/clear the saved host address
         const forgetHost = () => {
+            if (props.readOnly) return;
             localStorage.removeItem(STORAGE_KEY);
             hostInput.value = '';
         };
 
         // Send message bytes to device endpoint
         const sendToEndpoint = (endpoint: 'p1' | 'p2') => {
+            if (props.readOnly) return;
             // Check if host is set, if not show dialog
             if (!hostInput.value) {
                 showHostDialog.value = true;
