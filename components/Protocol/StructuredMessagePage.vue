@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { withBase } from 'vitepress'
 import Message from './Message.vue'
+import { messageAnchorScrollTop } from '../../utils/MessageAnchor'
 import MessageCodeGen from './MessageCodeGen.vue'
 import {
   documentationTargetOverride,
@@ -148,14 +149,16 @@ const constantsData = computed(() => ({
   },
 }))
 
+let anchorRequest = 0
 async function revealHash(value: string) {
+  const request = ++anchorRequest
   let hash: string
   try { hash = decodeURIComponent(value.slice(1)) } catch { return }
   await nextTick()
   jumpBarHeight.value = jumpBar.value?.getBoundingClientRect().height || 64
   await nextTick()
   const target = document.getElementById(hash)
-  if (!target) return
+  if (!target || !jumpBar.value?.closest('.structured-message')?.contains(target)) return
   // Old v1 and field links still resolve. Open every enclosing disclosure before
   // scrolling, including on initial hydration and browser Back/Forward.
   let ancestor: HTMLElement | null = target
@@ -164,7 +167,12 @@ async function revealHash(value: string) {
     ancestor = ancestor.parentElement
   }
   await nextTick()
-  target.scrollIntoView?.({ block: 'start', behavior: 'instant' })
+  // VitePress handles history and schedules its own scroll in animationFrame.
+  // Correct the landing afterwards, using the actual sticky bar height. A newer
+  // jump cancels this one so rapid clicks cannot scroll back to a stale target.
+  await new Promise<void>(resolve => window.requestAnimationFrame(() => resolve()))
+  if (request !== anchorRequest || !jumpBar.value || !target.isConnected) return
+  window.scrollTo({ top: messageAnchorScrollTop(target, jumpBar.value), behavior: 'instant' })
 }
 
 function readHash() {
@@ -177,13 +185,6 @@ function onAnchorClick(event: MouseEvent) {
   if (!(link instanceof HTMLAnchorElement) || link.target === '_blank' || link.hasAttribute('download')) return
   const url = new URL(link.href, window.location.href)
   if (url.origin !== window.location.origin || url.pathname !== window.location.pathname || url.search !== window.location.search || !url.hash) return
-  if (event.currentTarget instanceof HTMLElement && event.currentTarget.classList.contains('structured-message')) {
-    // VitePress applies its own fixed-header offset to anchor clicks. Own local
-    // jumps so its later scroll cannot cover headings with this taller bar.
-    event.preventDefault()
-    event.stopPropagation()
-    if (window.location.hash !== url.hash) window.history.pushState(window.history.state, '', url.hash)
-  }
   // Hashchange does not fire when the same anchor is clicked again. Handle any
   // same-page link, including links outside this component, before scrolling.
   void revealHash(url.hash)
@@ -214,6 +215,7 @@ onMounted(() => {
   document.addEventListener('click', onAnchorClick)
 })
 onBeforeUnmount(() => {
+  anchorRequest++
   jumpBarObserver?.disconnect()
   window.removeEventListener('hashchange', readHash)
   document.removeEventListener('click', onAnchorClick)
@@ -221,7 +223,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div v-if="documentation" class="structured-message" :style="{ '--message-jump-height': `${jumpBarHeight}px` }" @click.capture="onAnchorClick">
+  <div v-if="documentation" class="structured-message" :style="{ '--message-jump-height': `${jumpBarHeight}px` }">
     <p class="message-summary">{{ documentation.summary }}</p>
     <p v-if="documentation.target" class="support-context"><strong>Applies to</strong> {{ documentation.target }}</p>
 
@@ -475,7 +477,7 @@ onBeforeUnmount(() => {
 .format-status { display: inline-block; margin-left: 10px; padding: 1px 7px; border: 1px solid var(--vp-c-divider); border-radius: 4px; color: var(--reference-muted); font-size: 10px; font-weight: 500; letter-spacing: .02em; vertical-align: middle; }
 .format-description { font-size: 13px; }
 .format-anchor { display: inline-block; width: 0; }
-.legacy-reference { border: 1px solid var(--vp-c-divider); border-radius: 8px; padding: 0 20px 20px; }
+.legacy-reference { border: 0; border-top: 1px solid var(--vp-c-divider); border-radius: 0; padding: 0; }
 .legacy-reference > summary { padding: 16px 0 0; cursor: pointer; }
 .legacy-reference > summary .format-heading { display: inline; font-size: 22px; }
 .legacy-reference:not([open]) { padding-bottom: 16px; }
@@ -490,13 +492,13 @@ onBeforeUnmount(() => {
 .method-subscribe { background: #663e9a; }
 .method-unsubscribe { background: #87551b; }
 .method-upload { background: #036570; }
-.reference-columns { display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr); gap: 36px; align-items: start; }
+.reference-columns { display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr); gap: 32px; align-items: start; }
 .reference-description, .reference-examples { min-width: 0; }
 .structured-message .operation-heading { padding: 0; border: 0; margin: 0 0 12px; font-size: 22px; line-height: 1.4; }
 .prose { white-space: pre-line; overflow-wrap: anywhere; }
 .reference-description > .prose + .prose { margin-top: 12px; }
 .structured-message .target-context { margin-top: 16px; border-left: 2px solid var(--vp-c-divider); padding-left: 12px; font-size: 12px; }
-.context-section { margin-top: 24px; padding: 18px; border: 1px solid var(--vp-c-divider); border-top-width: 3px; border-radius: 7px; }
+.context-section { margin-top: 24px; padding: 16px 0 0; border: 0; border-top: 3px solid var(--vp-c-divider); }
 .context-request { border-top-color: #557caa; }
 .context-response { border-top-color: #45836a; }
 .context-publication { border-top-color: #8965aa; }
@@ -504,7 +506,7 @@ onBeforeUnmount(() => {
 .context-section .context-heading { font-size: 18px; margin-bottom: 10px; }
 .field-group { margin-top: 18px; }
 .field-group .field-group-heading { font-size: 12px; font-weight: 700; color: var(--reference-muted); text-transform: uppercase; letter-spacing: .06em; }
-.header-group { padding: 12px; border: 1px solid var(--vp-c-divider); border-left: 3px solid #7895b5; border-radius: 5px; background: var(--vp-c-bg-soft); }
+.header-group { padding: 12px; border: 0; border-left: 3px solid #7895b5; background: var(--vp-c-bg-soft); }
 .header-group .field-group-heading { color: var(--reference-text); }
 .header-group .field-row:last-child { padding-bottom: 0; }
 .field-list { margin-top: 6px !important; }
@@ -528,14 +530,16 @@ onBeforeUnmount(() => {
 .error-list dd { color: var(--reference-muted); }
 .structured-message .examples-heading { margin: 0 0 5px; padding: 0; border: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; }
 .examples-caption { font-size: 12px; margin-bottom: 18px !important; }
-.example-card { overflow-wrap: anywhere; border: 1px solid var(--vp-c-divider); border-radius: 9px; background: var(--vp-c-bg-soft); margin-bottom: 20px; }
-.example-header { padding: 16px; }
+.example-card { overflow-wrap: anywhere; margin-bottom: 28px; }
+.example-card + .example-card { padding-top: 20px; border-top: 1px solid var(--vp-c-divider); }
+.example-header { padding: 0 0 12px; }
 .example-provenance { display: block; margin-bottom: 7px; color: var(--reference-muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
 .example-header .example-title { font-size: 16px; line-height: 1.5; margin-bottom: 8px; }
 .example-header p { font-size: 12px; }
 .example-target { margin-top: 8px !important; }
 .provenance-note { margin-top: 8px !important; font-size: 11px !important; }
-.example-frame { border-top: 1px solid var(--vp-c-divider); }
+.example-frame { border: 1px solid var(--vp-c-divider); border-radius: 7px; overflow: hidden; }
+.example-frame + .example-frame { margin-top: 12px; }
 .frame-heading { background: var(--vp-c-bg-alt); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 12px 16px; }
 .frame-heading .frame-title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; }
 .frame-role { display: inline-block; padding: 2px 6px; border-radius: 3px; color: #fff; background: #465766; text-transform: uppercase; font-size: 10px; letter-spacing: .07em; font-weight: 700; }
@@ -580,14 +584,12 @@ onBeforeUnmount(() => {
   .jump-message { gap: 0 8px; }
   .jump-message strong { font-size: 12px; }
   .examples-jump { font-size: 10px; }
-  .context-section { padding: 14px 12px; }
   .header-group { padding: 10px; }
   .operation-toolbar { align-items: flex-start; }
   .field-summary-table th, .field-summary-table td { padding: 10px 8px; }
   .field-summary-table tbody th { min-width: 90px; width: 25%; }
   .field-summary-table td:nth-child(2) { width: auto; }
   .field-summary-table { overflow-wrap: anywhere; }
-  .legacy-reference { padding-left: 12px; padding-right: 12px; }
   .structured-message .message-summary { font-size: 15px; }
   .reference-columns { gap: 28px; }
   .frame-heading { padding: 12px; }
