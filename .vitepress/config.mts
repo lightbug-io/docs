@@ -208,6 +208,10 @@ export default withMermaid(defineConfig({
     '/onprem/' : '/silos/',
   },
   vite: {
+    optimizeDeps: {
+      // cspell:ignore fastdom
+      include: ['fastdom', 'fastdom/extensions/fastdom-promised.js'],
+    },
     server: {
       allowedHosts: [
         ".trycloudflare.com"
