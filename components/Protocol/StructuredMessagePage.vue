@@ -31,7 +31,7 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
   const defaultVariant = variants.find(selection => !selection?.legacy) || variants[0]
   return variants.map(selection => {
     const view = getOperationVariant(item, selection?.id)
-    const variantId = selection?.id || ''
+    const variantId = selection?.anchorId || selection?.id || ''
     const anchor = `${operationAnchor(item)}${variantId ? `-variant-${variantId}` : ''}`
     const contexts = (['request', 'response', 'publication'] as const).flatMap(role => {
       const usage = view[role]
@@ -45,7 +45,10 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
         acknowledgment: usage.messageId === 5,
         referenceAnchors: usage.messageId === 5
           ? (['headers', 'fields'] as const).flatMap(kind => Object.keys(usage[kind] || {}).map(id => `${anchor}-${role}-${kind}-${id}`))
-          : [],
+          // Preserve field deep links when a shortened input list omits them.
+          : Object.keys((usage.messageId === undefined ? message.value : props.yamlData.messages?.[usage.messageId])?.data || {})
+            .filter(id => !Object.prototype.hasOwnProperty.call(usage.fields || {}, id))
+            .map(id => `${anchor}-${role}-fields-${id}`),
         groups: usage.messageId === 5 ? [] : (['headers', 'fields'] as const).map(kind => ({
           kind,
           title: kind === 'headers' ? 'Header fields' : 'Data fields',
@@ -80,6 +83,8 @@ const groups = computed(() => {
   if (!docs?.formats?.length) {
     const standard = {
       id: 'standard',
+      anchorId: undefined,
+      fieldPrefix: '',
       anchor: undefined,
       label: '',
       title: '',
@@ -92,6 +97,8 @@ const groups = computed(() => {
     const legacyPanels = panels.value.filter(panel => panel.legacy)
     return legacyFields.length || legacyPanels.length ? [standard, {
       id: 'legacy',
+      anchorId: undefined,
+      fieldPrefix: 'legacy-',
       anchor: `message-${props.messageId}-legacy`,
       label: 'Legacy',
       title: 'Legacy format',
@@ -104,17 +111,21 @@ const groups = computed(() => {
 
   const formats = docs.formats.map(format => ({
     id: format.id,
-    anchor: `message-${props.messageId}-${format.legacy ? 'legacy' : `format-${format.id}`}`,
+    anchorId: format.anchorId,
+    anchor: `message-${props.messageId}-${format.legacy && (format.anchorId === 'legacy' || format.id === 'legacy') ? 'legacy' : `format-${format.anchorId || format.id}`}`,
+    fieldPrefix: format.anchorId || ['current', 'legacy'].includes(format.id) ? (format.legacy ? 'legacy-' : '') : `format-${format.id}-`,
     label: format.label,
     title: `${format.label} format`,
     description: format.description,
     legacy: !!format.legacy,
-    fields: resolveDocumentationFields(props.yamlData, message.value, format.legacy ? docs.legacyFields : docs.fields, 'fields'),
+    fields: resolveDocumentationFields(props.yamlData, message.value, format.fields || (format.legacy ? docs.legacyFields : docs.fields), 'fields'),
     panels: panels.value.filter(panel => panel.formatId === format.id),
   }))
   const sharedPanels = panels.value.filter(panel => !panel.formatId)
   return sharedPanels.length ? [...formats, {
     id: 'shared',
+    anchorId: undefined,
+    fieldPrefix: '',
     anchor: `message-${props.messageId}-format-independent`,
     label: 'Any format',
     title: 'Format-independent operations',
@@ -260,19 +271,19 @@ onBeforeUnmount(() => {
       :aria-labelledby="hasFormats || group.legacy ? `${group.anchor}-heading` : undefined"
     >
       <summary v-if="group.legacy">
-        <h2 :id="`${group.anchor}-heading`" class="format-heading"><span :id="`message-${messageId}-format-${group.id}`" class="format-anchor" aria-hidden="true"></span>{{ group.title }}<span class="format-status">Legacy</span></h2>
+        <h2 :id="`${group.anchor}-heading`" class="format-heading"><span v-if="group.anchor !== `message-${messageId}-format-${group.anchorId || group.id}`" :id="`message-${messageId}-format-${group.anchorId || group.id}`" class="format-anchor" aria-hidden="true"></span>{{ group.title }}<span class="format-status">Legacy</span></h2>
       </summary>
       <h2 v-else-if="hasFormats" :id="`${group.anchor}-heading`" class="format-heading">{{ group.title }}<span v-if="group.id !== 'shared'" class="format-status">Current</span></h2>
       <p v-if="group.description" class="format-description prose">{{ group.description }}</p>
 
-      <section v-if="group.fields.length" :id="`message-${messageId}-${group.legacy ? 'legacy-' : ''}fields`" class="message-fields" :aria-labelledby="`message-${messageId}-${group.legacy ? 'legacy-' : ''}fields-heading`">
-        <component :is="hasFormats || group.legacy ? 'h3' : 'h2'" :id="`message-${messageId}-${group.legacy ? 'legacy-' : ''}fields-heading`" class="fields-heading">{{ group.legacy ? 'Legacy fields' : 'Message fields' }}</component>
+      <section v-if="group.fields.length" :id="`message-${messageId}-${group.fieldPrefix ?? (group.legacy ? 'legacy-' : '')}fields`" class="message-fields" :aria-labelledby="`message-${messageId}-${group.fieldPrefix ?? (group.legacy ? 'legacy-' : '')}fields-heading`">
+        <component :is="hasFormats || group.legacy ? 'h3' : 'h2'" :id="`message-${messageId}-${group.fieldPrefix ?? (group.legacy ? 'legacy-' : '')}fields-heading`" class="fields-heading">{{ group.legacy ? 'Legacy fields' : 'Message fields' }}</component>
         <p class="section-caption">Fields specific to {{ message.name }}. Operation sections below explain when each field is used.</p>
         <div class="field-summary-table">
           <table>
             <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th></tr></thead>
             <tbody>
-              <tr v-for="field in group.fields" :id="`message-${messageId}-${group.legacy ? 'legacy-' : ''}field-${field.id}`" :key="field.id">
+              <tr v-for="field in group.fields" :id="`message-${messageId}-${group.fieldPrefix ?? (group.legacy ? 'legacy-' : '')}field-${field.id}`" :key="field.id">
                 <th scope="row"><span class="summary-field-name">{{ field.name }}</span><span class="field-id">Field {{ field.id }}</span></th>
                 <td><code>{{ field.type }}</code></td>
                 <td>

@@ -17,6 +17,25 @@ import { calculateCRC16XMODEM, messageToBytesHelper, parseRawMessage, readUint16
 
 const protocol: any = yaml.load(readFileSync(resolve(__dirname, '../public/files/protocol-v3.yaml'), 'utf8'))
 const clone = (value: any) => JSON.parse(JSON.stringify(value))
+// Keep the PR's previous authoring shape covered without a second large YAML fixture.
+const legacyProtocol = () => {
+    const sample = clone(protocol)
+    for (const id of [39, 58]) {
+        const message = sample.messages[id]
+        message.docs = clone(getMessageDocumentation(message))
+        for (const operation of message.docs.operations) {
+            delete operation.format
+            for (const variant of operation.variants || []) delete variant.format
+        }
+        delete message.versions
+        delete message.contexts
+        for (const method of Object.values(message.methods) as any[]) {
+            if (method) { delete method.versions; delete method.exchange }
+        }
+    }
+    return sample
+}
+
 
 describe('optional message documentation', () => {
     it('leaves legacy messages on their existing renderer', () => {
@@ -60,7 +79,7 @@ describe('optional message documentation', () => {
     })
 
     it('rejects broken references and duplicate anchors before generation', () => {
-        const sample = clone(protocol)
+        const sample = legacyProtocol()
         sample.messages[39].docs = {
             summary: 'Test',
             fields: { 98: {} },
@@ -95,13 +114,13 @@ describe('optional message documentation', () => {
         const before = clone(usage)
         expect(resolveDocumentationFields(protocol, protocol.messages[58], usage, 'headers').map(field => field.id)).toEqual([4, 5, 1, 17, 22])
         expect(usage).toEqual(before)
-        const set = protocol.messages[58].docs.operations.find((operation: DocumentationOperation) => operation.method === 'SET')
-        expect(resolveDocumentationFields(protocol, protocol.messages[58], set.request.headers, 'headers').map(field => field.id)).toEqual([5, 22, 1])
-        expect(resolveDocumentationFields(protocol, protocol.messages[58], set.request.fields, 'fields')[0].id).toBe(129)
+        const set = getMessageDocumentation(protocol.messages[58])!.operations.find((operation: DocumentationOperation) => operation.method === 'SET')
+        expect(resolveDocumentationFields(protocol, protocol.messages[58], set!.request!.headers, 'headers').map(field => field.id)).toEqual([5, 22, 1])
+        expect(resolveDocumentationFields(protocol, protocol.messages[58], set!.request!.fields, 'fields')[0].id).toBe(129)
     })
 
     it('accepts optional reference-note placement while retaining the overview default', () => {
-        const sample = clone(protocol)
+        const sample = legacyProtocol()
         sample.messages[39].docs.notes = [
             { id: 'purpose', title: 'Purpose', description: 'Overview text' },
             { id: 'detail', title: 'Details', description: 'Reference text', placement: 'reference' },
@@ -116,11 +135,11 @@ describe('optional message documentation', () => {
         ])
         for (const id of ['get', 'set', 'subscribe', 'tracking-session']) {
             const operation = docs.operations.find(item => item.id === id)!
-            expect(getDocumentationFormat(docs, getOperationVariant(operation))?.id).toBe('current')
+            expect(getDocumentationFormat(docs, getOperationVariant(operation))?.id).toBe('2026-10')
         }
         for (const method of ['GET', 'SUBSCRIBE']) {
             const operation = docs.operations.find(item => item.method === method)!
-            expect(getDocumentationFormat(docs, getOperationVariant(operation, 'v1'))?.id).toBe('legacy')
+            expect(getDocumentationFormat(docs, getOperationVariant(operation, 'v1'))?.id).toBe('2025-10')
         }
         expect(getDocumentationFormat(docs, docs.operations.find(item => item.method === 'UNSUBSCRIBE')!)).toBeUndefined()
         expect(getMessageDocumentation(protocol.messages[39])!.formats).toBeUndefined()
@@ -130,13 +149,13 @@ describe('optional message documentation', () => {
     })
 
     it('rejects ambiguous format definitions and mismatched operation membership', () => {
-        const sample = clone(protocol)
+        const sample = legacyProtocol()
         const docs = sample.messages[58].docs
-        docs.formats.push({ id: 'current', label: '', messageVersion: 2, legacy: 'yes' })
+        docs.formats.push({ id: '2026-10', label: '', messageVersion: 2, legacy: 'yes' })
         docs.operations.find((item: DocumentationOperation) => item.id === 'set').messageVersion = 9
         docs.operations.find((item: DocumentationOperation) => item.id === 'get').variants[1].legacy = false
         const errors = validateMessageDocumentation(sample, 58).join('\n')
-        expect(errors).toContain('duplicate format id current')
+        expect(errors).toContain('duplicate format id 2026-10')
         expect(errors).toContain('needs a format label')
         expect(errors).toContain('duplicate format messageVersion 2')
         expect(errors).toContain('invalid format legacy flag')
@@ -157,7 +176,7 @@ describe('optional message documentation', () => {
     })
 
     it('accepts a response payload scoped to its actual ACK message', () => {
-        const sample = clone(protocol)
+        const sample = legacyProtocol()
         sample.messages[39].docs = {
             summary: 'Test', operations: [{ id: 'write', title: 'Write', method: 'SET',
                 response: { messageId: 5, fields: { 1: { value: 39 } } },
@@ -167,7 +186,7 @@ describe('optional message documentation', () => {
     })
 
     it('migrates only GPS Control and Message Box and validates their references', () => {
-        expect(Object.entries(protocol.messages).filter(([, value]: [string, any]) => value.docs).map(([id]) => Number(id))).toEqual([39, 58])
+        expect(Object.entries(protocol.messages).filter(([, value]: [string, any]) => getMessageDocumentation(value)).map(([id]) => Number(id))).toEqual([39, 58])
         for (const id of [39, 58]) expect(validateMessageDocumentation(protocol, id)).toEqual([])
     })
 
@@ -179,8 +198,8 @@ describe('optional message documentation', () => {
             expect([...current, ...legacy].sort()).toEqual(Object.keys(protocol.messages[id].data).sort())
             expect(current.filter(key => legacy.includes(key))).toEqual([])
         }
-        expect(Object.keys(protocol.messages[58].docs.fields)).toEqual(['2', '129'])
-        expect(Object.keys(protocol.messages[58].docs.legacyFields)).toEqual(['1', '10', '11', '12', '13', '14'])
+        expect(Object.keys(getMessageDocumentation(protocol.messages[58])!.fields!)).toEqual(['2', '129'])
+        expect(Object.keys(getMessageDocumentation(protocol.messages[58])!.legacyFields!)).toEqual(['1', '10', '11', '12', '13', '14'])
     })
 
     it('makes Message Box v2 primary while retaining explicit legacy v1 variants', () => {
@@ -194,6 +213,114 @@ describe('optional message documentation', () => {
             expect(legacy[0].messageVersion).toBe(1)
             expect(legacy[0].examples!.length).toBeGreaterThan(0)
         }
+    })
+})
+
+describe('inline date-keyed authoring', () => {
+    it('normalizes without changing the source or adding a second authored version ID', () => {
+        const before = clone(protocol)
+        const message = protocol.messages[58]
+        expect(message.docs).toBeUndefined()
+        expect(Object.keys(message.versions)).toEqual(['2026-10', '2025-10'])
+        expect(message.data[129].versions).toEqual(['2026-10'])
+        expect(message.data[1].versions).toEqual(['2025-10'])
+        const docs = getMessageDocumentation(message)!
+        expect(docs.formats!.map(format => format.id)).toEqual(['2026-10', '2025-10'])
+        expect(docs.formats![1].anchorId).toBe('legacy')
+        expect(docs.formats![0].anchorId).toBe('current') // Retain the already published deep link.
+        expect(docs.formats![0].fields).toEqual({ 2: {}, 129: {} })
+        for (const version of Object.values(message.versions) as any[]) {
+            expect(version.id).toBeUndefined()
+            expect(version.label).toBeUndefined()
+            expect(version.messageVersion).toBeUndefined()
+        }
+        expect(protocol).toEqual(before)
+    })
+
+    it('keeps the previous docs schema and unmigrated pages working', () => {
+        const previous = legacyProtocol()
+        expect(getMessageDocumentation(previous.messages[58])).toBe(previous.messages[58].docs)
+        expect(validateMessageDocumentation(previous, 58)).toEqual([])
+        expect(getMessageDocumentation(previous.messages[15])).toBeUndefined()
+    })
+
+    it('preserves direct SDK request/response map presence and field IDs', () => {
+        const gps = protocol.messages[39].methods
+        expect(gps.GET.request).toBeNull()
+        expect(gps.GET.response).toEqual({ 1: null, 2: null })
+        expect(Object.keys(gps.SET.request)).toEqual(['2', '3'])
+        expect(gps.SET.request[2].description).toBe('Automatically controls the GPS module.')
+        expect(gps.SET.response).toBeNull()
+        for (const method of Object.values(protocol.messages[58].methods) as any[]) {
+            expect(Object.prototype.hasOwnProperty.call(method, 'request')).toBe(false)
+            expect(Object.prototype.hasOwnProperty.call(method, 'response')).toBe(false)
+        }
+    })
+
+    it('rejects unknown dates, bad applicability and inconsistent wire selectors', () => {
+        const sample = clone(protocol)
+        const message = sample.messages[58]
+        message.data[129].versions = ['2099-10']
+        message.methods.SET.versions['2099-10'] = message.methods.SET.versions['2026-10']
+        message.methods.GET.versions['2026-10'].response.headers[22].value = 1
+        const errors = validateMessageDocumentation(sample, 58).join('\n')
+        expect(errors).toContain('field 129 references unknown version 2099-10')
+        expect(errors).toContain('SET references unknown version 2099-10')
+        expect(errors).toContain('uses field 129 outside its versions')
+        expect(errors).toContain('inconsistent header 22 values')
+        message.data[129].versions = {}
+        expect(validateMessageDocumentation(sample, 58).join('\n')).toContain('versions must be a nonempty list')
+    })
+
+    it('rejects malformed inline contexts before normalization can conceal them', () => {
+        for (const update of [
+            (message: any) => { message.methods.SET.exchange.request.fields[2] = null },
+            (message: any) => { message.methods.SET.exchange.request = 'broken' },
+            (message: any) => { message.contexts = [] },
+            (message: any) => { message.contexts = { tracking: null } },
+        ]) {
+            const sample = clone(protocol)
+            update(sample.messages[39])
+            expect(validateMessageDocumentation(sample, 39).length).toBeGreaterThan(0)
+        }
+        const sample = clone(protocol)
+        sample.messages[58].methods.GET.versions['2026-10'].response.fields[2] = null
+        expect(validateMessageDocumentation(sample, 58).join('\n')).toContain('fields 2 must be an object')
+    })
+
+    it('keeps semantic dates distinct when two formats use the same wire selector', () => {
+        const sample = clone(protocol)
+        const message = sample.messages[58]
+        message.versions['2026-11'] = { description: 'Another semantic revision using the same wire format.' }
+        message.methods.GET.versions['2026-11'] = clone(message.methods.GET.versions['2026-10'])
+        for (const field of Object.values(message.data) as any[]) {
+            if (field.versions?.includes('2026-10')) field.versions.push('2026-11')
+        }
+        const docs = getMessageDocumentation(message)!
+        const get = docs.operations.find(operation => operation.id === 'get')!
+        expect(get.variants!.map(variant => variant.id)).toEqual(['2026-10', '2025-10', '2026-11'])
+        expect(getOperationVariant(get).format).toBe('2026-10')
+        expect(getOperationVariant(get, '2026-11').format).toBe('2026-11')
+        expect(getOperationVariant(get, 'v2').format).toBe('2026-10')
+        expect(validateMessageDocumentation(sample, 58)).toEqual([])
+    })
+
+    it('inherits existing method field descriptions before base descriptions', () => {
+        const message = clone(protocol.messages[39])
+        delete message.methods.SET.exchange.request.fields[2].description
+        const docs = getMessageDocumentation(message)!
+        const set = docs.operations.find(operation => operation.method === 'SET')!
+        expect(set.request!.fields![2].description).toBe(message.methods.SET.request[2].description)
+        expect(message.methods.SET.exchange.request.fields[2].description).toBeUndefined()
+    })
+
+    it('keeps ignored checksums out of SET inputs without deleting the compatibility rule', () => {
+        const set = protocol.messages[58].methods.SET.versions['2026-10']
+        expect(Object.keys(set!.request!.fields)).toEqual(['129'])
+        expect(set.request.description).toContain('checksum fields 1 and 2 are ignored')
+        expect(set!.request!.fields[129]).toMatchObject({ presence: 'required', maxBytes: 1024 })
+        const get = protocol.messages[58].methods.GET.versions['2026-10']
+        expect(get.response.fields[2].presence).toBe('required')
     })
 })
 
