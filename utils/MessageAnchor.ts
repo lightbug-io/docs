@@ -52,7 +52,16 @@ export function revealMessageAnchor(root: HTMLElement, hash: string): HTMLElemen
 export function activeMessageOutlineId(entries: MessageOutlineEntry[], root: HTMLElement, offset: number, atBottom = false): string {
     const visible = entries.flatMap(entry => {
         const target = root.ownerDocument.getElementById(entry.id)
-        return target && root.contains(target) && target.getClientRects().length ? [{ id: entry.id, top: messageAnchorTop(target) }] : []
+        if (!target || !root.contains(target) || !target.getClientRects().length) return []
+        // Closed disclosures can retain layout boxes for their unpainted content.
+        // Their summary remains visible, but its siblings must not become active.
+        let ancestor = target.parentElement
+        while (ancestor && root.contains(ancestor)) {
+            if (ancestor.tagName === 'DETAILS' && !(ancestor as HTMLDetailsElement).open
+                && !ancestor.querySelector(':scope > summary')?.contains(target)) return []
+            ancestor = ancestor.parentElement
+        }
+        return [{ id: entry.id, top: messageAnchorTop(target) }]
     })
     if (atBottom && visible.length) return visible[visible.length - 1].id
     let active = visible[0]?.id || entries[0]?.id || ''

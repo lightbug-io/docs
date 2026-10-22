@@ -153,15 +153,33 @@ describe('responsive message outline', () => {
         details.getBoundingClientRect = () => ({ top: -100, height: 40 } as DOMRect)
         details.getClientRects = () => [details.getBoundingClientRect()] as unknown as DOMRectList
         root.append(details)
-        heading('legacy-get', -50, () => details.open, details)
-        const field = heading('legacy-get-field-1', 0, () => details.open, details)
+        // Browsers can retain nonempty layout rects inside a closed disclosure.
+        heading('legacy-get', -50, () => true, details)
+        const field = heading('legacy-get-field-1', 0, () => true, details)
         expect(activeMessageOutlineId(entries, root, 80)).toBe('legacy')
         expect(revealMessageAnchor(root, '#legacy-get-field-1')).toBe(field)
         expect(details.open).toBe(true)
         expect(activeMessageOutlineId(entries, root, 80)).toBe('legacy-get')
         details.open = false
+        expect(activeMessageOutlineId(entries, root, 80)).toBe('legacy')
         expect(revealMessageAnchor(root, '#legacy-get-field-1')).toBe(field)
         expect(details.open).toBe(true)
+    })
+    it('keeps visible summary anchors but skips nested content inside a closed outer disclosure', () => {
+        heading('overview', -200)
+        const outer = document.createElement('details')
+        const summary = document.createElement('summary')
+        outer.append(summary)
+        root.append(outer)
+        heading('legacy', -100, () => true, summary)
+        const inner = document.createElement('details')
+        inner.open = true
+        outer.append(inner)
+        heading('legacy-get', -50, () => true, inner)
+        expect(activeMessageOutlineId(entries, root, 80)).toBe('legacy')
+        expect(activeMessageOutlineId(entries, root, 80, true)).toBe('legacy')
+        outer.open = true
+        expect(activeMessageOutlineId(entries, root, 80)).toBe('legacy-get')
     })
     it('resolves encoded aliases and opens nested disclosures without touching another page', () => {
         root.innerHTML = '<details><summary>Legacy</summary><details><summary>More</summary><span id="old field"></span></details></details>'
