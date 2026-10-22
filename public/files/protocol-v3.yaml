@@ -1846,7 +1846,6 @@ messages:
               description: >-
                 Generated request/response pair, not a device capture. The illustrative response reports
                 GPS on and correction data enabled.
-              target: Viper
               frames:
                 - role: request
                   label: GPS Control request · ID 3901
@@ -1930,7 +1929,6 @@ messages:
               description: >-
                 Generated request and success ACK, not a device capture. Field 2 selects the full RTCM
                 stream and field 3 requests Normal start mode.
-              target: Viper
               frames:
                 - role: request
                   label: GPS Control request · ID 3902
@@ -3246,10 +3244,27 @@ messages:
         bytes: 3 17 0 58 0 2 0 1 5 1 1 1 2 0 0 218 13
     docs:
       summary: >-
-        Message Box keeps up to 1024 bytes of server-managed data cached on a Viper for a connected
+        Message Box keeps up to 1024 bytes of server-managed data cached on the device for a connected
         application. GET reads the local cache, SUBSCRIBE delivers later cache updates, and SET
         replaces or clears the cached bytes.
       target: Viper devices only
+      formats:
+        # Source introductions, not firmware release dates:
+        # v2: firmware-st/commit/24d4d43c2c7fd126ae2d2f5b9ab904debdb3ba1b
+        # v1: firmware-st/commit/7fe7f6dce94461cbfc0f1d35e24fc499710c7df0
+        - id: current
+          label: "2026-10"
+          messageVersion: 2
+          description: >-
+            Complete payload and CRC-16 format. GET and SUBSCRIBE explicitly select wire Message
+            Version 2 with header 22; omitting it selects the legacy format. SET requires 2.
+        - id: legacy
+          label: "2025-10"
+          messageVersion: 1
+          legacy: true
+          description: >-
+            Earlier chunked payload and additive-checksum format, retained for existing integrations.
+            GET and SUBSCRIBE use this format when header 22 is omitted or set to 1. No legacy SET is supported.
       fields:
         "2":
           description: >-
@@ -3290,11 +3305,11 @@ messages:
               description: "Not Supported: the product or firmware does not support this operation."
           variants:
             - id: v2
-              title: Version 2 · complete payload
+              title: 2026-10 · complete payload
               messageVersion: 2
               description: Select the complete extended payload and its CRC-16/XMODEM.
               request:
-                title: GET version 2
+                title: GET request
                 description: No payload fields are needed.
                 headers:
                   "1":
@@ -3358,11 +3373,11 @@ messages:
                         53 54 55 56 57 50 98
             - id: v1
               legacy: true
-              title: Version 1 · legacy chunks
+              title: 2025-10 · legacy chunks
               messageVersion: 1
               description: Use the unchanged legacy wire layout and additive checksum.
               request:
-                title: GET version 1
+                title: GET request
                 description: No payload fields are needed.
                 headers:
                   "1":
@@ -3458,12 +3473,13 @@ messages:
         - id: set
           title: Replace or clear the cached message
           method: SET
+          messageVersion: 2
           description: >-
             Every accepted SET updates the cache, writes it to persistent storage when enabled, and
             publishes to current subscribers, even for identical bytes. SET does not change the selected
             subscription format.
           request:
-            title: SET version 2
+            title: SET request
             description: >-
               Message Version 2 and field 129 are required. The device calculates the payload CRC; the
               outer message-frame CRC protects the SET request itself.
@@ -3600,7 +3616,7 @@ messages:
               messageVersion: 2
               description: Explicit version 2 selects the shared extended-payload and CRC publication format.
               request:
-                title: SUBSCRIBE version 2
+                title: SUBSCRIBE request
                 headers:
                   "1":
                     presence: optional
@@ -3696,7 +3712,7 @@ messages:
                 Omitted, explicitly 0, malformed-width, or explicit version 1 selects the shared legacy
                 publication format.
               request:
-                title: SUBSCRIBE version 1
+                title: SUBSCRIBE request
                 headers:
                   "1":
                     presence: optional
@@ -3874,6 +3890,7 @@ messages:
                   bytes: 3 24 0 5 0 2 0 3 4 4 175 22 0 0 1 0 1 0 1 2 58 0 232 216
         - id: tracking-session
           title: Tracking-session uploads
+          messageVersion: 2
           target: Viper or Transmit Now upload-enabled firmware
           description: >-
             A separate device-to-server context, not a GET response or subscription update.
@@ -3918,21 +3935,22 @@ messages:
                   bytes: 3 23 0 58 0 1 0 22 1 2 2 0 2 129 2 195 49 2 0 85 80 157 129
       notes:
         - id: support
-          title: Viper-only feature
+          title: Unsupported products
           placement: overview
           description: >-
-            The complete cached Message Box feature is available only on Viper devices running
-            supporting firmware. Other products return Not Supported (Status header 4, code 7).
+            The cached feature requires supporting firmware. Unsupported products return Not
+            Supported (Status header 4, code 7). Independent Transmit Now uploads are documented
+            separately below and do not imply support for the cached feature.
         - id: sync-lifecycle
           title: How syncing works
           placement: overview
           description: |
-            Viper reports its cached-message checksum during a tracking session. If a completed session
+            The device reports its cached-message checksum during a tracking session. If a completed session
             contains a valid report and the server's configured data has a different checksum, the
             server can send a version 2 SET with the desired bytes. Unconfigured or invalid server data
             leaves the cache unchanged; an explicitly configured empty payload requests a clear.
 
-            When Viper accepts the SET, it replaces the cache, saves it when persistent storage is
+            When the device accepts the SET, it replaces the cache, saves it when persistent storage is
             enabled, and publishes to current subscribers. GET reads this local cache; subscribing does
             not itself fetch data from the server.
 
@@ -3940,13 +3958,13 @@ messages:
             the update again if it still differs. Sending an update or receiving an ACK alone does not
             confirm that the cache is synchronized.
         - id: message-versions
-          title: Current and legacy formats
-          placement: overview
+          title: Format dates and wire selectors
+          placement: reference
           description: >-
-            Message Version 2 is the current format; version 1 remains documented for compatibility.
-            This message-format version is separate from protocol version 3. Set Message Version
-            (header 22) to 2 explicitly for current GET and SUBSCRIBE requests; omitting it selects the
-            legacy format. SET requires version 2.
+            The date labels identify when each documented format was introduced in source, not a
+            firmware release date. The 2026-10 format uses Message Version 2; the earlier 2025-10
+            format uses Message Version 1. This header-22 selector is separate from protocol version 3.
+            The numeric values remain visible in the request and response header documentation.
         - id: checksum-scope
           title: Payload CRC and frame CRC are different
           placement: reference

@@ -6,6 +6,8 @@ const yaml = require('js-yaml')
 import {
     getMessageDocumentation,
     getOperationVariant,
+    getDocumentationFormat,
+    documentationTargetOverride,
     resolveDocumentationFields,
     validateMessageDocumentation,
     type DocumentationOperation,
@@ -107,6 +109,50 @@ describe('optional message documentation', () => {
         expect(validateMessageDocumentation(sample, 39)).toEqual([])
     })
 
+    it('groups dated formats by their wire selector without classifying shared controls as current', () => {
+        const docs = getMessageDocumentation(protocol.messages[58])!
+        expect(docs.formats?.map(format => [format.label, format.messageVersion, !!format.legacy])).toEqual([
+            ['2026-10', 2, false], ['2025-10', 1, true],
+        ])
+        for (const id of ['get', 'set', 'subscribe', 'tracking-session']) {
+            const operation = docs.operations.find(item => item.id === id)!
+            expect(getDocumentationFormat(docs, getOperationVariant(operation))?.id).toBe('current')
+        }
+        for (const method of ['GET', 'SUBSCRIBE']) {
+            const operation = docs.operations.find(item => item.method === method)!
+            expect(getDocumentationFormat(docs, getOperationVariant(operation, 'v1'))?.id).toBe('legacy')
+        }
+        expect(getDocumentationFormat(docs, docs.operations.find(item => item.method === 'UNSUBSCRIBE')!)).toBeUndefined()
+        expect(getMessageDocumentation(protocol.messages[39])!.formats).toBeUndefined()
+    })
+
+    it('rejects ambiguous format definitions and mismatched operation membership', () => {
+        const sample = clone(protocol)
+        const docs = sample.messages[58].docs
+        docs.formats.push({ id: 'current', label: '', messageVersion: 2, legacy: 'yes' })
+        docs.operations.find((item: DocumentationOperation) => item.id === 'set').messageVersion = 9
+        docs.operations.find((item: DocumentationOperation) => item.id === 'get').variants[1].legacy = false
+        const errors = validateMessageDocumentation(sample, 58).join('\n')
+        expect(errors).toContain('duplicate format id current')
+        expect(errors).toContain('needs a format label')
+        expect(errors).toContain('duplicate format messageVersion 2')
+        expect(errors).toContain('invalid format legacy flag')
+        expect(errors).toContain('unknown format messageVersion 9')
+        expect(errors).toContain('disagrees with its format legacy flag')
+    })
+
+    it('suppresses inherited targets but retains actual operation and example exceptions', () => {
+        expect(documentationTargetOverride(undefined, 'Viper devices only')).toBeUndefined()
+        expect(documentationTargetOverride(' Viper  devices ONLY ', 'Viper devices only')).toBeUndefined()
+        const docs = getMessageDocumentation(protocol.messages[58])!
+        const upload = docs.operations.find(item => item.id === 'tracking-session')!
+        expect(documentationTargetOverride(upload.target, docs.target)).toBe(upload.target)
+        expect(documentationTargetOverride(upload.examples![0].target, upload.target)).toBe(upload.examples![0].target)
+        for (const operation of getMessageDocumentation(protocol.messages[39])!.operations) {
+            expect(operation.examples!.every(example => !example.target)).toBe(true)
+        }
+    })
+
     it('accepts a response payload scoped to its actual ACK message', () => {
         const sample = clone(protocol)
         sample.messages[39].docs = {
@@ -179,6 +225,9 @@ describe('documented generated wire examples', () => {
                             }
                             if (frame.role === 'response') expect(parsed.messageType).toBe(view.response?.messageId || id)
                             if (frame.role === 'publication' || frame.role === 'upload') expect(parsed.messageType).toBe(id)
+                            if (id === 58 && parsed.messageType === id && view.messageVersion !== undefined) {
+                                expect(parsed.header[22]?.[0] ?? 1).toBe(view.messageVersion)
+                            }
                             const context = frame.role === 'upload' ? view.publication : view[frame.role]
                             for (const kind of ['headers', 'fields'] as const) {
                                 const fields = kind === 'headers' ? parsed.header : parsed.data

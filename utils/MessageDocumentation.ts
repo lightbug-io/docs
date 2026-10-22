@@ -44,14 +44,34 @@ export interface DocumentationOperation extends DocumentationVariant {
     variants?: DocumentationVariant[]
 }
 
+/** Human-facing release labels do not replace the numeric wire version. */
+export interface DocumentationFormat {
+    id: string
+    label: string
+    messageVersion: number
+    legacy?: boolean
+    description?: string
+}
+
 export interface MessageDocumentation {
     summary: string
     target?: string
     /** Message-specific field summaries, referencing message.data definitions. */
     fields?: Record<string, DocumentationField>
     legacyFields?: Record<string, DocumentationField>
+    formats?: DocumentationFormat[]
     operations: DocumentationOperation[]
     notes?: { id: string; title: string; description: string; placement?: 'overview' | 'reference' }[]
+}
+
+export function getDocumentationFormat(docs: MessageDocumentation, view: DocumentationVariant): DocumentationFormat | undefined {
+    return docs.formats?.find(format => format.messageVersion === view.messageVersion)
+}
+
+/** Only show a target again when a more specific context actually overrides it. */
+export function documentationTargetOverride(target?: string, inherited?: string): string | undefined {
+    const normalize = (value?: string) => value?.trim().replace(/\s+/g, ' ').toLowerCase()
+    return normalize(target) && normalize(target) !== normalize(inherited) ? target : undefined
 }
 
 export function getMessageDocumentation(message: any): MessageDocumentation | undefined {
@@ -121,6 +141,18 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
         return errors
     }
     validateIds(docs.operations, 'operation')
+    if (docs.formats) {
+        validateIds(docs.formats, 'format')
+        const versions = new Set<number>()
+        for (const format of docs.formats) {
+            if (!format || typeof format !== 'object') continue
+            if (typeof format.label !== 'string' || !format.label.trim()) fail(`${format.id} needs a format label`)
+            if (!Number.isInteger(format.messageVersion) || format.messageVersion < 0) fail(`${format.id} has invalid format messageVersion`)
+            if (versions.has(format.messageVersion)) fail(`duplicate format messageVersion ${format.messageVersion}`)
+            versions.add(format.messageVersion)
+            if (format.legacy !== undefined && typeof format.legacy !== 'boolean') fail(`${format.id} has invalid format legacy flag`)
+        }
+    }
     if (docs.notes) {
         validateIds(docs.notes, 'note')
         for (const note of docs.notes) {
@@ -179,6 +211,11 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
             if (view.legacy !== undefined && typeof view.legacy !== 'boolean') fail(`${label} has invalid legacy flag`)
             if (view.messageVersion !== undefined && (!Number.isInteger(view.messageVersion) || view.messageVersion < 0)) {
                 fail(`${label} has invalid messageVersion`)
+            }
+            if (docs.formats && view.messageVersion !== undefined) {
+                const format = getDocumentationFormat(docs, view)
+                if (!format) fail(`${label} references unknown format messageVersion ${view.messageVersion}`)
+                else if (!!format.legacy !== !!view.legacy) fail(`${label} disagrees with its format legacy flag`)
             }
             for (const role of ['request', 'response', 'publication'] as const) validateContext(view[role], `${label} ${role}`)
             for (const error of view.errors || []) {
