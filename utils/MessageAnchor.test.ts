@@ -1,4 +1,4 @@
-import { installMessageRouteCorrection, messageAnchorScrollTop } from './MessageAnchor'
+import { activeMessageOutlineId, installMessageRouteCorrection, messageAnchorScrollTop, messageNavigationOffset, messageOutlineTrail, revealMessageAnchor, type MessageOutlineEntry } from './MessageAnchor'
 
 describe('message anchor clearance', () => {
     const element = (top: number, height = 0) => {
@@ -82,5 +82,115 @@ describe('message route completion correction', () => {
         router.onAfterRouteChange = later
         remove()
         expect(router.onAfterRouteChange).toBe(later)
+    })
+})
+
+
+describe('responsive message outline', () => {
+    const entries: MessageOutlineEntry[] = [
+        { id: 'overview', title: 'Overview', depth: 0 },
+        { id: 'current', title: 'Current format', label: 'Current', depth: 0 },
+        { id: 'fields', title: 'Message fields', depth: 1 },
+        { id: 'get', title: 'GET: Read state', label: 'GET', depth: 1 },
+        { id: 'get-request', title: 'Request', depth: 2 },
+        { id: 'get-response', title: 'Expected response', label: 'Response', depth: 2 },
+        { id: 'subscribe', title: 'SUBSCRIBE: Watch state', label: 'SUBSCRIBE', depth: 1 },
+        { id: 'subscribe-response', title: 'Expected response', label: 'Response', depth: 2 },
+        { id: 'legacy', title: 'Legacy format', depth: 0 },
+        { id: 'legacy-get', title: 'GET: Read legacy state', depth: 1 },
+        { id: 'constants', title: 'Message and field constants', depth: 0 },
+    ]
+    let root: HTMLElement
+    const heading = (id: string, top: number, visible = () => true, parent = root) => {
+        const node = document.createElement('h2')
+        node.id = id
+        node.getBoundingClientRect = () => ({ top, height: 24 } as DOMRect)
+        node.getClientRects = () => (visible() ? [node.getBoundingClientRect()] : []) as unknown as DOMRectList
+        parent.append(node)
+        return node
+    }
+    beforeEach(() => {
+        document.body.replaceChildren()
+        root = document.createElement('article')
+        document.body.append(root)
+        Object.defineProperty(window, 'scrollY', { configurable: true, value: 1000 })
+    })
+    it('uses compact clearance but never subtracts the tall desktop rail', () => {
+        const navigation = document.createElement('nav')
+        navigation.style.top = '64px'
+        navigation.getBoundingClientRect = () => ({ height: 640 } as DOMRect)
+        const bar = document.createElement('div')
+        bar.dataset.messageNavigationBar = ''
+        bar.getBoundingClientRect = () => ({ height: 72 } as DOMRect)
+        navigation.append(bar)
+        root.append(navigation)
+        const target = heading('get', 500)
+        expect(messageNavigationOffset(navigation)).toBe(152)
+        expect(messageAnchorScrollTop(target, navigation)).toBe(1348)
+        bar.getBoundingClientRect = () => ({ height: 0 } as DOMRect)
+        expect(messageNavigationOffset(navigation)).toBe(80)
+        expect(messageAnchorScrollTop(target, navigation)).toBe(1420)
+    })
+    it('selects the section at the same padded offset used to land an anchor', () => {
+        heading('overview', -500)
+        const operation = heading('get', 100)
+        operation.style.paddingTop = '28px'
+        operation.style.borderTop = '3px solid black'
+        heading('get-request', 300)
+        expect(activeMessageOutlineId(entries, root, 130)).toBe('get')
+        expect(activeMessageOutlineId(entries, root, 128)).toBe('overview')
+        expect(activeMessageOutlineId(entries, root, 300)).toBe('get-request')
+        // Uncurated examples never steal the current section.
+        heading('frame-example', 350)
+        expect(activeMessageOutlineId(entries, root, 400)).toBe('get-request')
+    })
+    it('skips closed legacy headings and includes them after revealing any old field link', () => {
+        heading('overview', -200)
+        const details = document.createElement('details')
+        details.id = 'legacy'
+        const summary = document.createElement('summary')
+        summary.textContent = 'Legacy format'
+        details.append(summary)
+        details.getBoundingClientRect = () => ({ top: -100, height: 40 } as DOMRect)
+        details.getClientRects = () => [details.getBoundingClientRect()] as unknown as DOMRectList
+        root.append(details)
+        heading('legacy-get', -50, () => details.open, details)
+        const field = heading('legacy-get-field-1', 0, () => details.open, details)
+        expect(activeMessageOutlineId(entries, root, 80)).toBe('legacy')
+        expect(revealMessageAnchor(root, '#legacy-get-field-1')).toBe(field)
+        expect(details.open).toBe(true)
+        expect(activeMessageOutlineId(entries, root, 80)).toBe('legacy-get')
+        details.open = false
+        expect(revealMessageAnchor(root, '#legacy-get-field-1')).toBe(field)
+        expect(details.open).toBe(true)
+    })
+    it('resolves encoded aliases and opens nested disclosures without touching another page', () => {
+        root.innerHTML = '<details><summary>Legacy</summary><details><summary>More</summary><span id="old field"></span></details></details>'
+        expect(revealMessageAnchor(root, '#old%20field')?.id).toBe('old field')
+        expect(Array.from(root.querySelectorAll('details')).every(details => details.open)).toBe(true)
+        const elsewhere = document.createElement('div')
+        elsewhere.id = 'outside'
+        document.body.append(elsewhere)
+        expect(revealMessageAnchor(root, '#outside')).toBeNull()
+        expect(revealMessageAnchor(root, '#missing')).toBeNull()
+        expect(revealMessageAnchor(root, '#%invalid')).toBeNull()
+        expect(revealMessageAnchor(root, '')).toBeNull()
+    })
+    it('keeps a useful fallback above the first section, with no headings, and at page end', () => {
+        heading('overview', 300)
+        heading('constants', 1200)
+        expect(activeMessageOutlineId(entries, root, 80)).toBe('overview')
+        expect(activeMessageOutlineId(entries, root, 80, true)).toBe('constants')
+        root.replaceChildren()
+        expect(activeMessageOutlineId(entries, root, 80)).toBe('overview')
+        expect(activeMessageOutlineId([], root, 80)).toBe('')
+    })
+    it('disambiguates repeated stage labels and highlights only the active ancestry', () => {
+        expect(messageOutlineTrail(entries, 'get-response').map(entry => entry.label || entry.title)).toEqual(['Current', 'GET', 'Response'])
+        expect(messageOutlineTrail(entries, 'subscribe-response').map(entry => entry.id)).toEqual(['current', 'subscribe', 'subscribe-response'])
+        expect(messageOutlineTrail(entries, 'legacy-get').map(entry => entry.id)).toEqual(['legacy', 'legacy-get'])
+        expect(messageOutlineTrail(entries, 'constants').map(entry => entry.id)).toEqual(['constants'])
+        expect(messageOutlineTrail(entries, 'missing').map(entry => entry.id)).toEqual(['overview'])
+        expect(messageOutlineTrail([], 'missing')).toEqual([])
     })
 })

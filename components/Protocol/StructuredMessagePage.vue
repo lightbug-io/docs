@@ -2,7 +2,15 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter, withBase } from 'vitepress'
 import Message from './Message.vue'
-import { installMessageRouteCorrection, messageAnchorScrollTop } from '../../utils/MessageAnchor'
+import {
+  activeMessageOutlineId,
+  installMessageRouteCorrection,
+  messageAnchorScrollTop,
+  messageNavigationOffset,
+  revealMessageAnchor,
+  type MessageOutlineEntry,
+} from '../../utils/MessageAnchor'
+import MessageOutline from './MessageOutline.vue'
 import MessageCodeGen from './MessageCodeGen.vue'
 import {
   commonResponseHeaderIds,
@@ -25,7 +33,10 @@ const documentation = computed(() => getMessageDocumentation(message.value))
 const copyStatus = ref('')
 const router = useRouter()
 let removeRouteCorrection: (() => void) | undefined
+const messageRoot = ref<HTMLElement | null>(null)
 const jumpBar = ref<HTMLElement | null>(null)
+const activeSection = ref('')
+let activeFrame = 0
 const exampleColumns = ref<HTMLElement[]>([])
 const jumpBarHeight = ref(64)
 let jumpBarObserver: ResizeObserver | undefined
@@ -156,9 +167,30 @@ const groups = computed(() => {
 
 const overviewNotes = computed(() => documentation.value?.notes?.filter(note => note.placement !== 'reference') || [])
 const referenceNotes = computed(() => documentation.value?.notes?.filter(note => note.placement === 'reference') || [])
-const firstExamplesAnchor = computed(() => {
-  const panel = groups.value.flatMap(group => group.panels).find(item => !item.legacy && item.examples.length)
-  return panel ? `${panel.anchor}-examples` : undefined
+// Both responsive presentations use this one curated model and active section.
+// Existing section IDs remain destinations, including closed legacy content.
+const outlineEntries = computed<MessageOutlineEntry[]>(() => {
+  const entries: MessageOutlineEntry[] = [{ id: `message-${props.messageId}-overview`, title: 'Overview', depth: 0 }]
+  const notes = (items: typeof overviewNotes.value) => items.map(note => ({ id: `message-${props.messageId}-note-${note.id}`, title: note.title, depth: 0 }))
+  entries.push(...notes(overviewNotes.value))
+  for (const group of groups.value) {
+    const depth = group.anchor ? 1 : 0
+    if (group.anchor) entries.push({ id: group.anchor, title: group.title, label: group.label, depth: 0 })
+    if (group.fields.length) entries.push({
+      id: `message-${props.messageId}-${group.fieldPrefix ?? (group.legacy ? 'legacy-' : '')}fields`,
+      title: group.legacy ? 'Legacy fields' : 'Message fields', depth,
+    })
+    for (const panel of group.panels) {
+      entries.push({ id: panel.anchor, title: `${panel.operation.method || 'Upload'}: ${panel.operation.title}`, label: panel.operation.method || 'Upload', depth })
+      entries.push(...panel.contexts.map(context => ({
+        id: `${panel.anchor}-${context.role}`, title: context.title,
+        label: context.role === 'request' ? 'Request' : context.role === 'response' ? 'Response' : panel.operation.method ? 'Publication' : 'Upload',
+        depth: depth + 1,
+      })))
+    }
+  }
+  entries.push(...notes(referenceNotes.value), { id: `message-${props.messageId}-constants`, title: 'Message and field constants', depth: 0 })
+  return entries
 })
 const methodClass = (method?: string) => `method-${(method || 'upload').toLowerCase()}`
 
@@ -181,27 +213,19 @@ const constantsData = computed(() => ({
 let anchorRequest = 0
 async function revealHash(value: string) {
   const request = ++anchorRequest
-  let hash: string
-  try { hash = decodeURIComponent(value.slice(1)) } catch { return }
   await nextTick()
-  jumpBarHeight.value = jumpBar.value?.getBoundingClientRect().height || 64
-  await nextTick()
-  const target = document.getElementById(hash)
-  if (!target || !jumpBar.value?.closest('.structured-message')?.contains(target)) return
-  // Old v1 and field links still resolve. Open every enclosing disclosure before
-  // scrolling, including on initial hydration and browser Back/Forward.
-  let ancestor: HTMLElement | null = target
-  while (ancestor) {
-    if (ancestor.tagName === 'DETAILS') (ancestor as HTMLDetailsElement).open = true
-    ancestor = ancestor.parentElement
-  }
+  measureNavigation()
+  if (!messageRoot.value) return
+  const target = revealMessageAnchor(messageRoot.value, value)
+  if (!target) return
   await nextTick()
   // VitePress handles history and schedules its own scroll in animationFrame.
-  // Correct the landing afterwards, using the actual sticky bar height. A newer
+  // Correct the landing afterwards, using the visible compact navigation height. A newer
   // jump cancels this one so rapid clicks cannot scroll back to a stale target.
   await new Promise<void>(resolve => window.requestAnimationFrame(() => resolve()))
   if (request !== anchorRequest || !jumpBar.value || !target.isConnected) return
   window.scrollTo({ top: messageAnchorScrollTop(target, jumpBar.value), behavior: 'instant' })
+  queueActiveSection()
 }
 
 function readHash() {
@@ -230,7 +254,7 @@ async function copyBytes(bytes: string, label: string) {
 
 function updateExampleStickiness() {
   if (!jumpBar.value) return
-  const top = (parseFloat(window.getComputedStyle(jumpBar.value).top) || 0) + jumpBarHeight.value + 16
+  const top = messageNavigationOffset(jumpBar.value)
   const availableHeight = window.innerHeight - top - 16
   for (const column of exampleColumns.value) {
     // Long examples stay in normal page flow, with no nested scrollbar or trap.
@@ -238,65 +262,73 @@ function updateExampleStickiness() {
   }
 }
 
+function measureNavigation() {
+  jumpBarHeight.value = jumpBar.value?.querySelector('[data-message-navigation-bar]')?.getBoundingClientRect().height || 0
+}
+
+function updateActiveSection() {
+  activeFrame = 0
+  if (!messageRoot.value || !jumpBar.value) return
+  const atBottom = window.scrollY > 0 && Math.ceil(window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight - 2
+  activeSection.value = activeMessageOutlineId(outlineEntries.value, messageRoot.value, messageNavigationOffset(jumpBar.value), atBottom)
+}
+function queueActiveSection() {
+  if (!activeFrame) activeFrame = window.requestAnimationFrame(updateActiveSection)
+}
+function updateReferenceLayout() {
+  measureNavigation()
+  updateExampleStickiness()
+  queueActiveSection()
+}
 function observeReferenceLayout() {
   jumpBarObserver?.disconnect()
   if (jumpBar.value) jumpBarObserver?.observe(jumpBar.value)
+  if (messageRoot.value) jumpBarObserver?.observe(messageRoot.value)
   for (const column of exampleColumns.value) jumpBarObserver?.observe(column)
-  updateExampleStickiness()
+  updateReferenceLayout()
 }
 
-watch(panels, async () => {
+watch(outlineEntries, async () => {
   await nextTick()
   if (typeof window !== 'undefined') observeReferenceLayout()
 })
 watch(() => props.messageId, () => {
   copyStatus.value = ''
+  activeSection.value = outlineEntries.value[0]?.id || ''
   if (typeof window !== 'undefined') readHash()
 })
 onMounted(() => {
   removeRouteCorrection = installMessageRouteCorrection(router, () => revealHash(window.location.hash))
   readHash()
-  if (typeof ResizeObserver !== 'undefined') {
-    jumpBarObserver = new ResizeObserver(() => {
-      jumpBarHeight.value = jumpBar.value?.getBoundingClientRect().height || 64
-      updateExampleStickiness()
-    })
-  }
+  if (typeof ResizeObserver !== 'undefined') jumpBarObserver = new ResizeObserver(updateReferenceLayout)
   observeReferenceLayout()
   window.addEventListener('hashchange', readHash)
-  window.addEventListener('resize', updateExampleStickiness)
+  window.addEventListener('resize', updateReferenceLayout)
+  window.addEventListener('scroll', queueActiveSection, { passive: true })
+  messageRoot.value?.addEventListener('toggle', updateReferenceLayout, true)
   document.addEventListener('click', onAnchorClick)
 })
 onBeforeUnmount(() => {
   anchorRequest++
   removeRouteCorrection?.()
   jumpBarObserver?.disconnect()
+  window.cancelAnimationFrame(activeFrame)
   window.removeEventListener('hashchange', readHash)
-  window.removeEventListener('resize', updateExampleStickiness)
+  window.removeEventListener('resize', updateReferenceLayout)
+  window.removeEventListener('scroll', queueActiveSection)
+  messageRoot.value?.removeEventListener('toggle', updateReferenceLayout, true)
   document.removeEventListener('click', onAnchorClick)
 })
 </script>
 
 <template>
-  <div v-if="documentation" class="structured-message" :style="{ '--message-jump-height': `${jumpBarHeight}px` }">
-    <p class="message-summary">{{ documentation.summary }}</p>
+  <div v-if="documentation" ref="messageRoot" class="structured-message" :style="{ '--message-jump-height': `${jumpBarHeight}px` }">
+    <div ref="jumpBar" class="message-navigation">
+      <MessageOutline :entries="outlineEntries" :active-id="activeSection" :message-id="messageId" :message-name="message.name" />
+    </div>
+    <div class="message-content">
+    <p :id="`message-${messageId}-overview`" class="message-summary">{{ documentation.summary }}</p>
     <p v-if="documentation.target" class="support-context"><strong>Applies to</strong> {{ documentation.target }}</p>
-
-    <nav ref="jumpBar" class="message-jump-bar" aria-label="Message formats and operations">
-      <div class="jump-identity">
-        <span class="jump-message"><strong>{{ message.name }}</strong><span class="jump-message-id">Message {{ messageId }}</span></span>
-        <a v-if="firstExamplesAnchor" :href="`#${firstExamplesAnchor}`" class="examples-jump">First examples <span aria-hidden="true">↓</span></a>
-      </div>
-      <div class="jump-groups">
-        <div v-for="group in groups" :key="group.id" class="jump-group" role="group" :aria-label="group.title || 'Operations'">
-          <a v-if="group.anchor" :href="`#${group.anchor}`" class="format-jump" :class="{ 'format-jump-legacy': group.legacy }">{{ group.label }}<span v-if="group.legacy && group.label !== 'Legacy'" class="jump-legacy-label">Legacy</span></a>
-          <span v-else class="jump-label">Operations</span>
-          <a v-for="panel in group.panels" :key="panel.anchor" :href="`#${panel.anchor}`" :aria-label="`${group.label ? `${group.label}: ` : ''}${panel.operation.method || 'Upload'}: ${panel.operation.title}`" class="method-jump">
-            <span class="method-badge" :class="methodClass(panel.operation.method)">{{ panel.operation.method || 'UPLOAD' }}</span>
-          </a>
-        </div>
-      </div>
-    </nav>
 
     <div v-if="overviewNotes.length" :id="`message-${messageId}-notes`" class="overview-notes">
       <section v-for="note in overviewNotes" :key="note.id" class="overview-note" :aria-labelledby="`message-${messageId}-note-${note.id}`">
@@ -475,6 +507,7 @@ onBeforeUnmount(() => {
       <p class="section-caption">Identifiers for this message type and its fields. See the operation sections above for rules and limits.</p>
       <MessageCodeGen :key="messageId" :message-id="messageId" :yaml-data="constantsData" />
     </section>
+    </div>
   </div>
 </template>
 
@@ -495,23 +528,13 @@ onBeforeUnmount(() => {
 .structured-message .message-summary { margin: 16px 0 10px; font-size: 16px; line-height: 1.8; white-space: pre-line; }
 .support-context { font-size: 12px; }
 .support-context strong, .target-context strong, .example-target strong { margin-right: 8px; font-weight: 600; }
-.message-jump-bar { position: sticky; top: var(--message-sticky-top); z-index: 10; min-width: 0; margin: 22px 0; padding: 8px 12px; border: 1px solid var(--vp-c-divider); border-radius: 7px; background: var(--vp-c-bg); box-shadow: 0 3px 10px rgba(20, 35, 50, .06); }
-.jump-identity { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; min-width: 0; margin-bottom: 4px; }
-.jump-message { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 10px; min-width: 0; font-size: 13px; line-height: 1.5; }
-.jump-message-id { color: var(--reference-muted); font-size: 11px; white-space: nowrap; }
-.jump-groups { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; min-width: 0; }
-.jump-group { display: flex; align-items: center; flex: 0 1 auto; min-width: 0; max-width: 100%; gap: 5px; padding: 3px 2px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; }
-.jump-group > * { flex: 0 0 auto; }
-.jump-label { font-size: 11px; color: var(--reference-muted); margin-right: 3px; }
-.format-jump { display: inline-flex; align-items: center; gap: 5px; padding: 3px 5px; border-radius: 4px; color: var(--reference-text); font-size: 12px; font-weight: 650; white-space: nowrap; text-decoration: none; }
-.format-jump:hover { background: var(--vp-c-bg-soft); }
-.jump-legacy-label { color: var(--reference-muted); font-size: 10px; font-weight: 400; }
-.method-jump { display: inline-flex; border-radius: 4px; text-decoration: none; }
-.method-jump .method-badge { font-size: 10px; padding: 3px 6px; border-radius: 4px; }
-.method-jump:hover .method-badge { box-shadow: 0 0 0 2px var(--vp-c-divider); }
-.examples-jump { flex-shrink: 0; padding: 3px 5px; border-radius: 4px; color: var(--reference-muted); font-size: 11px; text-decoration: none; white-space: nowrap; }
-.examples-jump:hover { color: var(--reference-accent); }
-.structured-message .jump-group a:focus-visible { outline-offset: -2px; }
+.message-navigation { position: sticky; top: var(--message-sticky-top); z-index: 10; min-width: 0; margin: 22px 0; align-self: start; }
+.message-content { min-width: 0; }
+@media (min-width: 1440px) {
+  .structured-message { display: grid; grid-template-columns: minmax(0, 1fr) 192px; gap: 28px; align-items: start; }
+  .message-content { grid-column: 1; grid-row: 1; }
+  .message-navigation { grid-column: 2; grid-row: 1; margin: 16px 0 0; }
+}
 .reference-notes { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--vp-c-divider); }
 .reference-note + .reference-note { margin-top: 22px; }
 .reference-note h2 { border: 0; padding: 0; margin-bottom: 8px; font-size: 18px; }
@@ -650,12 +673,6 @@ onBeforeUnmount(() => {
   .structured-message { --message-sticky-top: calc(var(--vp-layout-top-height, 0px) + 48px); }
 }
 @media (max-width: 639px) {
-  .message-jump-bar { padding: 8px; }
-  .jump-groups { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0; }
-  .jump-group { width: 100%; }
-  .jump-message { gap: 0 8px; }
-  .jump-message strong { font-size: 12px; }
-  .examples-jump { font-size: 10px; }
   .header-group { padding: 10px; }
   .operation-toolbar { align-items: flex-start; }
   .field-summary-table th, .field-summary-table td { padding: 10px 8px; }
