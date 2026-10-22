@@ -57,8 +57,8 @@ header:
     description: |
       If omitted, assume the message is OK
 
-      Values <= 0 indicate OK status.
-      Values > 0 indicate an error or non-OK status.
+      0 indicates OK. A nonpositive value does not necessarily mean the operation is complete; -1 indicates Processing, with further responses expected.
+      Positive values indicate an error or other non-OK result.
     type: int8
     values:
       -127:
@@ -68,8 +68,9 @@ header:
         name: No ACK
         id: noACK
       -1:
-        name: Error
+        name: Processing
         id: error
+        description: Processing; further responses are expected.
       0:
         name: OK
         id: ok
@@ -190,7 +191,7 @@ header:
       When used with the SUBSCRIBE method:
         This defines a duration to keep the subscription active for.
         A value of 0 means the subscription is indefinite until explicitly unsubscribed.
-        An ACK with EXPIRED status code will be sent if the subscription duration elapses without being renewed with a new subscription request.
+        A message with an EXPIRED status code will be sent if the subscription duration elapses without being renewed with a new subscription request.
     type: uint32
     unit: ms
   8:
@@ -198,7 +199,7 @@ header:
     id: timeout
     description: |
       When requesting data or services that can take time to acquire (such as a GPS fix), this defines how long to try for before abandoning the action.
-      An ACK with ABANDONED status code will be sent in this case.
+      A message with an ABANDONED status code will be sent in this case.
       For actions that support it, timeout instead defines how long to wait before performing the action.
 
       When used with a SUBSCRIBE method, with a Message Level header field:
@@ -360,8 +361,8 @@ header:
     name: Message Version
     id: msgVersion
     description: |
-      Selects a breaking message-format version for the message being requested or subscribed to.
-      Supported values and the effect of omitting this header are defined by each message.
+      Selects or identifies a message payload format, where supported by the message.
+      Supported values, response/publication usage and the effect of omitting this header are defined by each message.
     type: uint8
   50:
     name: App Name
@@ -1773,8 +1774,7 @@ messages:
               "1":
                 presence: optional
                 description: >-
-                  Include a nonzero Message ID to correlate the reply. Every generated request below
-                  includes one.
+                  Include a nonzero Message ID to correlate the reply.
               "5":
                 presence: required
                 value: 2
@@ -1787,15 +1787,15 @@ messages:
                 presence: omitted
           response:
             title: GPS state (MT39)
-            description: A successful GET returns GPS Control directly, with no separate success ACK.
+            description: >-
+              A successful GET returns GPS Control directly, with no separate success ACK.
+              An unsuccessful request returns MT5 (ACK) with Status, not this payload.
             headers:
               "3":
                 presence: optional
-                description: Matches the nonzero Message ID supplied in the request.
               "4":
                 presence: optional
                 value: 0
-                description: OK when present. Included only when the request supplies a nonzero Message ID; omitted status also means OK.
             fields:
               "1":
                 presence: required
@@ -1842,8 +1842,7 @@ messages:
               "1":
                 presence: optional
                 description: >-
-                  Include a nonzero Message ID to correlate the reply. Every generated request below
-                  includes one.
+                  Include a nonzero Message ID to correlate the reply.
               "5":
                 presence: required
                 value: 1
@@ -1880,11 +1879,9 @@ messages:
             headers:
               "3":
                 presence: optional
-                description: Matches the nonzero Message ID supplied in the request.
               "4":
                 presence: required
                 value: 0
-                description: OK. Errors use this global Status header, not a payload field.
             fields:
               "1":
                 presence: required
@@ -3136,9 +3133,6 @@ messages:
       replaces or clears the cached bytes.
     target: Viper devices only
     versions:
-      # Source introductions, not firmware release dates:
-      # v2: firmware-st/commit/24d4d43c2c7fd126ae2d2f5b9ab904debdb3ba1b
-      # v1: firmware-st/commit/7fe7f6dce94461cbfc0f1d35e24fc499710c7df0
       '2026-10':
         description: >-
           Complete payload and CRC-16 format. GET and SUBSCRIBE explicitly select wire Message
@@ -3226,8 +3220,7 @@ messages:
                 "1":
                   presence: optional
                   description: >-
-                    Include a nonzero Message ID to correlate the reply. Every generated request below
-                    includes one.
+                    Include a nonzero Message ID to correlate the reply.
                 "5":
                   presence: required
                   value: 2
@@ -3237,20 +3230,21 @@ messages:
                   value: 2
                   description: A one-byte value of 2 selects version 2.
             response:
-              title: Version 2 cached payload (MT58)
+              title: Cached payload
+              description: >-
+                A successful GET returns this MT58 payload. An unsuccessful request returns
+                MT5 (ACK) with Status instead.
               headers:
                 "3":
                   presence: optional
-                  description: Matches the nonzero Message ID supplied in the request.
                 "4":
                   presence: optional
                   value: 0
-                  description: OK when present. Included only when the request supplies a nonzero Message ID; omitted status also means OK.
                 "22":
                   presence: required
                   maxBytes: 1
                   value: 2
-                  description: A one-byte value of 2 selects version 2.
+                  description: Identifies the format of this response payload.
               fields:
                 "1":
                   presence: omitted
@@ -3292,8 +3286,7 @@ messages:
                 "1":
                   presence: optional
                   description: >-
-                    Include a nonzero Message ID to correlate the reply. Every generated request below
-                    includes one.
+                    Include a nonzero Message ID to correlate the reply.
                 "5":
                   presence: required
                   value: 2
@@ -3307,15 +3300,16 @@ messages:
                     "0": Version 1 (also the omitted/malformed-width fallback)
                     "1": Version 1
             response:
-              title: Legacy cached payload (MT58)
+              title: Legacy cached payload
+              description: >-
+                A successful GET returns this MT58 payload. An unsuccessful request returns
+                MT5 (ACK) with Status instead.
               headers:
                 "3":
                   presence: optional
-                  description: Matches the nonzero Message ID supplied in the request.
                 "4":
                   presence: optional
                   value: 0
-                  description: OK when present. Included only when the request supplies a nonzero Message ID; omitted status also means OK.
                 "22":
                   presence: omitted
                   description: >-
@@ -3397,8 +3391,7 @@ messages:
                 "1":
                   presence: optional
                   description: >-
-                    Include a nonzero Message ID to correlate the reply. Every generated request below
-                    includes one.
+                    Include a nonzero Message ID to correlate the reply.
                 "5":
                   presence: required
                   value: 1
@@ -3424,11 +3417,9 @@ messages:
               headers:
                 "3":
                   presence: optional
-                  description: Matches the nonzero Message ID supplied in the request.
                 "4":
                   presence: required
                   value: 0
-                  description: OK. Errors use this global Status header, not a payload field.
               fields:
                 "1":
                   presence: required
@@ -3493,11 +3484,9 @@ messages:
             headers:
               "3":
                 presence: optional
-                description: Matches the nonzero Message ID supplied in the request.
               "4":
                 presence: required
                 value: 0
-                description: OK. Errors use this global Status header, not a payload field.
             fields:
               "1":
                 presence: required
@@ -3522,8 +3511,7 @@ messages:
                 "1":
                   presence: optional
                   description: >-
-                    Include a nonzero Message ID to correlate the reply. Every generated request below
-                    includes one.
+                    Include a nonzero Message ID to correlate the reply.
                 "5":
                   presence: required
                   value: 3
@@ -3551,7 +3539,7 @@ messages:
                   value: 2
                   description: A one-byte value of 2 selects version 2.
             publication:
-              title: Asynchronous version 2 publication (MT58)
+              title: Cached payload update
               description: >-
                 Version 2 updates include Message Version 2 and field 2. Field 129 carries the
                 complete cached payload when nonempty; empty payload data is omitted.
@@ -3616,8 +3604,7 @@ messages:
                 "1":
                   presence: optional
                   description: >-
-                    Include a nonzero Message ID to correlate the reply. Every generated request below
-                    includes one.
+                    Include a nonzero Message ID to correlate the reply.
                 "5":
                   presence: required
                   value: 3
@@ -3649,7 +3636,7 @@ messages:
                     "0": Version 1 (also the omitted/malformed-width fallback)
                     "1": Version 1
             publication:
-              title: Asynchronous legacy publication (MT58)
+              title: Legacy cached payload update
               description: >-
                 Version 1 updates use the additive checksum and legacy chunks. Empty payload data is
                 omitted.
@@ -3737,8 +3724,7 @@ messages:
               "1":
                 presence: optional
                 description: >-
-                  Include a nonzero Message ID to correlate the reply. Every generated request below
-                  includes one.
+                  Include a nonzero Message ID to correlate the reply.
               "5":
                 presence: required
                 value: 5
@@ -3759,11 +3745,9 @@ messages:
             headers:
               "3":
                 presence: optional
-                description: Matches the nonzero Message ID supplied in the request.
               "4":
                 presence: required
                 value: 0
-                description: OK. Errors use this global Status header, not a payload field.
             fields:
               "1":
                 presence: required
