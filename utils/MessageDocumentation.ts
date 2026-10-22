@@ -38,7 +38,7 @@ export function documentationExamplesForContext(examples: DocumentationExample[]
     return examples.map((example, exampleIndex) => {
         const frames = example.frames.map((frame, frameIndex) => ({ ...frame, frameIndex }))
             .filter(frame => (frame.role === 'upload' ? 'publication' : frame.role) === role)
-        return { ...example, exampleIndex, frames, startsExchange: frames[0]?.frameIndex === 0 }
+        return { ...example, exampleIndex, showNumber: examples.length > 1, frames, startsExchange: frames[0]?.frameIndex === 0 }
     }).filter(example => example.frames.length)
 }
 

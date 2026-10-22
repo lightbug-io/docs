@@ -430,7 +430,6 @@ onBeforeUnmount(() => {
           <span v-if="panel === groups[0]?.panels[0] && context === panel.contexts[0]" id="examples" class="operation-anchor" aria-hidden="true"></span>
           <div ref="exampleColumns" class="context-examples">
           <component :is="hasFormats ? 'h4' : 'h3'" :id="context.examplesAnchor" class="examples-heading">{{ context.examplesTitle }}</component>
-          <p v-if="context.examples.length && context.examplesAnchor === `${panel.anchor}-examples`" class="examples-caption">{{ panel.operation.title }}<template v-if="panel.variantId"> · {{ panel.variant.title }}</template>. Complete V3 frames, not HTTP requests.</p>
           <p v-if="!context.examples.length" class="example-placeholder">No captured example available yet.</p>
           <article
             v-for="example in context.examples"
@@ -440,10 +439,12 @@ onBeforeUnmount(() => {
             :aria-labelledby="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`"
           >
             <header class="example-header">
-              <span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured example' }}</span>
-              <component :is="hasFormats ? 'h5' : 'h4'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`" class="example-title"><span class="example-number">Example {{ example.exampleIndex + 1 }}</span>{{ example.title }}</component>
-              <p v-if="example.startsExchange && example.description" class="prose">{{ example.description }}</p>
-              <p v-if="example.target" class="example-target"><strong>Target</strong> {{ example.target }}</p>
+              <component :is="hasFormats ? 'h5' : 'h4'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`" class="example-title"><span v-if="example.showNumber" class="example-number">Example {{ example.exampleIndex + 1 }}</span>{{ example.title }}</component>
+              <details v-if="example.startsExchange && example.description" class="example-details">
+                <summary><span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured' }}</span><template v-if="example.target"> · {{ example.target }}</template><span class="details-label"> · Details</span></summary>
+                <p class="prose">{{ example.description }}</p>
+              </details>
+              <p v-else class="example-context"><span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured' }}</span><template v-if="example.target"> · {{ example.target }}</template></p>
               <p v-if="example.provenance === 'generated'" class="provenance-note">Generated for illustration; not a device capture.</p>
             </header>
             <div v-for="frame in example.frames" :key="frame.frameIndex" class="example-frame" :class="`frame-${frame.role}`">
@@ -510,7 +511,7 @@ onBeforeUnmount(() => {
 .structured-message [id] { scroll-margin-top: calc(var(--message-sticky-top) + var(--message-jump-height, 64px) + 24px); }
 .structured-message .message-summary { margin: 16px 0 10px; font-size: 16px; line-height: 1.8; white-space: pre-line; }
 .support-context { font-size: 12px; }
-.support-context strong, .target-context strong, .example-target strong { margin-right: 8px; font-weight: 600; }
+.support-context strong, .target-context strong { margin-right: 8px; font-weight: 600; }
 .message-navigation { position: sticky; top: var(--message-sticky-top); z-index: 10; min-width: 0; margin: 22px 0; align-self: start; }
 .message-content { min-width: 0; }
 @media (min-width: 1440px) {
@@ -602,21 +603,23 @@ onBeforeUnmount(() => {
 .error-list dt code { margin-right: 6px; }
 .error-list dd { color: var(--reference-muted); }
 .structured-message .examples-heading { margin: 0 0 5px; padding: 0; border: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; }
-.examples-caption { font-size: 12px; margin-bottom: 18px !important; }
 .example-placeholder { padding: 12px 14px; border: 1px dashed var(--vp-c-divider); border-radius: 4px; background: var(--vp-c-bg-soft); font-size: 13px; }
 .example-card { overflow-wrap: anywhere; margin-bottom: 28px; }
 .example-card + .example-card { padding-top: 20px; border-top: 1px solid var(--vp-c-divider); }
-.example-header { padding: 0 0 12px; }
-.example-provenance { display: block; margin-bottom: 7px; color: var(--reference-muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
-.example-header .example-title { font-size: 16px; line-height: 1.5; margin-bottom: 8px; }
+.example-header { padding: 0 0 8px; }
+.example-provenance { font-weight: 600; }
+.example-header .example-title { font-size: 16px; line-height: 1.5; margin: 0 0 4px; }
 .example-number { display: block; color: var(--reference-muted); font-size: 11px; font-weight: 500; }
 .example-header p { font-size: 12px; }
-.example-target { margin-top: 8px !important; }
+.example-header .example-context, .example-details { margin: 0; color: var(--reference-muted); font-size: 12px; }
+.example-details summary { margin: 0; line-height: 24px; cursor: pointer; }
+.example-details .prose { margin: 8px 0 0; }
+.details-label { text-decoration: underline; text-underline-offset: 3px; }
 .provenance-note { margin-top: 8px !important; font-size: 11px !important; }
 .example-frame { border: 1px solid var(--vp-c-divider); border-radius: 7px; overflow: hidden; }
 .example-frame + .example-frame { margin-top: 12px; }
-.frame-heading { background: var(--vp-c-bg-alt); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 12px 16px; }
-.frame-heading .frame-title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; }
+.frame-heading { background: var(--vp-c-bg-alt); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 10px 12px; }
+.frame-heading .frame-title { margin: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; }
 .frame-role { display: inline-block; padding: 2px 6px; border-radius: 3px; color: #fff; background: #465766; text-transform: uppercase; font-size: 10px; letter-spacing: .07em; font-weight: 700; }
 .frame-request .frame-role { background: #1d4d9b; }
 .frame-response .frame-role { background: #176047; }
@@ -626,14 +629,16 @@ onBeforeUnmount(() => {
 .copy-button:hover { background: var(--vp-c-bg); }
 .structured-message .wire-bytes { margin: 0; padding: 14px 16px; background: #202c3d; color: #e0e8f1; font-size: 12px; line-height: 1.9; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
 .structured-message .wire-bytes code { padding: 0; border-radius: 0; background: none; color: inherit; font-size: inherit; }
-.annotated-frame { padding: 0 12px 12px; background: var(--vp-c-bg); }
+.annotated-frame { padding: 0 12px 4px; background: var(--vp-c-bg); }
 .annotated-frame :deep(.protocol-bytes-container) { margin: 0; border: 0; border-radius: 0; }
-.annotated-frame :deep(.byte-header) { padding: 12px 0 0; background: transparent; }
+.annotated-frame :deep(.byte-header) { padding: 10px 0 0; background: transparent; }
 .annotated-frame :deep(.byte-visualization-wrapper) { width: 100%; }
+.annotated-frame :deep(.byte-visualization) { gap: 8px; }
+.annotated-frame :deep(.byte-section) { gap: 3px; }
 .annotated-frame :deep(.annotation-label) { color: var(--reference-text); }
 .annotated-frame :deep(.annotation-value), .annotated-frame :deep(.annotation-detail) { color: var(--reference-muted); }
 .raw-bytes-details { background: var(--vp-c-bg); }
-.raw-bytes-details summary { padding: 8px 16px 12px; color: var(--reference-muted); font-size: 12px; cursor: pointer; }
+.raw-bytes-details summary { margin: 0; padding: 6px 12px 8px; color: var(--reference-muted); font-size: 12px; cursor: pointer; }
 .copy-status { font-size: 12px; }
 .copy-status:empty { display: none; }
 .message-constants { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--vp-c-divider); }
@@ -664,8 +669,6 @@ onBeforeUnmount(() => {
   .field-summary-table { overflow-wrap: anywhere; }
   .structured-message .message-summary { font-size: 15px; }
   .reference-columns { gap: 28px; }
-  .frame-heading { padding: 12px; }
-  .example-header { padding: 14px 12px; }
   .structured-message .wire-bytes { padding: 12px; }
 }
 </style>
