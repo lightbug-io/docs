@@ -11,7 +11,7 @@ Yes.
 
 For general customers, a device must be activated with card details added to the account to start a subscription.
 
-For business customers, with many devices or custom requirements we can offer alternative billing methods.
+For business customers with many devices or custom requirements, we can offer alternative billing methods.
 
 ## Can I use my own SIM Card and/or server?
 

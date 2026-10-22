@@ -17,6 +17,42 @@ features:
   - title: Adding your first device
     details: Get started with a Cloud account, add your first device, setup a plan, and start tracking.
     link: /guides/adding-your-first-device
+  - title: Why are there two location points?
+    details: More information on why there may be two separate location points on the mobile app.
+    link: /guides/two-tracking-locations
+  - title: How to use the schedule feature on Lightbug cloud
+    details: Useful for configuring a device's behaviour based on the time of day or week.
+    link: /guides/schedule-feature
+  - title: How to use the power budget feature on Lightbug cloud
+    details: The power budget feature on the web app helps with device battery draining too quickly due to tough conditions causing longer tracker updates.
+    link: /guides/power-budget-cloud
+  - title: How to use the power budget feature on the Lightbug app
+    details: The power budget feature on the mobile app helps with device battery draining too quickly due to tough conditions causing longer tracker updates.
+    link: /guides/power-budget-app
+  - title: How to reactivate your Lightbug GPS tracker
+    details: 
+    link: /guides/reactivate-tracker
+  - title: How to pair a Lightbug GPS tracker using Bluetooth
+    details: 
+    link: /guides/pair-bluetooth
+  - title: How to extract raw location data on GPS trackers
+    details: 
+    link: /guides/extract-raw-location
+  - title: How to disable fall detection for Lightbug devices
+    details: 
+    link: /guides/disable-fall-fetection
+  - title: How to create alerts with Lightbug devices
+    details: 
+    link: /guides/create-alerts
+  - title: How to create a GPS geofence for Lightbug devices
+    details: 
+    link: /guides/gps-geofence
+  - title: How to create multiple GPS geofences with Lightbug devices
+    details: 
+    link: /guides/multiple-geofences
+  - title: GPS tracker with home WiFi safe zone
+    details: 
+    link: /guides/wifi-safe-zone
   - title: Setup HTTP Push Notifications
     details: Learn how to set up webhooks to receive real-time notifications for device events.
     link: /guides/notifications-setup-http
@@ -25,16 +61,10 @@ features:
     link: /guides/notifications-setup-sqs
 ---
 
-- [Browser Hard Refresh Guide](/guides/browser-hard-refresh): Learn how to perform a hard refresh in different browsers to resolve display issues and ensure you see the latest updates.
 
-### Older guides
-
-We also have a selection of guides in PDF form from our old support site.
+[Browser Hard Refresh Guide](/guides/browser-hard-refresh) Learn how to perform a hard refresh in different browsers to resolve display issues and ensure you see the latest updates.
 
 These are slowly being integrated into the documentation of this site.
-
- - [Why are there two location points on the tracking app?](https://drive.google.com/file/d/1m4pKXrEtP_LBeaOGYtL13BGkoFw9FKWZ/view?usp=drive_link)
- - [How to use the schedule feature?](https://drive.google.com/file/d/1NgoQiJjWnJH-VuhSryduUTMYg4MRRryW/view?usp=drive_link)
  - [How to use the power budget feature on Lightbug cloud?](https://drive.google.com/file/d/13hEn6XYBaCw-F8OnBqJGG6eE_XwQr9sA/view?usp=drive_link)
  - [How to use the power budget feature on Lightbug app?](https://drive.google.com/file/d/1vDn1Y31g7qFxwjhw1G_j_B6ksWhqgc5f/view?usp=drive_link)
  - [How to reactivate your Lightbug GPS tracker?](https://drive.google.com/file/d/19bPDzp_h-PadTopACSPfYj4-i1b5vGg2/view?usp=drive_link)
