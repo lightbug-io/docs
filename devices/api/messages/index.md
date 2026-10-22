@@ -24,10 +24,10 @@ Values of `60,000` to `61,000` are currently reserved for custom use. Feel free 
 Messages make use of a few common [header fields](/devices/api/protocol/headers) that are defined at the protocol level that you'll likely want to familiarize yourself with as they are used in device messaging.
 
 Such as:
-- [1: Message ID](../protocol/headers#_1-message-id) for uniquely identifying messages
-- [3: Response to](../protocol/headers#_3-response-to) for linking responses to requests
-- [4: Status](../protocol/headers#_4-status) for indicating the status of a message
-- [5: Method](../protocol/headers#_5-method) for optionally specifying the action to be taken
+- [1: Message ID](../protocol/headers#1-message-id) for uniquely identifying messages
+- [3: Response to](../protocol/headers#3-response-to) for linking responses to requests
+- [4: Status](../protocol/headers#4-status) for indicating the status of a message
+- [5: Method](../protocol/headers#5-method) for optionally specifying the action to be taken
 
 You can find the full list of header fields in the [Headers documentation](/devices/api/protocol/headers) for the protocol.
 
@@ -41,18 +41,10 @@ Currently defined methods are:
 - `3: SUBSCRIBE` - Subscribe to updates for a value or state on the device
 - `5: UNSUBSCRIBE` - Unsubscribe from updates for a value or state on the device
 
-You can find more information about these methods in the [MH 5: Method](../protocol/headers#_5-method) section.
+You can find more information about these methods in the [MH 5: Method](../protocol/headers#5-method) section.
 
 ## Communication patterns
 
-You should receive a response to every valid and expected message when the recipient is able to process the request.
+A request can receive a typed response or an [ACK (MT5)](./5-ack). The operation reference defines its expected reply, payload and errors; later subscription publications are separate events.
 
-When your message includes a [MH 1: Message ID](../protocol/headers#_1-message-id), the response should include the same message ID in the [MH 3: Response to](../protocol/headers#_3-response-to) header field.
-
-:::warning
-If you do not include a message ID, you may not receive a response
-:::
-
-Responses can come in the form of a basic [MT 5: ACK](./5-ack) or as the same message type as the request.
-
-Responses can contain a [MH 4: Response Status](../protocol/headers#_4-message-status) in the header, where 0 and below are various OK responses, and anything higher than 0 indicates a warning or error.
+See [Responses and acknowledgments](../protocol/responses) for Message ID/Response to correlation, Status, ACK suppression and message-format versions.

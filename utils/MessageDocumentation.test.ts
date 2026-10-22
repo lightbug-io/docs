@@ -4,6 +4,8 @@ import { resolve } from 'node:path'
 // The repository's YAML dependency is intentionally untyped.
 const yaml = require('js-yaml')
 import {
+    commonResponseHeaderIds,
+    documentationExamplesForContext,
     getMessageDocumentation,
     getOperationVariant,
     getDocumentationFormat,
@@ -17,6 +19,74 @@ import { calculateCRC16XMODEM, messageToBytesHelper, parseRawMessage, readUint16
 
 const protocol: any = yaml.load(readFileSync(resolve(__dirname, '../public/files/protocol-v3.yaml'), 'utf8'))
 const clone = (value: any) => JSON.parse(JSON.stringify(value))
+
+describe('paired exchange stages', () => {
+    it('renders every documented frame once while preserving its exchange/frame index', () => {
+        let count = 0
+        for (const id of [39, 58]) for (const operation of getMessageDocumentation(protocol.messages[id])!.operations) {
+            for (const variant of operation.variants?.map(item => getOperationVariant(operation, item.id)) || [operation]) {
+                const examples = variant.examples || []
+                const frames = (['request', 'response', 'publication'] as const).flatMap(role => documentationExamplesForContext(examples, role)
+                    .flatMap(example => example.frames.map(frame => ({ example: example.exampleIndex, index: frame.frameIndex, bytes: frame.bytes }))))
+                const expected = examples.flatMap((example, index) => example.frames.map((frame, frameIndex) => ({ example: index, index: frameIndex, bytes: frame.bytes })))
+                const key = (frame: { example: number; index: number }) => frame.example * 100 + frame.index
+                expect(frames.sort((a, b) => key(a) - key(b))).toEqual(expected)
+                count += frames.length
+            }
+        }
+        expect(count).toBe(22)
+    })
+    it('aligns subscription frames with their stage without losing frame anchors', () => {
+        const docs = getMessageDocumentation(protocol.messages[58])!
+        const subscribe = getOperationVariant(docs.operations.find(operation => operation.method === 'SUBSCRIBE')!, '2026-10')
+        const before = clone(subscribe.examples)
+        const request = documentationExamplesForContext(subscribe.examples!, 'request')
+        const response = documentationExamplesForContext(subscribe.examples!, 'response')
+        const updates = documentationExamplesForContext(subscribe.examples!, 'publication')
+        expect(request[0]).toMatchObject({ exampleIndex: 0, startsExchange: true, frames: [{ frameIndex: 0, role: 'request' }] })
+        expect(response[0]).toMatchObject({ exampleIndex: 0, startsExchange: false, frames: [{ frameIndex: 1, role: 'response' }] })
+        expect(updates[0].frames.map(frame => frame.frameIndex)).toEqual([2, 3])
+        expect(subscribe.examples).toEqual(before)
+    })
+    it('keeps multiple request/reply pairs identifiable and uploads in their own context', () => {
+        const docs = getMessageDocumentation(protocol.messages[58])!
+        const set = getOperationVariant(docs.operations.find(operation => operation.method === 'SET')!, '2026-10')
+        expect(documentationExamplesForContext(set.examples!, 'request').map(example => example.exampleIndex)).toEqual([0, 1])
+        expect(documentationExamplesForContext(set.examples!, 'response').map(example => example.exampleIndex)).toEqual([0, 1])
+        const upload = docs.operations.find(operation => operation.id === 'tracking-session')!
+        expect(documentationExamplesForContext(upload.examples!, 'publication')[0].frames[0].role).toBe('upload')
+        expect(documentationExamplesForContext(upload.examples!, 'request')).toEqual([])
+    })
+})
+
+describe('shared response conventions', () => {
+    it('links ordinary correlation/status rules without removing wire metadata', () => {
+        const context = { headers: { '3': { presence: 'optional' as const }, '4': { presence: 'optional' as const, value: 0 }, '22': { presence: 'required' as const, value: 2 } } }
+        const before = clone(context)
+        expect(commonResponseHeaderIds(context)).toEqual(['3', '4'])
+        expect(context).toEqual(before)
+    })
+    it('keeps explicit exceptions and non-OK status rules local', () => {
+        expect(commonResponseHeaderIds({ headers: { '3': { presence: 'omitted' }, '4': { presence: 'required', value: 4 } } })).toEqual([])
+        expect(commonResponseHeaderIds({ headers: { '3': { presence: 'optional', description: 'A message-specific correlation rule.' }, '4': { presence: 'required', value: 0, maxBytes: 1 } } })).toEqual([])
+    })
+    it('keeps MT58 version/payload rules and explicit publication correlation distinct', () => {
+        const message = getMessageDocumentation(protocol.messages[58])!
+        const get = getOperationVariant(message.operations.find(operation => operation.method === 'GET')!, '2026-10')
+        const subscribe = getOperationVariant(message.operations.find(operation => operation.method === 'SUBSCRIBE')!, '2026-10')
+        expect(commonResponseHeaderIds(get.response!)).toEqual(['3', '4'])
+        expect(get.response?.headers?.['22']).toMatchObject({ presence: 'required', value: 2 })
+        expect(get.response?.fields?.['129']).toMatchObject({ presence: 'optional', maxBytes: 1024 })
+        expect(subscribe.publication?.headers?.['3'].presence).toBe('omitted')
+    })
+    it('corrects only the Processing display label, preserving the existing SDK identifier', () => {
+        expect(protocol.header[4].values[-1]).toMatchObject({ name: 'Processing', id: 'error' })
+        expect(protocol.header[4].type).toBe('int8')
+    })
+    it('removes example-generation filler from message documentation', () => {
+        for (const id of [39, 58]) expect(JSON.stringify(protocol.messages[id])).not.toContain('Every generated request below')
+    })
+})
 // Keep the PR's previous authoring shape covered without a second large YAML fixture.
 const legacyProtocol = () => {
     const sample = clone(protocol)

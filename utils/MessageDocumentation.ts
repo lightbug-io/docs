@@ -16,12 +16,30 @@ export interface DocumentationContext {
     fields?: Record<string, DocumentationField>
 }
 
+/** Keep standard reply-envelope rules linked; explicit exceptions stay local. */
+export function commonResponseHeaderIds(context: DocumentationContext): string[] {
+    return Object.entries(context.headers || {}).filter(([id, field]) => {
+        if (field.description || field.values || field.maxBytes !== undefined ||
+            !['required', 'optional'].includes(field.presence || '')) return false
+        return id === '3' && field.value === undefined || id === '4' && field.value === 0
+    }).map(([id]) => id)
+}
+
 export interface DocumentationExample {
     title: string
     provenance: 'generated' | 'captured'
     description?: string
     target?: string
     frames: { role: 'request' | 'response' | 'publication' | 'upload'; label: string; bytes: string }[]
+}
+
+/** Align each exchange stage without changing frame order or published anchors. */
+export function documentationExamplesForContext(examples: DocumentationExample[], role: 'request' | 'response' | 'publication') {
+    return examples.map((example, exampleIndex) => {
+        const frames = example.frames.map((frame, frameIndex) => ({ ...frame, frameIndex }))
+            .filter(frame => (frame.role === 'upload' ? 'publication' : frame.role) === role)
+        return { ...example, exampleIndex, frames, startsExchange: frames[0]?.frameIndex === 0 }
+    }).filter(example => example.frames.length)
 }
 
 export interface DocumentationVariant {
