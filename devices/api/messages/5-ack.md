@@ -17,13 +17,11 @@ const { hasHeader, hasPayload, hasExamples } = useMessageSections(messageId, pro
 
 <span v-if="messageData?.description" style="white-space: pre-line;">{{ messageData.description }}</span>
 
-## Lightbug comms
+<span id="lightbug-comms"></span>
 
-This applies to Lightbug devices, SDKs, apps and services.
+## Response conventions
 
- - ACKs will be sent when a message has an ID in the header field.
- - If an ID is not present, then no ACK will be sent because it is assumed the sender is not tracking successes/failures.
- - ACKs may always be sent for open and close messages (with type only) <!-- Currently the case for P1 comms-->
+See [Responses and acknowledgments](../protocol/responses) for correlation, Status, typed replies and when an ACK is sent. In particular, omitting Message ID does not guarantee that no error ACK or typed response will be sent. This page defines the MT5 packet format.
 
 <template v-if="hasHeader">
 
@@ -63,7 +61,7 @@ flowchart LR
 
 ##### Response
 
-The [Response Message ID](../protocol/headers#_3-response-message-id) field in the header can be used in place of an ACK if an immediate response is being sent, with a specific message type.
+An immediate typed response can replace a separate ACK. Its [Response to header](../protocol/headers#3-response-to) correlates it with the request when a nonzero Message ID was supplied.
 
 In such cases the response will not have an ACK message type, instead it will have the message type of the response (often the same as the request).
 
