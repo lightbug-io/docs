@@ -3443,7 +3443,7 @@ messages:
                     unsubscribed.
                 "16":
                   presence: optional
-                  description: Minimum publication level. These examples use Info-Watch (1).
+                  description: Minimum publication level.
                 "17":
                   presence: optional
                   description: >-
@@ -3513,7 +3513,7 @@ messages:
                     unsubscribed.
                 "16":
                   presence: optional
-                  description: Minimum publication level. These examples use Info-Watch (1).
+                  description: Minimum publication level.
                 "17":
                   presence: optional
                   description: >-

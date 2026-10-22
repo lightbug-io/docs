@@ -375,7 +375,7 @@ onBeforeUnmount(() => {
 
       </div>
 
-      <div v-for="context in panel.contexts" :key="`${panel.anchor}-${context.role}`" class="reference-columns context-row" :class="{ 'without-examples': !context.examples.length }">
+      <div v-for="context in panel.contexts" :key="`${panel.anchor}-${context.role}`" class="reference-columns context-row">
         <section class="context-section" :class="`context-${context.role}`" :aria-labelledby="`${panel.anchor}-${context.role}`">
             <span v-for="anchor in context.referenceAnchors" :id="anchor" :key="anchor" class="operation-anchor" aria-hidden="true"></span>
             <component :is="hasFormats ? 'h4' : 'h3'" :id="`${panel.anchor}-${context.role}`" class="context-heading">{{ context.title }}</component>
@@ -424,10 +424,11 @@ onBeforeUnmount(() => {
             </section>
         </section>
 
-        <aside v-if="context.examples.length" class="reference-examples" :aria-labelledby="context.examplesAnchor">
+        <aside class="reference-examples" :aria-labelledby="context.examplesAnchor">
           <div ref="exampleColumns" class="context-examples">
           <component :is="hasFormats ? 'h4' : 'h3'" :id="context.examplesAnchor" class="examples-heading">{{ context.examplesTitle }}</component>
-          <p v-if="context.examplesAnchor === `${panel.anchor}-examples`" class="examples-caption">{{ panel.operation.title }}<template v-if="panel.variantId"> · {{ panel.variant.title }}</template>. Complete V3 frames, not HTTP requests.</p>
+          <p v-if="context.examples.length && context.examplesAnchor === `${panel.anchor}-examples`" class="examples-caption">{{ panel.operation.title }}<template v-if="panel.variantId"> · {{ panel.variant.title }}</template>. Complete V3 frames, not HTTP requests.</p>
+          <p v-if="!context.examples.length" class="example-placeholder">No captured example available yet.</p>
           <article
             v-for="example in context.examples"
             :id="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}`"
@@ -557,7 +558,6 @@ onBeforeUnmount(() => {
 .method-unsubscribe { background: #87551b; }
 .method-upload { background: #036570; }
 .reference-columns { display: grid; grid-template-columns: minmax(0, 1.04fr) minmax(0, 1fr); gap: 32px; align-items: start; }
-.reference-columns.without-examples { grid-template-columns: minmax(0, 1fr); }
 .reference-examples, .context-section { min-width: 0; }
 .context-row { margin-top: 28px; }
 .context-row > .reference-examples { align-self: stretch; padding-top: 19px; }
@@ -599,6 +599,7 @@ onBeforeUnmount(() => {
 .error-list dd { color: var(--reference-muted); }
 .structured-message .examples-heading { margin: 0 0 5px; padding: 0; border: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; }
 .examples-caption { font-size: 12px; margin-bottom: 18px !important; }
+.example-placeholder { padding: 12px 14px; border: 1px dashed var(--vp-c-divider); border-radius: 4px; background: var(--vp-c-bg-soft); font-size: 13px; }
 .example-card { overflow-wrap: anywhere; margin-bottom: 28px; }
 .example-card + .example-card { padding-top: 20px; border-top: 1px solid var(--vp-c-divider); }
 .example-header { padding: 0 0 12px; }
