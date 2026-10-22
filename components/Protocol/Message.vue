@@ -125,7 +125,7 @@
                 <v-icon size="small" color="info">mdi-lock</v-icon>
                 <span>ENCRYPTED</span>
             </div>
-            <div class="byte-controls">
+            <div v-if="showControls" class="byte-controls">
                 <v-btn
                     size="x-small"
                     variant="text"
@@ -215,7 +215,7 @@
         </div>
 
         <!-- Settings Modal -->
-        <v-dialog v-model="isCogModalVisible" max-width="400px">
+        <v-dialog v-if="showControls" v-model="isCogModalVisible" max-width="400px">
             <v-card class="copy-options-modal">
                 <v-card-title class="modal-title">Copy Options</v-card-title>
                 <v-card-text class="modal-content">
@@ -346,6 +346,10 @@ export default defineComponent({
         defaultCollapsed: {
             type: Boolean,
             default: false
+        },
+        showControls: {
+            type: Boolean,
+            default: true
         },
         readOnly: {
             type: Boolean,

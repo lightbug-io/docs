@@ -63,6 +63,7 @@ describe('optional message documentation', () => {
             summary: 'Test',
             fields: { 98: {} },
             legacyFields: { 97: {} },
+            notes: [{ id: 'detail', title: 'Detail', description: 'Text', placement: 'unknown' }],
             operations: [
                 { id: 'read', title: 'Read', method: 'UNSUPPORTED', legacy: 'yes', request: { headers: { 5: { value: 99 }, 250: {} }, fields: { 99: {} } }, response: { messageId: 9999 } },
                 { id: 'read', title: 'Duplicate' },
@@ -78,6 +79,32 @@ describe('optional message documentation', () => {
         expect(errors).toContain('field summary references unknown fields id 98')
         expect(errors).toContain('legacy field summary references unknown fields id 97')
         expect(errors).toContain('invalid legacy flag')
+        expect(errors).toContain('invalid note placement')
+    })
+
+    it('puts required fields first while preserving order within each group', () => {
+        const usage = {
+            1: { presence: 'optional' as const },
+            4: { presence: 'required' as const },
+            5: { presence: 'required' as const },
+            17: { presence: 'omitted' as const },
+            22: { presence: 'optional' as const },
+        }
+        const before = clone(usage)
+        expect(resolveDocumentationFields(protocol, protocol.messages[58], usage, 'headers').map(field => field.id)).toEqual([4, 5, 1, 17, 22])
+        expect(usage).toEqual(before)
+        const set = protocol.messages[58].docs.operations.find((operation: DocumentationOperation) => operation.method === 'SET')
+        expect(resolveDocumentationFields(protocol, protocol.messages[58], set.request.headers, 'headers').map(field => field.id)).toEqual([5, 22, 1])
+        expect(resolveDocumentationFields(protocol, protocol.messages[58], set.request.fields, 'fields')[0].id).toBe(129)
+    })
+
+    it('accepts optional reference-note placement while retaining the overview default', () => {
+        const sample = clone(protocol)
+        sample.messages[39].docs.notes = [
+            { id: 'purpose', title: 'Purpose', description: 'Overview text' },
+            { id: 'detail', title: 'Details', description: 'Reference text', placement: 'reference' },
+        ]
+        expect(validateMessageDocumentation(sample, 39)).toEqual([])
     })
 
     it('accepts a response payload scoped to its actual ACK message', () => {

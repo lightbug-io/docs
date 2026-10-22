@@ -51,7 +51,7 @@ export interface MessageDocumentation {
     fields?: Record<string, DocumentationField>
     legacyFields?: Record<string, DocumentationField>
     operations: DocumentationOperation[]
-    notes?: { id: string; title: string; description: string }[]
+    notes?: { id: string; title: string; description: string; placement?: 'overview' | 'reference' }[]
 }
 
 export function getMessageDocumentation(message: any): MessageDocumentation | undefined {
@@ -93,6 +93,9 @@ export function resolveDocumentationFields(
             maxBytes: context.maxBytes,
         }
     }).filter((field): field is NonNullable<typeof field> => field !== undefined)
+        // Required fields lead each group; stable sorting preserves all other
+        // ordering and never mutates the wire definitions or documentation map.
+        .sort((a, b) => Number(b.presence === 'required') - Number(a.presence === 'required'))
 }
 
 /** Check references before a site build can publish misleading contextual documentation. */
@@ -118,7 +121,15 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
         return errors
     }
     validateIds(docs.operations, 'operation')
-    if (docs.notes) validateIds(docs.notes, 'note')
+    if (docs.notes) {
+        validateIds(docs.notes, 'note')
+        for (const note of docs.notes) {
+            if (!note || typeof note !== 'object') continue
+            if (note.placement !== undefined && !['overview', 'reference'].includes(note.placement)) {
+                fail(`${note.id} has invalid note placement`)
+            }
+        }
+    }
 
     const validateContext = (context: DocumentationContext | undefined, label: string) => {
         if (!context) return
