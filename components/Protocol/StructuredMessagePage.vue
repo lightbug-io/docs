@@ -164,7 +164,7 @@ async function revealHash(value: string) {
     ancestor = ancestor.parentElement
   }
   await nextTick()
-  target.scrollIntoView?.({ block: 'start' })
+  target.scrollIntoView?.({ block: 'start', behavior: 'instant' })
 }
 
 function readHash() {
@@ -177,6 +177,13 @@ function onAnchorClick(event: MouseEvent) {
   if (!(link instanceof HTMLAnchorElement) || link.target === '_blank' || link.hasAttribute('download')) return
   const url = new URL(link.href, window.location.href)
   if (url.origin !== window.location.origin || url.pathname !== window.location.pathname || url.search !== window.location.search || !url.hash) return
+  if (event.currentTarget instanceof HTMLElement && event.currentTarget.classList.contains('structured-message')) {
+    // VitePress applies its own fixed-header offset to anchor clicks. Own local
+    // jumps so its later scroll cannot cover headings with this taller bar.
+    event.preventDefault()
+    event.stopPropagation()
+    if (window.location.hash !== url.hash) window.history.pushState(window.history.state, '', url.hash)
+  }
   // Hashchange does not fire when the same anchor is clicked again. Handle any
   // same-page link, including links outside this component, before scrolling.
   void revealHash(url.hash)
@@ -214,7 +221,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div v-if="documentation" class="structured-message" :style="{ '--message-jump-height': `${jumpBarHeight}px` }">
+  <div v-if="documentation" class="structured-message" :style="{ '--message-jump-height': `${jumpBarHeight}px` }" @click.capture="onAnchorClick">
     <p class="message-summary">{{ documentation.summary }}</p>
     <p v-if="documentation.target" class="support-context"><strong>Applies to</strong> {{ documentation.target }}</p>
 
