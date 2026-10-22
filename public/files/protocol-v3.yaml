@@ -1360,7 +1360,7 @@ messages:
       3:
         name: Mode
         id: mode
-        description: "Device mode: 0 is Sleep; 1 is Awake."
+        description: Device mode.
         type: uint8
         values:
           0:
@@ -1372,7 +1372,7 @@ messages:
       4:
         name: Network type
         id: networkType
-        description: "Current network: 0 is no network, 2 is GSM (2G), 3 is WCDMA (3G), and 4 is LTE (4G)."
+        description: Current network.
         type: uint8
         values:
           0:

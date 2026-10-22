@@ -5,7 +5,9 @@ import { calculateCRC16XMODEM, parseRawMessage, readTypedData } from '../src/pro
 // The repository's YAML dependency is intentionally untyped.
 const yaml = require('js-yaml')
 import {
+    capturedDocumentationValues,
     commonResponseHeaderIds,
+    documentationTextParts,
     documentationExamplesForContext,
     getMessageDocumentation,
     getOperationVariant,
@@ -52,6 +54,16 @@ describe('paired exchange stages', () => {
         }
         expect(getMessageDocumentation(protocol.messages[5])).toBeUndefined()
         expect(protocol.messages[5].examples.some((example: any) => example.bytes && example.real)).toBe(true)
+    })
+})
+
+describe('documentation links', () => {
+    it('links HTTP(S) references while retaining escaped-text content and unsafe schemes as text', () => {
+        const text = 'Reference: https://mcc-mnc.net/ and (https://example.test/code). <b>text</b> javascript:alert(1) data:text/html,test'
+        const parts = documentationTextParts(text)
+        expect(parts.map(part => part.text).join('')).toBe(text)
+        expect(parts.filter(part => part.href).map(part => part.href)).toEqual(['https://mcc-mnc.net/', 'https://example.test/code'])
+        expect(documentationTextParts('https://user:secret@example.test/ https://').every(part => !part.href)).toBe(true)
     })
 })
 
@@ -122,6 +134,10 @@ describe('optional message documentation', () => {
         const ack = resolveDocumentationFields(protocol, protocol.messages[5], { 1: {} }, 'fields')
         expect(ack[0].name).toBe(protocol.messages[5].data[1].name)
         expect(ack[0].name).not.toBe(protocol.messages[58].data[1].name)
+        const network = resolveDocumentationFields(protocol, protocol.messages[34], { 4: {} }, 'fields')[0]
+        expect(network.values.map(value => [value.value, value.name])).toEqual([[0, 'No network'], [2, 'GSM (2G)'], [3, 'WCDMA (3G)'], [4, 'LTE (4G)']])
+        expect(resolveDocumentationFields(protocol, protocol.messages[34], { 4: { values: { 0: 'Disconnected' } } }, 'fields')[0].values).toEqual([{ value: 0, name: 'No network', description: 'Disconnected' }])
+        expect(resolveDocumentationFields(protocol, protocol.messages[34], { 4: { value: 0 } }, 'fields')[0].values).toEqual([])
     })
 
     it('rejects broken inline references and duplicate operation anchors', () => {
@@ -401,5 +417,28 @@ describe('Device Status reference', () => {
         expect(Object.fromEntries(Object.entries(response.data).map(([id, bytes]) => [id, readTypedData(bytes, message.data[id].type)]))).toEqual({
             1: 88, 2: 64, 3: 0, 4: 0, 5: 0, 6: 0, 7: 2287, 10: 48,
         })
+        expect(Object.fromEntries(capturedDocumentationValues(example, 34, message.data).map(field => [field.id, field.value]))).toEqual({
+            1: '88%', 2: '64%', 3: '0 · Sleep', 4: '0 · No network', 5: '0', 6: '0', 7: '2287', 10: '48',
+        })
+        expect(capturedDocumentationValues({ ...example, frames: [example.frames[0]] }, 34, message.data)).toEqual([])
+    })
+    it('does not project generated, wrong-message, unverified-version or malformed examples as captures', () => {
+        const example = docs.operations[0].examples![0]
+        expect(capturedDocumentationValues({ ...example, provenance: 'generated' }, 34, message.data)).toEqual([])
+        expect(capturedDocumentationValues(example, 58, message.data)).toEqual([])
+        expect(capturedDocumentationValues(example, 34, message.data, 2)).toEqual([])
+        const invalid = clone(example)
+        invalid.frames[1].bytes += ' 0'
+        expect(capturedDocumentationValues(invalid, 34, message.data)).toEqual([])
+        const bytes = example.frames[1].bytes.split(' ').map(Number)
+        bytes[26] = 255 // Invalid first payload length, even with a recomputed checksum.
+        const crc = calculateCRC16XMODEM(bytes.slice(0, -2))
+        bytes.splice(-2, 2, crc & 255, crc >> 8)
+        invalid.frames[1].bytes = bytes.join(' ')
+        expect(capturedDocumentationValues(invalid, 34, message.data)).toEqual([])
+        const badType = { ...message.data, 7: { ...message.data[7], type: 'uint8' } }
+        expect(capturedDocumentationValues(example, 34, badType).some(field => field.id === 7)).toBe(false)
+        const converted = { ...message.data, 1: { ...message.data[1], ...Object.values(protocol.messages).map((entry: any) => entry.data?.[5]).find((field: any) => field?.['raw-unit'] === 'cm') as object, type: 'uint8' } }
+        expect(capturedDocumentationValues(example, 34, converted).find(field => field.id === 1)?.value).toBe('88 cm (raw)')
     })
 })

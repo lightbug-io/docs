@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter, withBase } from 'vitepress'
 import Message from './Message.vue'
+import DocumentationText from './DocumentationText.vue'
 import {
   activeMessageOutlineId,
   installMessageRouteCorrection,
@@ -13,6 +14,7 @@ import {
 import MessageOutline from './MessageOutline.vue'
 import MessageCodeGen from './MessageCodeGen.vue'
 import {
+  capturedDocumentationValues,
   commonResponseHeaderIds,
   documentationExamplesForContext,
   documentationTargetOverride,
@@ -103,6 +105,18 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
   })
 }))
 
+function fieldsWithExamples(fields: ReturnType<typeof resolveDocumentationFields>, selectedPanels: typeof panels.value) {
+  const samples = selectedPanels.flatMap(panel => panel.contexts.flatMap(context => context.examples.flatMap(example =>
+    capturedDocumentationValues(example, props.messageId, message.value.data, panel.variant.messageVersion).map(sample => ({
+      ...sample,
+      href: `#${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`,
+      source: `Captured ${panel.operation.method || 'device'} ${context.role}${example.target ? ` · ${example.target}` : ''}`,
+    })),
+  )))
+  return fields.map(field => ({ ...field, examples: samples.filter((sample, index) => sample.id === field.id &&
+    samples.findIndex(other => other.id === sample.id && other.value === sample.value) === index) }))
+}
+
 // Format metadata owns the hierarchy. Operations without a wire format are
 // shared, not implicitly part of the newest format. Every panel renders once.
 const hasFormats = computed(() => !!documentation.value?.formats?.length)
@@ -118,7 +132,7 @@ const groups = computed(() => {
       title: '',
       description: '',
       legacy: false,
-      fields: resolveDocumentationFields(props.yamlData, message.value, docs?.fields, 'fields'),
+      fields: fieldsWithExamples(resolveDocumentationFields(props.yamlData, message.value, docs?.fields, 'fields'), panels.value),
       panels: panels.value,
     }]
   }
@@ -132,7 +146,7 @@ const groups = computed(() => {
     title: `${format.label} format`,
     description: format.description,
     legacy: !!format.legacy,
-    fields: resolveDocumentationFields(props.yamlData, message.value, format.fields, 'fields'),
+    fields: fieldsWithExamples(resolveDocumentationFields(props.yamlData, message.value, format.fields, 'fields'), panels.value.filter(panel => panel.formatId === format.id)),
     panels: panels.value.filter(panel => panel.formatId === format.id),
   }))
   const sharedPanels = panels.value.filter(panel => !panel.formatId)
@@ -337,22 +351,27 @@ onBeforeUnmount(() => {
         <p class="section-caption">Fields specific to {{ message.name }}. Operation sections below explain when each field is used.</p>
         <div class="field-summary-table">
           <table>
-            <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th></tr></thead>
+            <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th><th v-if="group.fields.some(field => field.examples.length)" scope="col">Captured example</th></tr></thead>
             <tbody>
               <tr v-for="field in group.fields" :id="`message-${messageId}-${group.fieldPrefix}field-${field.id}`" :key="field.id">
                 <th scope="row"><span class="summary-field-name">{{ field.name }}</span><span class="field-id">Field {{ field.id }}</span></th>
                 <td><code>{{ field.type }}</code></td>
                 <td>
-                  <p v-if="field.description" class="prose">{{ field.description }}</p>
+                  <p v-if="field.description" class="prose"><DocumentationText :text="field.description" /></p>
                   <p v-if="field.maxBytes !== undefined" class="field-limit">Maximum {{ field.maxBytes }} bytes</p>
                   <ul v-if="field.values.length" class="field-values">
-                    <li v-for="value in field.values" :key="value.value"><code>{{ value.value }}</code><strong v-if="value.name"> {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span></li>
+                    <li v-for="value in field.values" :key="value.value"><code>{{ value.value }}</code><strong v-if="value.name"> · {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span></li>
                   </ul>
+                </td>
+                <td v-if="group.fields.some(field => field.examples.length)" class="field-examples">
+                  <a v-for="sample in field.examples" :key="`${sample.href}:${sample.value}`" :href="sample.href" :aria-label="`${sample.source}: ${sample.value}`" :title="sample.source">{{ sample.value }}</a>
+                  <span v-if="!field.examples.length" class="sample-missing">Not captured</span>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+        <p v-if="group.fields.some(field => field.examples.length)" class="section-caption">Examples are observed values from the linked captures, not defaults.</p>
       </section>
 
     <section v-for="panel in group.panels" :id="panel.anchor" :key="panel.anchor" class="operation-section" :aria-labelledby="`${panel.anchor}-heading`">
@@ -404,10 +423,10 @@ onBeforeUnmount(() => {
                       <span v-if="field.maxBytes !== undefined" class="field-limit">Maximum {{ field.maxBytes }} bytes</span>
                     </div>
                     <p v-if="field.value !== undefined" class="fixed-value"><strong>Value</strong> <code>{{ field.value }}</code><span v-if="field.valueName"> · {{ field.valueName }}</span></p>
-                    <p v-if="field.description" class="prose">{{ field.description }}</p>
+                    <p v-if="field.description" class="prose"><DocumentationText :text="field.description" /></p>
                     <ul v-if="field.values.length" class="field-values">
                       <li v-for="value in field.values" :key="value.value">
-                        <code>{{ value.value }}</code><strong v-if="value.name"> {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span>
+                        <code>{{ value.value }}</code><strong v-if="value.name"> · {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span>
                       </li>
                     </ul>
                   </dd>
@@ -527,13 +546,16 @@ onBeforeUnmount(() => {
 .overview-note h2 { border: 0; padding: 0; margin-bottom: 6px; font-size: 17px; }
 .message-fields { margin-top: 28px; }
 .message-fields .fields-heading { border: 0; padding: 0; margin-bottom: 8px; font-size: 22px; }
-.field-summary-table { width: 100%; margin-top: 16px; }
+.field-summary-table { width: 100%; margin-top: 16px; overflow-x: auto; }
 .field-summary-table table { display: table; width: 100%; margin: 0; border-collapse: collapse; font-size: 13px; }
 .field-summary-table th, .field-summary-table td { padding: 12px 14px; text-align: left; vertical-align: top; border: 0; border-bottom: 1px solid var(--vp-c-divider); }
 .field-summary-table thead th { background: var(--vp-c-bg-soft); font-size: 12px; font-weight: 600; }
 .field-summary-table tbody tr { background: transparent; border: 0; }
 .field-summary-table tbody th { min-width: 150px; width: 22%; font-weight: 600; }
-.field-summary-table td:nth-child(2) { width: 15%; }
+.field-summary-table td:nth-child(2) { width: 12%; }
+.field-examples { width: 18%; }
+.field-examples a { display: block; margin-bottom: 4px; }
+.sample-missing { color: var(--reference-muted); }
 .summary-field-name, .field-summary-table .field-id { display: block; }
 .field-summary-table .field-id { margin-top: 4px; }
 .field-summary-table .field-limit { margin-top: 6px; font-size: 12px; }
