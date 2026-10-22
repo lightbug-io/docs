@@ -1812,19 +1812,6 @@ messages:
           errors:
             - code: 7
               description: "Not Supported: the product or firmware does not support this operation."
-          examples:
-            - title: Read the current GPS state
-              provenance: generated
-              description: >-
-                Generated request/response pair, not a device capture. The illustrative response reports
-                GPS on and correction data enabled.
-              frames:
-                - role: request
-                  label: GPS Control request · ID 3901
-                  bytes: 3 20 0 39 0 2 0 1 5 4 61 15 0 0 1 2 0 0 237 54
-                - role: response
-                  label: GPS Control response · Response to 3901
-                  bytes: 3 26 0 39 0 2 0 3 4 4 61 15 0 0 1 0 2 0 1 2 1 1 1 1 173 77
       SET:
         title: Configure corrections and start mode
         description: Enable correction data and/or restart the GPS in the requested boot mode.
@@ -1898,19 +1885,6 @@ messages:
               description: "Invalid State: the correction service cannot be enabled in the current device state."
             - code: 7
               description: "Not Supported: the product or firmware does not support this operation."
-          examples:
-            - title: Enable corrections with a normal start
-              provenance: generated
-              description: >-
-                Generated request and success ACK, not a device capture. Field 2 selects the full RTCM
-                stream and field 3 requests Normal start mode.
-              frames:
-                - role: request
-                  label: GPS Control request · ID 3902
-                  bytes: 3 26 0 39 0 2 0 1 5 4 62 15 0 0 1 1 2 0 2 3 1 1 1 1 124 198
-                - role: response
-                  label: ACK (MT5) · Response to 3902
-                  bytes: 3 24 0 5 0 2 0 3 4 4 62 15 0 0 1 0 1 0 1 2 39 0 185 28
   40:
     name: Haptics Control
     id: hapticsControl
@@ -3133,11 +3107,13 @@ messages:
       replaces or clears the cached bytes.
     target: Viper devices only
     versions:
-      '2026-10':
+      2:
+        label: "2026-10"
         description: >-
           Complete payload and CRC-16 format. GET and SUBSCRIBE explicitly select wire Message
           Version 2 with header 22; omitting it selects the legacy format. SET requires 2.
-      '2025-10':
+      1:
+        label: "2025-10"
         description: >-
           Earlier chunked payload and additive-checksum format, retained for existing integrations.
           GET and SUBSCRIBE use this format when header 22 is omitted or set to 1. No legacy SET is supported.
@@ -3153,50 +3129,50 @@ messages:
         description: Legacy additive checksum (sum of payload bytes modulo 65536), used in version 1 responses with the legacy chunk fields. Absent from version 2 responses. Optional and ignored in SET.
         type: uint16
         readonly: true
-        versions: ['2025-10']
+        versions: [1]
       2:
         name: CRC
         id: crc
         description: CRC-16/XMODEM of the cached payload (polynomial 0x1021, initial value 0x0000, no input or output reflection, final XOR 0x0000), separate from the outer message-frame CRC. Returned in version 2 responses and tracking-session messages, including an empty cache as zero (0x0000). Optional and ignored in SET; the device calculates it from field 129. One- or two-byte little-endian encoding may omit a high zero byte. Implemented only on Viper devices.
         type: uint16
         readonly: true
-        versions: ['2026-10']
+        versions: [2]
       10:
         name: Legacy Payload Chunk 1
         id: legacyChunk1
         description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
-        versions: ['2025-10']
+        versions: [1]
       11:
         name: Legacy Payload Chunk 2
         id: legacyChunk2
         description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
-        versions: ['2025-10']
+        versions: [1]
       12:
         name: Legacy Payload Chunk 3
         id: legacyChunk3
         description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
-        versions: ['2025-10']
+        versions: [1]
       13:
         name: Legacy Payload Chunk 4
         id: legacyChunk4
         description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
-        versions: ['2025-10']
+        versions: [1]
       14:
         name: Legacy Payload Chunk 5
         id: legacyChunk5
         description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
-        versions: ['2025-10']
+        versions: [1]
       129:
         name: Full Payload
         id: fullPayload
         description: Complete message-box bytes in SET requests, GET responses, and subscription updates (up to 1024 bytes). SET must include this field; an explicit zero-length value clears the cache. Uses an extended-length field with a uint16 little-endian length prefix. Tracking-session uploads may use this field for independent Transmit Now data instead.
         type: bytes
-        versions: ['2026-10']
+        versions: [2]
     methods:
       GET:
         title: Read the cached message
@@ -3210,7 +3186,7 @@ messages:
             - code: 7
               description: "Not Supported: the product or firmware does not support this operation."
         versions:
-          '2026-10':
+          2:
             title: 2026-10 · complete payload
             description: Select the complete extended payload and its CRC-16/XMODEM.
             request:
@@ -3260,23 +3236,7 @@ messages:
                   description: >-
                     Complete cached payload in an extended-length field with a uint16 little-endian
                     length prefix. Empty payload data is omitted.
-            examples:
-              - title: Read the complete payload
-                provenance: generated
-                description: >-
-                  Generated request/response pair, not a device capture. Field 129 contains ASCII
-                  123456789; field 2 is its CRC-16/XMODEM, 0x31C3 (12739). This payload CRC is
-                  separate from the outer frame CRC.
-                frames:
-                  - role: request
-                    label: Message Box request · ID 5802
-                    bytes: 3 23 0 58 0 3 0 1 5 22 4 170 22 0 0 1 2 1 2 0 0 207 108
-                  - role: response
-                    label: Message Box response · Response to 5802
-                    bytes: >-
-                      3 39 0 58 0 3 0 3 4 22 4 170 22 0 0 1 0 1 2 2 0 2 129 2 195 49 9 0 49 50 51 52
-                      53 54 55 56 57 50 98
-          '2025-10':
+          1:
             title: 2025-10 · legacy chunks
             description: Use the unchanged legacy wire layout and additive checksum.
             request:
@@ -3357,22 +3317,6 @@ messages:
                   description: >-
                     Version 1 retains the legacy wire layout; it does not include the extended
                     full-payload field.
-            examples:
-              - title: Read the legacy payload
-                provenance: generated
-                description: >-
-                  Generated request/response pair, not a device capture. Message Version is omitted in
-                  the request. The response contains ASCII 123456789 in chunk 10, additive checksum
-                  477 in field 1, and no Message Version header.
-                frames:
-                  - role: request
-                    label: Message Box request · ID 5801
-                    bytes: 3 20 0 58 0 2 0 1 5 4 169 22 0 0 1 2 0 0 131 185
-                  - role: response
-                    label: Message Box response · Response to 5801
-                    bytes: >-
-                      3 35 0 58 0 2 0 3 4 4 169 22 0 0 1 0 2 0 1 10 2 221 1 9 49 50 51 52 53 54 55 56
-                      57 10 107
       SET:
         title: Replace or clear the cached message
         description: >-
@@ -3380,7 +3324,7 @@ messages:
           publishes to current subscribers, even for identical bytes. SET does not change the selected
           subscription format.
         versions:
-          '2026-10':
+          2:
             request:
               title: SET request
               description: >-
@@ -3436,34 +3380,6 @@ messages:
                   2; or field 129 exceeds 1024 bytes.
               - code: 7
                 description: "Not Supported: the product or firmware does not support this operation."
-            examples:
-              - title: Replace the cache
-                provenance: generated
-                description: >-
-                  Generated request and success ACK, not a device capture. SET writes ASCII 123456789. No
-                  caller-supplied checksum is needed. Existing subscribers receive a separate publication
-                  in the currently selected shared format.
-                frames:
-                  - role: request
-                    label: Message Box request · ID 5803
-                    bytes: >-
-                      3 35 0 58 0 3 0 1 5 22 4 171 22 0 0 1 1 1 2 1 0 129 9 0 49 50 51 52 53 54 55 56 57
-                      200 14
-                  - role: response
-                    label: ACK (MT5) · Response to 5803
-                    bytes: 3 24 0 5 0 2 0 3 4 4 171 22 0 0 1 0 1 0 1 2 58 0 60 213
-              - title: Clear the cache explicitly
-                provenance: generated
-                description: >-
-                  Generated request and success ACK, not a device capture. Field 129 is present with an
-                  extended length of zero; this is different from omitting it. The cached CRC becomes 0.
-                frames:
-                  - role: request
-                    label: Message Box request · ID 5804
-                    bytes: 3 26 0 58 0 3 0 1 5 22 4 172 22 0 0 1 1 1 2 1 0 129 0 0 120 240
-                  - role: response
-                    label: ACK (MT5) · Response to 5804
-                    bytes: 3 24 0 5 0 2 0 3 4 4 172 22 0 0 1 0 1 0 1 2 58 0 119 221
       SUBSCRIBE:
         title: Subscribe to cached-message updates
         description: >-
@@ -3502,7 +3418,7 @@ messages:
             - code: 7
               description: "Not Supported: the product or firmware does not support this operation."
         versions:
-          '2026-10':
+          2:
             title: Version 2 · complete-payload publications
             description: Explicit version 2 selects the shared extended-payload and CRC publication format.
             request:
@@ -3570,30 +3486,7 @@ messages:
                   description: >-
                     Complete cached payload in an extended-length field with a uint16 little-endian
                     length prefix. Empty payload data is omitted.
-            examples:
-              - title: Subscribe, then receive updates and a clear
-                provenance: generated
-                description: >-
-                  Generated frames, not a device capture. Subscription ID 8 selects version 2. The MT5
-                  frame is the control ACK; the following MT58 frames are later publication events.
-                  After the cache is cleared, CRC is zero and field 129 is omitted, not encoded as an
-                  empty payload.
-                frames:
-                  - role: request
-                    label: Message Box request · ID 5806
-                    bytes: 3 29 0 58 0 5 0 1 5 16 17 22 4 174 22 0 0 1 3 1 1 1 8 1 2 0 0 141 236
-                  - role: response
-                    label: ACK (MT5) · Response to 5806
-                    bytes: 3 24 0 5 0 2 0 3 4 4 174 22 0 0 1 0 1 0 1 2 58 0 157 219
-                  - role: publication
-                    label: Later asynchronous publication · Subscription ID 8
-                    bytes: >-
-                      3 33 0 58 0 2 0 17 22 1 8 1 2 2 0 2 129 2 195 49 9 0 49 50 51 52 53 54 55 56 57
-                      165 137
-                  - role: publication
-                    label: Later clear event · No payload field 129
-                    bytes: 3 20 0 58 0 2 0 17 22 1 8 1 2 1 0 2 1 0 186 53
-          '2025-10':
+          1:
             title: Version 1 · legacy publications
             description: >-
               Omitted, explicitly 0, malformed-width, or explicit version 1 selects the shared legacy
@@ -3694,23 +3587,6 @@ messages:
                   description: >-
                     Version 1 retains the legacy wire layout; it does not include the extended
                     full-payload field.
-            examples:
-              - title: Subscribe, acknowledge, then publish
-                provenance: generated
-                description: >-
-                  Generated frames, not a device capture. Subscription ID 7 selects version 1 by
-                  omitting Message Version. The first reply is an MT5 control ACK. The MT58 frame is a
-                  later cache-update event for that subscription, not the SUBSCRIBE response.
-                frames:
-                  - role: request
-                    label: Message Box request · ID 5805
-                    bytes: 3 26 0 58 0 4 0 1 5 16 17 4 173 22 0 0 1 3 1 1 1 7 0 0 108 60
-                  - role: response
-                    label: ACK (MT5) · Response to 5805
-                    bytes: 3 24 0 5 0 2 0 3 4 4 173 22 0 0 1 0 1 0 1 2 58 0 2 222
-                  - role: publication
-                    label: Later asynchronous publication · Subscription ID 7
-                    bytes: 3 29 0 58 0 1 0 17 1 7 2 0 1 10 2 221 1 9 49 50 51 52 53 54 55 56 57 169 204
       UNSUBSCRIBE:
         title: Stop a subscription
         description: >-
@@ -3758,22 +3634,6 @@ messages:
           errors:
             - code: 7
               description: "Not Supported: the product or firmware does not support this operation."
-          examples:
-            - title: Unsubscribe ID 8
-              provenance: generated
-              description: >-
-                Generated request and success ACK, not a device capture. Removes subscription ID 8
-                without resetting the format selected by the last valid SUBSCRIBE.
-              frames:
-                - role: request
-                  label: Message Box request · ID 5807
-                  bytes: 3 23 0 58 0 3 0 1 5 17 4 175 22 0 0 1 5 1 8 0 0 225 6
-                - role: response
-                  label: ACK (MT5) · Response to 5807
-                  bytes: 3 24 0 5 0 2 0 3 4 4 175 22 0 0 1 0 1 0 1 2 58 0 232 216
-    examples:
-      - name: Synthetic GET request (not a hardware capture)
-        bytes: 3 17 0 58 0 2 0 1 5 1 1 1 2 0 0 218 13
     contexts:
       tracking-session:
         title: Tracking-session uploads
@@ -3785,7 +3645,7 @@ messages:
           support; those upload-only messages omit field 2.
         target: Viper or Transmit Now upload-enabled firmware
         versions:
-          '2026-10':
+          2:
             publication:
               title: Device upload (MT58)
               description: >-
@@ -3809,18 +3669,6 @@ messages:
                   description: >-
                     Independent Transmit Now upload data; do not compare its CRC with field 2 to validate
                     the upload.
-            examples:
-              - title: Cached CRC alongside an independent upload
-                provenance: generated
-                target: Viper devices with Message Box support
-                description: >-
-                  Generated tracking-session frame, not a device capture. The cached message is ASCII
-                  123456789, so field 2 is 0x31C3. Field 129 instead carries ASCII UP. Their CRCs
-                  intentionally differ; the outer frame CRC protects the transmitted frame.
-                frames:
-                  - role: upload
-                    label: Tracking-session upload · Independent field 129 data
-                    bytes: 3 23 0 58 0 1 0 22 1 2 2 0 2 129 2 195 49 2 0 85 80 157 129
     notes:
       - id: support
         title: Unsupported products

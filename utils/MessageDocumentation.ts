@@ -1,4 +1,4 @@
-/** Optional presentation metadata. Wire definitions remain in header and message.data. */
+/** Structured message documentation. Wire definitions remain in header and message.data. */
 export interface DocumentationField {
     description?: string
     presence?: 'required' | 'optional' | 'ignored' | 'omitted'
@@ -46,9 +46,9 @@ export interface DocumentationVariant {
     id: string
     title: string
     messageVersion?: number
-    /** Date-keyed semantic format; numeric messageVersion remains wire information. */
+    /** Canonical message-version key, normalized to a string for object references. */
     format?: string
-    /** Legacy fragment alias; semantic identity is still the date key. */
+    /** Retain existing fragment links independently of the authoring shape. */
     anchorId?: string
     /** Retain older wire formats in a collapsed compatibility reference. */
     legacy?: boolean
@@ -83,17 +83,13 @@ export interface MessageDocumentation {
     target?: string
     /** Message-specific field summaries, referencing message.data definitions. */
     fields?: Record<string, DocumentationField>
-    legacyFields?: Record<string, DocumentationField>
     formats?: DocumentationFormat[]
     operations: DocumentationOperation[]
     notes?: { id: string; title: string; description: string; placement?: 'overview' | 'reference' }[]
 }
 
 export function getDocumentationFormat(docs: MessageDocumentation, view: DocumentationVariant): DocumentationFormat | undefined {
-    return view.format !== undefined
-        ? docs.formats?.find(format => format.id === view.format)
-        : view.messageVersion === undefined ? undefined
-            : docs.formats?.find(format => format.messageVersion === view.messageVersion)
+    return docs.formats?.find(format => format.id === view.format)
 }
 
 /** Only show a target again when a more specific context actually overrides it. */
@@ -102,7 +98,7 @@ export function documentationTargetOverride(target?: string, inherited?: string)
     return normalize(target) && normalize(target) !== normalize(inherited) ? target : undefined
 }
 
-/** Two authoring schemas share one rendering model during gradual migration. */
+/** Unmigrated messages keep their existing prose-and-field renderer. */
 export function hasInlineMessageDocumentation(message: any): boolean {
     return !!message && (message.versions !== undefined || message.contexts !== undefined ||
         Object.values(message.methods || {}).some((method: any) => method?.exchange !== undefined || method?.versions !== undefined))
@@ -120,10 +116,7 @@ function wireVersion(exchange: any): number | undefined {
 }
 
 export function getMessageDocumentation(message: any): MessageDocumentation | undefined {
-    if (!hasInlineMessageDocumentation(message)) {
-        return message?.docs && Array.isArray(message.docs.operations) && message.docs.operations.length
-            ? message.docs : undefined
-    }
+    if (!hasInlineMessageDocumentation(message)) return undefined
     const versions = message.versions || {}
     const operations: DocumentationOperation[] = []
     const addOperation = (id: string, source: any, method?: string) => {
@@ -138,15 +131,12 @@ export function getMessageDocumentation(message: any): MessageDocumentation | un
             ...contextualDescriptions(source.exchange), id, method, title: source.title || method || id,
             description: source.description, target: source.target,
         }
-        const wireAnchors = new Set<number>()
-        const variants = Object.entries(source.versions || {}).map(([date, exchange]: [string, any]) => {
-            const merged = { ...source.exchange, ...exchange }
-            const messageVersion = wireVersion(merged)
-            const anchorId = messageVersion !== undefined && !wireAnchors.has(messageVersion) ? `v${messageVersion}` : undefined
-            if (messageVersion !== undefined) wireAnchors.add(messageVersion)
+        const variants = Object.entries(source.versions || {}).sort(([a], [b]) => Number(b) - Number(a)).map(([version, exchange]: [string, any]) => {
+            const messageVersion = Number(version)
+            const anchorId = `v${version}`
             return {
-                ...contextualDescriptions(exchange), id: date, anchorId,
-                title: exchange?.title || date, format: date, messageVersion, legacy: !!versions[date]?.legacy,
+                ...contextualDescriptions(exchange), id: version, anchorId,
+                title: exchange?.title || versions[version]?.label || version, format: version, messageVersion, legacy: !!versions[version]?.legacy,
             }
         })
         if (variants.length === 1) operations.push({ ...base, ...variants[0], id, title: base.title })
@@ -155,29 +145,25 @@ export function getMessageDocumentation(message: any): MessageDocumentation | un
     for (const [method, value] of Object.entries(message.methods || {})) addOperation(method.toLowerCase(), value, method)
     for (const [id, value] of Object.entries(message.contexts || {})) addOperation(id, value)
 
-    const fieldsFor = (date?: string) => Object.fromEntries(Object.entries(message.data || {})
-        .filter(([, field]: [string, any]) => date === undefined || !field.versions || Array.isArray(field.versions) && field.versions.includes(date))
+    const fieldsFor = (version?: string) => Object.fromEntries(Object.entries(message.data || {})
+        .filter(([, field]: [string, any]) => version === undefined || !field.versions || Array.isArray(field.versions) && field.versions.includes(Number(version)))
         .map(([id]) => [id, {}]))
     let currentAnchorUsed = false
     let legacyAnchorUsed = false
-    const formats: DocumentationFormat[] = Object.entries(versions).map(([date, version]: [string, any]) => {
-        const views = operations.flatMap(operation => operation.variants?.map(variant => getOperationVariant(operation, variant.id)) || [operation])
+    const formats: DocumentationFormat[] = Object.entries(versions).sort(([a], [b]) => Number(b) - Number(a)).map(([id, version]: [string, any]) => {
         const anchorId = version?.legacy
             ? (!legacyAnchorUsed ? 'legacy' : undefined)
             : (!currentAnchorUsed ? 'current' : undefined)
         if (version?.legacy) legacyAnchorUsed = true
         else currentAnchorUsed = true
         return {
-            id: date, label: date, description: version?.description, legacy: !!version?.legacy,
-            messageVersion: views.find(view => view.format === date)?.messageVersion,
-            fields: fieldsFor(date), anchorId,
+            id, label: version?.label, description: version?.description, legacy: !!version?.legacy,
+            messageVersion: Number(id), fields: fieldsFor(id), anchorId,
         }
     })
-    const summaryFields = (legacy: boolean) => Object.assign({}, ...formats.filter(format => !!format.legacy === legacy).map(format => format.fields))
     return {
         summary: message.description || '', target: message.target, notes: message.notes,
-        fields: formats.length ? summaryFields(false) : fieldsFor(),
-        legacyFields: formats.some(format => format.legacy) ? summaryFields(true) : undefined,
+        fields: formats.length ? undefined : fieldsFor(),
         formats: formats.length ? formats : undefined, operations,
     }
 }
@@ -250,43 +236,42 @@ function validateInlineDocumentation(message: any): string[] {
     }
     if (message.notes !== undefined && (!Array.isArray(message.notes) || message.notes.some((note: any) => !object(note)))) errors.push('notes must be a list of objects')
     const versions = object(message.versions) ? message.versions : {}
-    if (message.versions !== undefined && !object(message.versions)) errors.push('versions must be a date-keyed mapping')
-    for (const [date, version] of Object.entries(versions)) {
-        if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(date)) errors.push(`invalid version date ${date}`)
-        if (!object(version)) errors.push(`${date} version must be an object`)
-        else if ((version as any).legacy !== undefined && typeof (version as any).legacy !== 'boolean') errors.push(`${date} has invalid legacy flag`)
+    if (message.versions !== undefined && !object(message.versions)) errors.push('versions must be a numeric-keyed mapping')
+    for (const [id, version] of Object.entries(versions) as [string, any][]) {
+        if (!/^(0|[1-9]\d*)$/.test(id) || Number(id) > 255) errors.push(`invalid message version ${id}`)
+        if (!object(version)) errors.push(`${id} version must be an object`)
+        else {
+            if (typeof version.label !== 'string' || !version.label.trim()) errors.push(`${id} version needs a label`)
+            if (version.legacy !== undefined && typeof version.legacy !== 'boolean') errors.push(`${id} has invalid legacy flag`)
+        }
     }
     for (const [id, field] of Object.entries(message.data || {}) as [string, any][]) {
         if (field.versions === undefined) continue
         if (!Array.isArray(field.versions) || !field.versions.length) errors.push(`field ${id} versions must be a nonempty list`)
-        else for (const date of field.versions) {
-            if (!Object.prototype.hasOwnProperty.call(versions, date)) errors.push(`field ${id} references unknown version ${date}`)
+        else for (const version of field.versions) {
+            if (!Number.isInteger(version) || !Object.prototype.hasOwnProperty.call(versions, version)) errors.push(`field ${id} references unknown version ${version}`)
         }
     }
-    const selectors = new Map<string, number>()
     for (const [name, source] of [...Object.entries(message.methods || {}), ...Object.entries(message.contexts || {})] as [string, any][]) {
         if (!source) continue
         if (source.exchange !== undefined) validateExchangeShape(source.exchange, name)
         if (source.versions === undefined) continue
-        if (!object(source.versions)) { errors.push(`${name} versions must be a date-keyed mapping`); continue }
-        for (const [date, exchange] of Object.entries(source.versions) as [string, any][]) {
-            if (!Object.prototype.hasOwnProperty.call(versions, date)) errors.push(`${name} references unknown version ${date}`)
-            if (!object(exchange)) { errors.push(`${name}/${date} exchange must be an object`); continue }
-            validateExchangeShape(exchange, `${name}/${date}`)
+        if (!object(source.versions)) { errors.push(`${name} versions must be a numeric-keyed mapping`); continue }
+        for (const [version, exchange] of Object.entries(source.versions) as [string, any][]) {
+            if (!Object.prototype.hasOwnProperty.call(versions, version)) errors.push(`${name} references unknown version ${version}`)
+            if (!object(exchange)) { errors.push(`${name}/${version} exchange must be an object`); continue }
+            validateExchangeShape(exchange, `${name}/${version}`)
             const merged = { ...source.exchange, ...exchange }
             for (const role of ['request', 'response', 'publication']) {
                 const context = merged[role]
                 const selector = wireVersion({ [role]: context })
-                if (selector !== undefined && Number.isInteger(selector)) {
-                    if (selectors.has(date) && selectors.get(date) !== selector) errors.push(`${date} has inconsistent header 22 values`)
-                    selectors.set(date, selector)
-                }
+                if (selector !== undefined && selector !== Number(version)) errors.push(`${name}/${version} ${role} header 22 disagrees with its message version`)
                 // An ACK's fields belong to MT5, not to the originating message.
                 if (context?.messageId !== undefined) continue
                 for (const [id, usage] of Object.entries(context?.fields || {}) as [string, any][]) {
                     const applicable = message.data?.[id]?.versions
-                    if (Array.isArray(applicable) && !applicable.includes(date) && !['omitted', 'ignored'].includes(usage?.presence)) {
-                        errors.push(`${name}/${date} ${role} uses field ${id} outside its versions`)
+                    if (Array.isArray(applicable) && !applicable.includes(Number(version)) && !['omitted', 'ignored'].includes(usage?.presence)) {
+                        errors.push(`${name}/${version} ${role} uses field ${id} outside its versions`)
                     }
                 }
             }
@@ -298,21 +283,19 @@ function validateInlineDocumentation(message: any): string[] {
 /** Check references before a site build can publish misleading contextual documentation. */
 export function validateMessageDocumentation(protocol: any, messageId: number): string[] {
     const message = protocol.messages?.[messageId]
-    if (!message?.docs && !hasInlineMessageDocumentation(message)) return []
+    if (!hasInlineMessageDocumentation(message)) return []
     const prefix = `Message ${messageId} documentation`
-    if (hasInlineMessageDocumentation(message)) {
-        const authoringErrors = validateInlineDocumentation(message)
-        if (authoringErrors.length) return authoringErrors.map(error => `${prefix}: ${error}`)
-    }
-    const docs = getMessageDocumentation(message) || message.docs as MessageDocumentation
+    const authoringErrors = validateInlineDocumentation(message)
+    if (authoringErrors.length) return authoringErrors.map(error => `${prefix}: ${error}`)
+    const docs = getMessageDocumentation(message)!
     const errors: string[] = []
     const fail = (text: string) => errors.push(`${prefix}: ${text}`)
     const identifier = /^[a-z][a-z0-9-]*$/
-    const dateIdentifier = /^\d{4}-(0[1-9]|1[0-2])$/
+    const versionIdentifier = /^\d+$/
     const validateIds = (items: any[], label: string) => {
         const ids = new Set<string>()
         for (const item of items) {
-            if (!item || !((label === 'format' || label.endsWith(' variant')) && dateIdentifier.test(item.id)) && !identifier.test(item.id)) fail(`${label} needs a stable lowercase id`)
+            if (!item || !((label === 'format' || label.endsWith(' variant')) && versionIdentifier.test(item.id)) && !identifier.test(item.id)) fail(`${label} needs a stable lowercase id`)
             if (ids.has(item?.id)) fail(`duplicate ${label} id ${item.id}`)
             ids.add(item?.id)
         }
@@ -323,20 +306,6 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
         return errors
     }
     validateIds(docs.operations, 'operation')
-    if (docs.formats) {
-        validateIds(docs.formats, 'format')
-        const versions = new Set<number>()
-        for (const format of docs.formats) {
-            if (!format || typeof format !== 'object') continue
-            if (typeof format.label !== 'string' || !format.label.trim()) fail(`${format.id} needs a format label`)
-            if (format.messageVersion !== undefined && (!Number.isInteger(format.messageVersion) || format.messageVersion < 0)) fail(`${format.id} has invalid format messageVersion`)
-            if (format.messageVersion !== undefined) {
-                if (!hasInlineMessageDocumentation(message) && versions.has(format.messageVersion)) fail(`duplicate format messageVersion ${format.messageVersion}`)
-                versions.add(format.messageVersion)
-            }
-            if (format.legacy !== undefined && typeof format.legacy !== 'boolean') fail(`${format.id} has invalid format legacy flag`)
-        }
-    }
     if (docs.notes) {
         validateIds(docs.notes, 'note')
         for (const note of docs.notes) {
@@ -380,27 +349,18 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
     }
 
     validateContext({ fields: docs.fields }, 'field summary')
-    validateContext({ fields: docs.legacyFields }, 'legacy field summary')
+    for (const format of docs.formats || []) validateContext({ fields: format.fields }, `${format.id} field summary`)
 
     for (const operation of docs.operations) {
         if (!operation || typeof operation !== 'object') continue
         if (!operation.title?.trim()) fail(`${operation.id} needs a title`)
-        if (operation.method && !Object.prototype.hasOwnProperty.call(message.methods || {}, operation.method)) {
+        if (operation.method && !Object.values(protocol.header?.[5]?.values || {}).some((value: any) => value.name === operation.method)) {
             fail(`${operation.id} references unsupported method ${operation.method}`)
         }
         if (operation.variants) validateIds(operation.variants, `${operation.id} variant`)
         for (const variant of operation.variants?.length ? operation.variants : [operation]) {
             const view = operation.variants?.length ? getOperationVariant(operation, variant.id) : operation
             const label = `${operation.id}/${variant.id}`
-            if (view.legacy !== undefined && typeof view.legacy !== 'boolean') fail(`${label} has invalid legacy flag`)
-            if (view.messageVersion !== undefined && (!Number.isInteger(view.messageVersion) || view.messageVersion < 0)) {
-                fail(`${label} has invalid messageVersion`)
-            }
-            if (docs.formats && (view.messageVersion !== undefined || view.format !== undefined)) {
-                const format = getDocumentationFormat(docs, view)
-                if (!format) fail(`${label} references unknown format messageVersion ${view.messageVersion}`)
-                else if (!!format.legacy !== !!view.legacy) fail(`${label} disagrees with its format legacy flag`)
-            }
             for (const role of ['request', 'response', 'publication'] as const) validateContext(view[role], `${label} ${role}`)
             for (const error of view.errors || []) {
                 if (!protocol.header?.[4]?.values?.[error.code]) fail(`${label} references unknown status ${error.code}`)
