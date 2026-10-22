@@ -9,3 +9,26 @@ export function messageAnchorScrollTop(target: HTMLElement, jumpBar: HTMLElement
     return Math.max(0, window.scrollY + target.getBoundingClientRect().top + targetPadding + targetBorder
         - stickyTop - jumpBar.getBoundingClientRect().height - 16)
 }
+
+type RouteCompletion = (href: string) => void | Promise<void>
+
+// Popstate can finish loading a page after hashchange, even when the page
+// component is reused. Correct its anchor only after VitePress has queued its
+// own scroll, without replacing another theme's route-completion behavior.
+export function installMessageRouteCorrection(
+    router: { onAfterRouteChange?: RouteCompletion; onAfterRouteChanged?: RouteCompletion },
+    correct: () => void | Promise<void>,
+): () => void {
+    const original = router.onAfterRouteChange
+    const previous = original ?? router.onAfterRouteChanged
+    let active = true
+    const afterRoute: RouteCompletion = async href => {
+        await previous?.(href)
+        if (active) await correct()
+    }
+    router.onAfterRouteChange = afterRoute
+    return () => {
+        active = false
+        if (router.onAfterRouteChange === afterRoute) router.onAfterRouteChange = original
+    }
+}

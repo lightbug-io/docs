@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { withBase } from 'vitepress'
+import { useRouter, withBase } from 'vitepress'
 import Message from './Message.vue'
-import { messageAnchorScrollTop } from '../../utils/MessageAnchor'
+import { installMessageRouteCorrection, messageAnchorScrollTop } from '../../utils/MessageAnchor'
 import MessageCodeGen from './MessageCodeGen.vue'
 import {
   documentationTargetOverride,
@@ -21,6 +21,8 @@ const props = defineProps<{
 const message = computed(() => props.yamlData.messages?.[props.messageId])
 const documentation = computed(() => getMessageDocumentation(message.value))
 const copyStatus = ref('')
+const router = useRouter()
+let removeRouteCorrection: (() => void) | undefined
 const jumpBar = ref<HTMLElement | null>(null)
 const jumpBarHeight = ref(64)
 let jumpBarObserver: ResizeObserver | undefined
@@ -215,6 +217,7 @@ watch(() => props.messageId, () => {
   if (typeof window !== 'undefined') readHash()
 })
 onMounted(() => {
+  removeRouteCorrection = installMessageRouteCorrection(router, () => revealHash(window.location.hash))
   readHash()
   if (typeof ResizeObserver !== 'undefined') {
     jumpBarObserver = new ResizeObserver(() => {
@@ -227,6 +230,7 @@ onMounted(() => {
 })
 onBeforeUnmount(() => {
   anchorRequest++
+  removeRouteCorrection?.()
   jumpBarObserver?.disconnect()
   window.removeEventListener('hashchange', readHash)
   document.removeEventListener('click', onAnchorClick)
