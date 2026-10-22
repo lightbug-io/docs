@@ -1896,7 +1896,7 @@ messages:
                   "4": Hot
           response:
             messageId: 5
-            title: Control acknowledgment (MT5)
+            title: Response (MT5 - ACK)
             description: >-
               For a request with a nonzero Message ID, successful SET returns an ACK, not GPS state. Use
               GET to read the current state afterward.
@@ -3246,9 +3246,10 @@ messages:
         bytes: 3 17 0 58 0 2 0 1 5 1 1 1 2 0 0 218 13
     docs:
       summary: >-
-        Read, replace, or subscribe to the device's cached down-synced message box on supported
-        firmware.
-      target: Message Box-enabled firmware
+        Message Box keeps up to 1024 bytes of server-managed data cached on a Viper for a connected
+        application. GET reads the local cache, SUBSCRIBE delivers later cache updates, and SET
+        replaces or clears the cached bytes.
+      target: Viper devices only
       fields:
         "2":
           description: >-
@@ -3497,7 +3498,7 @@ messages:
                   field is an error. Extended-length encoding uses a uint16 little-endian length prefix.
           response:
             messageId: 5
-            title: Control acknowledgment (MT5)
+            title: Response (MT5 - ACK)
             description: >-
               For a request with a nonzero Message ID, successful SET returns an ACK. It does not return
               the cached bytes; subscriber publications are separate asynchronous messages and are not
@@ -3564,7 +3565,7 @@ messages:
             messages.
           response:
             messageId: 5
-            title: Control acknowledgment (MT5)
+            title: Response (MT5 - ACK)
             description: >-
               For a request with a nonzero Message ID, successful SUBSCRIBE returns a control ACK
               confirming the subscription request only. It does not contain the cache. Success ACKs
@@ -3834,7 +3835,7 @@ messages:
                 description: UNSUBSCRIBE does not select or reset the publication format.
           response:
             messageId: 5
-            title: Control acknowledgment (MT5)
+            title: Response (MT5 - ACK)
             description: >-
               For a request with a nonzero Message ID, successful UNSUBSCRIBE returns a control ACK
               confirming the unsubscribe request, not a final cached-message publication. Success ACKs
@@ -3873,10 +3874,13 @@ messages:
                   bytes: 3 24 0 5 0 2 0 3 4 4 175 22 0 0 1 0 1 0 1 2 58 0 232 216
         - id: tracking-session
           title: Tracking-session uploads
+          target: Viper or Transmit Now upload-enabled firmware
           description: >-
             A separate device-to-server context, not a GET response or subscription update.
             Tracking-session messages always use Message Version 2. Field 129 may carry independent
-            Transmit Now upload data, not the cached down-synced payload.
+            Transmit Now upload data, not the cached down-synced payload. Cached-message CRC reporting
+            is Viper-only. Independent Transmit Now uploads can use MT58 without cached Message Box
+            support; those upload-only messages omit field 2.
           publication:
             title: Device upload (MT58)
             description: >-
@@ -3903,6 +3907,7 @@ messages:
           examples:
             - title: Cached CRC alongside an independent upload
               provenance: generated
+              target: Viper devices with Message Box support
               description: >-
                 Generated tracking-session frame, not a device capture. The cached message is ASCII
                 123456789, so field 2 is 0x31C3. Field 129 instead carries ASCII UP. Their CRCs
@@ -3912,20 +3917,45 @@ messages:
                   label: Tracking-session upload · Independent field 129 data
                   bytes: 3 23 0 58 0 1 0 22 1 2 2 0 2 129 2 195 49 2 0 85 80 157 129
       notes:
+        - id: support
+          title: Viper-only feature
+          placement: overview
+          description: >-
+            The complete cached Message Box feature is available only on Viper devices running
+            supporting firmware. Other products return Not Supported (Status header 4, code 7).
+        - id: sync-lifecycle
+          title: How syncing works
+          placement: overview
+          description: |
+            Viper reports its cached-message checksum during a tracking session. If a completed session
+            contains a valid report and the server's configured data has a different checksum, the
+            server can send a version 2 SET with the desired bytes. Unconfigured or invalid server data
+            leaves the cache unchanged; an explicitly configured empty payload requests a clear.
+
+            When Viper accepts the SET, it replaces the cache, saves it when persistent storage is
+            enabled, and publishes to current subscribers. GET reads this local cache; subscribing does
+            not itself fetch data from the server.
+
+            Later tracking-session reports let the server check the reported cache checksum and offer
+            the update again if it still differs. Sending an update or receiving an ACK alone does not
+            confirm that the cache is synchronized.
+        - id: message-versions
+          title: Current and legacy formats
+          placement: overview
+          description: >-
+            Message Version 2 is the current format; version 1 remains documented for compatibility.
+            This message-format version is separate from protocol version 3. Set Message Version
+            (header 22) to 2 explicitly for current GET and SUBSCRIBE requests; omitting it selects the
+            legacy format. SET requires version 2.
         - id: checksum-scope
           title: Payload CRC and frame CRC are different
+          placement: reference
           description: >-
             The device calculates and stores CRC-16/XMODEM of the cached payload: polynomial 0x1021,
             initial value 0x0000, no input or output reflection, final XOR 0x0000. The outer
             message-frame CRC protects the complete frame. The 16-bit payload CRC can collide for
-            different payloads; changed bytes are still applied even when their CRC matches the previous
-            CRC.
-        - id: support
-          title: Firmware support
-          description: >-
-            Unsupported products return Not Supported (Status header 4, code 7). The CRC field is
-            currently implemented only on Viper devices. These generated examples illustrate supported
-            behavior, not captures or claims of support on other targets.
+            different payloads; an accepted SET still applies changed bytes even when their CRC matches
+            the previous CRC.
   61:
     name: GPS Diagnostics
     id: gpsDiagnostics
