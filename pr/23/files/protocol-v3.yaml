@@ -1456,7 +1456,7 @@ messages:
               "7": {presence: optional}
               "10": {presence: optional}
           examples:
-            - title: Captured GET exchange
+            - title: GET exchange
               provenance: captured
               target: RH2 over I2C
               description: >-
