@@ -1,0 +1,1 @@
+import{a as e}from"./theme.BGRuoj_p.js";import{b as r}from"./framework.B-hMd4P7.js";function n(l){const a=r(null);try{a.value=e.load(l)}catch(o){a.value=null,console.warn("loadSpec: failed to parse yaml",o)}return a}export{n as l};
