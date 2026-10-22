@@ -124,6 +124,9 @@ describe('optional message documentation', () => {
         }
         expect(getDocumentationFormat(docs, docs.operations.find(item => item.method === 'UNSUBSCRIBE')!)).toBeUndefined()
         expect(getMessageDocumentation(protocol.messages[39])!.formats).toBeUndefined()
+        const syncParagraphs = docs.notes!.find(note => note.id === 'sync-lifecycle')!.description.trim().split('\n\n')
+        expect(syncParagraphs).toHaveLength(3)
+        expect(syncParagraphs.every(paragraph => !paragraph.includes('\n'))).toBe(true)
     })
 
     it('rejects ambiguous format definitions and mismatched operation membership', () => {

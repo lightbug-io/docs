@@ -3945,18 +3945,11 @@ messages:
           title: How syncing works
           placement: overview
           description: |
-            The device reports its cached-message checksum during a tracking session. If a completed session
-            contains a valid report and the server's configured data has a different checksum, the
-            server can send a version 2 SET with the desired bytes. Unconfigured or invalid server data
-            leaves the cache unchanged; an explicitly configured empty payload requests a clear.
+            The device reports its cached-message checksum during a tracking session. If a completed session contains a valid report and the server's configured data has a different checksum, the server can send a version 2 SET with the desired bytes. Unconfigured or invalid server data leaves the cache unchanged; an explicitly configured empty payload requests a clear.
 
-            When the device accepts the SET, it replaces the cache, saves it when persistent storage is
-            enabled, and publishes to current subscribers. GET reads this local cache; subscribing does
-            not itself fetch data from the server.
+            When the device accepts the SET, it replaces the cache, saves it when persistent storage is enabled, and publishes to current subscribers. GET reads this local cache; subscribing does not itself fetch data from the server.
 
-            Later tracking-session reports let the server check the reported cache checksum and offer
-            the update again if it still differs. Sending an update or receiving an ACK alone does not
-            confirm that the cache is synchronized.
+            Later tracking-session reports let the server check the reported cache checksum and offer the update again if it still differs. Sending an update or receiving an ACK alone does not confirm that the cache is synchronized.
         - id: message-versions
           title: Format dates and wire selectors
           placement: reference
