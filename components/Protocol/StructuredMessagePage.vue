@@ -167,29 +167,23 @@ const groups = computed(() => {
 
 const overviewNotes = computed(() => documentation.value?.notes?.filter(note => note.placement !== 'reference') || [])
 const referenceNotes = computed(() => documentation.value?.notes?.filter(note => note.placement === 'reference') || [])
-// Both responsive presentations use this one curated model and active section.
-// Existing section IDs remain destinations, including closed legacy content.
+// Keep navigation at format/method level. Stage and field anchors remain usable
+// directly, while scrolling through a request/response pair keeps its method active.
 const outlineEntries = computed<MessageOutlineEntry[]>(() => {
   const entries: MessageOutlineEntry[] = [{ id: `message-${props.messageId}-overview`, title: 'Overview', depth: 0 }]
-  const notes = (items: typeof overviewNotes.value) => items.map(note => ({ id: `message-${props.messageId}-note-${note.id}`, title: note.title, depth: 0 }))
-  entries.push(...notes(overviewNotes.value))
   for (const group of groups.value) {
-    const depth = group.anchor ? 1 : 0
-    if (group.anchor) entries.push({ id: group.anchor, title: group.title, label: group.label, depth: 0 })
+    const format = !!group.anchor && group.id !== 'shared'
+    const depth = format ? 1 : 0
+    if (format) entries.push({ id: group.anchor!, title: group.label, depth: 0, legacy: group.legacy })
     if (group.fields.length) entries.push({
       id: `message-${props.messageId}-${group.fieldPrefix ?? (group.legacy ? 'legacy-' : '')}fields`,
-      title: group.legacy ? 'Legacy fields' : 'Message fields', depth,
+      title: 'Fields', depth,
     })
     for (const panel of group.panels) {
-      entries.push({ id: panel.anchor, title: `${panel.operation.method || 'Upload'}: ${panel.operation.title}`, label: panel.operation.method || 'Upload', depth })
-      entries.push(...panel.contexts.map(context => ({
-        id: `${panel.anchor}-${context.role}`, title: context.title,
-        label: context.role === 'request' ? 'Request' : context.role === 'response' ? 'Response' : panel.operation.method ? 'Publication' : 'Upload',
-        depth: depth + 1,
-      })))
+      entries.push({ id: panel.anchor, title: panel.operation.method || 'Upload', depth })
     }
   }
-  entries.push(...notes(referenceNotes.value), { id: `message-${props.messageId}-constants`, title: 'Message and field constants', depth: 0 })
+  entries.push({ id: `message-${props.messageId}-constants`, title: 'Constants', depth: 0 })
   return entries
 })
 const methodClass = (method?: string) => `method-${(method || 'upload').toLowerCase()}`

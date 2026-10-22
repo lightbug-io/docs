@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { messageOutlineTrail, type MessageOutlineEntry } from '../../utils/MessageAnchor'
+import { messageOutlineTrail, visibleMessageOutlineEntries, type MessageOutlineEntry } from '../../utils/MessageAnchor'
 
 const props = defineProps<{
   entries: MessageOutlineEntry[]
@@ -9,13 +9,15 @@ const props = defineProps<{
   messageName: string
 }>()
 const open = ref(false)
+const expandedLegacyIds = ref<string[]>([])
 const root = ref<HTMLElement | null>(null)
 const trigger = ref<HTMLButtonElement | null>(null)
 const list = ref<HTMLElement | null>(null)
 const current = computed(() => props.entries.find(entry => entry.id === props.activeId) || props.entries[0])
 const trail = computed(() => messageOutlineTrail(props.entries, current.value?.id || ''))
 const ancestors = computed(() => trail.value.slice(0, -1))
-const contextLabel = computed(() => ancestors.value.map(entry => entry.label || entry.title).join(' › '))
+const contextLabel = computed(() => ancestors.value.filter(entry => entry.legacy).map(entry => entry.title).join(' · '))
+const visibleEntries = computed(() => visibleMessageOutlineEntries(props.entries, expandedLegacyIds.value))
 const listId = computed(() => `message-${props.messageId}-outline`)
 
 function close(restoreFocus = false) {
@@ -40,16 +42,16 @@ async function onTriggerKeydown(event: KeyboardEvent) {
   event.preventDefault()
   open.value = true
   await nextTick()
-  const links = list.value?.querySelectorAll<HTMLAnchorElement>('a')
-  const active = list.value?.querySelector<HTMLAnchorElement>('[aria-current="location"]')
+  const links = list.value?.querySelectorAll<HTMLElement>('a, button')
+  const active = list.value?.querySelector<HTMLElement>('[aria-current="location"]')
   const target = active || links?.[event.key === 'ArrowUp' ? links.length - 1 : 0]
   target?.focus()
 }
 
 function onListKeydown(event: KeyboardEvent) {
   if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return
-  const links = Array.from(list.value?.querySelectorAll<HTMLAnchorElement>('a') || [])
-  const index = links.indexOf(document.activeElement as HTMLAnchorElement)
+  const links = Array.from(list.value?.querySelectorAll<HTMLElement>('a, button') || [])
+  const index = links.indexOf(document.activeElement as HTMLElement)
   if (index < 0) return
   event.preventDefault()
   const next = event.key === 'Home' ? 0 : event.key === 'End' ? links.length - 1
@@ -77,8 +79,17 @@ function onResize() {
   close()
   void showCurrent()
 }
-watch(() => props.messageId, () => close())
-watch(() => props.activeId, showCurrent)
+function toggleLegacy(id: string) {
+  expandedLegacyIds.value = expandedLegacyIds.value.includes(id)
+    ? expandedLegacyIds.value.filter(item => item !== id) : [...expandedLegacyIds.value, id]
+}
+watch(() => props.messageId, () => { close(); expandedLegacyIds.value = [] })
+watch(() => props.activeId, () => {
+  for (const entry of ancestors.value) {
+    if (entry.legacy && !expandedLegacyIds.value.includes(entry.id)) expandedLegacyIds.value.push(entry.id)
+  }
+  void showCurrent()
+}, { immediate: true })
 watch(open, value => { if (value) void showCurrent() })
 onMounted(() => {
   document.addEventListener('pointerdown', onOutsideClick)
@@ -96,12 +107,11 @@ onBeforeUnmount(() => {
   <nav ref="root" class="message-outline" aria-label="On this page" @focusout="onFocusOut">
     <div class="outline-wide-identity"><strong>{{ messageName }}</strong><span>Message {{ messageId }}</span></div>
     <div class="message-outline-bar" data-message-navigation-bar>
-      <div class="outline-identity"><strong>{{ messageName }}</strong><span>Message {{ messageId }}</span></div>
-      <button ref="trigger" class="outline-trigger" type="button" :aria-expanded="open" :aria-controls="listId" @click="open = !open" @keydown="onTriggerKeydown">
-        <span class="outline-label">On this page</span>
-        <span class="outline-current" :title="trail.map(entry => entry.title).join(' › ')">
-          <span v-if="contextLabel" class="outline-context">{{ contextLabel }} ›</span>
-          <span class="outline-section">{{ current?.label || current?.title || 'Overview' }}</span>
+      <button ref="trigger" class="outline-trigger" type="button" :aria-label="`On this page: ${messageName}, message ${messageId}, ${contextLabel ? contextLabel + ', ' : ''}${current?.title || 'Overview'}`" :aria-expanded="open" :aria-controls="listId" @click="open = !open" @keydown="onTriggerKeydown">
+        <span class="outline-identity"><strong>{{ messageName }}</strong><span>MT{{ messageId }}</span></span>
+        <span class="outline-current" :title="trail.map(entry => entry.title).join(' · ')">
+          <span v-if="contextLabel" class="outline-context">{{ contextLabel }} ·</span>
+          <span class="outline-section">{{ current?.title || 'Overview' }}</span>
         </span>
         <span class="outline-chevron" :class="{ expanded: open }" aria-hidden="true">⌄</span>
       </button>
@@ -109,8 +119,9 @@ onBeforeUnmount(() => {
     <div :id="listId" ref="list" class="outline-list" :class="{ open }" @keydown="onListKeydown">
       <div class="outline-title">On this page</div>
       <ul>
-        <li v-for="entry in entries" :key="entry.id" :style="{ '--outline-depth': entry.depth }">
-          <a :href="`#${entry.id}`" :aria-current="entry.id === current?.id ? 'location' : undefined" :class="{ 'active-ancestor': ancestors.some(parent => parent.id === entry.id) }" @click="onSelect">{{ entry.title }}</a>
+        <li v-for="entry in visibleEntries" :key="entry.id" :style="{ '--outline-depth': entry.depth }">
+          <button v-if="entry.legacy" type="button" class="outline-legacy-toggle" :aria-expanded="expandedLegacyIds.includes(entry.id)" :aria-current="entry.id === current?.id ? 'location' : undefined" :class="{ 'active-ancestor': ancestors.some(parent => parent.id === entry.id) }" @click="toggleLegacy(entry.id)">{{ entry.title }} <span class="legacy-label">Legacy</span><span class="legacy-chevron" aria-hidden="true">{{ expandedLegacyIds.includes(entry.id) ? '⌃' : '⌄' }}</span></button>
+          <a v-else :href="`#${entry.id}`" :aria-current="entry.id === current?.id ? 'location' : undefined" :class="{ 'active-ancestor': ancestors.some(parent => parent.id === entry.id) }" @click="onSelect">{{ entry.title }}</a>
         </li>
       </ul>
     </div>
@@ -120,13 +131,12 @@ onBeforeUnmount(() => {
 <style scoped>
 .message-outline { position: relative; font-size: 13px; line-height: 1.5; }
 .outline-wide-identity { display: none; }
-.message-outline-bar { padding: 10px 0; border-bottom: 1px solid var(--vp-c-divider); background: var(--vp-c-bg); }
-.outline-identity { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; padding: 0 8px; font-size: 12px; }
-.outline-identity strong { font-weight: 600; }
-.outline-identity > span { color: var(--vp-c-text-2); font-size: 11px; white-space: nowrap; }
-.outline-trigger { display: flex; align-items: center; gap: 10px; width: 100%; padding: 5px 8px 0; text-align: left; }
-.outline-label { flex-shrink: 0; color: var(--vp-c-text-2); font-size: 12px; }
-.outline-current { display: flex; gap: 4px; min-width: 0; color: var(--vp-c-brand-1); }
+.message-outline-bar { padding: 8px 0; border-bottom: 1px solid var(--vp-c-divider); background: var(--vp-c-bg); }
+.outline-identity { display: flex; align-items: baseline; gap: 8px; min-width: 0; font-size: 12px; }
+.outline-identity strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.outline-identity > span { flex-shrink: 0; color: var(--vp-c-text-2); font-size: 11px; white-space: nowrap; }
+.outline-trigger { display: flex; align-items: center; gap: 10px; width: 100%; padding: 4px 8px; text-align: left; }
+.outline-current { display: flex; flex-shrink: 0; gap: 4px; min-width: 0; color: var(--vp-c-brand-1); }
 .outline-context { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .outline-section { flex-shrink: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .outline-chevron { margin-left: auto; flex-shrink: 0; }
@@ -136,11 +146,14 @@ onBeforeUnmount(() => {
 .outline-title { display: none; font-size: 14px; font-weight: 600; line-height: 32px; }
 .message-outline ul { margin: 0; padding: 0; list-style: none; border-left: 1px solid var(--vp-c-divider); }
 .message-outline li { margin: 0; padding: 0; }
-.message-outline a { position: relative; display: block; padding: 5px 0 5px calc(16px + var(--outline-depth) * 12px); color: var(--vp-c-text-2); text-decoration: none; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; transition: color .2s; }
-.message-outline a.active-ancestor { color: var(--vp-c-text-1); font-weight: 600; }
-.message-outline a:hover { color: var(--vp-c-text-1); }
-.message-outline a[aria-current] { color: var(--vp-c-brand-1); font-weight: 600; }
-.message-outline a[aria-current]::before { position: absolute; top: 7px; bottom: 7px; left: -1px; width: 2px; border-radius: 2px; background: var(--vp-c-brand-1); content: ''; }
+.message-outline :is(a, .outline-legacy-toggle) { position: relative; display: block; padding: 5px 0 5px calc(16px + var(--outline-depth) * 12px); color: var(--vp-c-text-2); text-decoration: none; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; transition: color .2s; }
+.message-outline :is(a, button).active-ancestor { color: var(--vp-c-text-1); font-weight: 600; }
+.message-outline :is(a, button):hover { color: var(--vp-c-text-1); }
+.message-outline :is(a, button)[aria-current] { color: var(--vp-c-brand-1); font-weight: 600; }
+.message-outline :is(a, button)[aria-current]::before { position: absolute; top: 7px; bottom: 7px; left: -1px; width: 2px; border-radius: 2px; background: var(--vp-c-brand-1); content: ''; }
+.outline-legacy-toggle { width: 100%; text-align: left; }
+.legacy-label { margin-left: 5px; font-size: 10px; }
+.legacy-chevron { float: right; padding-right: 8px; }
 .message-outline :is(a, button):focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
 @media (min-width: 1440px) {
   .message-outline { display: flex; flex-direction: column; max-height: calc(100dvh - var(--message-sticky-top) - 32px); }

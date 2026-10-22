@@ -3,6 +3,7 @@ export interface MessageOutlineEntry {
     title: string
     label?: string
     depth: number
+    legacy?: boolean
 }
 
 /** A compact breadcrumb and rail ancestry from the same ordered heading model. */
@@ -14,6 +15,12 @@ export function messageOutlineTrail(entries: MessageOutlineEntry[], activeId: st
         if (entries[i].depth < trail[0].depth) trail.unshift(entries[i])
     }
     return trail
+}
+
+/** Legacy methods are opt-in; their direct anchors remain available. */
+export function visibleMessageOutlineEntries(entries: MessageOutlineEntry[], expandedLegacyIds: string[]): MessageOutlineEntry[] {
+    return entries.filter(entry => !messageOutlineTrail(entries, entry.id).slice(0, -1)
+        .some(parent => parent.legacy && !expandedLegacyIds.includes(parent.id)))
 }
 
 /** The rail does not cover content. Only the compact, visible bar adds clearance. */

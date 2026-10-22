@@ -1,4 +1,4 @@
-import { activeMessageOutlineId, installMessageRouteCorrection, messageAnchorScrollTop, messageNavigationOffset, messageOutlineTrail, revealMessageAnchor, type MessageOutlineEntry } from './MessageAnchor'
+import { activeMessageOutlineId, installMessageRouteCorrection, messageAnchorScrollTop, messageNavigationOffset, messageOutlineTrail, visibleMessageOutlineEntries, revealMessageAnchor, type MessageOutlineEntry } from './MessageAnchor'
 
 describe('message anchor clearance', () => {
     const element = (top: number, height = 0) => {
@@ -91,12 +91,9 @@ describe('responsive message outline', () => {
         { id: 'overview', title: 'Overview', depth: 0 },
         { id: 'current', title: 'Current format', label: 'Current', depth: 0 },
         { id: 'fields', title: 'Message fields', depth: 1 },
-        { id: 'get', title: 'GET: Read state', label: 'GET', depth: 1 },
-        { id: 'get-request', title: 'Request', depth: 2 },
-        { id: 'get-response', title: 'Expected response', label: 'Response', depth: 2 },
-        { id: 'subscribe', title: 'SUBSCRIBE: Watch state', label: 'SUBSCRIBE', depth: 1 },
-        { id: 'subscribe-response', title: 'Expected response', label: 'Response', depth: 2 },
-        { id: 'legacy', title: 'Legacy format', depth: 0 },
+        { id: 'get', title: 'GET', depth: 1 },
+        { id: 'subscribe', title: 'SUBSCRIBE', depth: 1 },
+        { id: 'legacy', title: 'Legacy format', depth: 0, legacy: true },
         { id: 'legacy-get', title: 'GET: Read legacy state', depth: 1 },
         { id: 'constants', title: 'Message and field constants', depth: 0 },
     ]
@@ -139,10 +136,12 @@ describe('responsive message outline', () => {
         heading('get-request', 300)
         expect(activeMessageOutlineId(entries, root, 130)).toBe('get')
         expect(activeMessageOutlineId(entries, root, 128)).toBe('overview')
-        expect(activeMessageOutlineId(entries, root, 300)).toBe('get-request')
-        // Uncurated examples never steal the current section.
+        expect(activeMessageOutlineId(entries, root, 300)).toBe('get')
+        // Request, response and example headings keep their parent method active.
+        heading('get-response', 320)
         heading('frame-example', 350)
-        expect(activeMessageOutlineId(entries, root, 400)).toBe('get-request')
+        expect(activeMessageOutlineId(entries, root, 400)).toBe('get')
+        expect(revealMessageAnchor(root, '#get-response')?.id).toBe('get-response')
     })
     it('skips closed legacy headings and includes them after revealing any old field link', () => {
         heading('overview', -200)
@@ -185,12 +184,25 @@ describe('responsive message outline', () => {
         expect(activeMessageOutlineId(entries, root, 80)).toBe('overview')
         expect(activeMessageOutlineId([], root, 80)).toBe('')
     })
-    it('disambiguates repeated stage labels and highlights only the active ancestry', () => {
-        expect(messageOutlineTrail(entries, 'get-response').map(entry => entry.label || entry.title)).toEqual(['Current', 'GET', 'Response'])
-        expect(messageOutlineTrail(entries, 'subscribe-response').map(entry => entry.id)).toEqual(['current', 'subscribe', 'subscribe-response'])
+    it('keeps a short format/method trail without request or response stages', () => {
+        expect(messageOutlineTrail(entries, 'get').map(entry => entry.label || entry.title)).toEqual(['Current', 'GET'])
+        expect(messageOutlineTrail(entries, 'subscribe').map(entry => entry.id)).toEqual(['current', 'subscribe'])
         expect(messageOutlineTrail(entries, 'legacy-get').map(entry => entry.id)).toEqual(['legacy', 'legacy-get'])
         expect(messageOutlineTrail(entries, 'constants').map(entry => entry.id)).toEqual(['constants'])
         expect(messageOutlineTrail(entries, 'missing').map(entry => entry.id)).toEqual(['overview'])
         expect(messageOutlineTrail([], 'missing')).toEqual([])
     })
+    it('hides legacy methods until opted into without removing their destinations', () => {
+        expect(visibleMessageOutlineEntries(entries, []).map(entry => entry.id)).not.toContain('legacy-get')
+        expect(visibleMessageOutlineEntries(entries, []).map(entry => entry.id)).toContain('legacy')
+        expect(visibleMessageOutlineEntries(entries, ['legacy'])).toEqual(entries)
+        expect(visibleMessageOutlineEntries(entries, []).map(entry => entry.id)).toContain('constants')
+    })
+    it('leaves formatless method navigation unchanged', () => {
+        const formatless = entries.filter(entry => ['overview', 'fields', 'get', 'subscribe', 'constants'].includes(entry.id))
+            .map(entry => ({ ...entry, depth: 0 }))
+        expect(visibleMessageOutlineEntries(formatless, [])).toEqual(formatless)
+        expect(messageOutlineTrail(formatless, 'get').map(entry => entry.id)).toEqual(['get'])
+    })
+
 })
