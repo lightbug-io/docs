@@ -131,6 +131,13 @@ async function readHash() {
   target.scrollIntoView?.({ block: 'start' })
 }
 
+function openLegacyReference() {
+  // A second click can keep the same hash, so hashchange alone is not enough
+  // after the reader has manually closed the legacy disclosure.
+  const target = document.getElementById(`message-${props.messageId}-legacy`)
+  if (target instanceof HTMLDetailsElement) target.open = true
+}
+
 async function copyBytes(bytes: string, label: string) {
   try {
     await navigator.clipboard.writeText(bytes)
@@ -168,7 +175,7 @@ onBeforeUnmount(() => {
     <nav v-if="hasLegacy" class="version-navigation" aria-label="Message versions">
       <span class="version-navigation-label">Message format</span>
       <a :href="`#message-${messageId}-fields`" class="version-link version-current"><strong>{{ versionLabel(false) }}</strong><span>Current reference</span></a>
-      <a :href="`#message-${messageId}-legacy`" class="version-link"><strong>{{ versionLabel(true) }}</strong><span>Legacy reference</span></a>
+      <a :href="`#message-${messageId}-legacy`" class="version-link" @click="openLegacyReference"><strong>{{ versionLabel(true) }}</strong><span>Legacy reference</span></a>
       <p>The current format is documented below. Legacy fields and examples are collapsed in a separate section.</p>
     </nav>
 
