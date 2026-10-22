@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { calculateCRC16XMODEM, parseRawMessage, readTypedData } from '../src/protocol/base.gen'
 // The repository's YAML dependency is intentionally untyped.
 const yaml = require('js-yaml')
 import {
@@ -212,13 +213,13 @@ describe('optional message documentation', () => {
         expect(validateMessageDocumentation(sample, 39)).toEqual([])
     })
 
-    it('migrates only GPS Control and Message Box and validates their references', () => {
-        expect(Object.entries(protocol.messages).filter(([, value]: [string, any]) => getMessageDocumentation(value)).map(([id]) => Number(id))).toEqual([39, 58])
-        for (const id of [39, 58]) expect(validateMessageDocumentation(protocol, id)).toEqual([])
+    it('validates references for each migrated message', () => {
+        expect(Object.entries(protocol.messages).filter(([, value]: [string, any]) => getMessageDocumentation(value)).map(([id]) => Number(id))).toEqual([34, 39, 58])
+        for (const id of [34, 39, 58]) expect(validateMessageDocumentation(protocol, id)).toEqual([])
     })
 
     it('summarizes every message field within its applicable version', () => {
-        for (const id of [39, 58]) {
+        for (const id of [34, 39, 58]) {
             const docs = getMessageDocumentation(protocol.messages[id])!
             const groups = docs.formats?.map(format => format.fields || {}) || [docs.fields || {}]
             expect(groups.flatMap(fields => Object.keys(fields)).sort()).toEqual(Object.keys(protocol.messages[id].data).sort())
@@ -335,5 +336,69 @@ describe('inline numeric-version authoring', () => {
         expect(set!.request!.fields[129]).toMatchObject({ presence: 'required', maxBytes: 1024 })
         const get = protocol.messages[58].methods.GET.versions[2]
         expect(get.response.fields[2].presence).toBe('required')
+    })
+})
+
+
+describe('Device Status reference', () => {
+    const message = protocol.messages[34]
+    const docs = getMessageDocumentation(message)!
+    it('keeps the existing methods and wire fields without inventing a message version', () => {
+        expect(Object.keys(message.methods)).toEqual(['GET', 'SUBSCRIBE', 'UNSUBSCRIBE'])
+        expect(message.versions).toBeUndefined()
+        expect(docs.formats).toBeUndefined()
+        expect(Object.entries(message.data).map(([id, field]: [string, any]) => [id, field.id, field.type])).toEqual([
+            ['1', 'bat', 'uint8'], ['2', 'signalStrength', 'uint8'], ['3', 'mode', 'uint8'],
+            ['4', 'networkType', 'uint8'], ['5', 'mnc', 'uint16'], ['6', 'mcc', 'uint16'],
+            ['7', 'fw', 'uint32'], ['10', 'deviceType', 'uint8'],
+        ])
+        for (const operation of docs.operations) {
+            expect(operation.messageVersion).toBeUndefined()
+            expect(operation.request?.headers?.['22']).toBeUndefined()
+        }
+        expect(message.header).toEqual([5])
+        expect(validateMessageDocumentation(protocol, 34)).toEqual([])
+    })
+    it('separates direct replies, setup acknowledgments and later publications', () => {
+        const [get, subscribe, unsubscribe] = docs.operations
+        expect([get, subscribe, unsubscribe].map(operation => operation.request?.headers?.['5'])).toEqual([
+            { presence: 'required', value: 2 }, { presence: 'required', value: 3 }, { presence: 'required', value: 5 },
+        ])
+        expect(get.response?.messageId).toBeUndefined()
+        expect(subscribe.response?.messageId).toBe(5)
+        expect(unsubscribe.response?.messageId).toBe(5)
+        expect(subscribe.publication?.headers?.['3'].presence).toBe('omitted')
+        expect(subscribe.request?.headers?.['17']).toMatchObject({ presence: 'optional', value: 0 })
+        expect(unsubscribe.request?.headers?.['17']).toBeUndefined()
+        for (const context of [get.response, subscribe.publication]) {
+            expect(Object.keys(context!.fields!)).toEqual(Object.keys(message.data))
+            expect(Object.values(context!.fields!).every(field => field.presence === 'optional')).toBe(true)
+        }
+        expect(subscribe.examples).toBeUndefined()
+        expect(unsubscribe.examples).toBeUndefined()
+    })
+    it('preserves the captured GET pair byte-for-byte and validates correlation and CRCs', () => {
+        const [example] = docs.operations[0].examples!
+        expect(example.provenance).toBe('captured')
+        expect(example.description).toContain('2025-10-10')
+        expect(example.target).toBe('RH2 over I2C')
+        expect(example.frames.map(frame => frame.role)).toEqual(['request', 'response'])
+        expect(example.frames.map(frame => frame.bytes)).toEqual([
+            '3 20 0 34 0 2 0 5 1 1 2 4 32 98 132 62 0 0 194 229',
+            '3 49 0 34 0 2 0 3 4 4 32 98 132 62 1 0 8 0 1 3 7 10 2 4 5 6 1 88 1 0 4 239 8 0 0 1 48 1 64 1 0 2 0 0 2 0 0 108 94',
+        ])
+        const frames = example.frames.map(frame => frame.bytes.split(' ').map(Number))
+        for (const bytes of frames) {
+            expect(calculateCRC16XMODEM(bytes.slice(0, -2))).toBe(bytes[bytes.length - 2] | bytes[bytes.length - 1] << 8)
+            expect(parseRawMessage(bytes)).toMatchObject({ protocolVersion: 3, length: bytes.length, messageType: 34 })
+        }
+        const [request, response] = frames.map(parseRawMessage)
+        expect(request.data).toEqual({})
+        expect(request.header[5]).toEqual([2])
+        expect(response.header[3]).toEqual(request.header[1])
+        expect(response.header[4]).toEqual([0])
+        expect(Object.fromEntries(Object.entries(response.data).map(([id, bytes]) => [id, readTypedData(bytes, message.data[id].type)]))).toEqual({
+            1: 88, 2: 64, 3: 0, 4: 0, 5: 0, 6: 0, 7: 2287, 10: 48,
+        })
     })
 })

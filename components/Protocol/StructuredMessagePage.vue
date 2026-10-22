@@ -332,6 +332,7 @@ onBeforeUnmount(() => {
       <p v-if="group.description" class="format-description prose">{{ group.description }}</p>
 
       <section v-if="group.fields.length" :id="`message-${messageId}-${group.fieldPrefix}fields`" class="message-fields" :aria-labelledby="`message-${messageId}-${group.fieldPrefix}fields-heading`">
+        <span v-if="group === groups[0]" id="payload" class="operation-anchor" aria-hidden="true"></span>
         <component :is="hasFormats ? 'h3' : 'h2'" :id="`message-${messageId}-${group.fieldPrefix}fields-heading`" class="fields-heading">{{ group.legacy ? 'Legacy fields' : 'Message fields' }}</component>
         <p class="section-caption">Fields specific to {{ message.name }}. Operation sections below explain when each field is used.</p>
         <div class="field-summary-table">
@@ -377,6 +378,7 @@ onBeforeUnmount(() => {
 
       <div v-for="context in panel.contexts" :key="`${panel.anchor}-${context.role}`" class="reference-columns context-row">
         <section class="context-section" :class="`context-${context.role}`" :aria-labelledby="`${panel.anchor}-${context.role}`">
+            <span v-if="panel === groups[0]?.panels[0] && context === panel.contexts[0]" id="header" class="operation-anchor" aria-hidden="true"></span>
             <span v-for="anchor in context.referenceAnchors" :id="anchor" :key="anchor" class="operation-anchor" aria-hidden="true"></span>
             <component :is="hasFormats ? 'h4' : 'h3'" :id="`${panel.anchor}-${context.role}`" class="context-heading">{{ context.title }}</component>
             <p v-if="context.subtitle" class="context-subtitle">{{ context.subtitle }}</p>
@@ -425,6 +427,7 @@ onBeforeUnmount(() => {
         </section>
 
         <aside class="reference-examples" :aria-labelledby="context.examplesAnchor">
+          <span v-if="panel === groups[0]?.panels[0] && context === panel.contexts[0]" id="examples" class="operation-anchor" aria-hidden="true"></span>
           <div ref="exampleColumns" class="context-examples">
           <component :is="hasFormats ? 'h4' : 'h3'" :id="context.examplesAnchor" class="examples-heading">{{ context.examplesTitle }}</component>
           <p v-if="context.examples.length && context.examplesAnchor === `${panel.anchor}-examples`" class="examples-caption">{{ panel.operation.title }}<template v-if="panel.variantId"> · {{ panel.variant.title }}</template>. Complete V3 frames, not HTTP requests.</p>
@@ -482,6 +485,7 @@ onBeforeUnmount(() => {
       </section>
     </div>
     <section :id="`message-${messageId}-constants`" class="message-constants" :aria-labelledby="`message-${messageId}-constants-heading`">
+      <span id="code" class="operation-anchor" aria-hidden="true"></span>
       <h2 :id="`message-${messageId}-constants-heading`">Message and field constants</h2>
       <p class="section-caption">Identifiers for this message type and its fields. See the operation sections above for rules and limits.</p>
       <MessageCodeGen :key="messageId" :message-id="messageId" :yaml-data="constantsData" />

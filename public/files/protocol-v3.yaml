@@ -1337,8 +1337,10 @@ messages:
   34:
     name: Device Status
     id: deviceStatus
-    description: |
-      General status of the device.
+    description: >-
+      Read battery, network and firmware status, or subscribe to later status updates.
+      The fields returned depend on the target device and available readings; a response may
+      contain only firmware information. Do not treat an omitted field as a zero value.
     group: info
     header:
       - 5
@@ -1346,19 +1348,19 @@ messages:
       1:
         name: Battery
         id: bat
-        description: Battery level
+        description: Battery level as a percentage.
         type: uint8
         unit: '%'
       2:
         name: Signal Strength
         id: signalStrength
-        description: Signal strength
+        description: Signal strength as a percentage.
         type: uint8
         unit: '%'
       3:
         name: Mode
         id: mode
-        description: Device mode
+        description: "Device mode: 0 is Sleep; 1 is Awake."
         type: uint8
         values:
           0:
@@ -1370,6 +1372,7 @@ messages:
       4:
         name: Network type
         id: networkType
+        description: "Current network: 0 is no network, 2 is GSM (2G), 3 is WCDMA (3G), and 4 is LTE (4G)."
         type: uint8
         values:
           0:
@@ -1390,7 +1393,7 @@ messages:
         description: |
           MNC of the currently connected network.
           Can be 0 if not connected.
-          See <a href="https://mcc-mnc.net/" target="_blank">mcc-mnc.net</a>
+          Network code reference: https://mcc-mnc.net/
         type: uint16
       6:
         name: Network MCC
@@ -1398,7 +1401,7 @@ messages:
         description: |
           MCC of the currently connected network.
           Can be 0 if not connected.
-          See <a href="https://mcc-mnc.net/" target="_blank">mcc-mnc.net</a>
+          Network code reference: https://mcc-mnc.net/
         type: uint16
       7:
         name: Firmware Version
@@ -1407,7 +1410,7 @@ messages:
           Firmware version
           Can be a literal integer, or an encoded version number.
           Lightbug devices use a single integer for firmware version, e.g. 2287.
-          ESP devices encode a semver version into an int, MAJOR*10000 + MINOR*100 + PATCH. `0.18.0 => 1800` and `1.1.1 => 10101`
+          ESP devices encode a semver version into an int, MAJOR*10000 + MINOR*100 + PATCH. 0.18.0 becomes 1800 and 1.1.1 becomes 10101.
         type: uint32
       10:
         name: Device Type
@@ -1417,22 +1420,159 @@ messages:
           For devices released from 2025 onwards, this is documented on the device specification page.
         type: uint8
     methods:
-      GET: null
-      SUBSCRIBE: null
-      UNSUBSCRIBE: null
-    examples:
-      - name: GET request for device status
-        bytes: 3 20 0 34 0 2 0 5 1 1 2 4 32 98 132 62 0 0 194 229
-        real:
-          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
-          date: "2025-10-10"
-          generator: RH2 ESP32 Toit
-      - name: Device status response
-        bytes: 3 49 0 34 0 2 0 3 4 4 32 98 132 62 1 0 8 0 1 3 7 10 2 4 5 6 1 88 1 0 4 239 8 0 0 1 48 1 64 1 0 2 0 0 2 0 0 108 94
-        real:
-          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where P1 responses to a request from Toit on the ESP32.
-          date: "2025-10-10"
-          generator: RH2 P1 v2287
+      GET:
+        title: Read device status
+        description: Request the currently available status fields.
+        exchange:
+          request:
+            title: GET request
+            description: No payload fields are required. Method must be included; this message does not default to GET.
+            headers:
+              "1":
+                presence: optional
+                description: Include a nonzero Message ID to correlate the reply.
+              "5":
+                presence: required
+                value: 2
+          response:
+            title: Device status (MT34)
+            description: >-
+              A successful GET returns Device Status directly, without a separate success ACK.
+              Returned fields vary by target and available readings. Response To and Status may
+              be omitted when the request has no nonzero Message ID.
+            headers:
+              "3":
+                presence: optional
+              "4":
+                presence: optional
+                value: 0
+            fields:
+              "1": {presence: optional}
+              "2": {presence: optional}
+              "3": {presence: optional}
+              "4": {presence: optional}
+              "5": {presence: optional}
+              "6": {presence: optional}
+              "7": {presence: optional}
+              "10": {presence: optional}
+          examples:
+            - title: Captured GET exchange
+              provenance: captured
+              target: RH2 over I2C
+              description: >-
+                Captured on 2025-10-10 during normal device communications. The request and
+                response share Message ID / Response To 1048863264; the response reports
+                firmware 2287. These are the original captured bytes.
+              frames:
+                - role: request
+                  label: GET request for device status
+                  bytes: 3 20 0 34 0 2 0 5 1 1 2 4 32 98 132 62 0 0 194 229
+                - role: response
+                  label: Device status response
+                  bytes: 3 49 0 34 0 2 0 3 4 4 32 98 132 62 1 0 8 0 1 3 7 10 2 4 5 6 1 88 1 0 4 239 8 0 0 1 48 1 64 1 0 2 0 0 2 0 0 108 94
+      SUBSCRIBE:
+        title: Subscribe to status updates
+        description: >-
+          Create or update the default Device Status subscription. Setup acknowledgment and
+          later status publications are separate; subscribing does not itself request an
+          immediate status snapshot. Use GET when you need the current status.
+        exchange:
+          request:
+            title: SUBSCRIBE request
+            description: >-
+              No payload fields are required. Omit Subscription ID (header 17), or use 0, for
+              the default subscription documented here. Updates are subject to the selected
+              interval and message level.
+            headers:
+              "1":
+                presence: optional
+                description: Include a nonzero Message ID if you need a setup acknowledgment.
+              "5":
+                presence: required
+                value: 3
+              "6":
+                presence: optional
+                description: Publication interval in milliseconds. Omitted or 0 allows updates as new status data becomes available.
+              "7":
+                presence: optional
+                description: Subscription duration in milliseconds. Omitted or 0 keeps the subscription active until unsubscribed.
+              "8":
+                presence: optional
+                description: Time in milliseconds to wait for the first matching status update. Omitted or 0 does not set a timeout.
+              "15":
+                presence: optional
+                description: Storage/retry policy for publications. Defaults to None (0).
+              "16":
+                presence: optional
+                description: Minimum publication level. The default Info-Auto (2) receives normal status updates; no explicit level is required.
+              "17":
+                presence: optional
+                value: 0
+                description: Default subscription. Omit this header or use 0 so UNSUBSCRIBE can cancel it.
+          response:
+            messageId: 5
+            title: Response (MT5 - ACK)
+            description: >-
+              A successful setup returns an MT5 acknowledgment with Status 0 when the request
+              includes a nonzero Message ID. This acknowledges the request, not delivery of
+              a status update. No acknowledgment is sent for an omitted or zero Message ID.
+            headers:
+              "3":
+                presence: required
+              "4":
+                presence: required
+                value: 0
+          publication:
+            title: Status update (MT34)
+            description: >-
+              Later status updates produce Device Status messages, filtered by the subscription
+              interval and level. They are not replies to the original SUBSCRIBE request and
+              do not carry its Response To. Available payload fields vary by target and readings.
+            headers:
+              "3":
+                presence: omitted
+                description: A later publication is not correlated to the subscription request.
+              "4":
+                presence: omitted
+                description: Status updates carry status data, not a command-result envelope.
+            fields:
+              "1": {presence: optional}
+              "2": {presence: optional}
+              "3": {presence: optional}
+              "4": {presence: optional}
+              "5": {presence: optional}
+              "6": {presence: optional}
+              "7": {presence: optional}
+              "10": {presence: optional}
+      UNSUBSCRIBE:
+        title: Stop the default status subscription
+        description: >-
+          Stop the default Device Status subscription (ID 0). This operation does not select
+          a named subscription; supplying another Subscription ID does not cancel that named subscription.
+        exchange:
+          request:
+            title: UNSUBSCRIBE request
+            description: No payload fields are required. Omit Subscription ID; this operation removes the default subscription only.
+            headers:
+              "1":
+                presence: optional
+                description: Include a nonzero Message ID if you need an acknowledgment.
+              "5":
+                presence: required
+                value: 5
+          response:
+            messageId: 5
+            title: Response (MT5 - ACK)
+            description: >-
+              A successful cancellation returns an MT5 acknowledgment with Status 0 when the
+              request includes a nonzero Message ID. No acknowledgment is sent for an omitted
+              or zero Message ID.
+            headers:
+              "3":
+                presence: required
+              "4":
+                presence: required
+                value: 0
   35:
     name: Device IDs
     id: deviceIds
