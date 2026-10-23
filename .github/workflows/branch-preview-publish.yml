@@ -1,0 +1,89 @@
+name: Publish branch previews
+on:
+  workflow_run:
+    workflows: [Branch preview build]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      cleanup_branch:
+        description: Branch whose previous preview should be removed (not the source branch)
+        required: true
+        type: string
+permissions: {}
+jobs:
+  publish:
+    if: vars.PREVIEWS_ENABLED == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && (github.event.workflow_run.event == 'workflow_dispatch' || contains(github.event.workflow_run.head_commit.message, '[ci-preview]'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: preview-internal
+    concurrency:
+      group: pages-preview-publisher
+      cancel-in-progress: false
+      queue: max
+    permissions:
+      contents: write
+      actions: read
+      pages: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: .github/preview
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        id: check
+        with:
+          script: return await require('./.github/preview/branch.cjs').check({ github, context, core });
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          artifact-ids: ${{ steps.check.outputs.artifact }}
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/preview
+      - name: Clean old branch previews, then publish in a separate commit
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          PUBLICATION_TOKEN: ${{ github.token }}
+          PREVIEW_DIRECTORY: ${{ runner.temp }}/preview
+          EXPECTED: ${{ steps.check.outputs.result }}
+        with:
+          script: |
+            const expected = JSON.parse(process.env.EXPECTED);
+            const directory = process.env.PREVIEW_DIRECTORY;
+            require('./.github/preview/check.cjs').validate(directory);
+            await require('./.github/preview/branch.cjs').check({ github, context, core, expected });
+            const pages = require('./.github/preview/branch-pages.cjs');
+            await pages.cleanup({ github, context });
+            const commit = await pages.publish({ github, context, expected, directory, token: process.env.PUBLICATION_TOKEN });
+            await require('./.github/preview/branch-announce.cjs').announce({ github, context, core, expected, commit });
+  cleanup:
+    if: vars.PREVIEWS_ENABLED == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: preview-internal
+    concurrency:
+      group: pages-preview-publisher
+      cancel-in-progress: false
+      queue: max
+    permissions:
+      contents: write
+      actions: read
+      pages: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: .github/preview
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          CLEANUP_BRANCH: ${{ inputs.cleanup_branch }}
+        with:
+          script: |
+            const { data: run } = await github.rest.actions.getWorkflowRun({ ...context.repo, run_id: context.runId });
+            const commit = await require('./.github/preview/branch-pages.cjs').cleanup({
+              github, context, branch: process.env.CLEANUP_BRANCH,
+              requestedAt: new Date(run.created_at).toISOString()
+            });
+            await require('./.github/preview/branch-announce.cjs').waitForPages({ github, context, commit });
+            await core.summary.addRaw('Branch preview cleanup published. The source branch was not deleted.').write();

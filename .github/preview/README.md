@@ -63,3 +63,58 @@ credentials, customer data or trusted browser sessions there.
 
 VitePress defaults to `/` for normal builds. Hard-coded root-relative content
 links may need updating separately for the project Pages path.
+
+## Branch previews (no PR required)
+
+After these workflows land on `main`, use **Actions → Branch preview build →
+Run workflow** and select a same-repository feature branch. That branch must
+contain the exact current `branch-preview-build.yml` from `main`; update/rebase
+older branches first. Alternatively, include the literal `[ci-preview]` in the
+**head commit message** of a branch push. Earlier commits in a multi-commit push
+are not inspected. Ordinary pushes do not build. Tags, forks, `main`,
+`production` and `gh-pages` are excluded. The workflow cannot be manually
+activated while it exists only on an unmerged feature branch.
+
+The source commit is immutable for the build, and publication rechecks that the
+branch still points to it. The publisher verifies repository and workflow
+identity, the exact trusted build-workflow file, original and rerun actors'
+current write access, the push opt-in, and the exact run/attempt/artifact. Direct
+push permission is not a substitute for these checks. Branch-controlled code
+runs only in the read-only build, without secrets, saved credentials or shared
+cache. The privileged publisher executes only default-branch helpers and treats
+the artifact as static files. These checks do not replace GitHub's repository
+permissions or environment protection rules.
+
+A successful **Publish branch previews** summary links to
+`https://lightbug-io.github.io/docs/branch/<sha256-of-full-branch-ref>/` only after
+Pages has published the matching `gh-pages` commit. Each branch has one stable
+URL; a successful new publication replaces it and renews its timestamp. Stale
+runs cannot overwrite a newer publication. Branch names never become filesystem
+paths or shell commands. This uses the existing `PREVIEWS_ENABLED` switch and
+`preview-internal` environment. It does not deploy to Next or Production.
+
+To remove a previous branch preview, run **Publish branch previews** manually
+**on main**, filling in `cleanup_branch` with its original branch name. The
+source branch may already have been deleted: only managed preview files are
+removed, never source branches. Unknown branches fail safely. A replay of an
+old cleanup request cannot remove a newer publication. Builds started before a
+manual removal cannot resurrect the removed preview; start a new build instead.
+
+Every workflow job that writes our Pages site (PR publication, PR-close cleanup,
+branch publication and manual branch cleanup) first removes managed branch
+previews **older than 30 days**. This defines “one month” as 30 × 24 hours in UTC,
+not a calendar-month boundary. Cleanup is opportunistic on the next Pages write,
+not a scheduled promise of exact expiry. The S3/CloudFront Next and Production
+workflows are not Pages writers and are unchanged. PR previews and unrelated or
+unmanaged Pages files are never age-deleted.
+
+The trusted publisher owns `.branch-previews.json` on `gh-pages`, separate from
+build artifacts. Its publication timestamp, not filesystem mtime or source
+commit date, determines age. All writers use the existing shared queue/lock and
+read the latest Pages state inside it. Cleanup and publication are **separate
+commits** when both change state; no empty cleanup commit is made. Branch
+publication sends one Git pack using only objects/index operations, never a
+checkout of Pages files or execution of artifact scripts. Ref updates
+are non-forced and fail rather than overwrite a concurrent external change.
+The queue retains up to 100 pending jobs; rerun a cancelled/failed request when
+needed. Removal remains subject to Pages deployment and browser/CDN caching.
