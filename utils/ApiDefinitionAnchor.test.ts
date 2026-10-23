@@ -2,7 +2,7 @@ import { revealApiDefinition } from './ApiDefinitionAnchor'
 
 describe('OpenAPI definition navigation', () => {
     beforeEach(() => {
-        document.body.innerHTML = '<h2 id="openapi-definition">OpenAPI definition</h2><div class="api-definition"><details><summary>Definition</summary>YAML</details></div>'
+        document.body.innerHTML = '<h2 id="openapi-definition">OpenAPI definition</h2><div class="api-definition"><details><summary>Definition</summary><details class="api-yaml-fold"><summary>400</summary>YAML</details></details></div>'
         document.getElementById('openapi-definition')!.scrollIntoView = jest.fn()
         history.replaceState({}, '', '/apis/v2/get-devices')
     })
@@ -16,11 +16,11 @@ describe('OpenAPI definition navigation', () => {
         // Pagefind uses router.go/pushState, which does not emit hashchange.
         history.pushState({}, '', '#openapi-definition')
         revealApiDefinition()
-        expect(document.querySelector('details')!.open).toBe(true)
+        expect(Array.from(document.querySelectorAll('details')).every(fold => fold.open)).toBe(true)
         document.querySelector('details')!.open = false
         history.pushState({}, '', '#openapi-definition')
         revealApiDefinition()
-        expect(document.querySelector('details')!.open).toBe(true)
+        expect(Array.from(document.querySelectorAll('details')).every(fold => fold.open)).toBe(true)
         expect(document.getElementById('openapi-definition')!.scrollIntoView).toHaveBeenCalledTimes(2)
     })
 
