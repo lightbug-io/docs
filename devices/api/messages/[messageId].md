@@ -1,12 +1,11 @@
 ---
 aside: false
 outline: false
-title: {{ $params.pageTitle }}
 ---
 
 <script setup>
 import { data as protocolData } from '../../../yaml-data.data.ts'
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vitepress'
 import { useMessageSections } from '../../../composables/useMessageSections.js'
 import { getMessageDocumentation } from '../../../utils/MessageDocumentation'
@@ -17,16 +16,6 @@ const route = useRoute()
 const messageId = computed(() => parseInt((route.data.params?.messageId || '').split('-')[0]))
 const messageData = computed(() => protocolData?.messages?.[messageId.value])
 const structuredDocumentation = computed(() => getMessageDocumentation(messageData.value))
-
-// Use the pageTitle from params if available, otherwise construct it
-const pageTitle = computed(() => route.data.params?.pageTitle || `${messageId.value}: ${messageData.value?.name || ''}`)
-
-// Update the document title
-watch(pageTitle, (title) => {
-  if (typeof document !== 'undefined' && title) {
-    document.title = `${title} | Lightbug Documentation`
-  }
-}, { immediate: true })
 
 // The legacy composable takes a numeric ID; re-create its view when the route changes.
 const sections = computed(() => useMessageSections(messageId.value, protocolData))
@@ -43,7 +32,9 @@ const alphaText = computed(() => {
 })
 </script>
 
-# {{ messageId }}: {{ messageData?.name }}
+<span id="messageid-messagedata-name"></span>
+
+<!-- @content -->
 
 <template v-if="isAlpha">
 
