@@ -1,9 +1,24 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { withBase } from 'vitepress'
 import { revealApiDefinition } from '../../../utils/ApiDefinitionAnchor'
 
 const props = defineProps<{ version: number }>()
+const container = ref<HTMLElement>()
+const copyStatus = ref('')
+function setFolds(open: boolean) {
+  container.value?.querySelectorAll<HTMLDetailsElement>('.api-yaml-fold').forEach(fold => { fold.open = open })
+}
+async function copyYaml() {
+  const text = container.value?.querySelector<HTMLElement>('.api-yaml-document')?.dataset.yaml
+  if (text === undefined) return
+  try {
+    await navigator.clipboard.writeText(text)
+    copyStatus.value = 'Copied'
+  } catch {
+    copyStatus.value = 'Copy failed. Please select the YAML and copy it.'
+  }
+}
 const reveal = async () => {
   await nextTick()
   revealApiDefinition()
@@ -20,14 +35,38 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="api-definition">
+  <div ref="container" class="api-definition">
     <p>
-      This endpoint and its referenced definitions, including documentation overrides.
+      References are expanded below, except recursive definitions and references with sibling fields. Documentation overrides are included.
       <a :href="withBase(`/swagger/v${props.version}.json`)">Full original OpenAPI spec (JSON)</a>.
     </p>
     <details class="details custom-block">
       <summary>View endpoint OpenAPI definition</summary>
-      <slot />
+      <div class="api-yaml-controls" data-pagefind-ignore>
+        <button type="button" @click="setFolds(true)">Expand all</button>
+        <button type="button" @click="setFolds(false)">Collapse all</button>
+        <button type="button" @click="copyYaml">Copy full YAML</button>
+        <span role="status" aria-live="polite">{{ copyStatus }}</span>
+      </div>
+      <div class="api-yaml-view"><slot /></div>
     </details>
   </div>
 </template>
+
+<style scoped>
+.api-yaml-controls { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+.api-yaml-controls button { color: var(--vp-c-brand-1); border: 1px solid var(--vp-c-divider); border-radius: 4px; padding: 4px 8px; }
+.api-yaml-controls button:focus-visible, :deep(.api-yaml-fold > summary:focus-visible) { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
+.api-yaml-view { overflow-x: auto; background: var(--vp-code-block-bg); border-radius: 8px; padding: 16px 0; }
+:deep(.api-yaml-document) { min-width: max-content; }
+:deep(.api-yaml-fold) { margin: 0; padding: 0; border: 0; }
+:deep(.api-yaml-fold > summary) { cursor: pointer; list-style: none; position: relative; margin: 0; padding: 0 24px; line-height: 1.7; }
+:deep(.api-yaml-fold > summary::before) { content: '▸'; position: absolute; left: 8px; color: var(--vp-c-text-2); }
+:deep(.api-yaml-fold[open] > summary::before) { content: '▾'; }
+:deep(.api-yaml-fold > summary::-webkit-details-marker) { display: none; }
+:deep(.api-yaml-source) { white-space: pre; font-family: var(--vp-font-family-mono); font-size: var(--vp-code-font-size); color: var(--vp-c-text-1); background: none; padding: 0; }
+:deep(.api-yaml-chunk div[class*='language-']) { margin: 0; border-radius: 0; background: none; }
+:deep(.api-yaml-chunk pre) { padding: 0; }
+:deep(.api-yaml-chunk pre code) { padding: 0 24px; }
+:deep(.api-yaml-chunk .copy), :deep(.api-yaml-chunk .lang) { display: none; }
+</style>
