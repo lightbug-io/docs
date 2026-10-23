@@ -368,7 +368,6 @@ onBeforeUnmount(() => {
                     <span class="field-example-value">{{ sample.value }}</span>
                     <a class="example-source" :href="sample.href" :aria-label="`View source example for ${field.name}: ${sample.source}`" :title="`View source example for ${field.name}`">Example</a>
                   </div>
-                  <span v-if="!field.examples.length" class="sample-missing">Not captured</span>
                 </td>
               </tr>
             </tbody>
@@ -463,7 +462,7 @@ onBeforeUnmount(() => {
             <header class="example-header">
               <component :is="hasFormats ? 'h4' : 'h3'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`" class="example-title"><span v-if="example.showNumber" class="example-number">Example {{ example.exampleIndex + 1 }}</span>{{ example.stageTitle }}</component>
               <details v-if="example.startsExchange && example.description" class="example-details">
-                <summary><span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured' }}</span><template v-if="example.target"> · {{ example.target }}</template><span class="details-label"> · Details</span></summary>
+                <summary><span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured' }}</span><template v-if="example.target"> · {{ example.target }}</template> · <span class="details-label">Details</span></summary>
                 <p class="prose">{{ example.description }}</p>
               </details>
               <p v-else class="example-context"><span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured' }}</span><template v-if="example.target"> · {{ example.target }}</template></p>
@@ -561,7 +560,6 @@ onBeforeUnmount(() => {
 .field-example + .field-example { margin-top: 8px; }
 .field-examples .example-source { font-size: 11px; color: var(--reference-muted); }
 .field-examples .example-source:hover { color: var(--vp-c-brand-1); }
-.sample-missing { color: var(--reference-muted); }
 .summary-field-name, .field-summary-table .field-id { display: block; }
 .field-summary-table .field-id { margin-top: 4px; }
 .field-summary-table .field-limit { margin-top: 6px; font-size: 12px; }
