@@ -31,11 +31,13 @@ export default {
             .map((messageId) => {
                 const messageData = protocolData.messages[messageId]
                 const urlName = messageData.name.toLowerCase().replace(/ /g, '-')
+                const pageTitle = `${messageId}: ${messageData.name}`
                 return {
                     params: {
                         messageId: `${messageId}-${urlName}`,
-                        pageTitle: `${messageId}: ${messageData.name}`,
+                        pageTitle,
                     },
+                    content: `# ${pageTitle}`,
                 }
             })
     },
