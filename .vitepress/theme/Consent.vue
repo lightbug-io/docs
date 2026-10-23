@@ -98,6 +98,8 @@ onMounted(() => {
   --cc-bg: var(--vp-c-bg);
   --cc-primary-color: var(--vp-c-text-1);
   --cc-secondary-color: var(--vp-c-text-2);
+  --cc-btn-primary-color: #1b1b1f;
+  --cc-btn-primary-hover-color: #1b1b1f;
   --cc-btn-primary-bg: var(--vp-c-brand-1);
   --cc-btn-primary-hover-bg: var(--vp-c-brand-2);
   --cc-btn-primary-border-color: var(--vp-c-brand-1);
@@ -107,6 +109,8 @@ onMounted(() => {
   --cc-btn-secondary-border-color: var(--vp-c-divider);
   --cc-btn-secondary-hover-bg: var(--vp-c-default-3);
   --cc-btn-secondary-hover-color: var(--vp-c-text-1);
+  --cc-toggle-readonly-knob-icon-color: #333;
+  --cc-toggle-readonly-bg: var(--vp-c-default-3);
   --cc-cookie-category-block-bg: var(--vp-c-bg-soft);
   --cc-cookie-category-block-hover-bg: var(--vp-c-bg-alt);
   --cc-cookie-category-block-border: var(--vp-c-divider);
