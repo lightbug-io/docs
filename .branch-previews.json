@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "previews": [
+    {
+      "id": "31d42f615ccbbe66611e36a9fbfe42b065e51be507b5dab276c3de717a9a0d26",
+      "branch": "feat/docs-analytics-consent",
+      "sha": "6b451a33b79eaace807f46f5467f2cc5d9b5a4ea",
+      "runId": "39949263132",
+      "publishedAt": "2026-10-23T11:55:10.712Z"
+    }
+  ],
+  "removals": []
+}
