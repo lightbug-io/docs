@@ -233,12 +233,12 @@ describe('optional message documentation', () => {
     })
 
     it('validates references for each migrated message', () => {
-        expect(Object.entries(protocol.messages).filter(([, value]: [string, any]) => getMessageDocumentation(value)).map(([id]) => Number(id))).toEqual([34, 39, 58])
-        for (const id of [34, 39, 58]) expect(validateMessageDocumentation(protocol, id)).toEqual([])
+        expect(Object.entries(protocol.messages).filter(([, value]: [string, any]) => getMessageDocumentation(value)).map(([id]) => Number(id))).toEqual([34, 35, 39, 58])
+        for (const id of [34, 35, 39, 58]) expect(validateMessageDocumentation(protocol, id)).toEqual([])
     })
 
     it('summarizes every message field within its applicable version', () => {
-        for (const id of [34, 39, 58]) {
+        for (const id of [34, 35, 39, 58]) {
             const docs = getMessageDocumentation(protocol.messages[id])!
             const groups = docs.formats?.map(format => format.fields || {}) || [docs.fields || {}]
             expect(groups.flatMap(fields => Object.keys(fields)).sort()).toEqual(Object.keys(protocol.messages[id].data).sort())
@@ -442,5 +442,62 @@ describe('Device Status reference', () => {
         expect(capturedDocumentationValues(example, 34, badType).some(field => field.id === 7)).toBe(false)
         const converted = { ...message.data, 1: { ...message.data[1], ...Object.values(protocol.messages).map((entry: any) => entry.data?.[5]).find((field: any) => field?.['raw-unit'] === 'cm') as object, type: 'uint8' } }
         expect(capturedDocumentationValues(example, 34, converted).find(field => field.id === 1)?.value).toBe('88 cm (raw)')
+    })
+})
+
+describe('Device IDs reference', () => {
+    const message = protocol.messages[35]
+    const docs = getMessageDocumentation(message)!
+    const get = docs.operations[0]
+
+    it('keeps GET unversioned and preserves every wire field, including uncaptured identifiers', () => {
+        expect(Object.keys(message.methods)).toEqual(['GET'])
+        expect(message.header).toEqual([5])
+        expect(message.versions).toBeUndefined()
+        expect(docs.formats).toBeUndefined()
+        expect(get.request?.headers?.['22']).toBeUndefined()
+        expect(get.request?.headers?.['5']).toEqual({ presence: 'required', value: 2 })
+        expect(get.request?.fields).toBeUndefined()
+        expect(Object.entries(message.data).map(([id, field]: [string, any]) => [id, field.id, field.type])).toEqual([
+            ['1', 'id', 'uint'], ['2', 'imei', 'ascii'], ['3', 'iccid', 'ascii'],
+            ['4', 'serial', 'uint32'], ['8', 'cachedIccid2', 'ascii'],
+        ])
+        expect(Object.keys(get.response!.fields!)).toEqual(Object.keys(message.data))
+        expect(Object.values(get.response!.fields!).every(field => field.presence === 'optional')).toBe(true)
+        expect(get.response?.description).toContain('may be stale')
+        expect(message.examples).toBeUndefined()
+        expect(validateMessageDocumentation(protocol, 35)).toEqual([])
+    })
+
+    it('preserves and decodes the captured GET pair without inventing serial or SIM2 samples', () => {
+        const [example] = get.examples!
+        expect(get.examples).toHaveLength(1)
+        expect(example.provenance).toBe('captured')
+        expect(example.description).toContain('2025-10-10')
+        expect(example.description).toContain('RH2 P1 v2287')
+        expect(example.target).toBe('RH2 over I2C')
+        expect(example.frames.map(frame => frame.role)).toEqual(['request', 'response'])
+        expect(example.frames.map(frame => frame.bytes)).toEqual([
+            '3 20 0 35 0 2 0 5 1 1 2 4 31 187 53 226 0 0 191 169',
+            '3 65 0 35 0 2 0 3 4 4 31 187 53 226 1 0 3 0 1 2 3 4 3 109 161 0 15 56 54 52 57 53 48 48 54 48 50 49 50 53 56 55 20 56 57 52 53 55 51 48 48 48 48 48 48 50 50 50 49 52 56 48 54 6 251',
+        ])
+        const frames = example.frames.map(frame => frame.bytes.split(' ').map(Number))
+        for (const bytes of frames) {
+            expect(calculateCRC16XMODEM(bytes.slice(0, -2))).toBe(bytes[bytes.length - 2] | bytes[bytes.length - 1] << 8)
+            expect(parseRawMessage(bytes)).toMatchObject({ protocolVersion: 3, length: bytes.length, messageType: 35 })
+        }
+        const [request, response] = frames.map(parseRawMessage)
+        expect(request.data).toEqual({})
+        expect(request.header[5]).toEqual([2])
+        expect(response.header[3]).toEqual(request.header[1])
+        expect(response.header[4]).toEqual([0])
+        expect(Object.fromEntries(Object.entries(response.data).map(([id, bytes]) => [id, readTypedData(bytes, message.data[id].type)]))).toEqual({
+            1: 10579203, 2: '864950060212587', 3: '89457300000022214806',
+        })
+        expect(Object.fromEntries(capturedDocumentationValues(example, 35, message.data).map(field => [field.id, field.value]))).toEqual({
+            1: '10579203', 2: '864950060212587', 3: '89457300000022214806',
+        })
+        expect(documentationExamplesForContext(get.examples!, 'request')[0].stageTitle).toBe('GET exchange request')
+        expect(documentationExamplesForContext(get.examples!, 'response')[0].stageTitle).toBe('GET exchange response')
     })
 })
