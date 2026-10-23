@@ -113,3 +113,66 @@ test('approval completes before acquiring the shared publish/cleanup lock', () =
   assert.match(publish, /EXPECTED: \$\{\{ toJSON\(needs.resolve.outputs\) \}\}/);
   assert.match(publish, /await check\(\{ github, context, core, expected: JSON.parse\(process.env.EXPECTED\) \}\);[\s\S]*uses: JamesIves\//);
 });
+
+const branch = require('./branch.cjs');
+const pages = require('./branch-pages.cjs');
+function branchFixture() {
+  const f = fixture();
+  Object.assign(f.run, { event: 'push', path: '.github/workflows/branch-preview-build.yml', head_branch: 'topic',
+    actor: { login: 'writer' }, triggering_actor: { login: 'writer' }, created_at: '2026-10-20T12:00:00Z' });
+  f.artifact.name = `branch-preview-${f.run.head_sha}-2`;
+  f.args.context.sha = 'b'.repeat(40);
+  f.args.github.rest.git = { getRef: async () => ({ data: { ref: 'refs/heads/topic', object: { type: 'commit', sha: f.pr.head.sha } } }) };
+  Object.assign(f.args.github.rest.repos, {
+    getContent: async () => ({ data: { type: 'file', sha: 'trusted' } }),
+    getCollaboratorPermissionLevel: async () => ({ data: { permission: 'write' } }),
+    getCommit: async () => ({ data: { sha: f.run.head_sha, commit: { message: '[ci-preview]' } } }),
+  });
+  return f;
+}
+test('branch publication binds trusted workflow, actor, opt-in, source and artifact', async () => {
+  assert.equal((await branch.check(branchFixture().args)).id, branch.branchId('topic'));
+  for (const mutate of [f => f.artifact.workflow_run.id++, f => f.run.head_repository.id++, f => f.run.run_attempt++,
+    f => f.pr.head.sha = 'b'.repeat(40), f => f.run.actor = {},
+    f => f.args.github.rest.repos.getCollaboratorPermissionLevel = async () => ({ data: { permission: 'read' } }),
+    f => f.args.github.rest.repos.getCommit = async () => ({ data: { sha: f.run.head_sha, commit: { message: 'ordinary push' } } }),
+    f => f.args.github.rest.repos.getContent = async ({ ref }) => ({ data: { type: 'file', sha: ref } })]) {
+    const f = branchFixture(); mutate(f); await assert.rejects(branch.check(f.args));
+  }
+  for (const name of ['../pr', 'main', 'gh-pages', 'a\nb']) assert.throws(() => branch.branchId(name));
+  assert.notEqual(branch.branchId('a/b'), branch.branchId('a-b'));
+});
+function pagesFixture(previews, removals = []) {
+  const manifest = { version: 1, previews, removals }, writes = [];
+  const entries = [pages.MANIFEST, 'pr/13/index.html', 'unrelated.txt', ...previews.map(p => `branch/${p.id}/index.html`)]
+    .map(path => ({ path, type: 'blob', mode: '100644', sha: 'blob', size: 100 }));
+  const git = {
+    getRef: async () => ({ data: { object: { sha: 'parent' } } }),
+    getCommit: async () => ({ data: { tree: { sha: 'base' } } }),
+    getTree: async () => ({ data: { tree: entries, truncated: false } }),
+    getBlob: async () => ({ data: { encoding: 'base64', content: Buffer.from(JSON.stringify(manifest)).toString('base64') } }),
+    createTree: async ({ tree }) => { writes.push(...tree); return { data: { sha: 'updated' } }; },
+    createCommit: async ({ parents }) => { assert.deepEqual(parents, ['parent']); return { data: { sha: 'commit' } }; },
+    updateRef: async ({ force }) => assert.equal(force, false),
+  };
+  return { writes, args: { github: { rest: { git } }, context: { repo: { owner: 'lightbug-io', repo: 'docs' } }, now: '2026-10-23T12:00:00.000Z' } };
+}
+const preview = (name, publishedAt, runId = '10') => ({ branch: name, id: branch.branchId(name), sha: 'a'.repeat(40), publishedAt, runId });
+test('expiry and manual cleanup preserve current/unknown/PR files and bind non-force parent', async () => {
+  const old = preview('old', '2026-09-01T12:00:00.000Z'), fresh = preview('new', '2026-10-23T12:00:00.000Z');
+  const f = pagesFixture([old, fresh]);
+  await pages.cleanup({ ...f.args, branch: fresh.branch, requestedAt: '2026-10-23T11:00:00.000Z' });
+  assert.deepEqual(f.writes.filter(e => e.sha === null).map(e => e.path), [`branch/${old.id}/index.html`]);
+  assert.throws(() => pages.validateManifest({ version: 1, previews: [{ ...old, id: '../pr' }], removals: [] }));
+  await assert.rejects(pages.cleanup({ ...f.args, branch: 'unknown', requestedAt: f.args.now }), /No managed preview/);
+});
+test('older queued builds cannot replace a newer preview or resurrect manual cleanup', async t => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'branch-race-'));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(directory, 'index.html'), 'preview');
+  const p = preview('topic', '2026-10-23T12:00:00.000Z');
+  const expected = { ...p, runId: '9', createdAt: '2026-10-23T11:00:00.000Z' };
+  await assert.rejects(pages.publish({ ...pagesFixture([p]).args, directory, expected }), /newer preview/);
+  const removed = pagesFixture([], [{ branch: p.branch, id: p.id, requestedAt: p.publishedAt }]);
+  await assert.rejects(pages.publish({ ...removed.args, directory, expected }), /manually removed/);
+});
