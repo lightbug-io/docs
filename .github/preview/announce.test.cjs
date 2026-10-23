@@ -75,3 +75,9 @@ for (const [name, change, error] of [
   await assert.rejects(announce(f.args), error);
   assert.ok(!f.calls.some(c => typeof c === 'object' || c === 'summary'));
 });
+
+test('shared waiter rejects a different Pages commit before requesting publication', async () => {
+  const f = fixture();
+  await assert.rejects(require('./announce.cjs').waitForPages({ ...f.args, commit: 'c'.repeat(40) }), /changed before/);
+  assert.deepEqual(f.calls, []);
+});

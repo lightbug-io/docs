@@ -55,7 +55,7 @@ jobs:
             const pages = require('./.github/preview/branch-pages.cjs');
             await pages.cleanup({ github, context });
             const commit = await pages.publish({ github, context, expected, directory, token: process.env.PUBLICATION_TOKEN });
-            await require('./.github/preview/branch-announce.cjs').announce({ github, context, core, expected, commit });
+            await require('./.github/preview/branch.cjs').announce({ github, context, core, expected, commit });
   cleanup:
     if: vars.PREVIEWS_ENABLED == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
@@ -85,5 +85,5 @@ jobs:
               github, context, branch: process.env.CLEANUP_BRANCH,
               requestedAt: new Date(run.created_at).toISOString()
             });
-            await require('./.github/preview/branch-announce.cjs').waitForPages({ github, context, commit });
+            await require('./.github/preview/announce.cjs').waitForPages({ github, context, commit });
             await core.summary.addRaw('Branch preview cleanup published. The source branch was not deleted.').write();

@@ -55,4 +55,11 @@ async function check({ github, context, core, expected }) {
   for (const [key, value] of Object.entries(result)) core.setOutput(key, value);
   return result;
 }
-module.exports = { branchId, check };
+async function announce({ github, context, core, expected, commit, sleep }) {
+  await require('./announce.cjs').waitForPages({ github, context, commit, sleep });
+  await check({ github, context, core, expected });
+  const url = `https://lightbug-io.github.io/docs/branch/${expected.id}/`;
+  await core.summary.addLink('Open branch preview', url)
+    .addRaw(`\n\nPublished source commit: ${expected.sha}\n\nAutomatically eligible for cleanup after 30 days, on the next Pages publication.`).write();
+}
+module.exports = { branchId, check, announce };
