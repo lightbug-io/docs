@@ -1,5 +1,6 @@
 // @ts-expect-error The existing js-yaml dependency does not ship declarations.
 import yaml from 'js-yaml'
+import { foldingYamlMarkdown } from './yaml-folds'
 
 const methods = new Set(['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'])
 
@@ -66,9 +67,26 @@ export function operationDefinition(spec: Record<string, any>, path: string, met
     return result
 }
 
+/** Inline plain references for reading; retain cycles and sibling-bearing references
+ * rather than changing the different OpenAPI 3.0/3.1 sibling semantics. */
+export function expandedOperationDefinition(spec: Record<string, any>, path: string, method: string) {
+    const slice = operationDefinition(spec, path, method)
+    function expand(value: any, active = new Set<string>()): any {
+        if (!value || typeof value !== 'object') return value
+        if (Array.isArray(value)) return value.map(child => expand(child, active))
+        if (typeof value.$ref === 'string' && Object.keys(value).length === 1 && !active.has(value.$ref)) {
+            const keys = value.$ref.slice(2).split('/').map((key: string) => decodeURIComponent(key).replace(/~1/g, '/').replace(/~0/g, '~'))
+            const target = keys.reduce((parent: any, key: string) => parent[key], slice)
+            return expand(target, new Set([...active, value.$ref]))
+        }
+        return Object.fromEntries(Object.entries(value).map(([key, child]) => [key, expand(child, active)]))
+    }
+    const { components, ...document } = slice
+    // Prune expanded-away components while retaining recursive targets and named security schemes.
+    return operationDefinition({ ...expand(document), components }, path, method)
+}
+
 export function operationDefinitionMarkdown(spec: Record<string, any>, path: string, method: string) {
-    const text: string = yaml.dump(operationDefinition(spec, path, method), { noRefs: true, lineWidth: -1 })
-    // A longer fence protects examples/descriptions that themselves contain fences.
-    const fence = '`'.repeat(Math.max(3, ...Array.from(text.matchAll(/`+/g), match => match[0].length + 1)))
-    return `${fence}yaml\n${text}${fence}\n`
+    const text: string = yaml.dump(expandedOperationDefinition(spec, path, method), { noRefs: true, lineWidth: -1 })
+    return foldingYamlMarkdown(text)
 }
