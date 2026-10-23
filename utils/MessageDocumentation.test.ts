@@ -31,15 +31,17 @@ describe('paired exchange stages', () => {
             { role: 'upload' as const, label: 'Upload', bytes: '' },
         ] }]
         const before = clone(examples)
-        expect(documentationExamplesForContext(examples, 'request')[0]).toMatchObject({ exampleIndex: 0, showNumber: false, startsExchange: true, frames: [{ frameIndex: 0 }] })
-        expect(documentationExamplesForContext(examples, 'response')[0]).toMatchObject({ showNumber: false, startsExchange: false, frames: [{ frameIndex: 1 }] })
+        expect(documentationExamplesForContext(examples, 'request')[0]).toMatchObject({ exampleIndex: 0, stageTitle: 'Pair request', showNumber: false, startsExchange: true, frames: [{ frameIndex: 0 }] })
+        expect(documentationExamplesForContext(examples, 'response')[0]).toMatchObject({ stageTitle: 'Pair response', showNumber: false, startsExchange: false, frames: [{ frameIndex: 1 }] })
         expect(documentationExamplesForContext(examples, 'publication')[0].frames.map(frame => frame.frameIndex)).toEqual([2, 3])
+        expect(documentationExamplesForContext(examples, 'publication')[0].stageTitle).toBe('Pair publication')
+        expect(documentationExamplesForContext([{ ...examples[0], title: 'GET exchange response' }], 'response')[0].stageTitle).toBe('GET exchange response')
         expect(examples).toEqual(before)
         const pairs = [...examples, ...examples, { ...examples[0], frames: [examples[0].frames[3]] }]
         expect(documentationExamplesForContext(pairs, 'request').map(example => example.exampleIndex)).toEqual([0, 1])
         expect(documentationExamplesForContext(pairs, 'request').every(example => example.showNumber)).toBe(true)
         expect(documentationExamplesForContext(pairs, 'response').map(example => example.exampleIndex)).toEqual([0, 1])
-        expect(documentationExamplesForContext(pairs, 'publication')[2]).toMatchObject({ exampleIndex: 2, startsExchange: true, frames: [{ frameIndex: 0, role: 'upload' }] })
+        expect(documentationExamplesForContext(pairs, 'publication')[2]).toMatchObject({ exampleIndex: 2, stageTitle: 'Pair upload', startsExchange: true, frames: [{ frameIndex: 0, role: 'upload' }] })
         expect(documentationExamplesForContext([], 'request')).toEqual([])
     })
     it('allows documentation without wire examples while retaining existing examples on unmigrated pages', () => {

@@ -66,7 +66,7 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
       return [{
         role,
         examples: stageExamples,
-        examplesTitle: `${label} wire examples`,
+        examplesTitle: `${label} examples`,
         title: role === 'request' ? 'Request' : role === 'response'
           ? `Expected response${view[role] ? ` (MT${contextId}${contextId === 5 ? ' - ACK' : ''})` : ''}`
           : `${item.method ? 'Later publication' : 'Device upload'}${view[role] ? ` (MT${contextId})` : ''}`, 
@@ -351,7 +351,7 @@ onBeforeUnmount(() => {
         <p class="section-caption">Fields specific to {{ message.name }}. Operation sections below explain when each field is used.</p>
         <div class="field-summary-table">
           <table>
-            <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th><th v-if="group.fields.some(field => field.examples.length)" scope="col">Captured example</th></tr></thead>
+            <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th><th v-if="group.fields.some(field => field.examples.length)" scope="col">Example</th></tr></thead>
             <tbody>
               <tr v-for="field in group.fields" :id="`message-${messageId}-${group.fieldPrefix}field-${field.id}`" :key="field.id">
                 <th scope="row"><span class="summary-field-name">{{ field.name }}</span><span class="field-id">Field {{ field.id }}</span></th>
@@ -364,7 +364,10 @@ onBeforeUnmount(() => {
                   </ul>
                 </td>
                 <td v-if="group.fields.some(field => field.examples.length)" class="field-examples">
-                  <a v-for="sample in field.examples" :key="`${sample.href}:${sample.value}`" :href="sample.href" :aria-label="`${sample.source}: ${sample.value}`" :title="sample.source">{{ sample.value }}</a>
+                  <div v-for="sample in field.examples" :key="`${sample.href}:${sample.value}`" class="field-example">
+                    <span class="field-example-value">{{ sample.value }}</span>
+                    <a class="example-source" :href="sample.href" :aria-label="`View source example for ${field.name}: ${sample.source}`" :title="`View source example for ${field.name}`">Example</a>
+                  </div>
                   <span v-if="!field.examples.length" class="sample-missing">Not captured</span>
                 </td>
               </tr>
@@ -445,10 +448,10 @@ onBeforeUnmount(() => {
             </section>
         </section>
 
-        <aside class="reference-examples" :aria-labelledby="context.examplesAnchor">
+        <aside class="reference-examples" :aria-label="context.examplesTitle">
           <span v-if="panel === groups[0]?.panels[0] && context === panel.contexts[0]" id="examples" class="operation-anchor" aria-hidden="true"></span>
           <div ref="exampleColumns" class="context-examples">
-          <component :is="hasFormats ? 'h4' : 'h3'" :id="context.examplesAnchor" class="examples-heading">{{ context.examplesTitle }}</component>
+          <span :id="context.examplesAnchor" class="operation-anchor" aria-hidden="true"></span>
           <p v-if="!context.examples.length" class="example-placeholder">No captured example available yet.</p>
           <article
             v-for="example in context.examples"
@@ -458,7 +461,7 @@ onBeforeUnmount(() => {
             :aria-labelledby="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`"
           >
             <header class="example-header">
-              <component :is="hasFormats ? 'h5' : 'h4'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`" class="example-title"><span v-if="example.showNumber" class="example-number">Example {{ example.exampleIndex + 1 }}</span>{{ example.title }}</component>
+              <component :is="hasFormats ? 'h4' : 'h3'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`" class="example-title"><span v-if="example.showNumber" class="example-number">Example {{ example.exampleIndex + 1 }}</span>{{ example.stageTitle }}</component>
               <details v-if="example.startsExchange && example.description" class="example-details">
                 <summary><span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured' }}</span><template v-if="example.target"> · {{ example.target }}</template><span class="details-label"> · Details</span></summary>
                 <p class="prose">{{ example.description }}</p>
@@ -468,7 +471,7 @@ onBeforeUnmount(() => {
             </header>
             <div v-for="frame in example.frames" :key="frame.frameIndex" class="example-frame" :class="`frame-${frame.role}`">
               <div class="frame-heading">
-                <component :is="hasFormats ? 'h6' : 'h5'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}-frame-${frame.frameIndex + 1}`" class="frame-title"><span class="frame-role">{{ frame.role }}</span>{{ frame.label }}</component>
+                <component :is="hasFormats ? 'h5' : 'h4'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}-frame-${frame.frameIndex + 1}`" class="frame-title"><span class="frame-role">{{ frame.role }}</span>{{ frame.label }}</component>
                 <button type="button" class="copy-button" :aria-label="`Copy bytes: ${example.title}, ${frame.label}`" @click="copyBytes(frame.bytes, frame.label)">Copy</button>
               </div>
               <div class="annotated-frame" :aria-labelledby="`${panel.anchor}-example-${example.exampleIndex + 1}-frame-${frame.frameIndex + 1}`">
@@ -554,7 +557,10 @@ onBeforeUnmount(() => {
 .field-summary-table tbody th { min-width: 150px; width: 22%; font-weight: 600; }
 .field-summary-table td:nth-child(2) { width: 12%; }
 .field-examples { width: 18%; }
-.field-examples a { display: block; margin-bottom: 4px; }
+.field-example-value { display: block; }
+.field-example + .field-example { margin-top: 8px; }
+.field-examples .example-source { font-size: 11px; color: var(--reference-muted); }
+.field-examples .example-source:hover { color: var(--vp-c-brand-1); }
 .sample-missing { color: var(--reference-muted); }
 .summary-field-name, .field-summary-table .field-id { display: block; }
 .field-summary-table .field-id { margin-top: 4px; }
@@ -624,7 +630,6 @@ onBeforeUnmount(() => {
 .error-list dt { font-weight: 600; margin-bottom: 4px; }
 .error-list dt code { margin-right: 6px; }
 .error-list dd { color: var(--reference-muted); }
-.structured-message .examples-heading { margin: 0 0 5px; padding: 0; border: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; }
 .example-placeholder { padding: 12px 14px; border: 1px dashed var(--vp-c-divider); border-radius: 4px; background: var(--vp-c-bg-soft); font-size: 13px; }
 .example-card { overflow-wrap: anywhere; margin-bottom: 28px; }
 .example-card + .example-card { padding-top: 20px; border-top: 1px solid var(--vp-c-divider); }
