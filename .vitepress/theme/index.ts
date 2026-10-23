@@ -1,4 +1,6 @@
 import DefaultTheme from 'vitepress/theme'
+import { nextTick } from 'vue'
+import { revealApiDefinition } from '../../utils/ApiDefinitionAnchor'
 import Layout from './Layout.vue'
 import { theme, useTheme } from 'vitepress-openapi/client'
 import type { Theme } from 'vitepress'
@@ -39,6 +41,11 @@ const VCodeBlock = createVCodeBlock({
 export default {
     ...DefaultTheme, Layout,
     enhanceApp({ app, router, siteData }) {
+        // Pagefind uses router.go even for same-page hashes (no hashchange event).
+        router.onAfterRouteChanged = async () => {
+            await nextTick()
+            revealApiDefinition()
+        }
         app.use(vuetify)
 
         // Only initialize VCodeBlock on client side
