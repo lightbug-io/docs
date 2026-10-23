@@ -265,12 +265,8 @@ import { parseRawMessage, calculateCRC16XMODEM } from '../../src/protocol/base.g
 import { parseByteString, formatBytes, type ByteDisplayFormat, detectNonMessagePatterns, type DetectedPattern } from '../../utils/ByteStringParser';
 import { parseIdeDebugCsv } from '../../utils/IdeDebugParser';
 
-// Declare gtag function for TypeScript
-declare global {
-    interface Window {
-        gtag: (command: string, targetId: string, config?: any) => void;
-    }
-}
+import { trackProtocolEvent } from '../../utils/Analytics';
+
 
 interface FoundMessage {
     startIndex: number;
@@ -487,8 +483,8 @@ export default defineComponent({
                         });
 
                         // Track valid message parsing for analytics
-                        if (typeof window !== 'undefined' && window.gtag) {
-                            window.gtag('event', 'parse_message', {
+                        {
+                            trackProtocolEvent('parse_message', {
                                 message_type: parsedMessage.messageType,
                                 message_name: messageTypeName || 'unknown',
                                 bytes_length: length

@@ -208,6 +208,11 @@ export default withMermaid(defineConfig({
     '/onprem/' : '/silos/',
   },
   vite: {
+    define: {
+      __DOCS_ANALYTICS_ID__: JSON.stringify(process.env.PUBLIC_GOOGLE_ANALYTICS || ""),
+      __DOCS_DEPLOYMENT__: JSON.stringify(process.env.DEPLOYMENT_NAME || ""),
+      __DOCS_PREVIEW__: JSON.stringify(!!process.env.PREVIEW_BASE || process.env.DEPLOYMENT_NAME === "Preview"),
+    },
     optimizeDeps: {
       // cspell:ignore fastdom
       include: ['fastdom', 'fastdom/extensions/fastdom-promised.js'],
@@ -297,18 +302,6 @@ export default withMermaid(defineConfig({
     [
       'link',
       { rel: 'dns-prefetch', href: 'https://upload.r2.lb.chasm.cloud' }
-    ],
-    [
-      'script',
-      { async: '', src: `https://www.googletagmanager.com/gtag/js?id=${process.env.PUBLIC_GOOGLE_ANALYTICS}` }
-    ],
-    [
-      'script',
-      {},
-      `window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '${process.env.PUBLIC_GOOGLE_ANALYTICS}');`
     ],
     [
       'link',

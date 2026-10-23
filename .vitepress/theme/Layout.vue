@@ -2,6 +2,7 @@
 
 <script setup lang="ts">
 import DefaultTheme from 'vitepress/theme'
+import Consent from './Consent.vue'
 import { inBrowser, useData, useRouter } from 'vitepress'
 import { watch } from 'vue'
 import { resolveLegacyRedirect } from '../../utils/LegacyRedirect'
@@ -41,5 +42,7 @@ watch(
 </script>
 
 <template>
-  <DefaultTheme.Layout />
+  <DefaultTheme.Layout>
+    <template #layout-bottom><Consent /></template>
+  </DefaultTheme.Layout>
 </template>

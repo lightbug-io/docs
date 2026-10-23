@@ -308,12 +308,8 @@ import Message from './Message.vue';
 import FieldInput from './FieldInput.vue';
 import { writeTypedData, parseRawMessage, readTypedData } from '../../src/protocol/base.gen';
 
-// Declare gtag function for TypeScript
-declare global {
-    interface Window {
-        gtag: (command: string, targetId: string, config?: any) => void;
-    }
-}
+import { trackProtocolEvent } from '../../utils/Analytics';
+
 
 export default defineComponent({
     name: 'Generate',
@@ -1185,8 +1181,8 @@ export default defineComponent({
                     : parseInt(selectedMessageId.value) || 0;
 
                 // Send Google Analytics event
-                if (typeof window !== 'undefined' && window.gtag) {
-                    window.gtag('event', 'generate_message', {
+                {
+                    trackProtocolEvent('generate_message', {
                         message_type: messageType,
                         message_name: selectedMessageInfo.value?.name || 'unknown',
                         bytes_length: newBytes.length,
