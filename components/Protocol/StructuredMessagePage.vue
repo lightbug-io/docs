@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter, withBase } from 'vitepress'
 import Message from './Message.vue'
+import DocumentationText from './DocumentationText.vue'
 import {
   activeMessageOutlineId,
   installMessageRouteCorrection,
@@ -13,6 +14,7 @@ import {
 import MessageOutline from './MessageOutline.vue'
 import MessageCodeGen from './MessageCodeGen.vue'
 import {
+  capturedDocumentationValues,
   commonResponseHeaderIds,
   documentationExamplesForContext,
   documentationTargetOverride,
@@ -64,7 +66,7 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
       return [{
         role,
         examples: stageExamples,
-        examplesTitle: `${label} wire examples`,
+        examplesTitle: `${label} examples`,
         title: role === 'request' ? 'Request' : role === 'response'
           ? `Expected response${view[role] ? ` (MT${contextId}${contextId === 5 ? ' - ACK' : ''})` : ''}`
           : `${item.method ? 'Later publication' : 'Device upload'}${view[role] ? ` (MT${contextId})` : ''}`, 
@@ -103,6 +105,18 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
   })
 }))
 
+function fieldsWithExamples(fields: ReturnType<typeof resolveDocumentationFields>, selectedPanels: typeof panels.value) {
+  const samples = selectedPanels.flatMap(panel => panel.contexts.flatMap(context => context.examples.flatMap(example =>
+    capturedDocumentationValues(example, props.messageId, message.value.data, panel.variant.messageVersion).map(sample => ({
+      ...sample,
+      href: `#${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`,
+      source: `Captured ${panel.operation.method || 'device'} ${context.role}${example.target ? ` · ${example.target}` : ''}`,
+    })),
+  )))
+  return fields.map(field => ({ ...field, examples: samples.filter((sample, index) => sample.id === field.id &&
+    samples.findIndex(other => other.id === sample.id && other.value === sample.value) === index) }))
+}
+
 // Format metadata owns the hierarchy. Operations without a wire format are
 // shared, not implicitly part of the newest format. Every panel renders once.
 const hasFormats = computed(() => !!documentation.value?.formats?.length)
@@ -118,7 +132,7 @@ const groups = computed(() => {
       title: '',
       description: '',
       legacy: false,
-      fields: resolveDocumentationFields(props.yamlData, message.value, docs?.fields, 'fields'),
+      fields: fieldsWithExamples(resolveDocumentationFields(props.yamlData, message.value, docs?.fields, 'fields'), panels.value),
       panels: panels.value,
     }]
   }
@@ -132,7 +146,7 @@ const groups = computed(() => {
     title: `${format.label} format`,
     description: format.description,
     legacy: !!format.legacy,
-    fields: resolveDocumentationFields(props.yamlData, message.value, format.fields, 'fields'),
+    fields: fieldsWithExamples(resolveDocumentationFields(props.yamlData, message.value, format.fields, 'fields'), panels.value.filter(panel => panel.formatId === format.id)),
     panels: panels.value.filter(panel => panel.formatId === format.id),
   }))
   const sharedPanels = panels.value.filter(panel => !panel.formatId)
@@ -332,26 +346,35 @@ onBeforeUnmount(() => {
       <p v-if="group.description" class="format-description prose">{{ group.description }}</p>
 
       <section v-if="group.fields.length" :id="`message-${messageId}-${group.fieldPrefix}fields`" class="message-fields" :aria-labelledby="`message-${messageId}-${group.fieldPrefix}fields-heading`">
+        <span v-if="group === groups[0]" id="payload" class="operation-anchor" aria-hidden="true"></span>
         <component :is="hasFormats ? 'h3' : 'h2'" :id="`message-${messageId}-${group.fieldPrefix}fields-heading`" class="fields-heading">{{ group.legacy ? 'Legacy fields' : 'Message fields' }}</component>
         <p class="section-caption">Fields specific to {{ message.name }}. Operation sections below explain when each field is used.</p>
         <div class="field-summary-table">
           <table>
-            <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th></tr></thead>
+            <thead><tr><th scope="col">Field</th><th scope="col">Type</th><th scope="col">Description</th><th v-if="group.fields.some(field => field.examples.length)" scope="col">Example</th></tr></thead>
             <tbody>
               <tr v-for="field in group.fields" :id="`message-${messageId}-${group.fieldPrefix}field-${field.id}`" :key="field.id">
                 <th scope="row"><span class="summary-field-name">{{ field.name }}</span><span class="field-id">Field {{ field.id }}</span></th>
                 <td><code>{{ field.type }}</code></td>
                 <td>
-                  <p v-if="field.description" class="prose">{{ field.description }}</p>
+                  <p v-if="field.description" class="prose"><DocumentationText :text="field.description" /></p>
                   <p v-if="field.maxBytes !== undefined" class="field-limit">Maximum {{ field.maxBytes }} bytes</p>
                   <ul v-if="field.values.length" class="field-values">
-                    <li v-for="value in field.values" :key="value.value"><code>{{ value.value }}</code><strong v-if="value.name"> {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span></li>
+                    <li v-for="value in field.values" :key="value.value"><code>{{ value.value }}</code><strong v-if="value.name"> · {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span></li>
                   </ul>
+                </td>
+                <td v-if="group.fields.some(field => field.examples.length)" class="field-examples">
+                  <div v-for="sample in field.examples" :key="`${sample.href}:${sample.value}`" class="field-example">
+                    <span class="field-example-value">{{ sample.value }}</span>
+                    <a class="example-source" :href="sample.href" :aria-label="`View source example for ${field.name}: ${sample.source}`" :title="`View source example for ${field.name}`">Example</a>
+                  </div>
+                  <span v-if="!field.examples.length" class="sample-missing">Not captured</span>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
+        <p v-if="group.fields.some(field => field.examples.length)" class="section-caption">Examples are observed values from the linked captures, not defaults.</p>
       </section>
 
     <section v-for="panel in group.panels" :id="panel.anchor" :key="panel.anchor" class="operation-section" :aria-labelledby="`${panel.anchor}-heading`">
@@ -377,6 +400,7 @@ onBeforeUnmount(() => {
 
       <div v-for="context in panel.contexts" :key="`${panel.anchor}-${context.role}`" class="reference-columns context-row">
         <section class="context-section" :class="`context-${context.role}`" :aria-labelledby="`${panel.anchor}-${context.role}`">
+            <span v-if="panel === groups[0]?.panels[0] && context === panel.contexts[0]" id="header" class="operation-anchor" aria-hidden="true"></span>
             <span v-for="anchor in context.referenceAnchors" :id="anchor" :key="anchor" class="operation-anchor" aria-hidden="true"></span>
             <component :is="hasFormats ? 'h4' : 'h3'" :id="`${panel.anchor}-${context.role}`" class="context-heading">{{ context.title }}</component>
             <p v-if="context.subtitle" class="context-subtitle">{{ context.subtitle }}</p>
@@ -402,10 +426,10 @@ onBeforeUnmount(() => {
                       <span v-if="field.maxBytes !== undefined" class="field-limit">Maximum {{ field.maxBytes }} bytes</span>
                     </div>
                     <p v-if="field.value !== undefined" class="fixed-value"><strong>Value</strong> <code>{{ field.value }}</code><span v-if="field.valueName"> · {{ field.valueName }}</span></p>
-                    <p v-if="field.description" class="prose">{{ field.description }}</p>
+                    <p v-if="field.description" class="prose"><DocumentationText :text="field.description" /></p>
                     <ul v-if="field.values.length" class="field-values">
                       <li v-for="value in field.values" :key="value.value">
-                        <code>{{ value.value }}</code><strong v-if="value.name"> {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span>
+                        <code>{{ value.value }}</code><strong v-if="value.name"> · {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span>
                       </li>
                     </ul>
                   </dd>
@@ -424,10 +448,10 @@ onBeforeUnmount(() => {
             </section>
         </section>
 
-        <aside class="reference-examples" :aria-labelledby="context.examplesAnchor">
+        <aside class="reference-examples" :aria-label="context.examplesTitle">
+          <span v-if="panel === groups[0]?.panels[0] && context === panel.contexts[0]" id="examples" class="operation-anchor" aria-hidden="true"></span>
           <div ref="exampleColumns" class="context-examples">
-          <component :is="hasFormats ? 'h4' : 'h3'" :id="context.examplesAnchor" class="examples-heading">{{ context.examplesTitle }}</component>
-          <p v-if="context.examples.length && context.examplesAnchor === `${panel.anchor}-examples`" class="examples-caption">{{ panel.operation.title }}<template v-if="panel.variantId"> · {{ panel.variant.title }}</template>. Complete V3 frames, not HTTP requests.</p>
+          <span :id="context.examplesAnchor" class="operation-anchor" aria-hidden="true"></span>
           <p v-if="!context.examples.length" class="example-placeholder">No captured example available yet.</p>
           <article
             v-for="example in context.examples"
@@ -437,15 +461,17 @@ onBeforeUnmount(() => {
             :aria-labelledby="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`"
           >
             <header class="example-header">
-              <span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured example' }}</span>
-              <component :is="hasFormats ? 'h5' : 'h4'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`" class="example-title"><span class="example-number">Example {{ example.exampleIndex + 1 }}</span>{{ example.title }}</component>
-              <p v-if="example.startsExchange && example.description" class="prose">{{ example.description }}</p>
-              <p v-if="example.target" class="example-target"><strong>Target</strong> {{ example.target }}</p>
+              <component :is="hasFormats ? 'h4' : 'h3'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`" class="example-title"><span v-if="example.showNumber" class="example-number">Example {{ example.exampleIndex + 1 }}</span>{{ example.stageTitle }}</component>
+              <details v-if="example.startsExchange && example.description" class="example-details">
+                <summary><span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured' }}</span><template v-if="example.target"> · {{ example.target }}</template><span class="details-label"> · Details</span></summary>
+                <p class="prose">{{ example.description }}</p>
+              </details>
+              <p v-else class="example-context"><span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured' }}</span><template v-if="example.target"> · {{ example.target }}</template></p>
               <p v-if="example.provenance === 'generated'" class="provenance-note">Generated for illustration; not a device capture.</p>
             </header>
             <div v-for="frame in example.frames" :key="frame.frameIndex" class="example-frame" :class="`frame-${frame.role}`">
               <div class="frame-heading">
-                <component :is="hasFormats ? 'h6' : 'h5'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}-frame-${frame.frameIndex + 1}`" class="frame-title"><span class="frame-role">{{ frame.role }}</span>{{ frame.label }}</component>
+                <component :is="hasFormats ? 'h5' : 'h4'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}-frame-${frame.frameIndex + 1}`" class="frame-title"><span class="frame-role">{{ frame.role }}</span>{{ frame.label }}</component>
                 <button type="button" class="copy-button" :aria-label="`Copy bytes: ${example.title}, ${frame.label}`" @click="copyBytes(frame.bytes, frame.label)">Copy</button>
               </div>
               <div class="annotated-frame" :aria-labelledby="`${panel.anchor}-example-${example.exampleIndex + 1}-frame-${frame.frameIndex + 1}`">
@@ -482,6 +508,7 @@ onBeforeUnmount(() => {
       </section>
     </div>
     <section :id="`message-${messageId}-constants`" class="message-constants" :aria-labelledby="`message-${messageId}-constants-heading`">
+      <span id="code" class="operation-anchor" aria-hidden="true"></span>
       <h2 :id="`message-${messageId}-constants-heading`">Message and field constants</h2>
       <p class="section-caption">Identifiers for this message type and its fields. See the operation sections above for rules and limits.</p>
       <MessageCodeGen :key="messageId" :message-id="messageId" :yaml-data="constantsData" />
@@ -506,7 +533,7 @@ onBeforeUnmount(() => {
 .structured-message [id] { scroll-margin-top: calc(var(--message-sticky-top) + var(--message-jump-height, 64px) + 24px); }
 .structured-message .message-summary { margin: 16px 0 10px; font-size: 16px; line-height: 1.8; white-space: pre-line; }
 .support-context { font-size: 12px; }
-.support-context strong, .target-context strong, .example-target strong { margin-right: 8px; font-weight: 600; }
+.support-context strong, .target-context strong { margin-right: 8px; font-weight: 600; }
 .message-navigation { position: sticky; top: var(--message-sticky-top); z-index: 10; min-width: 0; margin: 22px 0; align-self: start; }
 .message-content { min-width: 0; }
 @media (min-width: 1440px) {
@@ -522,13 +549,19 @@ onBeforeUnmount(() => {
 .overview-note h2 { border: 0; padding: 0; margin-bottom: 6px; font-size: 17px; }
 .message-fields { margin-top: 28px; }
 .message-fields .fields-heading { border: 0; padding: 0; margin-bottom: 8px; font-size: 22px; }
-.field-summary-table { width: 100%; margin-top: 16px; }
+.field-summary-table { width: 100%; margin-top: 16px; overflow-x: auto; }
 .field-summary-table table { display: table; width: 100%; margin: 0; border-collapse: collapse; font-size: 13px; }
 .field-summary-table th, .field-summary-table td { padding: 12px 14px; text-align: left; vertical-align: top; border: 0; border-bottom: 1px solid var(--vp-c-divider); }
 .field-summary-table thead th { background: var(--vp-c-bg-soft); font-size: 12px; font-weight: 600; }
 .field-summary-table tbody tr { background: transparent; border: 0; }
 .field-summary-table tbody th { min-width: 150px; width: 22%; font-weight: 600; }
-.field-summary-table td:nth-child(2) { width: 15%; }
+.field-summary-table td:nth-child(2) { width: 12%; }
+.field-examples { width: 18%; }
+.field-example-value { display: block; }
+.field-example + .field-example { margin-top: 8px; }
+.field-examples .example-source { font-size: 11px; color: var(--reference-muted); }
+.field-examples .example-source:hover { color: var(--vp-c-brand-1); }
+.sample-missing { color: var(--reference-muted); }
 .summary-field-name, .field-summary-table .field-id { display: block; }
 .field-summary-table .field-id { margin-top: 4px; }
 .field-summary-table .field-limit { margin-top: 6px; font-size: 12px; }
@@ -597,22 +630,23 @@ onBeforeUnmount(() => {
 .error-list dt { font-weight: 600; margin-bottom: 4px; }
 .error-list dt code { margin-right: 6px; }
 .error-list dd { color: var(--reference-muted); }
-.structured-message .examples-heading { margin: 0 0 5px; padding: 0; border: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; }
-.examples-caption { font-size: 12px; margin-bottom: 18px !important; }
 .example-placeholder { padding: 12px 14px; border: 1px dashed var(--vp-c-divider); border-radius: 4px; background: var(--vp-c-bg-soft); font-size: 13px; }
 .example-card { overflow-wrap: anywhere; margin-bottom: 28px; }
 .example-card + .example-card { padding-top: 20px; border-top: 1px solid var(--vp-c-divider); }
-.example-header { padding: 0 0 12px; }
-.example-provenance { display: block; margin-bottom: 7px; color: var(--reference-muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
-.example-header .example-title { font-size: 16px; line-height: 1.5; margin-bottom: 8px; }
+.example-header { padding: 0 0 8px; }
+.example-provenance { font-weight: 600; }
+.example-header .example-title { font-size: 16px; line-height: 1.5; margin: 0 0 4px; }
 .example-number { display: block; color: var(--reference-muted); font-size: 11px; font-weight: 500; }
 .example-header p { font-size: 12px; }
-.example-target { margin-top: 8px !important; }
+.example-header .example-context, .example-details { margin: 0; color: var(--reference-muted); font-size: 12px; }
+.example-details summary { margin: 0; line-height: 24px; cursor: pointer; }
+.example-details .prose { margin: 8px 0 0; }
+.details-label { text-decoration: underline; text-underline-offset: 3px; }
 .provenance-note { margin-top: 8px !important; font-size: 11px !important; }
 .example-frame { border: 1px solid var(--vp-c-divider); border-radius: 7px; overflow: hidden; }
 .example-frame + .example-frame { margin-top: 12px; }
-.frame-heading { background: var(--vp-c-bg-alt); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 12px 16px; }
-.frame-heading .frame-title { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; }
+.frame-heading { background: var(--vp-c-bg-alt); display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 10px 12px; }
+.frame-heading .frame-title { margin: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; font-size: 12px; }
 .frame-role { display: inline-block; padding: 2px 6px; border-radius: 3px; color: #fff; background: #465766; text-transform: uppercase; font-size: 10px; letter-spacing: .07em; font-weight: 700; }
 .frame-request .frame-role { background: #1d4d9b; }
 .frame-response .frame-role { background: #176047; }
@@ -622,14 +656,16 @@ onBeforeUnmount(() => {
 .copy-button:hover { background: var(--vp-c-bg); }
 .structured-message .wire-bytes { margin: 0; padding: 14px 16px; background: #202c3d; color: #e0e8f1; font-size: 12px; line-height: 1.9; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
 .structured-message .wire-bytes code { padding: 0; border-radius: 0; background: none; color: inherit; font-size: inherit; }
-.annotated-frame { padding: 0 12px 12px; background: var(--vp-c-bg); }
+.annotated-frame { padding: 0 12px 4px; background: var(--vp-c-bg); }
 .annotated-frame :deep(.protocol-bytes-container) { margin: 0; border: 0; border-radius: 0; }
-.annotated-frame :deep(.byte-header) { padding: 12px 0 0; background: transparent; }
+.annotated-frame :deep(.byte-header) { padding: 10px 0 0; background: transparent; }
 .annotated-frame :deep(.byte-visualization-wrapper) { width: 100%; }
+.annotated-frame :deep(.byte-visualization) { gap: 8px; }
+.annotated-frame :deep(.byte-section) { gap: 3px; }
 .annotated-frame :deep(.annotation-label) { color: var(--reference-text); }
 .annotated-frame :deep(.annotation-value), .annotated-frame :deep(.annotation-detail) { color: var(--reference-muted); }
 .raw-bytes-details { background: var(--vp-c-bg); }
-.raw-bytes-details summary { padding: 8px 16px 12px; color: var(--reference-muted); font-size: 12px; cursor: pointer; }
+.raw-bytes-details summary { margin: 0; padding: 6px 12px 8px; color: var(--reference-muted); font-size: 12px; cursor: pointer; }
 .copy-status { font-size: 12px; }
 .copy-status:empty { display: none; }
 .message-constants { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--vp-c-divider); }
@@ -660,8 +696,6 @@ onBeforeUnmount(() => {
   .field-summary-table { overflow-wrap: anywhere; }
   .structured-message .message-summary { font-size: 15px; }
   .reference-columns { gap: 28px; }
-  .frame-heading { padding: 12px; }
-  .example-header { padding: 14px 12px; }
   .structured-message .wire-bytes { padding: 12px; }
 }
 </style>

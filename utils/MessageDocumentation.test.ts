@@ -1,10 +1,13 @@
 import { describe, expect, it } from '@jest/globals'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { calculateCRC16XMODEM, parseRawMessage, readTypedData } from '../src/protocol/base.gen'
 // The repository's YAML dependency is intentionally untyped.
 const yaml = require('js-yaml')
 import {
+    capturedDocumentationValues,
     commonResponseHeaderIds,
+    documentationTextParts,
     documentationExamplesForContext,
     getMessageDocumentation,
     getOperationVariant,
@@ -28,14 +31,17 @@ describe('paired exchange stages', () => {
             { role: 'upload' as const, label: 'Upload', bytes: '' },
         ] }]
         const before = clone(examples)
-        expect(documentationExamplesForContext(examples, 'request')[0]).toMatchObject({ exampleIndex: 0, startsExchange: true, frames: [{ frameIndex: 0 }] })
-        expect(documentationExamplesForContext(examples, 'response')[0]).toMatchObject({ startsExchange: false, frames: [{ frameIndex: 1 }] })
+        expect(documentationExamplesForContext(examples, 'request')[0]).toMatchObject({ exampleIndex: 0, stageTitle: 'Pair request', showNumber: false, startsExchange: true, frames: [{ frameIndex: 0 }] })
+        expect(documentationExamplesForContext(examples, 'response')[0]).toMatchObject({ stageTitle: 'Pair response', showNumber: false, startsExchange: false, frames: [{ frameIndex: 1 }] })
         expect(documentationExamplesForContext(examples, 'publication')[0].frames.map(frame => frame.frameIndex)).toEqual([2, 3])
+        expect(documentationExamplesForContext(examples, 'publication')[0].stageTitle).toBe('Pair publication')
+        expect(documentationExamplesForContext([{ ...examples[0], title: 'GET exchange response' }], 'response')[0].stageTitle).toBe('GET exchange response')
         expect(examples).toEqual(before)
         const pairs = [...examples, ...examples, { ...examples[0], frames: [examples[0].frames[3]] }]
         expect(documentationExamplesForContext(pairs, 'request').map(example => example.exampleIndex)).toEqual([0, 1])
+        expect(documentationExamplesForContext(pairs, 'request').every(example => example.showNumber)).toBe(true)
         expect(documentationExamplesForContext(pairs, 'response').map(example => example.exampleIndex)).toEqual([0, 1])
-        expect(documentationExamplesForContext(pairs, 'publication')[2]).toMatchObject({ exampleIndex: 2, startsExchange: true, frames: [{ frameIndex: 0, role: 'upload' }] })
+        expect(documentationExamplesForContext(pairs, 'publication')[2]).toMatchObject({ exampleIndex: 2, stageTitle: 'Pair upload', startsExchange: true, frames: [{ frameIndex: 0, role: 'upload' }] })
         expect(documentationExamplesForContext([], 'request')).toEqual([])
     })
     it('allows documentation without wire examples while retaining existing examples on unmigrated pages', () => {
@@ -50,6 +56,16 @@ describe('paired exchange stages', () => {
         }
         expect(getMessageDocumentation(protocol.messages[5])).toBeUndefined()
         expect(protocol.messages[5].examples.some((example: any) => example.bytes && example.real)).toBe(true)
+    })
+})
+
+describe('documentation links', () => {
+    it('links HTTP(S) references while retaining escaped-text content and unsafe schemes as text', () => {
+        const text = 'Reference: https://mcc-mnc.net/ and (https://example.test/code). <b>text</b> javascript:alert(1) data:text/html,test'
+        const parts = documentationTextParts(text)
+        expect(parts.map(part => part.text).join('')).toBe(text)
+        expect(parts.filter(part => part.href).map(part => part.href)).toEqual(['https://mcc-mnc.net/', 'https://example.test/code'])
+        expect(documentationTextParts('https://user:secret@example.test/ https://').every(part => !part.href)).toBe(true)
     })
 })
 
@@ -120,6 +136,10 @@ describe('optional message documentation', () => {
         const ack = resolveDocumentationFields(protocol, protocol.messages[5], { 1: {} }, 'fields')
         expect(ack[0].name).toBe(protocol.messages[5].data[1].name)
         expect(ack[0].name).not.toBe(protocol.messages[58].data[1].name)
+        const network = resolveDocumentationFields(protocol, protocol.messages[34], { 4: {} }, 'fields')[0]
+        expect(network.values.map(value => [value.value, value.name])).toEqual([[0, 'No network'], [2, 'GSM (2G)'], [3, 'WCDMA (3G)'], [4, 'LTE (4G)']])
+        expect(resolveDocumentationFields(protocol, protocol.messages[34], { 4: { values: { 0: 'Disconnected' } } }, 'fields')[0].values).toEqual([{ value: 0, name: 'No network', description: 'Disconnected' }])
+        expect(resolveDocumentationFields(protocol, protocol.messages[34], { 4: { value: 0 } }, 'fields')[0].values).toEqual([])
     })
 
     it('rejects broken inline references and duplicate operation anchors', () => {
@@ -212,13 +232,13 @@ describe('optional message documentation', () => {
         expect(validateMessageDocumentation(sample, 39)).toEqual([])
     })
 
-    it('migrates only GPS Control and Message Box and validates their references', () => {
-        expect(Object.entries(protocol.messages).filter(([, value]: [string, any]) => getMessageDocumentation(value)).map(([id]) => Number(id))).toEqual([39, 58])
-        for (const id of [39, 58]) expect(validateMessageDocumentation(protocol, id)).toEqual([])
+    it('validates references for each migrated message', () => {
+        expect(Object.entries(protocol.messages).filter(([, value]: [string, any]) => getMessageDocumentation(value)).map(([id]) => Number(id))).toEqual([34, 39, 58])
+        for (const id of [34, 39, 58]) expect(validateMessageDocumentation(protocol, id)).toEqual([])
     })
 
     it('summarizes every message field within its applicable version', () => {
-        for (const id of [39, 58]) {
+        for (const id of [34, 39, 58]) {
             const docs = getMessageDocumentation(protocol.messages[id])!
             const groups = docs.formats?.map(format => format.fields || {}) || [docs.fields || {}]
             expect(groups.flatMap(fields => Object.keys(fields)).sort()).toEqual(Object.keys(protocol.messages[id].data).sort())
@@ -335,5 +355,92 @@ describe('inline numeric-version authoring', () => {
         expect(set!.request!.fields[129]).toMatchObject({ presence: 'required', maxBytes: 1024 })
         const get = protocol.messages[58].methods.GET.versions[2]
         expect(get.response.fields[2].presence).toBe('required')
+    })
+})
+
+
+describe('Device Status reference', () => {
+    const message = protocol.messages[34]
+    const docs = getMessageDocumentation(message)!
+    it('keeps the existing methods and wire fields without inventing a message version', () => {
+        expect(Object.keys(message.methods)).toEqual(['GET', 'SUBSCRIBE', 'UNSUBSCRIBE'])
+        expect(message.versions).toBeUndefined()
+        expect(docs.formats).toBeUndefined()
+        expect(Object.entries(message.data).map(([id, field]: [string, any]) => [id, field.id, field.type])).toEqual([
+            ['1', 'bat', 'uint8'], ['2', 'signalStrength', 'uint8'], ['3', 'mode', 'uint8'],
+            ['4', 'networkType', 'uint8'], ['5', 'mnc', 'uint16'], ['6', 'mcc', 'uint16'],
+            ['7', 'fw', 'uint32'], ['10', 'deviceType', 'uint8'],
+        ])
+        for (const operation of docs.operations) {
+            expect(operation.messageVersion).toBeUndefined()
+            expect(operation.request?.headers?.['22']).toBeUndefined()
+        }
+        expect(message.header).toEqual([5])
+        expect(validateMessageDocumentation(protocol, 34)).toEqual([])
+    })
+    it('separates direct replies, setup acknowledgments and later publications', () => {
+        const [get, subscribe, unsubscribe] = docs.operations
+        expect([get, subscribe, unsubscribe].map(operation => operation.request?.headers?.['5'])).toEqual([
+            { presence: 'required', value: 2 }, { presence: 'required', value: 3 }, { presence: 'required', value: 5 },
+        ])
+        expect(get.response?.messageId).toBeUndefined()
+        expect(subscribe.response?.messageId).toBe(5)
+        expect(unsubscribe.response?.messageId).toBe(5)
+        expect(subscribe.publication?.headers?.['3'].presence).toBe('omitted')
+        expect(subscribe.request?.headers?.['17']).toMatchObject({ presence: 'optional', value: 0 })
+        expect(unsubscribe.request?.headers?.['17']).toBeUndefined()
+        for (const context of [get.response, subscribe.publication]) {
+            expect(Object.keys(context!.fields!)).toEqual(Object.keys(message.data))
+            expect(Object.values(context!.fields!).every(field => field.presence === 'optional')).toBe(true)
+        }
+        expect(subscribe.examples).toBeUndefined()
+        expect(unsubscribe.examples).toBeUndefined()
+    })
+    it('preserves the captured GET pair byte-for-byte and validates correlation and CRCs', () => {
+        const [example] = docs.operations[0].examples!
+        expect(example.provenance).toBe('captured')
+        expect(example.description).toContain('2025-10-10')
+        expect(example.target).toBe('RH2 over I2C')
+        expect(example.frames.map(frame => frame.role)).toEqual(['request', 'response'])
+        expect(example.frames.map(frame => frame.bytes)).toEqual([
+            '3 20 0 34 0 2 0 5 1 1 2 4 32 98 132 62 0 0 194 229',
+            '3 49 0 34 0 2 0 3 4 4 32 98 132 62 1 0 8 0 1 3 7 10 2 4 5 6 1 88 1 0 4 239 8 0 0 1 48 1 64 1 0 2 0 0 2 0 0 108 94',
+        ])
+        const frames = example.frames.map(frame => frame.bytes.split(' ').map(Number))
+        for (const bytes of frames) {
+            expect(calculateCRC16XMODEM(bytes.slice(0, -2))).toBe(bytes[bytes.length - 2] | bytes[bytes.length - 1] << 8)
+            expect(parseRawMessage(bytes)).toMatchObject({ protocolVersion: 3, length: bytes.length, messageType: 34 })
+        }
+        const [request, response] = frames.map(parseRawMessage)
+        expect(request.data).toEqual({})
+        expect(request.header[5]).toEqual([2])
+        expect(response.header[3]).toEqual(request.header[1])
+        expect(response.header[4]).toEqual([0])
+        expect(Object.fromEntries(Object.entries(response.data).map(([id, bytes]) => [id, readTypedData(bytes, message.data[id].type)]))).toEqual({
+            1: 88, 2: 64, 3: 0, 4: 0, 5: 0, 6: 0, 7: 2287, 10: 48,
+        })
+        expect(Object.fromEntries(capturedDocumentationValues(example, 34, message.data).map(field => [field.id, field.value]))).toEqual({
+            1: '88%', 2: '64%', 3: '0 · Sleep', 4: '0 · No network', 5: '0', 6: '0', 7: '2287', 10: '48',
+        })
+        expect(capturedDocumentationValues({ ...example, frames: [example.frames[0]] }, 34, message.data)).toEqual([])
+    })
+    it('does not project generated, wrong-message, unverified-version or malformed examples as captures', () => {
+        const example = docs.operations[0].examples![0]
+        expect(capturedDocumentationValues({ ...example, provenance: 'generated' }, 34, message.data)).toEqual([])
+        expect(capturedDocumentationValues(example, 58, message.data)).toEqual([])
+        expect(capturedDocumentationValues(example, 34, message.data, 2)).toEqual([])
+        const invalid = clone(example)
+        invalid.frames[1].bytes += ' 0'
+        expect(capturedDocumentationValues(invalid, 34, message.data)).toEqual([])
+        const bytes = example.frames[1].bytes.split(' ').map(Number)
+        bytes[26] = 255 // Invalid first payload length, even with a recomputed checksum.
+        const crc = calculateCRC16XMODEM(bytes.slice(0, -2))
+        bytes.splice(-2, 2, crc & 255, crc >> 8)
+        invalid.frames[1].bytes = bytes.join(' ')
+        expect(capturedDocumentationValues(invalid, 34, message.data)).toEqual([])
+        const badType = { ...message.data, 7: { ...message.data[7], type: 'uint8' } }
+        expect(capturedDocumentationValues(example, 34, badType).some(field => field.id === 7)).toBe(false)
+        const converted = { ...message.data, 1: { ...message.data[1], ...Object.values(protocol.messages).map((entry: any) => entry.data?.[5]).find((field: any) => field?.['raw-unit'] === 'cm') as object, type: 'uint8' } }
+        expect(capturedDocumentationValues(example, 34, converted).find(field => field.id === 1)?.value).toBe('88 cm (raw)')
     })
 })

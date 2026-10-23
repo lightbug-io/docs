@@ -1,3 +1,6 @@
+import { calculateCRC16XMODEM, getElementByteSize, parseRawMessage, readTypedData } from '../src/protocol/base.gen'
+import { parseByteString } from './ByteStringParser'
+
 /** Structured message documentation. Wire definitions remain in header and message.data. */
 export interface DocumentationField {
     description?: string
@@ -38,8 +41,62 @@ export function documentationExamplesForContext(examples: DocumentationExample[]
     return examples.map((example, exampleIndex) => {
         const frames = example.frames.map((frame, frameIndex) => ({ ...frame, frameIndex }))
             .filter(frame => (frame.role === 'upload' ? 'publication' : frame.role) === role)
-        return { ...example, exampleIndex, frames, startsExchange: frames[0]?.frameIndex === 0 }
+        const stage = frames.every(frame => frame.role === 'upload') ? 'upload' : role
+        const stageTitle = new RegExp(`\\b${stage}$`, 'i').test(example.title) ? example.title : `${example.title} ${stage}`
+        return { ...example, stageTitle, exampleIndex, showNumber: examples.length > 1, frames, startsExchange: frames[0]?.frameIndex === 0 }
     }).filter(example => example.frames.length)
+}
+
+/** Project observed payload values, never defaults, from intact matching captures. */
+export function capturedDocumentationValues(example: DocumentationExample, messageId: number, definitions: Record<string, any>, messageVersion?: number) {
+    if (example.provenance !== 'captured') return []
+    return example.frames.flatMap(frame => {
+        try {
+            const { bytes } = parseByteString(frame.bytes)
+            const start = bytes[0] === 0x4c && bytes[1] === 0x42 ? 2 : 0
+            const parsed = parseRawMessage(bytes)
+            if (parsed.protocolVersion !== 3 || parsed.messageType !== messageId || parsed.encrypted || parsed.length !== bytes.length - start) return []
+            if (calculateCRC16XMODEM(bytes.slice(start, -2)) !== (bytes[bytes.length - 2] | bytes[bytes.length - 1] << 8)) return []
+            // Account for every field and length prefix; the decoder alone is permissive.
+            const consumed = 11 + [parsed.header, parsed.data].reduce((total, fields) => total + Object.entries(fields)
+                .reduce((size, [id, data]) => size + 1 + (Number(id) < 128 ? 1 : 2) + (data?.length || 0), 0), 0)
+            if (consumed !== parsed.length) return []
+            // Do not infer a universal legacy version from an omitted selector.
+            if (messageVersion !== undefined && readTypedData(parsed.header[22] || [], 'uint8') !== messageVersion) return []
+            return Object.entries(parsed.data).flatMap(([id, bytes]) => {
+                const field = definitions[id]
+                if (!field || !bytes || typeof field.type !== 'string') return []
+                if (messageVersion !== undefined && field.versions && !field.versions.includes(messageVersion)) return []
+                if (!bytes.length) return [{ id: Number(id), value: 'Empty (0 bytes)' }]
+                const size = getElementByteSize(field.type)
+                if (size !== null && (/^u?int(8|16|32|64)$/.test(field.type) ? bytes.length > size : bytes.length !== size)) return []
+                const value = readTypedData(bytes, field.type)
+                const raw = field.conversion !== undefined
+                const declaredUnit = raw ? field['raw-unit'] : field.unit
+                const unit = typeof declaredUnit === 'string' ? declaredUnit : ''
+                const label = field.values?.[String(value)]?.name
+                return [{ id: Number(id), value: `${Array.isArray(value) ? JSON.stringify(value) : String(value)}${unit === '%' ? '%' : unit ? ` ${unit}` : ''}${label ? ` · ${label}` : ''}${raw ? ' (raw)' : ''}` }]
+            })
+        } catch { return [] }
+    })
+}
+
+/** Link only explicit HTTP(S) URLs; surrounding prose remains escaped Vue text. */
+export function documentationTextParts(text: string) {
+    const parts: { text: string; href?: string }[] = []
+    let end = 0
+    for (const match of text.matchAll(/https?:\/\/[^\s<>"']+/gi)) {
+        let link = match[0].replace(/[.,;:!?]+$/, '')
+        while (link.endsWith(')') && (link.match(/\)/g)?.length || 0) > (link.match(/\(/g)?.length || 0)) link = link.slice(0, -1)
+        try {
+            const url = new URL(link)
+            if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) continue
+            parts.push({ text: text.slice(end, match.index) }, { text: link, href: url.href })
+            end = match.index! + link.length
+        } catch { /* Invalid URLs remain plain text. */ }
+    }
+    parts.push({ text: text.slice(end) })
+    return parts
 }
 
 export interface DocumentationVariant {
@@ -193,10 +250,10 @@ export function resolveDocumentationFields(
             presence: context.presence,
             value: context.value,
             valueName: context.value === undefined ? undefined : definition.values?.[context.value]?.name,
-            values: Object.entries(context.values || {}).map(([value, description]) => ({
+            values: Object.entries(context.values ?? (context.value === undefined ? definition.values || {} : {})).map(([value, details]: [string, any]) => ({
                 value: Number(value),
                 name: definition.values?.[value]?.name,
-                description,
+                description: typeof details === 'string' ? details : details.description || '',
             })),
             maxBytes: context.maxBytes,
         }
