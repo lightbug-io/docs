@@ -74,8 +74,8 @@ onMounted(() => {
             sections: [
               { title: 'You are in control', description: 'The docs work without analytics. Withdrawing consent stops future analytics and clears accessible Google Analytics cookies; it does not erase information already sent. If analytics was loaded, this page reloads to stop it completely.' },
               { title: 'Essential preferences', description: 'A first-party docs_consent cookie remembers this choice for up to 182 days. The site also remembers your display preferences.', linkedCategory: 'necessary' },
-              { title: 'Google Analytics', description: 'When enabled on the live docs, Google receives visit and browser information plus protocol tool events (message type, message name and byte count) and API example use (operation ID). These tool events do not include message contents. No search analytics or advertising integration is added by this prototype. Google Analytics may set _ga cookies.' + (preview ? '<br><strong>This preview sends no analytics, regardless of your choice.</strong>' : ''), linkedCategory: 'analytics' },
-              { title: 'More information', description: 'Read the <a href="https://lightbug.io/privacy-policy/">existing privacy policy</a>. This branch is a consent prototype, not an update to that policy.' },
+              { title: 'Google Analytics', description: 'When enabled on the live docs, Google receives visit and browser information plus protocol tool events (message type, message name and byte count) and API example use (operation ID). These tool events do not include message contents. Google Analytics may set _ga cookies.' + (preview ? '<br><strong>This preview sends no analytics, regardless of your choice.</strong>' : ''), linkedCategory: 'analytics' },
+              { title: 'More information', description: '<a href="https://lightbug.io/privacy-policy/">Privacy policy</a>.' },
             ],
           },
         },
