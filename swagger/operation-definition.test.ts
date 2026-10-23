@@ -1,4 +1,5 @@
-import { operationDefinition, operationDefinitionMarkdown } from './operation-definition'
+/** @jest-environment-options {"customExportConditions":["node","node-addons"]} */
+import { operationDefinition, expandedOperationDefinition, operationDefinitionMarkdown } from './operation-definition'
 import v1 from '../public/swagger/v1.json'
 import v2 from '../public/swagger/v2.json'
 // @ts-expect-error The existing js-yaml dependency does not ship declarations.
@@ -72,8 +73,30 @@ describe('endpoint OpenAPI definitions', () => {
         spec.paths['/things'].get.description = 'Example:\n```yaml\n<test>{{value}}</test>\n```'
         const markdown = operationDefinitionMarkdown(spec, '/things', 'get')
         expect(markdown).toContain('````yaml\n')
-        const text = markdown.split('````yaml\n')[1].split('````\n')[0]
-        expect(yaml.load(text)).toEqual(operationDefinition(spec, '/things', 'get'))
+        const wrapper = document.createElement('div')
+        wrapper.innerHTML = markdown
+        const text = wrapper.querySelector<HTMLElement>('.api-yaml-document')!.dataset.yaml!
+        expect(yaml.load(text)).toEqual(expandedOperationDefinition(spec, '/things', 'get'))
+    })
+
+    test('expands repeated refs, retains recursive definitions and named security, without mutation', () => {
+        const spec = fixture(), before = JSON.stringify(spec)
+        const expanded = expandedOperationDefinition(spec, '/things', 'get')
+        const schema = expanded.paths['/things'].get.responses['200'].content['application/json'].schema
+        expect(schema.properties.value.description).toBe('Nested description')
+        expect(schema.properties.next.$ref).toBe('#/components/schemas/Node')
+        expect(expanded.components.schemas.Node).toEqual(spec.components.schemas.Node)
+        expect(expanded.components.responses).toBeUndefined()
+        expect(expanded.components.securitySchemes).toEqual({ Local: spec.components.securitySchemes.Local })
+        expect(JSON.stringify(spec)).toBe(before)
+    })
+
+    test.each(['3.0.3', '3.1.0'])('preserves reference siblings for OpenAPI %s', openapi => {
+        const spec: any = fixture()
+        spec.openapi = openapi
+        spec.paths['/things'].get.responses['200'].description = 'Sibling override'
+        expect(expandedOperationDefinition(spec, '/things', 'get').paths['/things'].get.responses['200'])
+            .toEqual(spec.paths['/things'].get.responses['200'])
     })
 
     test.each([['v1', v1], ['v2', v2]])('%s retains every operation exactly and resolves all current references', (_, spec: any) => {
