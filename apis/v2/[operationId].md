@@ -7,6 +7,7 @@ pageClass: api-reference-page
 <script setup lang="ts">
 import { useRoute, withBase } from 'vitepress'
 import { computed } from 'vue'
+import ApiDefinition from '../../.vitepress/theme/components/ApiDefinition.vue'
 import ApiReference from '../../.vitepress/theme/components/ApiReference.vue'
 import { loadSpec } from '../../swagger/load'
 const spec = loadSpec(2, withBase)
@@ -15,3 +16,11 @@ const operationId = computed(() => route.data.params.operationId)
 </script>
 
 <ApiReference :key="operationId" :operation-id="operationId" :spec="spec" />
+
+## OpenAPI definition
+
+<ApiDefinition :version="2" :key="operationId">
+
+<!--@content-->
+
+</ApiDefinition>
