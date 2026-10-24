@@ -17,7 +17,7 @@ export function yamlFoldRanges(text: string): Fold[] {
                 if ((isMap(value) || isSeq(value)) && pair.key?.range && value.range) {
                     const start = lineCounter.linePos(pair.key.range[0]).line - 1
                     const end = lineCounter.linePos(value.range[1] - 1).line
-                    if (end - start >= 5 && (key === 'requestBody' || parentKey === 'responses' || key === 'properties' || key === 'items')) {
+                    if (end - start >= 5 && (key === 'requestBody' || parentKey === 'responses')) {
                         folds.push({ start, end })
                     }
                 }
@@ -46,7 +46,9 @@ export function foldingYamlMarkdown(text: string): string {
         for (const fold of folds) {
             if (fold.start < cursor || fold.start >= end || fold.end > end) continue
             result += code(cursor, fold.start)
-            result += `<details class="api-yaml-fold" open>\n<summary><code class="api-yaml-source" v-pre>${escape(lines[fold.start])}</code></summary>\n\n`
+            const header = lines[fold.start]
+            const indent = header.length - header.trimStart().length
+            result += `<details class="api-yaml-fold" open>\n<summary style="--api-yaml-indent: ${indent}ch"><code class="api-yaml-source" v-pre>${escape(header.trimStart())}</code></summary>\n\n`
             result += render(fold.start + 1, fold.end)
             result += '</details>\n\n'
             cursor = fold.end
