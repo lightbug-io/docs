@@ -16,7 +16,7 @@ async function copyYaml() {
     await navigator.clipboard.writeText(text)
     copyStatus.value = 'Copied'
   } catch {
-    copyStatus.value = 'Copy failed. Please select the YAML and copy it.'
+    copyStatus.value = 'Copy failed. Please try Copy full YAML again.'
   }
 }
 const reveal = async () => {
@@ -56,17 +56,17 @@ onUnmounted(() => {
 <style scoped>
 .api-yaml-controls { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
 .api-yaml-controls button { color: var(--vp-c-brand-1); border: 1px solid var(--vp-c-divider); border-radius: 4px; padding: 4px 8px; }
-.api-yaml-controls button:focus-visible, :deep(.api-yaml-fold > summary:focus-visible) { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
+.api-yaml-controls button:focus-visible, .api-definition :deep(.api-yaml-fold > summary:focus-visible) { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
 .api-yaml-view { overflow-x: auto; background: var(--vp-code-block-bg); border-radius: 8px; padding: 16px 0; }
-:deep(.api-yaml-document) { min-width: max-content; }
-:deep(.api-yaml-fold) { margin: 0; padding: 0; border: 0; }
-:deep(.api-yaml-fold > summary) { cursor: pointer; list-style: none; position: relative; margin: 0; padding: 0 24px; line-height: 1.7; }
-:deep(.api-yaml-fold > summary::before) { content: '▸'; position: absolute; left: 8px; color: var(--vp-c-text-2); }
-:deep(.api-yaml-fold[open] > summary::before) { content: '▾'; }
-:deep(.api-yaml-fold > summary::-webkit-details-marker) { display: none; }
-:deep(.api-yaml-source) { white-space: pre; font-family: var(--vp-font-family-mono); font-size: var(--vp-code-font-size); color: var(--vp-c-text-1); background: none; padding: 0; }
-:deep(.api-yaml-chunk div[class*='language-']) { margin: 0; border-radius: 0; background: none; }
-:deep(.api-yaml-chunk pre) { padding: 0; }
-:deep(.api-yaml-chunk pre code) { padding: 0 24px; }
-:deep(.api-yaml-chunk .copy), :deep(.api-yaml-chunk .lang) { display: none; }
+.api-definition :deep(.api-yaml-document) { min-width: max-content; }
+.api-definition :deep(.api-yaml-fold) { margin: 0; padding: 0; border: 0; }
+.api-definition :deep(.api-yaml-fold > summary) { cursor: pointer; list-style: none; position: relative; margin: 0; padding: 0 24px 0 calc(24px + var(--api-yaml-indent, 0ch)); font-family: var(--vp-font-family-mono); font-size: var(--vp-code-font-size); line-height: 1.7; }
+.api-definition :deep(.api-yaml-fold > summary::before) { content: '▸'; position: absolute; left: calc(8px + var(--api-yaml-indent, 0ch)); color: var(--vp-c-text-2); }
+.api-definition :deep(.api-yaml-fold[open] > summary::before) { content: '▾'; }
+.api-definition :deep(.api-yaml-fold > summary::-webkit-details-marker) { display: none; }
+.api-definition :deep(.api-yaml-source) { white-space: pre; font-family: var(--vp-font-family-mono); font-size: var(--vp-code-font-size); color: var(--vp-c-text-1); background: none; padding: 0; font-weight: 400; }
+.api-definition :deep(.api-yaml-chunk div[class*='language-']) { margin: 0; border-radius: 0; background: none; }
+.api-definition :deep(.api-yaml-chunk pre) { padding: 0; }
+.api-definition :deep(.api-yaml-chunk pre code) { padding: 0 24px; }
+.api-definition :deep(.api-yaml-chunk .copy), .api-definition :deep(.api-yaml-chunk .lang) { display: none; }
 </style>
