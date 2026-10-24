@@ -64,7 +64,7 @@ onUnmounted(() => {
 .api-definition :deep(.api-yaml-fold > summary::before) { content: '▸'; position: absolute; left: calc(8px + var(--api-yaml-indent, 0ch)); color: var(--vp-c-text-2); }
 .api-definition :deep(.api-yaml-fold[open] > summary::before) { content: '▾'; }
 .api-definition :deep(.api-yaml-fold > summary::-webkit-details-marker) { display: none; }
-.api-definition :deep(.api-yaml-source) { white-space: pre; font-family: var(--vp-font-family-mono); font-size: var(--vp-code-font-size); color: var(--vp-c-text-1); background: none; padding: 0; font-weight: 400; }
+.api-definition :deep(.api-yaml-source) { white-space: pre; font-family: var(--vp-font-family-mono); font-size: inherit; color: var(--vp-c-text-1); background: none; padding: 0; font-weight: 400; }
 .api-definition :deep(.api-yaml-chunk div[class*='language-']) { margin: 0; border-radius: 0; background: none; }
 .api-definition :deep(.api-yaml-chunk pre) { padding: 0; }
 .api-definition :deep(.api-yaml-chunk pre code) { padding: 0 24px; }
