@@ -544,6 +544,10 @@ export default withMermaid(defineConfig({
                   link: '/devices/api/protocol/headers',
                 },
                 {
+                  text: 'Responses and acknowledgments',
+                  link: '/devices/api/protocol/responses',
+                },
+                {
                   text: 'Examples',
                   link: '/devices/api/protocol/examples',
                 },

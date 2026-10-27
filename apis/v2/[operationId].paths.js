@@ -1,6 +1,7 @@
 import { useOpenapi } from 'vitepress-openapi/client'
 import { httpVerbs } from 'vitepress-openapi'
 import { loadSpec } from '../../swagger/load'
+import { operationDefinitionMarkdown } from '../../swagger/operation-definition'
 const spec = loadSpec(2)
 
 export default {
@@ -19,6 +20,7 @@ export default {
                     .map((verb) => {
                         const { operationId, summary } = openapi.spec.paths[path][verb]
                         return {
+                            content: operationDefinitionMarkdown(spec, path, verb),
                             params: {
                                 operationId,
                                 pageTitle: `Version 2: ${summary}`,

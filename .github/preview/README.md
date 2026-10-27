@@ -63,3 +63,32 @@ credentials, customer data or trusted browser sessions there.
 
 VitePress defaults to `/` for normal builds. Hard-coded root-relative content
 links may need updating separately for the project Pages path.
+
+## Branch previews (no PR required)
+
+After merge to `main`, run **Branch preview build** and select a feature branch,
+or put `[ci-preview]` in a push's **head commit message**. The branch must contain
+the exact trusted build workflow from `main`; update older branches first.
+Tags, forks, `main`, `production` and `gh-pages` are excluded. The new manual
+workflow cannot be activated while it exists only on an unmerged feature branch.
+
+The separate publisher verifies the workflow definition, repository, original
+and rerun actors' current write access, opt-in, source SHA and run/attempt/artifact.
+Builds are read-only, with no secrets, saved credentials or shared cache. Only
+trusted default-branch code publishes; direct push access does not waive checks.
+The existing preview switch/environment and public-origin restrictions apply.
+
+The successful publication summary links to `/docs/branch/<hash-of-full-ref>/`.
+Each branch has one stable URL, updated only after verifying the exact Pages
+commit. To remove it, run **Publish branch previews** on **main**, supplying
+`cleanup_branch`. This removes only its managed preview, never the source branch;
+it works after source deletion and rejects unknown targets or stale requests.
+
+Every Pages writer first removes managed branch previews **older than 30 days**
+(30 × 24 hours UTC, our definition of one month). Cleanup happens on the next
+Pages write, not on a timer. PR previews, unrelated files and S3 deployments are
+unchanged. Trusted publication metadata, not filesystem mtime, determines age.
+Cleanup and publication are separate non-empty commits under the shared writer
+lock. Ref updates never force-overwrite concurrent changes. Older builds cannot
+resurrect manually removed previews; start a new build. Branch publication uses
+one Git pack with objects/index operations only, never executing Pages content.

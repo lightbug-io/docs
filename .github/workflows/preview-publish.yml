@@ -76,6 +76,10 @@ jobs:
             const { check, validate } = require('./.github/preview/check.cjs');
             validate(process.env.PREVIEW_DIRECTORY);
             await check({ github, context, core, expected: JSON.parse(process.env.EXPECTED) });
+      - name: Remove branch previews older than 30 days (separate commit)
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: await require('./.github/preview/branch-pages.cjs').cleanup({ github, context });
       - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
         with:
           branch: gh-pages
@@ -115,6 +119,10 @@ jobs:
           script: |
             await require('./.github/preview/check.cjs').cleanup({ github, context });
             require('node:fs').mkdirSync(`${process.env.RUNNER_TEMP}/empty-preview`);
+      - name: Remove branch previews older than 30 days (separate commit)
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: await require('./.github/preview/branch-pages.cjs').cleanup({ github, context });
       - uses: JamesIves/github-pages-deploy-action@fa24774553152dd7873cd16ebd8d959b010c5445 # v4.9.0
         with:
           branch: gh-pages

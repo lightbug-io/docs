@@ -2,11 +2,12 @@ const assert = require('node:assert/strict');
 const { setTimeout } = require('node:timers/promises');
 const marker = '<!-- docs-pr-preview -->';
 
-// Runs only in the trusted publisher, while it holds the publish/cleanup lock.
-async function announce({ github, context, core, expected, sleep = setTimeout }) {
+// Shared by PR and branch publication; caller holds the Pages writer lock.
+async function waitForPages({ github, context, commit, sleep = setTimeout }) {
   const repo = context.repo;
   const { data: ref } = await github.rest.git.getRef({ ...repo, ref: 'heads/gh-pages' });
-  const commit = ref.object.sha;
+  commit ??= ref.object.sha;
+  assert(ref.object.sha === commit, 'Pages branch changed before publication');
   assert(/^[0-9a-f]{40}$/.test(commit), 'Missing Pages commit');
   const pagesRuns = async () => {
     const { data } = await github.rest.actions.listWorkflowRunsForRepo({
@@ -30,6 +31,12 @@ async function announce({ github, context, core, expected, sleep = setTimeout })
     await sleep(10000);
   }
   assert(published, 'Pages did not finish within eight minutes; rerun the publisher');
+  const { data: latest } = await github.rest.git.getRef({ ...repo, ref: 'heads/gh-pages' });
+  assert(latest.object.sha === commit, 'Pages branch changed during publication');
+}
+async function announce({ github, context, core, expected, sleep = setTimeout }) {
+  const repo = context.repo;
+  await waitForPages({ github, context, sleep });
   // A newer push or PR closure during Pages publication must not get a ready comment.
   await require('./check.cjs').check({ github, context, core, expected });
   const url = `https://lightbug-io.github.io/docs/pr/${expected.pr}/`;
@@ -48,4 +55,4 @@ async function announce({ github, context, core, expected, sleep = setTimeout })
   }
   await core.summary.addLink('Open PR preview', url).addRaw(`\n\nPublished commit: ${expected.sha}`).write();
 }
-module.exports = { announce };
+module.exports = { announce, waitForPages };
