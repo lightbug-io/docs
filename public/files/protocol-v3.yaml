@@ -3941,6 +3941,15 @@ messages:
       GET returns NotSupported when cellular diagnostics are unavailable on the device.
       Upload-buffer and primary-link values are zero when their runtime objects are absent.
       Secondary-link fields 13-15 are omitted when that link is unavailable.
+      RX/TX counts belong to the primary and secondary internet links, not the UART used to request diagnostics.
+      They count V3 messages, not bytes or cellular network packets.
+      RX increments after protocol, length and checksum validation in the receive path, before message handling.
+      It is not a count of unique messages or successfully executed commands; repeated frames count again.
+      TX increments for each message send request, before queuing or sending, including requests that are later dropped or fail.
+      Uploading or retrying buffered data does not itself increment TX again.
+      Control messages, including ACKs and heartbeats, count when they use these same paths.
+      Each counter starts at zero when its link object is created (normally at boot), survives link reconnects and diagnostic GETs,
+      and wraps from 4294967295 to zero. These are link-object lifetime counters, not per-session totals.
     group: gsm
     header:
       - 5
@@ -4041,11 +4050,13 @@ messages:
       11:
         name: Primary Link RX Count
         id: primaryLinkRxCount
+        description: Primary internet link V3 receive-path count; see the RX/TX counting rules above. Zero when the primary link object is absent.
         type: uint32
         readonly: true
       12:
         name: Primary Link TX Count
         id: primaryLinkTxCount
+        description: Primary internet link V3 message send-request count; see the RX/TX counting rules above. Zero when the primary link object is absent.
         type: uint32
         readonly: true
       13:
@@ -4057,13 +4068,13 @@ messages:
       14:
         name: Secondary Link RX Count
         id: secondaryLinkRxCount
-        description: Omitted when a secondary link is unavailable
+        description: Secondary internet link V3 receive-path count; see the RX/TX counting rules above. Omitted when the secondary link object is absent.
         type: uint32
         readonly: true
       15:
         name: Secondary Link TX Count
         id: secondaryLinkTxCount
-        description: Omitted when a secondary link is unavailable
+        description: Secondary internet link V3 message send-request count; see the RX/TX counting rules above. Omitted when the secondary link object is absent.
         type: uint32
         readonly: true
     methods:
