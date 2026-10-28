@@ -38,6 +38,8 @@ If you have entered valid details, you should find yourself at the start of the 
 
 The onboarding process is shown after initial account creation.
 
+Click `X` to leave the welcome flow. If your account already has a device, this opens the [main map interface](./map/). If your account has no devices, the app currently asks whether you want to log out; choose `Cancel` to stay in onboarding.
+
 ## Adding a device
 
 It will guide you through the steps of adding your first device to your account.
@@ -51,7 +53,7 @@ It will guide you through the steps of adding your first device to your account.
 
 Swipe the screen, or click the `NEXT` button to proceed through the onboarding process.
 
-The first screen tells you some useful initial information about a core device.
+The Device Quickstart screen tells you some useful initial information about a core device.
 
 :::tabs
 == Desktop
@@ -60,9 +62,9 @@ The first screen tells you some useful initial information about a core device.
 ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/pyLGodN.png)
 :::
 
-Swipe the screen, or click the `NEXT` button to proceed through the onboarding process.
+Swipe the screen, or click the `DONE` button to continue from Device Quickstart.
 
-The second screen allows you to add your first device.
+If your account has no devices, the next screen allows you to register your first device. This registration screen is omitted if a device is already on the account.
 
 :::tabs
 == Desktop
