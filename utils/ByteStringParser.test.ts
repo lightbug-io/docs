@@ -2,6 +2,13 @@ import { describe, it, expect } from '@jest/globals';
 import { parseByteString, formatBytes, detectNonMessagePatterns } from './ByteStringParser';
 
 describe('ByteStringParser', () => {
+    it('uses an explicit encoding to parse all-digit hex without decimal guessing', () => {
+        const hex = parseByteString('03 20 00 22 00 02 00 05', 'hex')
+        const decimal = parseByteString('3 32 0 34 0 2 0 5', 'decimal')
+        expect(hex.bytes).toEqual([3, 32, 0, 34, 0, 2, 0, 5])
+        expect(decimal.bytes).toEqual(hex.bytes)
+        expect(parseByteString('03 20 00 22 00 02 00 05', 'hex').hasHex).toBe(true)
+    })
     describe('parseByteString', () => {
         describe('decimal mode', () => {
             it('should parse simple space-separated integers', () => {

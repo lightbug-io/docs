@@ -1,5 +1,5 @@
 import { calculateCRC16XMODEM, getElementByteSize, parseRawMessage, readTypedData } from '../src/protocol/base.gen'
-import { parseByteString } from './ByteStringParser'
+import { parseByteString, type ByteStringEncoding } from './ByteStringParser'
 
 /** Structured message documentation. Wire definitions remain in header and message.data. */
 export interface DocumentationField {
@@ -23,7 +23,7 @@ export interface DocumentationContext {
 export function commonResponseHeaderIds(context: DocumentationContext): string[] {
     return Object.entries(context.headers || {}).filter(([id, field]) => {
         if (field.description || field.values || field.maxBytes !== undefined ||
-            !['required', 'optional'].includes(field.presence || '')) return false
+            !['required', 'optional', undefined].includes(field.presence)) return false
         return id === '3' && field.value === undefined || id === '4' && field.value === 0
     }).map(([id]) => id)
 }
@@ -33,7 +33,17 @@ export interface DocumentationExample {
     provenance: 'generated' | 'captured'
     description?: string
     target?: string
-    frames: { role: 'request' | 'response' | 'publication' | 'upload'; label: string; bytes: string }[]
+    frames: { role: 'request' | 'response' | 'publication' | 'upload'; label: string; bytes: string; encoding?: ByteStringEncoding; normalizedBytes?: number[] }[]
+}
+
+function normalizeDocumentationExamples(examples: DocumentationExample[] = []): DocumentationExample[] {
+    return examples.map(example => ({
+        ...example,
+        frames: example.frames.map(frame => ({
+            ...frame,
+            normalizedBytes: parseByteString(frame.bytes, frame.encoding || 'auto').bytes,
+        })),
+    }))
 }
 
 /** Align each exchange stage without changing frame order or published anchors. */
@@ -52,7 +62,7 @@ export function capturedDocumentationValues(example: DocumentationExample, messa
     if (example.provenance !== 'captured') return []
     return example.frames.flatMap(frame => {
         try {
-            const { bytes } = parseByteString(frame.bytes)
+            const bytes = frame.normalizedBytes ?? parseByteString(frame.bytes, frame.encoding || 'auto').bytes
             const start = bytes[0] === 0x4c && bytes[1] === 0x42 ? 2 : 0
             const parsed = parseRawMessage(bytes)
             if (parsed.protocolVersion !== 3 || parsed.messageType !== messageId || parsed.encrypted || parsed.length !== bytes.length - start) return []
@@ -179,6 +189,7 @@ export function getMessageDocumentation(message: any): MessageDocumentation | un
     const addOperation = (id: string, source: any, method?: string) => {
         if (!source || (!source.exchange && !source.versions)) return
         const contextualDescriptions = (exchange: any) => Object.fromEntries(Object.entries(exchange || {}).map(([key, value]: [string, any]) => {
+            if (key === 'examples') return [key, normalizeDocumentationExamples(value)]
             if (!['request', 'response'].includes(key) || !value?.fields || value.messageId !== undefined) return [key, value]
             return [key, { ...value, fields: Object.fromEntries(Object.entries(value.fields).map(([id, usage]: [string, any]) => [
                 id, { description: source[key]?.[id]?.description, ...usage },
@@ -247,7 +258,9 @@ export function resolveDocumentationFields(
             type: definition.type,
             baseDescription: definition.description || '',
             description: context.description ?? definition.description ?? '',
-            presence: context.presence,
+            // Only entries explicitly listed in an exchange context are shown;
+            // absent presence on such an entry means optional, not forbidden.
+            presence: context.presence ?? 'optional',
             value: context.value,
             valueName: context.value === undefined ? undefined : definition.values?.[context.value]?.name,
             values: Object.entries(context.values ?? (context.value === undefined ? definition.values || {} : {})).map(([value, details]: [string, any]) => ({
