@@ -88,7 +88,9 @@ describe('shared response conventions', () => {
         const subscribe = getOperationVariant(message.operations.find(operation => operation.method === 'SUBSCRIBE')!, '2')
         expect(commonResponseHeaderIds(get.response!)).toEqual(['3', '4'])
         expect(get.response?.headers?.['22']).toMatchObject({ presence: 'required', value: 2 })
-        expect(get.response?.fields?.['129']).toMatchObject({ presence: 'optional', maxBytes: 1024 })
+        expect(get.response?.fields?.['129']).toMatchObject({ maxBytes: 1024 })
+        expect(get.response?.fields?.['129'].presence).toBeUndefined()
+        expect(resolveDocumentationFields(protocol, protocol.messages[58], get.response?.fields, 'fields').find(field => field.id === 129)?.presence).toBe('optional')
         expect(subscribe.publication?.headers?.['3'].presence).toBe('omitted')
     })
     it('corrects only the Processing display label, preserving the existing SDK identifier', () => {
@@ -361,6 +363,76 @@ describe('inline numeric-version authoring', () => {
     })
 })
 
+describe('migrated exchange authoring audit', () => {
+    const migratedIds = [34, 35, 39, 58]
+    const normalized = (value: unknown) => typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : value
+
+    it('does not restate optional presence or inherited metadata in exchange maps', () => {
+        const inspectExchange = (message: any, exchange: any) => {
+            if (!exchange || typeof exchange !== 'object') return
+            for (const role of ['request', 'response', 'publication']) {
+                const context = exchange[role]
+                if (!context || typeof context !== 'object') continue
+                const contextMessage = context.messageId === undefined ? message : protocol.messages[context.messageId]
+                for (const kind of ['headers', 'fields'] as const) {
+                    const definitions = kind === 'headers' ? protocol.header : contextMessage?.data
+                    for (const [id, usage] of Object.entries(context[kind] || {}) as [string, any][]) {
+                        const definition = definitions?.[id]
+                        expect(usage.presence).not.toBe('optional')
+                        if (!definition) continue
+                        for (const key of ['description', 'name', 'id', 'type', 'unit', 'maxBytes']) {
+                            if (usage[key] !== undefined && definition[key] !== undefined) {
+                                expect(normalized(usage[key])).not.toBe(normalized(definition[key]))
+                            }
+                        }
+                        for (const [value, override] of Object.entries(usage.values || {}) as [string, any][]) {
+                            const inherited = definition.values?.[value]
+                            if (!inherited) continue
+                            const inheritedName = typeof inherited === 'string' ? inherited : inherited.name
+                            const inheritedDescription = typeof inherited === 'string' ? undefined : inherited.description
+                            const localDescription = typeof override === 'string' ? override : override?.description
+                            if (typeof override === 'string') expect(normalized(override)).not.toBe(normalized(inheritedName))
+                            if (override?.name !== undefined) expect(normalized(override.name)).not.toBe(normalized(inheritedName))
+                            if (localDescription !== undefined && inheritedDescription !== undefined) {
+                                expect(normalized(localDescription)).not.toBe(normalized(inheritedDescription))
+                            }
+                            if (localDescription !== undefined) expect(normalized(localDescription)).not.toBe(normalized(inheritedName))
+                        }
+                    }
+                }
+            }
+        }
+        const inspectSource = (message: any, source: any) => {
+            if (!source || typeof source !== 'object') return
+            if (source.exchange) inspectExchange(message, source.exchange)
+            for (const exchange of Object.values(source.versions || {})) inspectExchange(message, exchange)
+        }
+
+        for (const id of migratedIds) {
+            const message = protocol.messages[id]
+            for (const source of Object.values(message.methods || {})) inspectSource(message, source)
+            for (const source of Object.values(message.contexts || {})) inspectSource(message, source)
+        }
+    })
+
+    it('inherits global field names, descriptions and enum labels without changing their rendered values', () => {
+        const gps = protocol.messages[39]
+        const [gpsField] = resolveDocumentationFields(protocol, gps, { 2: {} }, 'fields')
+        const gpsDefinition = gps.data[2]
+        expect(gpsField.name).toBe(gpsDefinition.name)
+        expect(gpsField.description).toBe(gpsDefinition.description)
+        expect(gpsField.values.map(({ value, name, description }: any) => ({ value, name, description }))).toEqual([
+            { value: 0, name: gpsDefinition.values[0].name, description: gpsDefinition.values[0].description || '' },
+            { value: 1, name: gpsDefinition.values[1].name, description: gpsDefinition.values[1].description || '' },
+        ])
+
+        const [methodHeader] = resolveDocumentationFields(protocol, gps, { 5: { presence: 'required', value: 1 } }, 'headers')
+        expect(methodHeader.name).toBe(protocol.header[5].name)
+        expect(methodHeader.description).toBe(protocol.header[5].description)
+        expect(methodHeader.valueName).toBe(protocol.header[5].values[1].name)
+    })
+})
+
 
 describe('Device Status reference', () => {
     const message = protocol.messages[34]
@@ -390,12 +462,15 @@ describe('Device Status reference', () => {
         expect(subscribe.response?.messageId).toBe(5)
         expect(unsubscribe.response?.messageId).toBe(5)
         expect(subscribe.publication?.headers?.['3'].presence).toBe('omitted')
-        expect(subscribe.request?.headers?.['17']).toMatchObject({ presence: 'optional', value: 0 })
+        expect(subscribe.request?.headers?.['17']).toMatchObject({ value: 0 })
+        expect(subscribe.request?.headers?.['17'].presence).toBeUndefined()
+        expect(resolveDocumentationFields(protocol, message, subscribe.request?.headers, 'headers').find(field => field.id === 17)?.presence).toBe('optional')
         expect(subscribe.publication?.headers?.['4'].presence).toBe('omitted')
         expect(unsubscribe.request?.headers?.['17']).toBeUndefined()
         for (const context of [get.response, subscribe.publication]) {
             expect(Object.keys(context!.fields!)).toEqual(Object.keys(message.data))
-            expect(Object.values(context!.fields!).every(field => field.presence === 'optional')).toBe(true)
+            expect(Object.values(context!.fields!).every(field => field.presence === undefined)).toBe(true)
+            expect(resolveDocumentationFields(protocol, message, context!.fields, 'fields').every(field => field.presence === 'optional')).toBe(true)
         }
         expect(subscribe.examples).toBeUndefined()
         expect(unsubscribe.examples).toBeUndefined()
@@ -469,7 +544,8 @@ describe('Device IDs reference', () => {
             ['4', 'serial', 'uint32'], ['8', 'cachedIccid2', 'ascii'],
         ])
         expect(Object.keys(get.response!.fields!)).toEqual(Object.keys(message.data))
-        expect(Object.values(get.response!.fields!).every(field => field.presence === 'optional')).toBe(true)
+        expect(Object.values(get.response!.fields!).every(field => field.presence === undefined)).toBe(true)
+        expect(resolveDocumentationFields(protocol, message, get.response?.fields, 'fields').every(field => field.presence === 'optional')).toBe(true)
         expect(get.response?.description).toContain('may be stale')
         expect(message.examples).toBeUndefined()
         expect(validateMessageDocumentation(protocol, 35)).toEqual([])
