@@ -3950,7 +3950,6 @@ messages:
       Control messages, including ACKs and heartbeats, count when they use these same paths.
       Each counter starts at zero when its link object is created (normally at boot), survives link reconnects and diagnostic GETs,
       and wraps from 4294967295 to zero. These are link-object lifetime counters, not per-session totals.
-      Legacy Primary Link field labels refer to L1; Secondary Link field labels refer to L2. Field identifiers are unchanged.
     group: gsm
     header:
       - 5
