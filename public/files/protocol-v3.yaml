@@ -1876,16 +1876,18 @@ messages:
         name: GPS is on
         id: gpsOn
         description: >-
-          Whether GPS Control has an active Position-data subscription at the Info-Auto level.
-          This does not directly report hardware power or fix state.
+          Whether a Position-data subscription at the Info-Auto level is active;
+          this does not directly report hardware power or fix state. This field is read-only, and
+          a SET containing it is rejected with Invalid Parameter (4).
         type: bool
         readonly: true
       2:
         name: Corrections Enabled
         id: correctionsOn
         description: >-
-          Correction-service control and status. GET reports whether corrections are enabled
-          by the API or device mode; SET requests the API-controlled correction setting.
+          Correction-service control and status. GET reports whether corrections are enabled by the
+          API or device mode; SET requests the API-controlled setting. Omission from a successful
+          SET clears only the API flag; device mode may still require corrections.
         type: uint8
         values:
           0:
@@ -1897,7 +1899,9 @@ messages:
       3:
         name: Start Mode
         id: startMode
-        description: Start mode requested for the GPS module.
+        description: >-
+          GPS start mode requested through SET. Current firmware records it as pending; this SET
+          path does not establish an immediate hardware restart or enable.
         type: uint8
         values:
           1:
@@ -1915,7 +1919,7 @@ messages:
     methods:
       GET:
         title: Read GPS state
-        description: Read the GPS-control subscription state and effective correction-service state, not a position fix.
+        description: Return GPS Control state, not a position fix.
         request: null
         response:
           1: null
@@ -1932,10 +1936,9 @@ messages:
           response:
             title: GPS state (MT39)
             description: >-
-              A successful GET returns GPS Control directly, with no separate success ACK.
-              It reports the Position-data subscription state and whether corrections are enabled
-              by the API or device mode. Start Mode is a SET input and is not returned. An
-              unsuccessful request returns MT5 (ACK) with Status, not this payload.
+              A successful GET returns this payload directly, without a separate success ACK.
+              Start Mode is SET-only and is not returned. An unsuccessful request returns MT5
+              (ACK) with Status, not this payload.
             headers:
               3: {}
               4:
@@ -1950,7 +1953,7 @@ messages:
               description: "Not Supported: the product or firmware does not support this operation."
       SET:
         title: Configure corrections and start mode
-        description: Request correction-service control and/or a GPS start mode.
+        description: Apply GPS Control inputs.
         request:
           2: {}
           3: {}
@@ -1959,13 +1962,8 @@ messages:
           request:
             title: SET request
             description: >-
-              Field 1 (GPS is on) is read-only and is rejected with Invalid Parameter (4) if sent.
-              Field 2 requests the API-controlled correction setting. If absent from a successful
-              SET, that API flag is cleared; device mode may still require corrections. The API
-              correction request alone does not keep GPS/RTK running: an external Position
-              subscription or device-mode ownership is also required. Field 3 records a requested
-              start mode as pending in current firmware; this SET path does not establish an immediate
-              hardware restart or enable.
+              A correction-service request alone does not keep GPS/RTK running; an external
+              Position subscription or device-mode ownership is also required.
             headers:
               1: {}
               5:
