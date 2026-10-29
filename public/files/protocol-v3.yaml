@@ -33,8 +33,9 @@ header:
     id: id
     description: |
       ID identifying the message.
-      Can be used by a receiver to ACK, respond to, deduplicate, resend or otherwise track messages.
+      A receiver may use it to ACK, respond to, deduplicate, resend or otherwise track messages.
       Some clients and services may require or desire an incrementing message ID for each message sent, acting as a sequence number.
+      Responses that support correlation can carry this value in Response To.
     type: uint32
   2:
     name: Client ID
@@ -1428,8 +1429,7 @@ messages:
             title: GET request
             description: No payload fields are required. Method must be included; this message does not default to GET.
             headers:
-              1:
-                description: Include a nonzero Message ID to correlate the reply.
+              1: {}
               5:
                 presence: required
                 value: 2
@@ -1483,24 +1483,17 @@ messages:
               the default subscription documented here. Updates are subject to the selected
               interval and message level.
             headers:
-              1:
-                description: Include a nonzero Message ID if you need a setup acknowledgment.
+              1: {}
               5:
                 presence: required
                 value: 3
-              6:
-                description: Publication interval in milliseconds. Omitted or 0 allows updates as new status data becomes available.
-              7:
-                description: Subscription duration in milliseconds. Omitted or 0 keeps the subscription active until unsubscribed.
-              8:
-                description: Time in milliseconds to wait for the first matching status update. Omitted or 0 does not set a timeout.
-              15:
-                description: Storage/retry policy for publications. Defaults to None (0).
-              16:
-                description: Minimum publication level. The default Info-Auto (2) receives normal status updates; no explicit level is required.
+              6: {}
+              7: {}
+              8: {}
+              15: {}
+              16: {}
               17:
                 value: 0
-                description: Default subscription. Omit this header or use 0 so UNSUBSCRIBE can cancel it.
           response:
             messageId: 5
             title: Response (MT5 - ACK)
@@ -1519,14 +1512,11 @@ messages:
             description: >-
               Later status updates produce Device Status messages, filtered by the subscription
               interval and level. They are not replies to the original SUBSCRIBE request and
-              do not carry its Response To. Available payload fields vary by target and readings.
-            headers:
-              3:
-                presence: omitted
-                description: A later publication is not correlated to the subscription request.
-              4:
-                presence: omitted
-                description: Status updates carry status data, not a command-result envelope.
+              do not carry its Response To or Status header. Available payload fields vary by target
+              and readings. For this subscription, interval 0 or no interval publishes when new
+              status data is available; duration 0 or no duration is indefinite; timeout 0 or no
+              timeout sets no first-update deadline. Storage defaults to None (0), and the default
+              message level is Info-Auto (2).
             fields:
               1: {}
               2: {}
@@ -1546,8 +1536,7 @@ messages:
             title: UNSUBSCRIBE request
             description: No payload fields are required. Omit Subscription ID; this operation removes the default subscription only.
             headers:
-              1:
-                description: Include a nonzero Message ID if you need an acknowledgment.
+              1: {}
               5:
                 presence: required
                 value: 5
@@ -1609,8 +1598,7 @@ messages:
             title: GET request
             description: No payload fields are required. Include Method GET to request the device identifiers.
             headers:
-              1:
-                description: Include a nonzero Message ID to correlate the reply.
+              1: {}
               5:
                 presence: required
                 value: 2
@@ -1618,8 +1606,7 @@ messages:
             title: Device IDs (MT35)
             description: >-
               The GET response contains the available device identifiers. Not all fields are
-              available on every device type. Cached SIM2 ICCID is a previously read value
-              and may be stale.
+              available on every device type.
             headers:
               3: {}
               4:
@@ -1888,13 +1875,13 @@ messages:
       1:
         name: GPS is on
         id: gpsOn
-        description: Status of the GPS, is it on?
+        description: Whether the GPS service is on.
         type: bool
         readonly: true
       2:
         name: Corrections Enabled
         id: correctionsOn
-        description: Request and apply correction data to the GPS, such as RTK.
+        description: Whether correction data is enabled.
         type: uint8
         values:
           0:
@@ -1906,7 +1893,7 @@ messages:
       3:
         name: Start Mode
         id: startMode
-        description: Start mode of the GPS module.
+        description: Start mode requested for the GPS module.
         type: uint8
         values:
           1:
@@ -1934,24 +1921,17 @@ messages:
             title: GET request
             description: No payload fields are needed.
             headers:
-              1:
-                description: >-
-                  Include a nonzero Message ID to correlate the reply.
+              1: {}
               5:
                 presence: required
                 value: 2
-            fields:
-              1:
-                presence: omitted
-              2:
-                presence: omitted
-              3:
-                presence: omitted
           response:
             title: GPS state (MT39)
             description: >-
               A successful GET returns GPS Control directly, with no separate success ACK.
-              An unsuccessful request returns MT5 (ACK) with Status, not this payload.
+              It reports whether GPS and correction data are currently enabled; Start Mode is
+              a SET input and is not returned. An unsuccessful request returns MT5 (ACK) with
+              Status, not this payload.
             headers:
               3: {}
               4:
@@ -1959,13 +1939,8 @@ messages:
             fields:
               1:
                 presence: required
-                description: Whether the GPS service is on.
               2:
                 presence: required
-                description: Whether correction data is enabled.
-              3:
-                presence: omitted
-                description: Start mode is a SET input, not returned state.
           errors:
             - code: 7
               description: "Not Supported: the product or firmware does not support this operation."
@@ -1973,36 +1948,27 @@ messages:
         title: Configure corrections and start mode
         description: Enable correction data and/or restart the GPS in the requested boot mode.
         request:
-          2:
-            description: Automatically controls the GPS module.
-          3:
-            description: If the GPS is currently enabled, this will cause the GPS to be rebooted into the requested state. If the GPS is currently disabled, this will cause the GPS to be enabled and the requested state to be set.
+          2: {}
+          3: {}
         response: null
         exchange:
           request:
             title: SET request
-            description: Use writable control fields, not the read-only GPS status field.
+            description: >-
+              Field 1 (GPS is on) is read-only and is rejected with Invalid Parameter (4) if sent.
+              Field 2 requests whether API-enabled correction data should be on and automatically
+              controls the GPS module as needed. If it is absent, API-enabled corrections are disabled,
+              so a start-mode-only SET does not preserve the previous correction setting. Include field
+              2 with value 1 to keep them on. Field 3 requests a start mode: if GPS is enabled, the
+              device reboots it in that mode; if disabled, the device enables it in that mode.
             headers:
-              1:
-                description: >-
-                  Include a nonzero Message ID to correlate the reply.
+              1: {}
               5:
                 presence: required
                 value: 1
             fields:
-              1:
-                presence: omitted
-                description: Read-only status. Sending this field in SET is rejected with Invalid Parameter (4).
-              2:
-                description: >-
-                  Request and apply correction data to the GPS, such as RTK; this automatically controls
-                  the GPS module. Omitting this field sets API-enabled corrections to disabled, so a
-                  start-mode-only SET does not preserve the previous correction setting. Include 1 to
-                  keep API-enabled corrections on.
-              3:
-                description: >-
-                  If GPS is enabled, reboot it in this mode. If it is disabled, enable it with the
-                  requested state.
+              2: {}
+              3: {}
           response:
             messageId: 5
             title: Response (MT5 - ACK)
@@ -2018,9 +1984,6 @@ messages:
               1:
                 presence: required
                 value: 39
-                description: >-
-                  ACK Type identifies the original message type (39). No message-specific state is
-                  returned in this ACK.
           errors:
             - code: 4
               description: >-
@@ -3261,7 +3224,10 @@ messages:
         label: "2025-10"
         description: >-
           Earlier chunked payload and additive-checksum format, retained for existing integrations.
-          GET and SUBSCRIBE use this format when header 22 is omitted or set to 1. No legacy SET is supported.
+          GET and SUBSCRIBE use it when header 22 is omitted, zero, malformed-width, or set to 1.
+          Legacy replies and publications omit header 22 and use checksum field 1 plus nonempty
+          chunks 10-14 concatenated in field-ID order. They do not include CRC field 2 or full-payload
+          field 129. No legacy SET is supported.
         legacy: true
     group: info
     header:
@@ -3271,51 +3237,51 @@ messages:
       1:
         name: Legacy Checksum
         id: legacyChecksum
-        description: Legacy additive checksum (sum of payload bytes modulo 65536), used in version 1 responses with the legacy chunk fields. Absent from version 2 responses. Optional and ignored in SET.
+        description: Legacy additive checksum (sum of payload bytes modulo 65536), used in version 1 responses and publications with the legacy chunk fields. Absent from version 2 responses and publications. Optional and ignored in SET.
         type: uint16
         readonly: true
         versions: [1]
       2:
         name: CRC
         id: crc
-        description: CRC-16/XMODEM of the cached payload (polynomial 0x1021, initial value 0x0000, no input or output reflection, final XOR 0x0000), separate from the outer message-frame CRC. Returned in version 2 responses and tracking-session messages, including an empty cache as zero (0x0000). Optional and ignored in SET; the device calculates it from field 129. One- or two-byte little-endian encoding may omit a high zero byte. Implemented only on Viper devices.
+        description: CRC-16/XMODEM of the cached payload (polynomial 0x1021, initial value 0x0000, no input or output reflection, final XOR 0x0000), separate from the outer message-frame CRC. Returned in version 2 responses and publications and tracking-session messages, including an empty cache as zero (0x0000). Optional and ignored in SET; the device calculates it from field 129. One- or two-byte little-endian encoding may omit a high zero byte. Implemented only on Viper devices.
         type: uint16
         readonly: true
         versions: [2]
       10:
         name: Legacy Payload Chunk 1
         id: legacyChunk1
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
+        description: Message Version 1 cached-payload chunk, up to 255 bytes. Concatenate present chunks in field-ID order; empty chunks are not sent.
         type: bytes
         versions: [1]
       11:
         name: Legacy Payload Chunk 2
         id: legacyChunk2
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
+        description: Message Version 1 cached-payload chunk, up to 255 bytes. Concatenate present chunks in field-ID order; empty chunks are not sent.
         type: bytes
         versions: [1]
       12:
         name: Legacy Payload Chunk 3
         id: legacyChunk3
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
+        description: Message Version 1 cached-payload chunk, up to 255 bytes. Concatenate present chunks in field-ID order; empty chunks are not sent.
         type: bytes
         versions: [1]
       13:
         name: Legacy Payload Chunk 4
         id: legacyChunk4
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
+        description: Message Version 1 cached-payload chunk, up to 255 bytes. Concatenate present chunks in field-ID order; empty chunks are not sent.
         type: bytes
         versions: [1]
       14:
         name: Legacy Payload Chunk 5
         id: legacyChunk5
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
+        description: Message Version 1 cached-payload chunk, up to 255 bytes. Concatenate present chunks in field-ID order; empty chunks are not sent.
         type: bytes
         versions: [1]
       129:
         name: Full Payload
         id: fullPayload
-        description: Complete message-box bytes in SET requests, GET responses, and subscription updates (up to 1024 bytes). SET must include this field; an explicit zero-length value clears the cache. Uses an extended-length field with a uint16 little-endian length prefix. Tracking-session uploads may use this field for independent Transmit Now data instead.
+        description: Complete message-box bytes in SET requests, GET responses, and subscription updates (up to 1024 bytes). SET must include this field; an explicit zero-length value clears the cache. GET responses and subscription updates include it only when the cache is nonempty. Uses an extended-length field with a uint16 little-endian length prefix. Tracking-session uploads may use this field for independent Transmit Now data instead.
         type: bytes
         versions: [2]
     methods:
@@ -3338,9 +3304,7 @@ messages:
               title: GET request
               description: No payload fields are needed.
               headers:
-                1:
-                  description: >-
-                    Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5:
                   presence: required
                   value: 2
@@ -3348,12 +3312,12 @@ messages:
                   presence: required
                   maxBytes: 1
                   value: 2
-                  description: A one-byte value of 2 selects version 2.
             response:
               title: Cached payload
               description: >-
                 A successful GET returns this MT58 payload. An unsuccessful request returns
-                MT5 (ACK) with Status instead.
+                MT5 (ACK) with Status instead. Version 2 returns CRC field 2; legacy checksum
+                field 1 and version 1 chunks are not returned.
               headers:
                 3: {}
                 4:
@@ -3362,93 +3326,49 @@ messages:
                   presence: required
                   maxBytes: 1
                   value: 2
-                  description: Identifies the format of this response payload.
               fields:
-                1:
-                  presence: omitted
-                  description: The legacy additive checksum is absent from version 2 responses.
                 2:
                   presence: required
-                  description: >-
-                    Device-calculated CRC-16/XMODEM of the cached payload, including 0 for an empty
-                    cache. One- or two-byte little-endian encoding may omit a high zero byte.
                 129:
                   maxBytes: 1024
-                  description: >-
-                    Complete cached payload in an extended-length field with a uint16 little-endian
-                    length prefix. Empty payload data is omitted.
           1:
             title: 2025-10 · legacy chunks
             description: Use the unchanged legacy wire layout and additive checksum.
             request:
               title: GET request
-              description: No payload fields are needed.
+              description: >-
+                No payload fields are needed. A missing, zero, or malformed-width Message Version
+                selects version 1; explicit value 1 also selects version 1.
               headers:
-                1:
-                  description: >-
-                    Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5:
                   presence: required
                   value: 2
                 22:
                   maxBytes: 1
-                  description: >-
-                    Omitted, explicitly 0, or malformed-width values resolve to 0 and select version
-                    1; an explicit 1 also selects version 1.
-                  values:
-                    0: Version 1 (also the omitted/malformed-width fallback)
-                    1: Version 1
             response:
               title: Legacy cached payload
               description: >-
                 A successful GET returns this MT58 payload. An unsuccessful request returns
-                MT5 (ACK) with Status instead.
+                MT5 (ACK) with Status instead. Legacy replies use checksum field 1 and nonempty
+                payload chunks 10-14; they do not include header 22, CRC field 2, or field 129.
               headers:
                 3: {}
                 4:
                   value: 0
-                22:
-                  presence: omitted
-                  description: >-
-                    Legacy version 1 responses retain their original wire layout and omit Message
-                    Version.
               fields:
                 1:
                   presence: required
-                  description: "Additive checksum: sum of all cached payload bytes modulo 65536."
-                2:
-                  presence: omitted
-                  description: The CRC field belongs to version 2.
                 10:
                   maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 1; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
                 11:
                   maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 2; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
                 12:
                   maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 3; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
                 13:
                   maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 4; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
                 14:
                   maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 5; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
-                129:
-                  presence: omitted
-                  description: >-
-                    Version 1 retains the legacy wire layout; it does not include the extended
-                    full-payload field.
       SET:
         title: Replace or clear the cached message
         description: >-
@@ -3460,13 +3380,10 @@ messages:
             request:
               title: SET request
               description: >-
-                Message Version 2 and field 129 are required. The device calculates the payload CRC; the
-                outer message-frame CRC protects the SET request itself.
-                Optional supplied checksum fields 1 and 2 are ignored.
+                The device calculates the payload CRC; the outer message-frame CRC protects the SET
+                request itself.
               headers:
-                1:
-                  description: >-
-                    Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5:
                   presence: required
                   value: 1
@@ -3474,14 +3391,10 @@ messages:
                   presence: required
                   maxBytes: 1
                   value: 2
-                  description: A one-byte value of 2 selects version 2.
               fields:
                 129:
                   presence: required
                   maxBytes: 1024
-                  description: >-
-                    Complete new cache bytes. An explicit zero-length field clears the cache; omitting the
-                    field is an error. Extended-length encoding uses a uint16 little-endian length prefix.
             response:
               messageId: 5
               title: Response (MT5 - ACK)
@@ -3498,9 +3411,6 @@ messages:
                 1:
                   presence: required
                   value: 58
-                  description: >-
-                    ACK Type identifies the original message type (58). No message-specific state is
-                    returned in this ACK.
             errors:
               - code: 2
                 description: "Missing Parameter: field 129 is absent."
@@ -3536,9 +3446,6 @@ messages:
               1:
                 presence: required
                 value: 58
-                description: >-
-                  ACK Type identifies the original message type (58). No message-specific state is
-                  returned in this ACK.
           errors:
             - code: 4
               description: >-
@@ -3552,62 +3459,38 @@ messages:
             description: Explicit version 2 selects the shared extended-payload and CRC publication format.
             request:
               title: SUBSCRIBE request
+              description: >-
+                No payload fields are needed. A nonzero Message ID requests a setup acknowledgment;
+                omitting Subscription ID selects the default subscription (0).
               headers:
-                1:
-                  description: >-
-                    Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5:
                   presence: required
                   value: 3
-                6:
-                  description: >-
-                    Optional publication interval in milliseconds. If omitted, updates are sent when
-                    new data is available.
-                7:
-                  description: >-
-                    Subscription duration in milliseconds; 0 is indefinite until explicitly
-                    unsubscribed.
-                16:
-                  description: Minimum publication level.
-                17:
-                  description: >-
-                    Subscription ID; omit for the default subscription (0). Use the same ID when
-                    unsubscribing.
+                6: {}
+                7: {}
+                16: {}
+                17: {}
                 22:
                   presence: required
                   maxBytes: 1
                   value: 2
-                  description: A one-byte value of 2 selects version 2.
             publication:
               title: Cached payload update
               description: >-
-                Version 2 updates include Message Version 2 and field 2. Field 129 carries the
-                complete cached payload when nonempty; empty payload data is omitted.
+                This is an asynchronous cache update, not a direct reply to SUBSCRIBE; it has no
+                Response To header. Version 2 identifies the format and includes the cached CRC.
               headers:
-                3:
-                  presence: omitted
-                  description: This is an asynchronous publication, not a direct reply to the SUBSCRIBE request.
-                17:
-                  description: Identifies nonzero subscription IDs for this publication.
+                17: {}
                 22:
                   presence: required
                   maxBytes: 1
                   value: 2
-                  description: A one-byte value of 2 selects version 2.
               fields:
-                1:
-                  presence: omitted
-                  description: The legacy additive checksum is absent from version 2 responses.
                 2:
                   presence: required
-                  description: >-
-                    Device-calculated CRC-16/XMODEM of the cached payload, including 0 for an empty
-                    cache. One- or two-byte little-endian encoding may omit a high zero byte.
                 129:
                   maxBytes: 1024
-                  description: >-
-                    Complete cached payload in an extended-length field with a uint16 little-endian
-                    length prefix. Empty payload data is omitted.
           1:
             title: Version 1 · legacy publications
             description: >-
@@ -3615,106 +3498,56 @@ messages:
               publication format.
             request:
               title: SUBSCRIBE request
+              description: >-
+                No payload fields are needed. A nonzero Message ID requests a setup acknowledgment;
+                omitting Subscription ID selects the default subscription (0).
               headers:
-                1:
-                  description: >-
-                    Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5:
                   presence: required
                   value: 3
-                6:
-                  description: >-
-                    Optional publication interval in milliseconds. If omitted, updates are sent when
-                    new data is available.
-                7:
-                  description: >-
-                    Subscription duration in milliseconds; 0 is indefinite until explicitly
-                    unsubscribed.
-                16:
-                  description: Minimum publication level.
-                17:
-                  description: >-
-                    Subscription ID; omit for the default subscription (0). Use the same ID when
-                    unsubscribing.
+                6: {}
+                7: {}
+                16: {}
+                17: {}
                 22:
                   maxBytes: 1
-                  description: >-
-                    Omitted, explicitly 0, or malformed-width values resolve to 0 and select version
-                    1; an explicit 1 also selects version 1.
-                  values:
-                    0: Version 1 (also the omitted/malformed-width fallback)
-                    1: Version 1
             publication:
               title: Legacy cached payload update
               description: >-
-                Version 1 updates use the additive checksum and legacy chunks. Empty payload data is
-                omitted.
+                This is an asynchronous cache update, not a direct reply to SUBSCRIBE; it has no
+                Response To header.
               headers:
-                3:
-                  presence: omitted
-                  description: This is an asynchronous publication, not a direct reply to the SUBSCRIBE request.
-                17:
-                  description: Identifies nonzero subscription IDs for this publication.
-                22:
-                  presence: omitted
-                  description: >-
-                    Legacy version 1 responses retain their original wire layout and omit Message
-                    Version.
+                17: {}
               fields:
                 1:
                   presence: required
-                  description: "Additive checksum: sum of all cached payload bytes modulo 65536."
-                2:
-                  presence: omitted
-                  description: The CRC field belongs to version 2.
                 10:
                   maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 1; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
                 11:
                   maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 2; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
                 12:
                   maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 3; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
                 13:
                   maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 4; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
                 14:
                   maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 5; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
-                129:
-                  presence: omitted
-                  description: >-
-                    Version 1 retains the legacy wire layout; it does not include the extended
-                    full-payload field.
       UNSUBSCRIBE:
         title: Stop a subscription
         description: >-
           Remove the addressed subscription. Neither UNSUBSCRIBE nor subscription expiry resets the
-          shared publication-format selection.
+          shared publication-format selection. If Subscription ID is absent, this removes the default
+          subscription (ID 0).
         exchange:
           request:
             title: UNSUBSCRIBE request
             description: No payload fields are needed.
             headers:
-              1:
-                description: >-
-                  Include a nonzero Message ID to correlate the reply.
+              1: {}
               5:
                 presence: required
                 value: 5
-              17:
-                description: Use the Subscription ID to remove, or omit it for the default subscription (0).
+              17: {}
               22:
                 presence: ignored
                 description: UNSUBSCRIBE does not select or reset the publication format.
@@ -3735,9 +3568,6 @@ messages:
               1:
                 presence: required
                 value: 58
-                description: >-
-                  ACK Type identifies the original message type (58). No message-specific state is
-                  returned in this ACK.
           errors:
             - code: 7
               description: "Not Supported: the product or firmware does not support this operation."
@@ -3764,7 +3594,6 @@ messages:
                   presence: required
                   maxBytes: 1
                   value: 2
-                  description: A one-byte value of 2 selects version 2.
               fields:
                 2:
                   description: >-

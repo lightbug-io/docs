@@ -77,7 +77,6 @@ describe('shared response conventions', () => {
         expect(context).toEqual(before)
     })
     it('keeps explicit exceptions and non-OK status rules local', () => {
-        expect(commonResponseHeaderIds({ headers: { '3': { presence: 'omitted' }, '4': { presence: 'required', value: 4 } } })).toEqual([])
         expect(commonResponseHeaderIds({ headers: { '3': { presence: 'optional', description: 'A message-specific correlation rule.' }, '4': { presence: 'required', value: 0, maxBytes: 1 } } })).toEqual([])
         expect(commonResponseHeaderIds({ headers: { '3': { presence: 'ignored' }, '4': { value: 0 } } })).toEqual(['4'])
         expect(commonResponseHeaderIds({ headers: { '3': {}, '4': { value: 0 } } })).toEqual(['3', '4'])
@@ -88,10 +87,16 @@ describe('shared response conventions', () => {
         const subscribe = getOperationVariant(message.operations.find(operation => operation.method === 'SUBSCRIBE')!, '2')
         expect(commonResponseHeaderIds(get.response!)).toEqual(['3', '4'])
         expect(get.response?.headers?.['22']).toMatchObject({ presence: 'required', value: 2 })
+        expect(get.response?.fields?.['1']).toBeUndefined()
         expect(get.response?.fields?.['129']).toMatchObject({ maxBytes: 1024 })
         expect(get.response?.fields?.['129'].presence).toBeUndefined()
         expect(resolveDocumentationFields(protocol, protocol.messages[58], get.response?.fields, 'fields').find(field => field.id === 129)?.presence).toBe('optional')
-        expect(subscribe.publication?.headers?.['3'].presence).toBe('omitted')
+        expect(subscribe.publication?.headers?.['3']).toBeUndefined()
+        expect(subscribe.publication?.fields?.['1']).toBeUndefined()
+        const legacyGet = getOperationVariant(message.operations.find(operation => operation.method === 'GET')!, '1')
+        expect(legacyGet.response?.headers?.['22']).toBeUndefined()
+        expect(legacyGet.response?.fields?.['2']).toBeUndefined()
+        expect(legacyGet.response?.fields?.['129']).toBeUndefined()
     })
     it('corrects only the Processing display label, preserving the existing SDK identifier', () => {
         expect(protocol.header[4].values[-1]).toMatchObject({ name: 'Processing', id: 'error' })
@@ -156,6 +161,7 @@ describe('optional message documentation', () => {
             response: { messageId: 9999 },
         } }
         message.contexts = { get: { exchange: {} } }
+        message.methods.GET.exchange.response.fields = { 1: { presence: 'omitted' } }
         const errors = validateMessageDocumentation(sample, 39).join('\n')
         expect(errors).toContain('duplicate operation id get')
         expect(errors).toContain('unsupported method UNSUPPORTED')
@@ -164,6 +170,7 @@ describe('optional message documentation', () => {
         expect(errors).toContain('unknown fields id 99')
         expect(errors).toContain('unknown message 9999')
         expect(errors).toContain('invalid note placement')
+        expect(errors).toContain('response fields 1 has invalid presence')
     })
 
     it('puts required fields first while preserving order within each group', () => {
@@ -171,7 +178,7 @@ describe('optional message documentation', () => {
             1: { presence: 'optional' as const },
             4: { presence: 'required' as const },
             5: { presence: 'required' as const },
-            17: { presence: 'omitted' as const },
+            17: {},
             22: { presence: 'optional' as const },
         }
         const before = clone(usage)
@@ -286,12 +293,13 @@ describe('inline numeric-version authoring', () => {
         expect(protocol).toEqual(before)
     })
 
-    it('preserves direct SDK request/response map presence and field IDs', () => {
+    it('preserves direct request/response map presence and field IDs without duplicate field descriptions', () => {
         const gps = protocol.messages[39].methods
         expect(gps.GET.request).toBeNull()
         expect(gps.GET.response).toEqual({ 1: null, 2: null })
         expect(Object.keys(gps.SET.request)).toEqual(['2', '3'])
-        expect(gps.SET.request[2].description).toBe('Automatically controls the GPS module.')
+        expect(gps.SET.request[2]).toEqual({})
+        expect(gps.SET.request[3]).toEqual({})
         expect(gps.SET.response).toBeNull()
         for (const method of Object.values(protocol.messages[58].methods) as any[]) {
             expect(Object.prototype.hasOwnProperty.call(method, 'request')).toBe(false)
@@ -356,8 +364,9 @@ describe('inline numeric-version authoring', () => {
     it('keeps ignored checksums out of SET inputs without deleting the compatibility rule', () => {
         const set = protocol.messages[58].methods.SET.versions[2]
         expect(Object.keys(set!.request!.fields)).toEqual(['129'])
-        expect(set.request.description).toContain('checksum fields 1 and 2 are ignored')
         expect(set!.request!.fields[129]).toMatchObject({ presence: 'required', maxBytes: 1024 })
+        expect(protocol.messages[58].data[1].description).toContain('ignored in SET')
+        expect(protocol.messages[58].data[2].description).toContain('ignored in SET')
         const get = protocol.messages[58].methods.GET.versions[2]
         expect(get.response.fields[2].presence).toBe('required')
     })
@@ -379,6 +388,7 @@ describe('migrated exchange authoring audit', () => {
                     for (const [id, usage] of Object.entries(context[kind] || {}) as [string, any][]) {
                         const definition = definitions?.[id]
                         expect(usage.presence).not.toBe('optional')
+                        expect(usage.presence).not.toBe('omitted')
                         if (!definition) continue
                         for (const key of ['description', 'name', 'id', 'type', 'unit', 'maxBytes']) {
                             if (usage[key] !== undefined && definition[key] !== undefined) {
@@ -421,6 +431,17 @@ describe('migrated exchange authoring audit', () => {
         const gpsDefinition = gps.data[2]
         expect(gpsField.name).toBe(gpsDefinition.name)
         expect(gpsField.description).toBe(gpsDefinition.description)
+        expect(gpsDefinition.description).toBe('Whether correction data is enabled.')
+        expect(gps.data[1].description).toBe('Whether the GPS service is on.')
+        expect(gps.methods.GET.exchange.response.description).toContain('Start Mode is a SET input and is not returned')
+        expect(gps.methods.SET.exchange.request.description).toContain('rejected with Invalid Parameter (4) if sent')
+        expect(gps.methods.SET.exchange.request.description).toContain('API-enabled corrections are disabled')
+        expect(gps.methods.SET.exchange.request.description).toContain('automatically controls the GPS module')
+        expect(gps.methods.SET.exchange.request.description).toContain('the device reboots it in that mode')
+        const set = getMessageDocumentation(gps)!.operations.find(operation => operation.method === 'SET')!
+        const setFields = resolveDocumentationFields(protocol, gps, set.request!.fields, 'fields')
+        expect(setFields.find(field => field.id === 2)!.description).toBe(gps.data[2].description)
+        expect(setFields.find(field => field.id === 3)!.description).toBe(gps.data[3].description)
         expect(gpsField.values.map(({ value, name, description }: any) => ({ value, name, description }))).toEqual([
             { value: 0, name: gpsDefinition.values[0].name, description: gpsDefinition.values[0].description || '' },
             { value: 1, name: gpsDefinition.values[1].name, description: gpsDefinition.values[1].description || '' },
@@ -461,11 +482,11 @@ describe('Device Status reference', () => {
         expect(get.response?.messageId).toBeUndefined()
         expect(subscribe.response?.messageId).toBe(5)
         expect(unsubscribe.response?.messageId).toBe(5)
-        expect(subscribe.publication?.headers?.['3'].presence).toBe('omitted')
+        expect(subscribe.publication?.headers?.['3']).toBeUndefined()
         expect(subscribe.request?.headers?.['17']).toMatchObject({ value: 0 })
         expect(subscribe.request?.headers?.['17'].presence).toBeUndefined()
         expect(resolveDocumentationFields(protocol, message, subscribe.request?.headers, 'headers').find(field => field.id === 17)?.presence).toBe('optional')
-        expect(subscribe.publication?.headers?.['4'].presence).toBe('omitted')
+        expect(subscribe.publication?.headers?.['4']).toBeUndefined()
         expect(unsubscribe.request?.headers?.['17']).toBeUndefined()
         for (const context of [get.response, subscribe.publication]) {
             expect(Object.keys(context!.fields!)).toEqual(Object.keys(message.data))
@@ -546,7 +567,7 @@ describe('Device IDs reference', () => {
         expect(Object.keys(get.response!.fields!)).toEqual(Object.keys(message.data))
         expect(Object.values(get.response!.fields!).every(field => field.presence === undefined)).toBe(true)
         expect(resolveDocumentationFields(protocol, message, get.response?.fields, 'fields').every(field => field.presence === 'optional')).toBe(true)
-        expect(get.response?.description).toContain('may be stale')
+        expect(get.response?.description).not.toContain('may be stale')
         expect(message.examples).toBeUndefined()
         expect(validateMessageDocumentation(protocol, 35)).toEqual([])
     })
