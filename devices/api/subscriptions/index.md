@@ -15,13 +15,13 @@ These make use of the [Method header (5)](/devices/api/protocol/headers#5-method
 
 ## Default Subscriptions
 
-### Chasm Link
+### Cloud link 1 (L1)
 
 :::alpha Default Subscriptions
 This default subscriptions are still being developed, and if you explicitly want data at a set interval, you should send your own subscriptions.
 :::
 
-By default, when a device connects to the Chasm link, subscriptions for [Position messages](/devices/api/messages/15-position) and [Status messages](/devices/api/messages/34-device-status) are created automatically.
+By default, when a device connects to L1 (Cloud link 1), subscriptions for [Position messages](/devices/api/messages/15-position) and [Status messages](/devices/api/messages/34-device-status) are created automatically.
 
 - Position: Valid only, RAM, 1000ms
 - Status: Changes only, RAM, 500ms
