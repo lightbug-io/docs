@@ -14,9 +14,6 @@ hero:
       text: Terminology
       link: /terminology
 features:
-  - title: Browser Hard Refresh Guide
-    details: Learn how to perform a hard refresh in different browsers to resolve display issues and ensure you see the latest updates.
-    link: /guides/browser-hard-refresh 
   - title: Adding your first device
     details: Get started with a Cloud account, add your first device, setup a plan, and start tracking.
     link: /guides/adding-your-first-device
@@ -63,5 +60,7 @@ features:
     details: Integrate AWS SQS to receive device notifications via our platform, with a step-by-step guide.
     link: /guides/notifications-setup-sqs
 ---
+
+- [Browser Hard Refresh Guide](/guides/browser-hard-refresh): Learn how to perform a hard refresh in different browsers to resolve display issues and ensure you see the latest updates.
 
 If you want to request coverage of a specific topic, or have any questions, please [contact us](https://lightbug.io/contact/).
