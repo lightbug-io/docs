@@ -14,16 +14,16 @@ Please note that this is an advanced feature, so if you require any support, ple
 
 1. Open the [Lightbug Web Portal](https://lightbug.cloud/)
 2. Go to `'Settings'`, then to the `'Schedule'` page  
-![](https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/2043310948567/original/NA9Ortkw7wXdHjcPFr2cST2n21HoM-DnDQ.png){width=250}  
-![](https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/2043310948434/original/sID8eiY38jHiSjU857Yq294Xp4pwb3bkeg.png){width=250}
+![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043310948567-NA9Ortkw7wXdHjcPFr2cST2n21HoM-DnDQ.png){width=250}
+![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043310948434-sID8eiY38jHiSjU857Yq294Xp4pwb3bkeg.png){width=250}
 3. Click on `'ADD RULE'`  
-![](https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/2043310979134/original/MTGn0eiUE_7Iyw1eIJerE4F4h-jx4CXhOw.png){width=250}
+![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043310979134-MTGn0eiUE_7Iyw1eIJerE4F4h-jx4CXhOw.png){width=250}
 4. Enter the `day, time and frequency` that the action will take place  
-![](https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/2043310981340/original/reea4MlxIREjYv45qYQJyoHf5Q8M2tTklA.png){width=250}
+![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043310981340-reea4MlxIREjYv45qYQJyoHf5Q8M2tTklA.png){width=250}
 5. Select an `action`. Your tracker will perform this action on the selected time  
-![](https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/2043310982235/original/u9f41BcfOHK-4SIZZT-r6dIDd3zv_Vgfxg.png){width=250} 
+![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043310982235-u9f41BcfOHK-4SIZZT-r6dIDd3zv_Vgfxg.png){width=250}
 6. Add the `rule`, and create additional rules if required. When finished, `save`  
-![](https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/2043311001014/original/XI8h_qSfQiVfgZSKXgpqB_mVvCxsACCOzA.png){width=250}
+![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043311001014-XI8h_qSfQiVfgZSKXgpqB_mVvCxsACCOzA.png){width=250}
 
 **`No Action:`** The tracker will do nothing. This action is here as a placeholder if you want to disable rules without deleting them.  
 

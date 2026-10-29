@@ -21,17 +21,17 @@ Examples of where this will be useful are:
 ## How do I apply the power budget feature?  
 
 1. On the app go to Menu - 'Tracker Settings'  
-![](https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/2043169226361/original/2cnE-VjXINy_XRAH_9ZtOMULD0MvpdLjcA.png){width=250}
+![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043169226361-2cnE-VjXINy_XRAH_9ZtOMULD0MvpdLjcA.png){width=250}
 2. On step 1 select 'Manual Configuration'  
-![](https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/2043169226359/original/chdclsONqjUrbNIIZev28s8GSbnV3Yev1w.png){width=250}
+![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043169226359-chdclsONqjUrbNIIZev28s8GSbnV3Yev1w.png){width=250}
 3. Scroll down to the bottom of the page and select 'Advanced Settings - Change at your own risk'. More advanced settings will appear.  
-![](https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/2043171233804/original/eC69ALcU9dooQ7xbXTrdpHahPkBYlPeclA.png){width=250}
+![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043171233804-eC69ALcU9dooQ7xbXTrdpHahPkBYlPeclA.png){width=250}
 4. Go to 'Power Budget' and enable the power power budget feature so that the toggle is orange. 
-![](https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/2043171236169/original/hdMQXnwzkj2lIcqcpUlQ1CGngGXCRuLRxw.png){width=250} 
+![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043171236169-hdMQXnwzkj2lIcqcpUlQ1CGngGXCRuLRxw.png){width=250}
 5. After enabling power budgeting the 'Budget Mode' option will appear. Upon pressing the drop down arrow, a box will appear, here you have to set your preferred mode. The percentages show how many location updates might be dropped in average conditions.  
-![](https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/2043171257084/original/ny4dBfmE5QqUVTOuSrT-luqhRfL4wqjTTA.png){width=250}
+![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043171257084-ny4dBfmE5QqUVTOuSrT-luqhRfL4wqjTTA.png){width=250}
 6. Review the settings and then select 'save'.  
-![](https://s3.amazonaws.com/cdn.freshdesk.com/data/helpdesk/attachments/production/2043171260697/original/01TpXsoC4df-iiHOGos_FFXL8VtqxNBlDw.png){width=250}
+![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043171260697-01TpXsoC4df-iiHOGos_FFXL8VtqxNBlDw.png){width=250}
 
 ::: tip  
 To apply the new settings immediately, press the button on your tracker. If you don't have your tracker to hand, the tracker will update its settings the next time it is scheduled to send a location update.
