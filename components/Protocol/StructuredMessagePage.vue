@@ -474,7 +474,7 @@ onBeforeUnmount(() => {
                 <button type="button" class="copy-button" :aria-label="`Copy bytes: ${example.title}, ${frame.label}`" @click="copyBytes(frame.bytes, frame.label)">Copy</button>
               </div>
               <div class="annotated-frame" :aria-labelledby="`${panel.anchor}-example-${example.exampleIndex + 1}-frame-${frame.frameIndex + 1}`">
-                <Message :byte-string="frame.bytes" :yaml-data="yamlData" :default-collapsed="false" :show-generator-link="false" :show-controls="false" read-only />
+                <Message :byte-string="frame.bytes" :normalized-bytes="frame.normalizedBytes" :encoding="frame.encoding" display-type="hex" :yaml-data="yamlData" :default-collapsed="false" :show-generator-link="false" :show-controls="false" read-only />
               </div>
               <details class="raw-bytes-details">
                 <summary>Raw bytes</summary>

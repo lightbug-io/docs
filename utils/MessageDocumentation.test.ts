@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { calculateCRC16XMODEM, parseRawMessage, readTypedData } from '../src/protocol/base.gen'
+import { calculateCRC16XMODEM, getElementByteSize, parseRawMessage, readTypedData } from '../src/protocol/base.gen'
 // The repository's YAML dependency is intentionally untyped.
 const yaml = require('js-yaml')
 import {
@@ -20,6 +20,32 @@ import {
 
 const protocol: any = yaml.load(readFileSync(resolve(__dirname, '../public/files/protocol-v3.yaml'), 'utf8'))
 const clone = (value: any) => JSON.parse(JSON.stringify(value))
+
+describe('protocol message groups', () => {
+    it('uses existing groups and places every message in its generated sidebar bucket', () => {
+        const sidebarGroups = Object.fromEntries(Object.keys(protocol.groups).map((group: string) => [group, [] as string[]]))
+        for (const [id, message] of Object.entries(protocol.messages) as [string, any][]) {
+            expect(protocol.groups[message.group]).toBeDefined()
+            sidebarGroups[message.group].push(id)
+        }
+
+        expect(Object.fromEntries(['14', '37', '43', '54', '57', '2000', '2100', '2101'].map(id => [id, protocol.messages[id].group]))).toEqual({
+            '14': 'general',
+            '37': 'gsm',
+            '43': 'power',
+            '54': 'power',
+            '57': 'info',
+            '2000': 'location',
+            '2100': 'location',
+            '2101': 'general',
+        })
+        for (const id of ['14', '37', '43', '54', '57', '2000', '2100', '2101']) {
+            expect(sidebarGroups[protocol.messages[id].group]).toContain(id)
+        }
+        expect(protocol.messages[1004].group).toBe('ungrouped')
+        expect(protocol.messages[1005].group).toBe('ungrouped')
+    })
+})
 
 describe('paired exchange stages', () => {
     it('groups frame metadata by stage without mutating order or anchor indices', () => {
@@ -77,8 +103,9 @@ describe('shared response conventions', () => {
         expect(context).toEqual(before)
     })
     it('keeps explicit exceptions and non-OK status rules local', () => {
-        expect(commonResponseHeaderIds({ headers: { '3': { presence: 'omitted' }, '4': { presence: 'required', value: 4 } } })).toEqual([])
         expect(commonResponseHeaderIds({ headers: { '3': { presence: 'optional', description: 'A message-specific correlation rule.' }, '4': { presence: 'required', value: 0, maxBytes: 1 } } })).toEqual([])
+        expect(commonResponseHeaderIds({ headers: { '3': { presence: 'ignored' }, '4': { value: 0 } } })).toEqual(['4'])
+        expect(commonResponseHeaderIds({ headers: { '3': {}, '4': { value: 0 } } })).toEqual(['3', '4'])
     })
     it('keeps MT58 version/payload rules and explicit publication correlation distinct', () => {
         const message = getMessageDocumentation(protocol.messages[58])!
@@ -86,8 +113,37 @@ describe('shared response conventions', () => {
         const subscribe = getOperationVariant(message.operations.find(operation => operation.method === 'SUBSCRIBE')!, '2')
         expect(commonResponseHeaderIds(get.response!)).toEqual(['3', '4'])
         expect(get.response?.headers?.['22']).toMatchObject({ presence: 'required', value: 2 })
-        expect(get.response?.fields?.['129']).toMatchObject({ presence: 'optional', maxBytes: 1024 })
-        expect(subscribe.publication?.headers?.['3'].presence).toBe('omitted')
+        const [messageVersionHeader] = resolveDocumentationFields(protocol, protocol.messages[58], get.request?.headers, 'headers').filter(field => field.id === 22)
+        expect(messageVersionHeader).toMatchObject({ type: 'uint8', presence: 'required', value: 2 })
+        expect(messageVersionHeader.maxBytes).toBeUndefined()
+        expect(getElementByteSize(messageVersionHeader.type!)).toBe(1)
+        expect(get.response?.fields?.['1']).toBeUndefined()
+        expect(get.response?.fields?.['129']).toMatchObject({ maxBytes: 1024 })
+        expect(get.response?.fields?.['129'].presence).toBeUndefined()
+        expect(resolveDocumentationFields(protocol, protocol.messages[58], get.response?.fields, 'fields').find(field => field.id === 129)?.presence).toBe('optional')
+        expect(subscribe.publication?.headers?.['3']).toBeUndefined()
+        expect(subscribe.publication?.fields?.['1']).toBeUndefined()
+        const legacyGet = getOperationVariant(message.operations.find(operation => operation.method === 'GET')!, '1')
+        expect(legacyGet.response?.headers?.['22']).toBeUndefined()
+        expect(legacyGet.response?.fields?.['2']).toBeUndefined()
+        expect(legacyGet.response?.fields?.['129']).toBeUndefined()
+    })
+    it('omits type-implied Message Version limits while retaining variable-byte caps', () => {
+        const message = protocol.messages[58]
+        const maxBytes: number[] = []
+        const visit = (value: any) => {
+            if (!value || typeof value !== 'object') return
+            if (value.maxBytes !== undefined) maxBytes.push(value.maxBytes)
+            for (const child of Object.values(value)) visit(child)
+        }
+        visit(message)
+        expect(maxBytes).not.toContain(1)
+        expect(maxBytes.filter(limit => limit === 255)).toHaveLength(10)
+        expect(maxBytes.filter(limit => limit === 1024)).toHaveLength(3)
+        for (const id of [10, 11, 12, 13, 14, 129]) {
+            expect(message.data[id].type).toBe('bytes')
+        }
+        expect(validateMessageDocumentation(protocol, 58)).toEqual([])
     })
     it('corrects only the Processing display label, preserving the existing SDK identifier', () => {
         expect(protocol.header[4].values[-1]).toMatchObject({ name: 'Processing', id: 'error' })
@@ -132,7 +188,8 @@ describe('optional message documentation', () => {
         expect(protocol.header[5]).toEqual(before)
         const fields = resolveDocumentationFields(protocol, protocol.messages[39], { 1: {} }, 'fields')
         expect(fields[0].description).toBe(protocol.messages[39].data[1].description)
-        expect(fields[0].presence).toBeUndefined() // readonly does not imply required
+        expect(fields[0].presence).toBe('optional') // listed fields default to optional; readonly alone is not required
+        expect(resolveDocumentationFields(protocol, protocol.messages[39], {}, 'fields')).toEqual([]) // unlisted fields are not added to this exchange
         const ack = resolveDocumentationFields(protocol, protocol.messages[5], { 1: {} }, 'fields')
         expect(ack[0].name).toBe(protocol.messages[5].data[1].name)
         expect(ack[0].name).not.toBe(protocol.messages[58].data[1].name)
@@ -151,6 +208,7 @@ describe('optional message documentation', () => {
             response: { messageId: 9999 },
         } }
         message.contexts = { get: { exchange: {} } }
+        message.methods.GET.exchange.response.fields = { 1: { presence: 'omitted' } }
         const errors = validateMessageDocumentation(sample, 39).join('\n')
         expect(errors).toContain('duplicate operation id get')
         expect(errors).toContain('unsupported method UNSUPPORTED')
@@ -159,6 +217,7 @@ describe('optional message documentation', () => {
         expect(errors).toContain('unknown fields id 99')
         expect(errors).toContain('unknown message 9999')
         expect(errors).toContain('invalid note placement')
+        expect(errors).toContain('response fields 1 has invalid presence')
     })
 
     it('puts required fields first while preserving order within each group', () => {
@@ -166,7 +225,7 @@ describe('optional message documentation', () => {
             1: { presence: 'optional' as const },
             4: { presence: 'required' as const },
             5: { presence: 'required' as const },
-            17: { presence: 'omitted' as const },
+            17: {},
             22: { presence: 'optional' as const },
         }
         const before = clone(usage)
@@ -281,12 +340,13 @@ describe('inline numeric-version authoring', () => {
         expect(protocol).toEqual(before)
     })
 
-    it('preserves direct SDK request/response map presence and field IDs', () => {
+    it('preserves direct request/response map presence and field IDs without duplicate field descriptions', () => {
         const gps = protocol.messages[39].methods
         expect(gps.GET.request).toBeNull()
         expect(gps.GET.response).toEqual({ 1: null, 2: null })
         expect(Object.keys(gps.SET.request)).toEqual(['2', '3'])
-        expect(gps.SET.request[2].description).toBe('Automatically controls the GPS module.')
+        expect(gps.SET.request[2]).toEqual({})
+        expect(gps.SET.request[3]).toEqual({})
         expect(gps.SET.response).toBeNull()
         for (const method of Object.values(protocol.messages[58].methods) as any[]) {
             expect(Object.prototype.hasOwnProperty.call(method, 'request')).toBe(false)
@@ -351,10 +411,106 @@ describe('inline numeric-version authoring', () => {
     it('keeps ignored checksums out of SET inputs without deleting the compatibility rule', () => {
         const set = protocol.messages[58].methods.SET.versions[2]
         expect(Object.keys(set!.request!.fields)).toEqual(['129'])
-        expect(set.request.description).toContain('checksum fields 1 and 2 are ignored')
         expect(set!.request!.fields[129]).toMatchObject({ presence: 'required', maxBytes: 1024 })
+        expect(protocol.messages[58].data[1].description).toContain('ignored in SET')
+        expect(protocol.messages[58].data[2].description).toContain('ignored in SET')
         const get = protocol.messages[58].methods.GET.versions[2]
         expect(get.response.fields[2].presence).toBe('required')
+    })
+})
+
+describe('migrated exchange authoring audit', () => {
+    const migratedIds = [34, 35, 39, 58]
+    const normalized = (value: unknown) => typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : value
+
+    it('does not restate optional presence or inherited metadata in exchange maps', () => {
+        const inspectExchange = (message: any, exchange: any) => {
+            if (!exchange || typeof exchange !== 'object') return
+            for (const role of ['request', 'response', 'publication']) {
+                const context = exchange[role]
+                if (!context || typeof context !== 'object') continue
+                const contextMessage = context.messageId === undefined ? message : protocol.messages[context.messageId]
+                for (const kind of ['headers', 'fields'] as const) {
+                    const definitions = kind === 'headers' ? protocol.header : contextMessage?.data
+                    for (const [id, usage] of Object.entries(context[kind] || {}) as [string, any][]) {
+                        const definition = definitions?.[id]
+                        expect(usage.presence).not.toBe('optional')
+                        expect(usage.presence).not.toBe('omitted')
+                        if (!definition) continue
+                        for (const key of ['description', 'name', 'id', 'type', 'unit', 'maxBytes']) {
+                            if (usage[key] !== undefined && definition[key] !== undefined) {
+                                expect(normalized(usage[key])).not.toBe(normalized(definition[key]))
+                            }
+                        }
+                        for (const [value, override] of Object.entries(usage.values || {}) as [string, any][]) {
+                            const inherited = definition.values?.[value]
+                            if (!inherited) continue
+                            const inheritedName = typeof inherited === 'string' ? inherited : inherited.name
+                            const inheritedDescription = typeof inherited === 'string' ? undefined : inherited.description
+                            const localDescription = typeof override === 'string' ? override : override?.description
+                            if (typeof override === 'string') expect(normalized(override)).not.toBe(normalized(inheritedName))
+                            if (override?.name !== undefined) expect(normalized(override.name)).not.toBe(normalized(inheritedName))
+                            if (localDescription !== undefined && inheritedDescription !== undefined) {
+                                expect(normalized(localDescription)).not.toBe(normalized(inheritedDescription))
+                            }
+                            if (localDescription !== undefined) expect(normalized(localDescription)).not.toBe(normalized(inheritedName))
+                        }
+                    }
+                }
+            }
+        }
+        const inspectSource = (message: any, source: any) => {
+            if (!source || typeof source !== 'object') return
+            if (source.exchange) inspectExchange(message, source.exchange)
+            for (const exchange of Object.values(source.versions || {})) inspectExchange(message, exchange)
+        }
+
+        for (const id of migratedIds) {
+            const message = protocol.messages[id]
+            for (const source of Object.values(message.methods || {})) inspectSource(message, source)
+            for (const source of Object.values(message.contexts || {})) inspectSource(message, source)
+        }
+    })
+
+    it('inherits global field names, descriptions and enum labels without changing their rendered values', () => {
+        const gps = protocol.messages[39]
+        const [gpsField] = resolveDocumentationFields(protocol, gps, { 2: {} }, 'fields')
+        const gpsDefinition = gps.data[2]
+        expect(gpsField.name).toBe(gpsDefinition.name)
+        expect(gpsField.description).toBe(gpsDefinition.description)
+        expect(gpsDefinition.description).toContain('GET reports whether corrections are enabled by the API or device mode')
+        expect(gpsDefinition.description).toContain('Omission from a successful SET clears only the API flag')
+        expect(gpsDefinition.description).toContain('device mode may still require corrections')
+        expect(gps.data[1].description).toContain('Position-data subscription at the Info-Auto level is active')
+        expect(gps.data[1].description).toContain('does not directly report hardware power or fix state')
+        expect(gps.data[1].description).toContain('read-only')
+        expect(gps.data[1].description).toContain('rejected with Invalid Parameter (4)')
+        expect(gps.data[3].description).toContain('records it as pending')
+        expect(gps.data[3].description).toContain('does not establish an immediate hardware restart or enable')
+        expect(gps.methods.GET.description).toBe('Return GPS Control state, not a position fix.')
+        expect(gps.methods.GET.exchange.response.description).toContain('Start Mode is SET-only and is not returned')
+        expect(gps.methods.GET.exchange.response.description).not.toContain('whether corrections are enabled by the API or device mode')
+        expect(gps.methods.SET.description).toBe('Apply GPS Control inputs.')
+        expect(gps.methods.SET.exchange.request.description).not.toMatch(/Field [123]|API flag is cleared|records a requested start mode/)
+        expect(gps.methods.SET.exchange.request.description).toContain('external Position subscription or device-mode ownership is also required')
+        const docs = getMessageDocumentation(gps)!
+        const get = docs.operations.find(operation => operation.method === 'GET')!
+        const getFields = resolveDocumentationFields(protocol, gps, get.response!.fields, 'fields')
+        expect(getFields.find(field => field.id === 1)!.description).toBe(gps.data[1].description)
+        expect(getFields.find(field => field.id === 2)!.description).toBe(gps.data[2].description)
+        const set = docs.operations.find(operation => operation.method === 'SET')!
+        const setFields = resolveDocumentationFields(protocol, gps, set.request!.fields, 'fields')
+        expect(setFields.find(field => field.id === 2)!.description).toBe(gps.data[2].description)
+        expect(setFields.find(field => field.id === 3)!.description).toBe(gps.data[3].description)
+        expect(gpsField.values.map(({ value, name, description }: any) => ({ value, name, description }))).toEqual([
+            { value: 0, name: gpsDefinition.values[0].name, description: gpsDefinition.values[0].description || '' },
+            { value: 1, name: gpsDefinition.values[1].name, description: gpsDefinition.values[1].description || '' },
+        ])
+
+        const [methodHeader] = resolveDocumentationFields(protocol, gps, { 5: { presence: 'required', value: 1 } }, 'headers')
+        expect(methodHeader.name).toBe(protocol.header[5].name)
+        expect(methodHeader.description).toBe(protocol.header[5].description)
+        expect(methodHeader.valueName).toBe(protocol.header[5].values[1].name)
     })
 })
 
@@ -362,6 +518,16 @@ describe('inline numeric-version authoring', () => {
 describe('Device Status reference', () => {
     const message = protocol.messages[34]
     const docs = getMessageDocumentation(message)!
+    it('qualifies Toit MT34 GET response headers by target', () => {
+        const get = docs.operations.find((operation: DocumentationOperation) => operation.method === 'GET')!
+        const response = get.response!
+        expect(response.description).toContain('reviewed Toit implementation')
+        expect(response.description).toContain('whenever a Message ID is present, including zero')
+        expect(response.description).toContain('does not include an explicit Status header')
+        expect(response.description).toContain('Other targets may differ')
+        expect(response.headers?.['3']).toBeDefined()
+        expect(response.headers?.['4']).toBeUndefined()
+    })
     it('keeps the existing methods and wire fields without inventing a message version', () => {
         expect(Object.keys(message.methods)).toEqual(['GET', 'SUBSCRIBE', 'UNSUBSCRIBE'])
         expect(message.versions).toBeUndefined()
@@ -386,12 +552,16 @@ describe('Device Status reference', () => {
         expect(get.response?.messageId).toBeUndefined()
         expect(subscribe.response?.messageId).toBe(5)
         expect(unsubscribe.response?.messageId).toBe(5)
-        expect(subscribe.publication?.headers?.['3'].presence).toBe('omitted')
-        expect(subscribe.request?.headers?.['17']).toMatchObject({ presence: 'optional', value: 0 })
+        expect(subscribe.publication?.headers?.['3']).toBeUndefined()
+        expect(subscribe.request?.headers?.['17']).toMatchObject({ value: 0 })
+        expect(subscribe.request?.headers?.['17'].presence).toBeUndefined()
+        expect(resolveDocumentationFields(protocol, message, subscribe.request?.headers, 'headers').find(field => field.id === 17)?.presence).toBe('optional')
+        expect(subscribe.publication?.headers?.['4']).toBeUndefined()
         expect(unsubscribe.request?.headers?.['17']).toBeUndefined()
         for (const context of [get.response, subscribe.publication]) {
             expect(Object.keys(context!.fields!)).toEqual(Object.keys(message.data))
-            expect(Object.values(context!.fields!).every(field => field.presence === 'optional')).toBe(true)
+            expect(Object.values(context!.fields!).every(field => field.presence === undefined)).toBe(true)
+            expect(resolveDocumentationFields(protocol, message, context!.fields, 'fields').every(field => field.presence === 'optional')).toBe(true)
         }
         expect(subscribe.examples).toBeUndefined()
         expect(unsubscribe.examples).toBeUndefined()
@@ -403,10 +573,12 @@ describe('Device Status reference', () => {
         expect(example.target).toBe('RH2 over I2C')
         expect(example.frames.map(frame => frame.role)).toEqual(['request', 'response'])
         expect(example.frames.map(frame => frame.bytes)).toEqual([
-            '3 20 0 34 0 2 0 5 1 1 2 4 32 98 132 62 0 0 194 229',
-            '3 49 0 34 0 2 0 3 4 4 32 98 132 62 1 0 8 0 1 3 7 10 2 4 5 6 1 88 1 0 4 239 8 0 0 1 48 1 64 1 0 2 0 0 2 0 0 108 94',
+            '03 14 00 22 00 02 00 05 01 01 02 04 20 62 84 3E 00 00 C2 E5',
+            '03 31 00 22 00 02 00 03 04 04 20 62 84 3E 01 00 08 00 01 03 07 0A 02 04 05 06 01 58 01 00 04 EF 08 00 00 01 30 01 40 01 00 02 00 00 02 00 00 6C 5E',
         ])
-        const frames = example.frames.map(frame => frame.bytes.split(' ').map(Number))
+        expect(example.frames.every(frame => frame.encoding === 'hex')).toBe(true)
+        expect(example.frames[0].normalizedBytes).toEqual([3, 20, 0, 34, 0, 2, 0, 5, 1, 1, 2, 4, 32, 98, 132, 62, 0, 0, 194, 229])
+        const frames = example.frames.map(frame => frame.normalizedBytes!)
         for (const bytes of frames) {
             expect(calculateCRC16XMODEM(bytes.slice(0, -2))).toBe(bytes[bytes.length - 2] | bytes[bytes.length - 1] << 8)
             expect(parseRawMessage(bytes)).toMatchObject({ protocolVersion: 3, length: bytes.length, messageType: 34 })
@@ -430,13 +602,13 @@ describe('Device Status reference', () => {
         expect(capturedDocumentationValues(example, 58, message.data)).toEqual([])
         expect(capturedDocumentationValues(example, 34, message.data, 2)).toEqual([])
         const invalid = clone(example)
-        invalid.frames[1].bytes += ' 0'
+        invalid.frames[1].normalizedBytes!.push(0)
         expect(capturedDocumentationValues(invalid, 34, message.data)).toEqual([])
-        const bytes = example.frames[1].bytes.split(' ').map(Number)
+        const bytes = [...example.frames[1].normalizedBytes!]
         bytes[26] = 255 // Invalid first payload length, even with a recomputed checksum.
         const crc = calculateCRC16XMODEM(bytes.slice(0, -2))
         bytes.splice(-2, 2, crc & 255, crc >> 8)
-        invalid.frames[1].bytes = bytes.join(' ')
+        invalid.frames[1].normalizedBytes = bytes
         expect(capturedDocumentationValues(invalid, 34, message.data)).toEqual([])
         const badType = { ...message.data, 7: { ...message.data[7], type: 'uint8' } }
         expect(capturedDocumentationValues(example, 34, badType).some(field => field.id === 7)).toBe(false)
@@ -463,10 +635,24 @@ describe('Device IDs reference', () => {
             ['4', 'serial', 'uint32'], ['8', 'cachedIccid2', 'ascii'],
         ])
         expect(Object.keys(get.response!.fields!)).toEqual(Object.keys(message.data))
-        expect(Object.values(get.response!.fields!).every(field => field.presence === 'optional')).toBe(true)
-        expect(get.response?.description).toContain('may be stale')
+        expect(Object.values(get.response!.fields!).every(field => field.presence === undefined)).toBe(true)
+        expect(resolveDocumentationFields(protocol, message, get.response?.fields, 'fields').every(field => field.presence === 'optional')).toBe(true)
+        expect(get.response?.description).not.toContain('may be stale')
         expect(message.examples).toBeUndefined()
         expect(validateMessageDocumentation(protocol, 35)).toEqual([])
+    })
+    it('normalizes the original captured ID exchange and verifies its CRC', () => {
+        const [example] = get.examples!
+        expect(example.provenance).toBe('captured')
+        expect(example.frames.every(frame => frame.encoding === 'hex')).toBe(true)
+        expect(example.frames[0].normalizedBytes).toEqual([3, 20, 0, 35, 0, 2, 0, 5, 1, 1, 2, 4, 31, 187, 53, 226, 0, 0, 191, 169])
+        const [request, response] = example.frames.map(frame => frame.normalizedBytes!)
+        for (const bytes of [request, response]) {
+            expect(calculateCRC16XMODEM(bytes.slice(0, -2))).toBe(bytes[bytes.length - 2] | bytes[bytes.length - 1] << 8)
+            expect(parseRawMessage(bytes)).toMatchObject({ protocolVersion: 3, length: bytes.length, messageType: 35 })
+        }
+        expect(parseRawMessage(request).data).toEqual({})
+        expect(Object.keys(parseRawMessage(response).data)).toEqual(['1', '2', '3'])
     })
 
     it('preserves and decodes the captured GET pair without inventing serial or SIM2 samples', () => {
@@ -477,11 +663,8 @@ describe('Device IDs reference', () => {
         expect(example.description).toContain('RH2 P1 v2287')
         expect(example.target).toBe('RH2 over I2C')
         expect(example.frames.map(frame => frame.role)).toEqual(['request', 'response'])
-        expect(example.frames.map(frame => frame.bytes)).toEqual([
-            '3 20 0 35 0 2 0 5 1 1 2 4 31 187 53 226 0 0 191 169',
-            '3 65 0 35 0 2 0 3 4 4 31 187 53 226 1 0 3 0 1 2 3 4 3 109 161 0 15 56 54 52 57 53 48 48 54 48 50 49 50 53 56 55 20 56 57 52 53 55 51 48 48 48 48 48 48 50 50 50 49 52 56 48 54 6 251',
-        ])
-        const frames = example.frames.map(frame => frame.bytes.split(' ').map(Number))
+        expect(example.frames.every(frame => frame.encoding === 'hex')).toBe(true)
+        const frames = example.frames.map(frame => frame.normalizedBytes!)
         for (const bytes of frames) {
             expect(calculateCRC16XMODEM(bytes.slice(0, -2))).toBe(bytes[bytes.length - 2] | bytes[bytes.length - 1] << 8)
             expect(parseRawMessage(bytes)).toMatchObject({ protocolVersion: 3, length: bytes.length, messageType: 35 })
