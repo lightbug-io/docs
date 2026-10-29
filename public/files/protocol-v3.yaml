@@ -2991,13 +2991,13 @@ messages:
       - name: Set Strobe LED on P2 to green from a cloud link
         bytes: 3 17 0 52 0 1 0 14 1 1 1 0 3 1 255 194 216
         real:
-          description: This example was generated using the generate tool, and tested against an RH2 device, sent from a Chasm link.
+          description: This example was generated using the generate tool, and tested against an RH2 device, sent from L1 (Cloud link 1).
           date: "2025-11-18"
           generator: Generate tool
       - name: Set Strobe LED on P2 to be off from a cloud link
         bytes: 3 23 0 52 0 1 0 14 1 1 3 0 2 3 4 1 0 1 0 1 0 195 195
         real:
-          description: This example was generated using the generate tool, and tested against an RH2 device, sent from a Chasm link.
+          description: This example was generated using the generate tool, and tested against an RH2 device, sent from L1 (Cloud link 1).
           date: "2025-11-18"
           generator: Generate tool
   53:
@@ -3941,7 +3941,7 @@ messages:
       GET returns NotSupported when cellular diagnostics are unavailable on the device.
       Upload-buffer values are zero when their runtime objects are absent. L1 (Cloud link 1) values are zero when its runtime object is absent.
       L2 (Cloud link 2) fields 13-15 are omitted when its runtime object is unavailable.
-      RX/TX counts belong to the primary and secondary internet links, not the UART used to request diagnostics.
+      RX/TX counts belong to L1 (Cloud link 1) and L2 (Cloud link 2), not the UART used to request diagnostics.
       They count V3 messages, not bytes or cellular network packets.
       RX increments after protocol, length and checksum validation in the receive path, before message handling.
       It is not a count of unique messages or successfully executed commands; repeated frames count again.
@@ -3950,6 +3950,7 @@ messages:
       Control messages, including ACKs and heartbeats, count when they use these same paths.
       Each counter starts at zero when its link object is created (normally at boot), survives link reconnects and diagnostic GETs,
       and wraps from 4294967295 to zero. These are link-object lifetime counters, not per-session totals.
+      Legacy Primary Link field labels refer to L1; Secondary Link field labels refer to L2. Field identifiers are unchanged.
     group: gsm
     header:
       - 5
@@ -4045,6 +4046,7 @@ messages:
       10:
         name: Primary Link Open
         id: primaryLinkOpen
+        description: L1 (Cloud link 1) open state. False when its link object is absent.
         type: bool
         readonly: true
       11:
@@ -4062,7 +4064,7 @@ messages:
       13:
         name: Secondary Link Open
         id: secondaryLinkOpen
-        description: Omitted when a secondary link is unavailable
+        description: L2 (Cloud link 2) open state. Omitted when its link object is absent.
         type: bool
         readonly: true
       14:
