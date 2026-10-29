@@ -1,7 +1,7 @@
 import { describe, expect, it } from '@jest/globals'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { calculateCRC16XMODEM, parseRawMessage, readTypedData } from '../src/protocol/base.gen'
+import { calculateCRC16XMODEM, getElementByteSize, parseRawMessage, readTypedData } from '../src/protocol/base.gen'
 // The repository's YAML dependency is intentionally untyped.
 const yaml = require('js-yaml')
 import {
@@ -113,6 +113,10 @@ describe('shared response conventions', () => {
         const subscribe = getOperationVariant(message.operations.find(operation => operation.method === 'SUBSCRIBE')!, '2')
         expect(commonResponseHeaderIds(get.response!)).toEqual(['3', '4'])
         expect(get.response?.headers?.['22']).toMatchObject({ presence: 'required', value: 2 })
+        const [messageVersionHeader] = resolveDocumentationFields(protocol, protocol.messages[58], get.request?.headers, 'headers').filter(field => field.id === 22)
+        expect(messageVersionHeader).toMatchObject({ type: 'uint8', presence: 'required', value: 2 })
+        expect(messageVersionHeader.maxBytes).toBeUndefined()
+        expect(getElementByteSize(messageVersionHeader.type!)).toBe(1)
         expect(get.response?.fields?.['1']).toBeUndefined()
         expect(get.response?.fields?.['129']).toMatchObject({ maxBytes: 1024 })
         expect(get.response?.fields?.['129'].presence).toBeUndefined()
@@ -123,6 +127,23 @@ describe('shared response conventions', () => {
         expect(legacyGet.response?.headers?.['22']).toBeUndefined()
         expect(legacyGet.response?.fields?.['2']).toBeUndefined()
         expect(legacyGet.response?.fields?.['129']).toBeUndefined()
+    })
+    it('omits type-implied Message Version limits while retaining variable-byte caps', () => {
+        const message = protocol.messages[58]
+        const maxBytes: number[] = []
+        const visit = (value: any) => {
+            if (!value || typeof value !== 'object') return
+            if (value.maxBytes !== undefined) maxBytes.push(value.maxBytes)
+            for (const child of Object.values(value)) visit(child)
+        }
+        visit(message)
+        expect(maxBytes).not.toContain(1)
+        expect(maxBytes.filter(limit => limit === 255)).toHaveLength(10)
+        expect(maxBytes.filter(limit => limit === 1024)).toHaveLength(3)
+        for (const id of [10, 11, 12, 13, 14, 129]) {
+            expect(message.data[id].type).toBe('bytes')
+        }
+        expect(validateMessageDocumentation(protocol, 58)).toEqual([])
     })
     it('corrects only the Processing display label, preserving the existing SDK identifier', () => {
         expect(protocol.header[4].values[-1]).toMatchObject({ name: 'Processing', id: 'error' })
