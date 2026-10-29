@@ -680,7 +680,7 @@ messages:
       GET behaviour:
       - If Key (data field 7 / `key`) is omitted, the response returns a config summary payload (data field 5 / `summary16`).
       - If Key is provided, the response returns the value for that specific key in Payload (data field 9).
-    group: ungrouped
+    group: general
     data:
       3:
         name: Command
@@ -1715,7 +1715,7 @@ messages:
       The cache is replaced when network identity changes or a signal
       metric changes by more than 3 raw units. Smaller signal changes alone do not replace it.
       GET and subscription support is firmware-dependent.
-    group: info
+    group: gsm
     header:
       - 5
     data:
@@ -2425,7 +2425,7 @@ messages:
     id: batteryStatus
     description: |
       Get the battery status of a device
-    group: info
+    group: power
     header:
       - 5
     data:
@@ -2988,7 +2988,7 @@ messages:
     name: Charger Settings
     id: chargerSettings
     description: For products with configurable charge settings (notably NOT Vehicle RTK), get and define charging parameters
-    group: location
+    group: power
     header:
       - 5
     data:
@@ -3141,7 +3141,7 @@ messages:
       Everything is in 0.1g or degrees for clarity: whilst higher precision data is available, the accuracy can only really be trusted up to 0.1g or 1deg increments, and this keeps the payload size down.
 
       **Partial messages:** When only one or more of the per-axis maximum G component fields (keys 9/10/11) change and all other fields are unchanged, the device emits two messages back-to-back. First, a sparse MT_ACCEL_DATA message containing only the changed component field(s) at Q_ChangesOnly level, allowing subscribers to react immediately to axis-level changes. Second, a full MT_ACCEL_DATA message (all fields) at Q_Valid level. In all other cases only one full message is emitted, at Q_ChangesOnly if any field changed or Q_Valid if the store is unchanged.
-    group: ungrouped
+    group: info
     data:
       1:
         name: Version
@@ -4151,7 +4151,7 @@ messages:
     name: RTCM Data
     id: rtcmData
     description: Data relating to RTCM (Radio Technical Commission for Maritime Services) correction data for high-precision GNSS positioning.
-    group: ""
+    group: location
     data:
       1:
         name: Data
@@ -4175,7 +4175,7 @@ messages:
     name: EPO Data
     id: epoData
     description: Data relating to EPO (Extended Prediction Orbit) transfer requests and payload chunks.
-    group: ""
+    group: location
     header:
       - 5
     data:
@@ -4228,7 +4228,7 @@ messages:
     name: File Data
     id: fileData
     description: Generic file transfer requests and payload chunks for module firmware and other downloads.
-    group: ""
+    group: general
     header:
       - 5
     data:

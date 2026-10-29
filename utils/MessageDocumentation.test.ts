@@ -21,6 +21,32 @@ import {
 const protocol: any = yaml.load(readFileSync(resolve(__dirname, '../public/files/protocol-v3.yaml'), 'utf8'))
 const clone = (value: any) => JSON.parse(JSON.stringify(value))
 
+describe('protocol message groups', () => {
+    it('uses existing groups and places every message in its generated sidebar bucket', () => {
+        const sidebarGroups = Object.fromEntries(Object.keys(protocol.groups).map((group: string) => [group, [] as string[]]))
+        for (const [id, message] of Object.entries(protocol.messages) as [string, any][]) {
+            expect(protocol.groups[message.group]).toBeDefined()
+            sidebarGroups[message.group].push(id)
+        }
+
+        expect(Object.fromEntries(['14', '37', '43', '54', '57', '2000', '2100', '2101'].map(id => [id, protocol.messages[id].group]))).toEqual({
+            '14': 'general',
+            '37': 'gsm',
+            '43': 'power',
+            '54': 'power',
+            '57': 'info',
+            '2000': 'location',
+            '2100': 'location',
+            '2101': 'general',
+        })
+        for (const id of ['14', '37', '43', '54', '57', '2000', '2100', '2101']) {
+            expect(sidebarGroups[protocol.messages[id].group]).toContain(id)
+        }
+        expect(protocol.messages[1004].group).toBe('ungrouped')
+        expect(protocol.messages[1005].group).toBe('ungrouped')
+    })
+})
+
 describe('paired exchange stages', () => {
     it('groups frame metadata by stage without mutating order or anchor indices', () => {
         // Metadata-only fixture; this test does not assert protocol packet bytes.
