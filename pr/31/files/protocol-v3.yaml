@@ -214,7 +214,7 @@ header:
       Client or local link ID of the sender being forwarded. Repeat this header for each hop, in origin-to-cloud order.
       Relays append their local sender hop; replies reverse the complete chain into Forward To.
       Values use length-sized little-endian unsigned integers, as Client ID does; small local IDs remain one byte.
-      Current standardized link IDs are shared with Forward To and command logging: 0 = Chasm, 1 = ESP32, 2 = Link2, 3 = P1, 5 = UART link, 7 = USB host.
+      Current standardized link IDs are shared with Forward To and command logging: 0 = L1 (Cloud link 1; protocol name Chasm), 1 = ESP32, 2 = L2 (Cloud link 2; protocol name Link2), 3 = P1, 5 = UART link, 7 = USB host. For forwarding destinations, destination 0 is L1, destination 1 is the ESP32 co-processor (not L1), and destination 2 is L2.
       Forward For Type may add context for non-link forwarding cases such as LoRa, but link forwarding should use these IDs directly.
     type: uint
     alpha: Forwarding is currently a new feature, and may not be perfectly documented
@@ -222,7 +222,7 @@ header:
       0:
         name: Chasm
         id: chasm
-        description: Primary Chasm/cloud link
+        description: L1 (Cloud link 1); protocol name Chasm
       1:
         name: ESP32
         id: esp32
@@ -230,7 +230,7 @@ header:
       2:
         name: Link2
         id: link2
-        description: Secondary Chasm/cloud link
+        description: L2 (Cloud link 2); protocol name Link2
       3:
         name: P1
         id: p1
@@ -258,7 +258,7 @@ header:
       Client or local link ID of the next destination. Repeat this header in delivery order.
       Each relay consumes only its next hop; [1, 700004] routes through ESP32 to client 700004.
       Values use length-sized little-endian unsigned integers, as Client ID does; small local IDs remain one byte.
-      Current standardized link IDs are shared with Forwarded For and command logging: 0 = Chasm, 1 = ESP32, 2 = Link2, 3 = P1, 5 = UART link, 7 = USB host.
+      Current standardized link IDs are shared with Forwarded For and command logging: 0 = L1 (Cloud link 1; protocol name Chasm), 1 = ESP32, 2 = L2 (Cloud link 2; protocol name Link2), 3 = P1, 5 = UART link, 7 = USB host. For forwarding destinations, destination 0 is L1, destination 1 is the ESP32 co-processor (not L1), and destination 2 is L2.
       Forwarding To Type may add context for non-link forwarding cases such as LoRa, but link forwarding should use these IDs directly.
     type: uint
     alpha: Forwarding is currently a new feature, and may not be perfectly documented
@@ -266,7 +266,7 @@ header:
       0:
         name: Chasm
         id: chasm
-        description: Primary Chasm/cloud link
+        description: L1 (Cloud link 1); protocol name Chasm
       1:
         name: ESP32
         id: esp32
@@ -274,7 +274,7 @@ header:
       2:
         name: Link2
         id: link2
-        description: Secondary Chasm/cloud link
+        description: L2 (Cloud link 2); protocol name Link2
       3:
         name: P1
         id: p1
@@ -747,15 +747,15 @@ messages:
           27:
             name: Secondary Server
             id: secondaryServer
-            description: A FQDN or IP of a secondary server for the second link.
+            description: FQDN or IP address of the server for L2 (Cloud link 2).
           28:
             name: Primary Server
             id: primaryServer
-            description: FQDN or IP of the primary server for the first link.
+            description: FQDN or IP address of the server for L1 (Cloud link 1).
           30:
             name: Link 2 Timeout
             id: link2TimeoutS
-            description: Timeout in seconds for the secondary link before it is considered dropped. Triggers the "No Connection" screen and alerts.
+            description: Timeout in seconds for L2 (Cloud link 2) before it is considered dropped. Triggers the "No Connection" screen and alerts.
           31:
             name: Quiet Mode
             id: quietMode
@@ -2845,8 +2845,8 @@ messages:
       Control a link to the internet to send and receive messages.
       Used to control a remote device link, such as connecting to a UDP server, and using the V3 messaging protocol to communicate with it.
       Once initiated, messages can be forwarded to the link directly using the forwarding headers.
-      Enable is a common keep-open override: it applies to Link2 when Link2 is configured and available, otherwise to Link1.
-      IP Address, Port, and FQDN configure Link2 only. They do not change Link1's protected endpoint and are unsupported when Link2 is compiled out.
+      Enable is a common keep-open override: it applies to L2 (Cloud link 2) when configured and available, otherwise to L1 (Cloud link 1).
+      IP Address, Port, and FQDN configure L2 only. They do not change L1's protected endpoint and are unsupported when L2 is compiled out.
     group: gsm
     header:
       - 5
@@ -2854,22 +2854,22 @@ messages:
       1:
         name: IP Address
         id: ip
-        description: IP address of Link2, if not using FQDN
+        description: IP address of L2 (Cloud link 2), if not using FQDN
         type: ascii
       2:
         name: Port
         id: port
-        description: UDP port for Link2
+        description: UDP port for L2 (Cloud link 2)
         type: uint16
       3:
         name: Enable
         id: enable
-        description: Enable or disable the keep-open override; Link2 when configured and available, otherwise Link1
+        description: Enable or disable the keep-open override; applies to L2 (Cloud link 2) when configured and available, otherwise L1 (Cloud link 1)
         type: bool
       4:
         name: FQDN
         id: fqdn
-        description: FQDN of Link2, if not using IP address
+        description: FQDN of L2 (Cloud link 2), if not using IP address
         type: ascii
     methods:
       GET: null
@@ -3939,8 +3939,8 @@ messages:
     description: |
       Runtime cellular-module, upload-buffer, and internet-link diagnostic state.
       GET returns NotSupported when cellular diagnostics are unavailable on the device.
-      Upload-buffer and primary-link values are zero when their runtime objects are absent.
-      Secondary-link fields 13-15 are omitted when that link is unavailable.
+      Upload-buffer values are zero when their runtime objects are absent. L1 (Cloud link 1) values are zero when its runtime object is absent.
+      L2 (Cloud link 2) fields 13-15 are omitted when its runtime object is unavailable.
       RX/TX counts belong to the primary and secondary internet links, not the UART used to request diagnostics.
       They count V3 messages, not bytes or cellular network packets.
       RX increments after protocol, length and checksum validation in the receive path, before message handling.
@@ -4050,13 +4050,13 @@ messages:
       11:
         name: Primary Link RX Count
         id: primaryLinkRxCount
-        description: Primary internet link V3 receive-path count; see the RX/TX counting rules above. Zero when the primary link object is absent.
+        description: L1 (Cloud link 1) V3 receive-path count; see the RX/TX counting rules above. Zero when its link object is absent.
         type: uint32
         readonly: true
       12:
         name: Primary Link TX Count
         id: primaryLinkTxCount
-        description: Primary internet link V3 message send-request count; see the RX/TX counting rules above. Zero when the primary link object is absent.
+        description: L1 (Cloud link 1) V3 message send-request count; see the RX/TX counting rules above. Zero when its link object is absent.
         type: uint32
         readonly: true
       13:
@@ -4068,13 +4068,13 @@ messages:
       14:
         name: Secondary Link RX Count
         id: secondaryLinkRxCount
-        description: Secondary internet link V3 receive-path count; see the RX/TX counting rules above. Omitted when the secondary link object is absent.
+        description: L2 (Cloud link 2) V3 receive-path count; see the RX/TX counting rules above. Omitted when its link object is absent.
         type: uint32
         readonly: true
       15:
         name: Secondary Link TX Count
         id: secondaryLinkTxCount
-        description: Secondary internet link V3 message send-request count; see the RX/TX counting rules above. Omitted when the secondary link object is absent.
+        description: L2 (Cloud link 2) V3 message send-request count; see the RX/TX counting rules above. Omitted when its link object is absent.
         type: uint32
         readonly: true
     methods:
