@@ -10,7 +10,7 @@ There are various ways to identify our devices
 
 ### Serial number
 
-Every Lightbug device has e a single unique serial number.
+Every Lightbug device has a single unique serial number.
 
 You should find this printed on a sticker on your device, along with a QR code that can be scanned.
 
@@ -31,9 +31,9 @@ You might find other unique identifiers exposed in various interfaces.
 
 ## Modes
 
-Our devices can general be in one of two modes.
+Our devices can generally be in one of two modes:  
 
-### Sleep mode
+#### Sleep mode
 
 Will send updates based on the `beacon period` set in device configuration, by default 12 hours.
 
@@ -42,7 +42,7 @@ If `motion detection` is enabled, the device may wake up.
 <!-- TODO link beacon period to the device setting -->
 <!-- TODO link motion detection to the device setting -->
 
-### Wake mode
+#### Wake mode
 
 Will send updates based on the `update rate` set in device configuration, by default 5 minutes.
 

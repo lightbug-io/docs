@@ -7,7 +7,7 @@ aside: false
 
 ## Do the devices have Bluetooth connectivity?
 
-Yes, at the time of writing all of our core devices have Bluetooth connectivity
+Yes, at the time of writing all of our core devices have Bluetooth connectivity.
 
 This enables features like short range location searching, mobile safe-zone and remote controlled alarm to help you find it.
 

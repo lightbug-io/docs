@@ -11,7 +11,7 @@ If you have been told by Lightbug to perform a hard refresh, this guide will hel
 
 ## Browser Detection
 
-<div id="browser-detection" style="padding: 15px; background: #f5f5f5; border-radius: 8px; margin: 20px 0;">
+<div id="browser-detection" style="padding: 15px; background: #2c2a41; border-radius: 8px; margin: 20px 0;">
   <strong>Your detected browser:</strong> <span id="detected-browser">Detecting...</span><br>
   <strong>Your operating system:</strong> <span id="detected-os">Detecting...</span><br>
   <strong>Recommended shortcut:</strong> <span id="recommended-shortcut">Loading...</span>
@@ -128,17 +128,17 @@ if (typeof window !== 'undefined') {
   text-align: left;
 }
 
-.browser-table th {
-  background-color: #f5f5f5;
+.browser-table thead {
+  background-color: #2c2a41;
   font-weight: bold;
 }
 
-.browser-table tr:nth-child(even) {
-  background-color: #f9f9f9;
+.browser-table tr {
+  background-color: #2c2a41;
 }
 
 .browser-table tr.highlighted {
-  background-color: #e8f5e8 !important;
+  background-color: #2c2a41 !important;
   border: 2px solid #4caf50;
 }
 
@@ -202,14 +202,12 @@ A hard refresh forces your browser to reload a page and all its resources (CSS, 
 - **Keyboard shortcut:** `Ctrl + Shift + R`
 - **Alternative:** `Ctrl + F5`
 - **Menu method:**
-  1. Right-click the refresh button
-  2. Select "Hard Reload"
+  1. Hold `Shift` and click the refresh button
 
 #### macOS
 - **Keyboard shortcut:** `⌘ + Shift + R`
 - **Menu method:**
-  1. Right-click the refresh button
-  2. Select "Hard Reload"
+  1. Hold `Shift` and click the refresh button
 
 ### Mozilla Firefox
 
@@ -233,7 +231,7 @@ A hard refresh forces your browser to reload a page and all its resources (CSS, 
   2. Then refresh normally with `⌘ + R`
 
 ::: tip Enable Developer Menu
-If you don't see the Develop menu:
+If you don't see the Developer menu:
 1. Go to Safari → Preferences
 2. Click Advanced tab
 3. Check "Show Develop menu in menu bar"

@@ -40,7 +40,7 @@ There are a few good practices that help improve the location accuracy of your t
 - Try to place your tracker with the logo facing up (this is where the GPS antenna is located)
 - Avoid surrounding your tracker with metals as they block GPS and GSM signals
 - To allow for more GPS locations to be gathered, try to place your tracker somewhere with a good line of sight with the sky
-- Increase the GPS timeout.
+- Increase the GPS timeout
 - Make sure you have the correct settings. If you are unsure, please get in touch and we will assist!
 
 ## Why is my battery not lasting as long as advertised?

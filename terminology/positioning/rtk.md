@@ -60,5 +60,7 @@ Options include:
 
 ## Other terminology
 
-- RTCM: a common protocol family (RTCM 2.x/3.x) used to encode and stream correction messages.
+- RTCM: Radio Technical Commission for Maritime Services, a common protocol family (RTCM 2.x/3.x) used to encode and stream correction messages.
 - NTRIP: Networked Transport of RTCM via Internet Protocol, commonly used to stream corrections over cellular data.
+
+**Reading** [Wikipedia: RTK](https://en.wikipedia.org/wiki/Real-time_kinematic_positioning), [Wikipedia: RTCM](https://en.wikipedia.org/wiki/Radio_Technical_Commission_for_Maritime_Services), [Wikipedia: NTRIP](https://en.wikipedia.org/wiki/Networked_Transport_of_RTCM_via_Internet_Protocol)
