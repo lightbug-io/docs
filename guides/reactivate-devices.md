@@ -6,7 +6,7 @@ If you have deactivated your device (cancelled your subscription), you can react
 3. In the 'Devices' section, find the tracker you would like to reactivate, and click 'activate'  
 4. The pop up box will show you a selection of billing plans that you can pick from. Select a plan for the device.  
 
-(https://thelightbug.freshdesk.com/support/solutions/articles/44001919079-how-much-is-the-subscription-)
+For an overview of the available plan tiers, see [Plans](/terminology/plans).
 
 (https://account.lightbug.cloud/)
 Your device is now reactivated and ready to use!  
