@@ -431,13 +431,16 @@ describe('migrated exchange authoring audit', () => {
         const gpsDefinition = gps.data[2]
         expect(gpsField.name).toBe(gpsDefinition.name)
         expect(gpsField.description).toBe(gpsDefinition.description)
-        expect(gpsDefinition.description).toBe('Whether correction data is enabled.')
-        expect(gps.data[1].description).toBe('Whether the GPS service is on.')
+        expect(gpsDefinition.description).toContain('GET reports whether corrections are enabled by the API or device mode')
+        expect(gps.data[1].description).toContain('active Position-data subscription at the Info-Auto level')
+        expect(gps.data[1].description).toContain('does not directly report hardware power or fix state')
         expect(gps.methods.GET.exchange.response.description).toContain('Start Mode is a SET input and is not returned')
         expect(gps.methods.SET.exchange.request.description).toContain('rejected with Invalid Parameter (4) if sent')
-        expect(gps.methods.SET.exchange.request.description).toContain('API-enabled corrections are disabled')
-        expect(gps.methods.SET.exchange.request.description).toContain('automatically controls the GPS module')
-        expect(gps.methods.SET.exchange.request.description).toContain('the device reboots it in that mode')
+        expect(gps.methods.SET.exchange.request.description).toContain('that API flag is cleared')
+        expect(gps.methods.SET.exchange.request.description).toContain('device mode may still require corrections')
+        expect(gps.methods.SET.exchange.request.description).toContain('external Position subscription or device-mode ownership is also required')
+        expect(gps.methods.SET.exchange.request.description).toContain('records a requested start mode as pending in current firmware')
+        expect(gps.methods.SET.exchange.request.description).not.toMatch(/automatically controls|reboots it|enables it in that mode/)
         const set = getMessageDocumentation(gps)!.operations.find(operation => operation.method === 'SET')!
         const setFields = resolveDocumentationFields(protocol, gps, set.request!.fields, 'fields')
         expect(setFields.find(field => field.id === 2)!.description).toBe(gps.data[2].description)
@@ -458,6 +461,16 @@ describe('migrated exchange authoring audit', () => {
 describe('Device Status reference', () => {
     const message = protocol.messages[34]
     const docs = getMessageDocumentation(message)!
+    it('qualifies Toit MT34 GET response headers by target', () => {
+        const get = docs.operations.find((operation: DocumentationOperation) => operation.method === 'GET')!
+        const response = get.response!
+        expect(response.description).toContain('reviewed Toit implementation')
+        expect(response.description).toContain('whenever a Message ID is present, including zero')
+        expect(response.description).toContain('does not include an explicit Status header')
+        expect(response.description).toContain('Other targets may differ')
+        expect(response.headers?.['3']).toBeDefined()
+        expect(response.headers?.['4']).toBeUndefined()
+    })
     it('keeps the existing methods and wire fields without inventing a message version', () => {
         expect(Object.keys(message.methods)).toEqual(['GET', 'SUBSCRIBE', 'UNSUBSCRIBE'])
         expect(message.versions).toBeUndefined()
