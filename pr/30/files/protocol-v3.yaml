@@ -1437,12 +1437,12 @@ messages:
             title: Device status (MT34)
             description: >-
               A successful GET returns Device Status directly, without a separate success ACK.
-              Returned fields vary by target and available readings. Response To and Status may
-              be omitted when the request has no nonzero Message ID.
+              Returned fields vary by target and available readings. The reviewed Toit
+              implementation returns firmware information and includes Response To whenever
+              a Message ID is present, including zero; it does not include an explicit Status
+              header. Other targets may differ.
             headers:
               3: {}
-              4:
-                value: 0
             fields:
               1: {}
               2: {}
@@ -1875,13 +1875,17 @@ messages:
       1:
         name: GPS is on
         id: gpsOn
-        description: Whether the GPS service is on.
+        description: >-
+          Whether GPS Control has an active Position-data subscription at the Info-Auto level.
+          This does not directly report hardware power or fix state.
         type: bool
         readonly: true
       2:
         name: Corrections Enabled
         id: correctionsOn
-        description: Whether correction data is enabled.
+        description: >-
+          Correction-service control and status. GET reports whether corrections are enabled
+          by the API or device mode; SET requests the API-controlled correction setting.
         type: uint8
         values:
           0:
@@ -1911,7 +1915,7 @@ messages:
     methods:
       GET:
         title: Read GPS state
-        description: Return the current GPS and correction-service state, not a position fix.
+        description: Read the GPS-control subscription state and effective correction-service state, not a position fix.
         request: null
         response:
           1: null
@@ -1929,9 +1933,9 @@ messages:
             title: GPS state (MT39)
             description: >-
               A successful GET returns GPS Control directly, with no separate success ACK.
-              It reports whether GPS and correction data are currently enabled; Start Mode is
-              a SET input and is not returned. An unsuccessful request returns MT5 (ACK) with
-              Status, not this payload.
+              It reports the Position-data subscription state and whether corrections are enabled
+              by the API or device mode. Start Mode is a SET input and is not returned. An
+              unsuccessful request returns MT5 (ACK) with Status, not this payload.
             headers:
               3: {}
               4:
@@ -1946,7 +1950,7 @@ messages:
               description: "Not Supported: the product or firmware does not support this operation."
       SET:
         title: Configure corrections and start mode
-        description: Enable correction data and/or restart the GPS in the requested boot mode.
+        description: Request correction-service control and/or a GPS start mode.
         request:
           2: {}
           3: {}
@@ -1956,11 +1960,12 @@ messages:
             title: SET request
             description: >-
               Field 1 (GPS is on) is read-only and is rejected with Invalid Parameter (4) if sent.
-              Field 2 requests whether API-enabled correction data should be on and automatically
-              controls the GPS module as needed. If it is absent, API-enabled corrections are disabled,
-              so a start-mode-only SET does not preserve the previous correction setting. Include field
-              2 with value 1 to keep them on. Field 3 requests a start mode: if GPS is enabled, the
-              device reboots it in that mode; if disabled, the device enables it in that mode.
+              Field 2 requests the API-controlled correction setting. If absent from a successful
+              SET, that API flag is cleared; device mode may still require corrections. The API
+              correction request alone does not keep GPS/RTK running: an external Position
+              subscription or device-mode ownership is also required. Field 3 records a requested
+              start mode as pending in current firmware; this SET path does not establish an immediate
+              hardware restart or enable.
             headers:
               1: {}
               5:
