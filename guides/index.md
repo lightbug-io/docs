@@ -45,10 +45,10 @@ features:
     details: Learn how to disable the fall detection feature on our devices.
     link: /guides/disable-fall-detection
   - title: How to create alerts with Lightbug devices
-    details: 
+    details: This article will guide you through how to enable various alerts.
     link: /guides/create-alerts
   - title: How to edit alerts with Lightbug devices
-    details: 
+    details: If you have an alert set up that you wish to change, find out how you can edit it in this article. 
     link: /guides/edit-alerts
   - title: How to create a GPS geofence for Lightbug devices
     details: 
