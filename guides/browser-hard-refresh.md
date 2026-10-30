@@ -2,10 +2,16 @@
 aside: false
 outline: false
 sidebar: false
+editLink: false
 ---
 
 
 # Browser Hard Refresh
+**`Target Audience:`** First time users  
+**`Difficulty:`** Easy  
+**`Prerequisites:`** A browser
+
+## Guide
 
 If you have been told by Lightbug to perform a hard refresh, this guide will help you understand what it is, why it's necessary, and how to do it across different browsers and operating systems.
 

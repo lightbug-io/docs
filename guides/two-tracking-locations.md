@@ -10,7 +10,8 @@ aside: false
 **`Difficulty:`** Easy  
 **`Prerequisites:`** A Lightbug account and access to the mobile app  
 
-## Why?
+## Guide
+### Why?
 
 There will be two [location points](../terminology/points.md) if there has not been an accurate `location update` in more than `two days`. The most recent location is *not* always the most accurate. This accuracy depends on the last type of location update your device has emitted. [GPS](../terminology/positioning/gnss.md) updates are more accurate than [WIFI](../terminology/positioning/wifi.md) or [Bluetooth](../devices/capabilities/ble-scanning.md) updates.  
 
@@ -18,13 +19,13 @@ Each device shows `two dots`, the `most recent` is shown here in `orange`, and t
 
 ![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043268582248-XMGpwiriw5_B0jPA3F4aUMCIRLtB-vL0eQ.png){width=200}
 
-## Basic Information
+### Basic Information
 
 `Tapping and holding` on the `orange dot` will display `basic information` about the location: 
 
 ![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043268582462-azCE3ud-C3MdKNLFd1F10xdpvnvzku7kJg.png){width=200}
 
-## More Information
+### More Information
 
 `Tapping` on the `orange dot` displays several icons: 
 

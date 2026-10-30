@@ -2,9 +2,16 @@
 aside: false
 outline: false
 sidebar: false
+editLink: false
 ---
 
 # Setup SQS Notifications
+
+**`Target Audience:`** Advanced users
+**`Difficulty:`** Moderate  
+**`Prerequisites:`** A Lightbug account and access to the [Amazon Web Services](https://aws.amazon.com/) platform
+
+## Guide
 
 This guide explains how to register an AWS SQS queue to receive device notifications via our platform.
 

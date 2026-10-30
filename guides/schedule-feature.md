@@ -6,11 +6,16 @@ editLink: false
 
 # How to set up the schedule feature
 
+- **Target Audience**: First time users
+- **Difficulty**: Easy
+- **Prerequisites**: A Lightbug account and access to the mobile app or web portal
+
 ::: info
 Please note that this is an advanced feature, so if you require any support, please [get in touch](https://lightbug.io/contact/). 
 :::
 
-## Schedule Feature 
+## Guide  
+### Schedule Feature 
 
 1. Open the [Lightbug Web Portal](https://lightbug.cloud/)
 2. Go to `'Settings'`, then to the `'Schedule'` page  
@@ -37,7 +42,7 @@ Please note that this is an advanced feature, so if you require any support, ple
 Rules are evaluated in order.  
 :::
 
-## Examples
+### Examples
 
 **`Wednesday 8am Wake, Wednesday 4pm Sleep`** On Wednesday you will receive frequent updates between 8am-4pm. The rest of the time you will receive sleep updates.  
 

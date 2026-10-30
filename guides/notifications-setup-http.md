@@ -1,9 +1,14 @@
 ---
+aside: false
 sidebar: false
+editLink: false
 ---
-
 # Setup HTTP Push Notifications (Webhooks)
+**`Target Audience:`** Advanced users 
+**`Difficulty:`** Moderate  
+**`Prerequisites:`** A Lightbug account and access to the [Amazon Web Services](https://aws.amazon.com/) platform
 
+## Guide  
 This guide explains how to register a HTTP endpoint to receive device notifications via our platform.
 
 Under the hood, this uses AWS SNS (Simple Notification Service) to deliver the notifications to your endpoint, which in turn has its [own documentation](https://docs.aws.amazon.com/sns/latest/dg/sns-subscribe-https-s-endpoints-to-topic.html).

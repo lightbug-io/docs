@@ -6,11 +6,16 @@ editLink: false
 
 # How to use the power budget feature on the LightBug Cloud  
 
+- **Target Audience**: First time users
+- **Difficulty**: Easy
+- **Prerequisites**: A Lightbug account and access to the mobile app or web portal
+
 ::: info
 If you find that the battery of your device is draining too quickly, we recommend enabling the power budget feature.  
 :::
 
-## What is the power budget feature?  
+## Guide
+### What is the power budget feature?  
 
 This feature allows a certain amount of power to be used when `transmitting`, so if the conditions are not great, and the tracker has to use a lot of power to transmit, it will ignore the location update and try again later if the conditions are better.  
 
@@ -21,7 +26,7 @@ Examples of where this will be useful are:
 
 3. For any other scenario where the tracker uses too much time for a single transmission  
 
-## How do I apply the power budget feature?  
+### How do I apply the power budget feature?  
 
 1. On the main page of the tracking portal, click the `orange circle` on the bottom left hand side, and then click `settings` (the black cog).  
 ![]()

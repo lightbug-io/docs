@@ -5,11 +5,19 @@ editLink: false
 ---
 
 # How to use the power budget feature on the LightBug App  
+
+- **Target Audience**: First time users
+- **Difficulty**: Easy
+- **Prerequisites**: A Lightbug account and access to the mobile app or web portal
+
+
 ::: info
 If you find that the battery of your device is draining too quickly, we recommend enabling the power budget feature. 
 :::  
 
-## What is the power budget feature?  
+## Guide
+
+### What is the power budget feature?  
 
 This feature allows a certain amount of power to be used when `transmitting`, so if the conditions are not so great and the tracker has to use a lot of power to transmit, it will ignore the location update and try again later if the conditions are better.  
 
@@ -18,7 +26,7 @@ Examples of where this will be useful are:
 2. If the tracker is in a metal container i.e. delivery vehicle, cargo ship  
 3. For any other scenario where the tracker uses too much time for a single transmission  
 
-## How do I apply the power budget feature?  
+### How do I apply the power budget feature?  
 
 1. On the app go to Menu - 'Tracker Settings'  
 ![](https://upload.r2.lb.chasm.cloud/2026/10/docs-guides-fresh-grab/2043169226361-2cnE-VjXINy_XRAH_9ZtOMULD0MvpdLjcA.png){width=250}

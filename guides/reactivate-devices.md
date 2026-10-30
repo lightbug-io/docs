@@ -1,4 +1,14 @@
+---
+aside: false
+sidebar: false
+editLink: false
+---
 # How do I reactivate my Lightbug devices
+- **Target Audience**: First time users
+- **Difficulty**: Easy
+- **Prerequisites**: A Lightbug account and access to the mobile app or web portal
+
+## Guide
 
 If you have deactivated your device (cancelled your subscription), you can reactivate it at any time from the Lightbug App, just follow the simple steps below:  
 1. Open the Lightbug App or go to the Web Portal (https://lightbug.cloud/)  
