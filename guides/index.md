@@ -42,8 +42,8 @@ features:
     details: Find out how to extract raw location data for your LightBug GPS trackers.
     link: /guides/extract-raw-location
   - title: How to disable fall detection for Lightbug devices
-    details: 
-    link: /guides/disable-fall-fetection
+    details: Learn how to disable the fall detection feature on our devices.
+    link: /guides/disable-fall-detection
   - title: How to create alerts with Lightbug devices
     details: 
     link: /guides/create-alerts
