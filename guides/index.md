@@ -51,13 +51,13 @@ features:
     details: If you have an alert set up that you wish to change, find out how you can edit it in this article. 
     link: /guides/edit-alerts
   - title: How to create a GPS geofence for Lightbug devices
-    details: 
+    details: A geofence is a virtual border around a specific area. When your device enters/leaves this specific area, you will receive an alert from the app. You may want to set up a safe-zone for work, school, home, depots or storage sites.
     link: /guides/gps-geofence
   - title: How to create multiple GPS geofences with Lightbug devices
-    details: 
+    details: Now that you have a set up one safe-zone through the setup wizard, find out out how to set up other safe-zone areas.
     link: /guides/multiple-geofences
   - title: GPS tracker with home WiFi safe zone
-    details: 
+    details: Setting up a home Wi-fi safe zone means that when your device is out of range of the home Wi-Fi, you will receive increased location updates.
     link: /guides/wifi-safe-zone
   - title: Setup HTTP Push Notifications
     details: Learn how to set up webhooks to receive real-time notifications for device events.
