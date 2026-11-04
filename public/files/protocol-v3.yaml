@@ -1,3 +1,13 @@
+# YAML-only LB-1588 comparison prototype; not yet a supported consumer schema.
+# Based on PR #30 at ec974430a87c04483a2808e580894b08ff23134e.
+# Flat methods are optional; unchanged messages may retain their existing shape.
+# `key` is a prototype stable identity; `name` may change without changing that key.
+# `method` supplies header 5 for requests; NONE means the header is absent.
+# Operation `version` does not itself imply header 22; selectors remain explicit.
+# Existing examples metadata and explicit ACK details are retained for comparison.
+# Defaults/fallbacks describe effective values, not extra serialized wire fields.
+# Rules are proposed documentation metadata; evaluation/conflict semantics are unsettled.
+# No parser, builder, SDK, or rendered-page changes are included in this draft.
 version: 3
 groups:
   general:
@@ -797,10 +807,57 @@ messages:
           Payload for the config.
           Setting a key to a 0 length value may be used to clear the config value for that key.
         type: bytes
+    # Scalar proposal only: current firmware batch SET and expected-length GET
+    # still need reconciliation; no invented version or exhaustive packet matching.
     methods:
-      GET: null
-      NONE: null
-      SET: null
+      - method: GET
+        key: get-summary
+        name: summary
+        description: Read the configuration key summary. This prototype lists the proposed key-summary/value and
+          maintenance cases; the existing summary8 and summary16 exchange descriptions still apply outside these
+          named helpers.
+        request:
+          headersOptional: [1]
+          fieldsAbsent: [7]
+        response:
+          type: 14
+          headersOptional: [3, 4]
+          headerValues: {4: 0}
+          fieldsOptional: [5]
+      - method: GET
+        key: get-value
+        name: value
+        description: Read the stored value for one configuration key.
+        request:
+          headersOptional: [1]
+          fieldsRequired: [7]
+        response:
+          type: 14
+          headersOptional: [3, 4]
+          headerValues: {4: 0}
+          fieldsRequired: [7, 9]
+          descriptionOverrides:
+            9: Stored value for the requested key.
+      - method: SET
+        key: set-value
+        name: value
+        description: Write or clear one configuration value.
+        request:
+          headersOptional: [1]
+          fieldsRequired: [7, 9]
+          descriptionOverrides:
+            9: New value for the configuration key; an empty value clears the stored key.
+        response:
+          type: 5
+      - method: NONE
+        key: none-maintenance
+        name: maintenance
+        description: Execute the selected configuration maintenance command.
+        request:
+          headersOptional: [1]
+          fieldsRequired: [3]
+        response:
+          type: 5
     examples:
       - name: Set ArmingMode - keep modem on and GPS on (highest power, fastest reconnect)
         description: |
@@ -1256,8 +1313,54 @@ messages:
             id: auto
             description: Automatic search using the last known band.
     methods:
-      GET: null
-      SET: null
+      - method: GET
+        key: get
+        name: state
+        description: Read GSM control state.
+        request:
+          headersOptional: [1]
+        response:
+          type: 31
+          headersOptional: [3, 4]
+          headerValues: {4: 0}
+          fieldsRequired: [1, 3]
+          fieldsOptional: [2, 4]
+          descriptionOverrides:
+            2: Remaining external modem reservation time, in minutes; returned with field 4.
+            4: Present with value true when the modem is reserved for external use.
+      - method: SET
+        key: set
+        name: control
+        description: 'Change flight mode or trigger a network search. Proposal scope: modem ownership through
+          MT32 is separate; these named helpers are not a claim that every GSM communication requires a method.'
+        request:
+          headersOptional: [1, 7]
+          fieldsOptional: [1, 2, 5]
+          fieldsIgnored: [3, 4]
+          fieldDefaults: {1: false}
+          fieldFallbacks:
+            2:
+              header: 7
+              conversion:
+                divideBy: 60000
+                rounding: floor
+          descriptionOverrides:
+            1: Enable or disable flight mode.
+            2: How long to keep flight mode enabled.
+          rules:
+            - whenPresent: 5
+              ignoredFields: [1, 2]
+              ignoredHeaders: [7]
+            - when:
+                fieldsAbsent: [5]
+                fieldValues: {1: true}
+              valuesRequired: [2]
+              fieldConstraints:
+                2:
+                  min: 1
+                  max: 259200
+        response:
+          type: 5
   32:
     name: GSM Ownership
     id: gsmOwnership
@@ -1317,9 +1420,61 @@ messages:
         id: sim2Iccid
         description: SIM2 ICCID if known, read-only. This value may be cached from a previous read and stale.
         type: ascii
+        readonly: true
     methods:
-      GET: null
-      SET: null
+      - method: GET
+        key: get
+        name: settings
+        description: Read the active SIM and available SIM2 settings.
+        request:
+          headersOptional: [1]
+        response:
+          type: 33
+          headersOptional: [3, 4]
+          headerValues: {4: 0}
+          fieldsRequired: [1]
+          fieldsOptional: [2, 3, 4, 8]
+          descriptionOverrides:
+            1: Currently active SIM.
+            2: Configured SIM2 access point name.
+            3: Configured username for SIM2 APN authentication.
+            4: Configured password for SIM2 APN authentication.
+          rules:
+            - when:
+                fieldValues: {1: 0}
+              omittedFields: [2, 3, 4]
+      - method: SET
+        key: set-select-sim1
+        name: selectSim1
+        description: Select SIM1 using its built-in network settings.
+        request:
+          headersOptional: [1]
+          fieldsRequired: [1]
+          fieldValues: {1: 0}
+          fieldsIgnored: [2, 3, 4, 8]
+        response:
+          type: 5
+      - method: SET
+        key: set-select-sim2
+        name: selectSim2
+        description: |
+          Select SIM2 and configure its network credentials.
+        request:
+          headersOptional: [1]
+          fieldsRequired: [1, 2]
+          fieldValues: {1: 1}
+          fieldsOptional: [3, 4]
+          fieldsIgnored: [8]
+          fieldDefaults: {3: '', 4: ''}
+          fieldConstraints:
+            2:
+              minBytes: 1
+          descriptionOverrides:
+            2: Access point name to configure for SIM2.
+            3: Username for SIM2 APN authentication.
+            4: Password for SIM2 APN authentication.
+        response:
+          type: 5
     examples:
       - name: Enable SIM2 with APN settings
         bytes: 3 42 0 33 0 2 0 1 5 4 22 0 0 0 1 1 2 0 1 2 4 1 0 0 0 14 115 111 109 101 46 97 112 110 46 112 108 97 99 101 85 240
@@ -1421,138 +1576,93 @@ messages:
           For devices released from 2025 onwards, this is documented on the device specification page.
         type: uint8
     methods:
-      GET:
-        title: Read device status
-        description: Request the currently available status fields.
-        exchange:
-          request:
-            title: GET request
-            description: No payload fields are required. Method must be included; this message does not default to GET.
-            headers:
-              1: {}
-              5:
-                presence: required
-                value: 2
-          response:
-            title: Device status (MT34)
-            description: >-
-              A successful GET returns Device Status directly, without a separate success ACK.
-              Returned fields vary by target and available readings. The reviewed Toit
-              implementation returns firmware information and includes Response To whenever
-              a Message ID is present, including zero; it does not include an explicit Status
-              header. Other targets may differ.
-            headers:
-              3: {}
-            fields:
-              1: {}
-              2: {}
-              3: {}
-              4: {}
-              5: {}
-              6: {}
-              7: {}
-              10: {}
-          examples:
-            - title: GET exchange
-              provenance: captured
-              target: RH2 over I2C
-              description: >-
-                Captured on 2025-10-10 during normal device communications. The request and
-                response share Message ID / Response To 1048863264; the response reports
-                firmware 2287. These are the original captured bytes.
-              frames:
-                - role: request
-                  label: GET request for device status
-                  encoding: hex
-                  bytes: 03 14 00 22 00 02 00 05 01 01 02 04 20 62 84 3E 00 00 C2 E5
-                - role: response
-                  label: Device status response
-                  encoding: hex
-                  bytes: 03 31 00 22 00 02 00 03 04 04 20 62 84 3E 01 00 08 00 01 03 07 0A 02 04 05 06 01 58 01 00 04 EF 08 00 00 01 30 01 40 01 00 02 00 00 02 00 00 6C 5E
-      SUBSCRIBE:
-        title: Subscribe to status updates
-        description: >-
-          Create or update the default Device Status subscription. Setup acknowledgment and
-          later status publications are separate; subscribing does not itself request an
-          immediate status snapshot. Use GET when you need the current status.
-        exchange:
-          request:
-            title: SUBSCRIBE request
-            description: >-
-              No payload fields are required. Omit Subscription ID (header 17), or use 0, for
-              the default subscription documented here. Updates are subject to the selected
-              interval and message level.
-            headers:
-              1: {}
-              5:
-                presence: required
-                value: 3
-              6: {}
-              7: {}
-              8: {}
-              15: {}
-              16: {}
-              17:
-                value: 0
-          response:
-            messageId: 5
-            title: Response (MT5 - ACK)
-            description: >-
-              A successful setup returns an MT5 acknowledgment with Status 0 when the request
-              includes a nonzero Message ID. This acknowledges the request, not delivery of
-              a status update. No acknowledgment is sent for an omitted or zero Message ID.
-            headers:
-              3:
-                presence: required
-              4:
-                presence: required
-                value: 0
-          publication:
-            title: Status update (MT34)
-            description: >-
-              Later status updates produce Device Status messages, filtered by the subscription
-              interval and level. They are not replies to the original SUBSCRIBE request and
-              do not carry its Response To or Status header. Available payload fields vary by target
-              and readings. For this subscription, interval 0 or no interval publishes when new
-              status data is available; duration 0 or no duration is indefinite; timeout 0 or no
-              timeout sets no first-update deadline. Storage defaults to None (0), and the default
-              message level is Info-Auto (2).
-            fields:
-              1: {}
-              2: {}
-              3: {}
-              4: {}
-              5: {}
-              6: {}
-              7: {}
-              10: {}
-      UNSUBSCRIBE:
-        title: Stop the default status subscription
-        description: >-
-          Stop the default Device Status subscription (ID 0). This operation does not select
-          a named subscription; supplying another Subscription ID does not cancel that named subscription.
-        exchange:
-          request:
-            title: UNSUBSCRIBE request
-            description: No payload fields are required. Omit Subscription ID; this operation removes the default subscription only.
-            headers:
-              1: {}
-              5:
-                presence: required
-                value: 5
-          response:
-            messageId: 5
-            title: Response (MT5 - ACK)
-            description: >-
-              A successful cancellation returns an MT5 acknowledgment with Status 0 when the
-              request includes a nonzero Message ID. No acknowledgment is sent for an omitted
-              or zero Message ID.
-            headers:
-              3:
-                presence: required
-              4:
-                presence: required
-                value: 0
+      - method: GET
+        key: get
+        name: state
+        description: |
+          Request the currently available status fields.
+
+          Request: No payload fields are required. Method must be included; this message does not
+          default to GET.
+
+          Response: A successful GET returns Device Status directly, without a separate success ACK.
+          Returned fields vary by target and available readings. The reviewed Toit implementation
+          returns firmware information and includes Response To whenever a Message ID is present,
+          including zero; it does not include an explicit Status header. Other targets may differ.
+        request:
+          headersOptional: [1]
+        response:
+          type: 34
+          headersOptional: [3]
+          fieldsOptional: [1, 2, 3, 4, 5, 6, 7, 10]
+        examples:
+          - title: GET exchange
+            provenance: captured
+            target: RH2 over I2C
+            description: Captured on 2025-10-10 during normal device communications. The request and response
+              share Message ID / Response To 1048863264; the response reports firmware 2287. These are the original
+              captured bytes.
+            frames:
+              - role: request
+                label: GET request for device status
+                encoding: hex
+                bytes: 03 14 00 22 00 02 00 05 01 01 02 04 20 62 84 3E 00 00 C2 E5
+              - role: response
+                label: Device status response
+                encoding: hex
+                bytes: 03 31 00 22 00 02 00 03 04 04 20 62 84 3E 01 00 08 00 01 03 07 0A 02 04 05 06 01 58 01
+                  00 04 EF 08 00 00 01 30 01 40 01 00 02 00 00 02 00 00 6C 5E
+      - method: SUBSCRIBE
+        key: subscribe
+        name: updates
+        description: |
+          Create or update the default Device Status subscription. Setup acknowledgment and later status
+          publications are separate; subscribing does not itself request an immediate status snapshot.
+          Use GET when you need the current status.
+
+          Request: No payload fields are required. Omit Subscription ID (header 17), or use 0, for the
+          default subscription documented here. Updates are subject to the selected interval and message
+          level.
+
+          Response: A successful setup returns an MT5 acknowledgment with Status 0 when the request
+          includes a nonzero Message ID. This acknowledges the request, not delivery of a status update.
+          No acknowledgment is sent for an omitted or zero Message ID.
+
+          Publication: Later status updates produce Device Status messages, filtered by the subscription
+          interval and level. They are not replies to the original SUBSCRIBE request and do not carry
+          its Response To or Status header. Available payload fields vary by target and readings. For
+          this subscription, interval 0 or no interval publishes when new status data is available;
+          duration 0 or no duration is indefinite; timeout 0 or no timeout sets no first-update
+          deadline. Storage defaults to None (0), and the default message level is Info-Auto (2).
+        request:
+          headersOptional: [1, 6, 7, 8, 15, 16, 17]
+          headerValues: {17: 0}
+        response:
+          type: 5
+          headersRequired: [3, 4]
+          headerValues: {4: 0}
+        publication:
+          type: 34
+          fieldsOptional: [1, 2, 3, 4, 5, 6, 7, 10]
+      - method: UNSUBSCRIBE
+        key: unsubscribe
+        name: updates
+        description: |
+          Stop the default Device Status subscription (ID 0). This operation does not select a named
+          subscription; supplying another Subscription ID does not cancel that named subscription.
+
+          Request: No payload fields are required. Omit Subscription ID; this operation removes the
+          default subscription only.
+
+          Response: A successful cancellation returns an MT5 acknowledgment with Status 0 when the
+          request includes a nonzero Message ID. No acknowledgment is sent for an omitted or zero
+          Message ID.
+        request:
+          headersOptional: [1]
+        response:
+          type: 5
+          headersRequired: [3, 4]
+          headerValues: {4: 0}
   35:
     name: Device IDs
     id: deviceIds
@@ -1590,50 +1700,40 @@ messages:
         description: SIM2 ICCID cached from a previous read. This value may be stale.
         type: ascii
     methods:
-      GET:
-        title: Read device IDs
-        description: Request the available device and SIM identifiers.
-        exchange:
-          request:
-            title: GET request
-            description: No payload fields are required. Include Method GET to request the device identifiers.
-            headers:
-              1: {}
-              5:
-                presence: required
-                value: 2
-          response:
-            title: Device IDs (MT35)
-            description: >-
-              The GET response contains the available device identifiers. Not all fields are
-              available on every device type.
-            headers:
-              3: {}
-              4:
-                value: 0
-            fields:
-              1: {}
-              2: {}
-              3: {}
-              4: {}
-              8: {}
-          examples:
-            - title: GET exchange
-              provenance: captured
-              target: RH2 over I2C
-              description: >-
-                Captured on 2025-10-10 during normal communications over I2C with the ESP32
-                co-processor. Toit on the ESP32 sends the request; RH2 P1 v2287 responds.
-                These are the original captured bytes.
-              frames:
-                - role: request
-                  label: GET request for device ids
-                  encoding: hex
-                  bytes: 03 14 00 23 00 02 00 05 01 01 02 04 1F BB 35 E2 00 00 BF A9
-                - role: response
-                  label: Device IDs response
-                  encoding: hex
-                  bytes: 03 41 00 23 00 02 00 03 04 04 1F BB 35 E2 01 00 03 00 01 02 03 04 03 6D A1 00 0F 38 36 34 39 35 30 30 36 30 32 31 32 35 38 37 14 38 39 34 35 37 33 30 30 30 30 30 30 32 32 32 31 34 38 30 36 06 FB
+      - method: GET
+        key: get
+        name: identifiers
+        description: |
+          Request the available device and SIM identifiers.
+
+          Request: No payload fields are required. Include Method GET to request the device identifiers.
+
+          Response: The GET response contains the available device identifiers. Not all fields are
+          available on every device type.
+        request:
+          headersOptional: [1]
+        response:
+          type: 35
+          headersOptional: [3, 4]
+          headerValues: {4: 0}
+          fieldsOptional: [1, 2, 3, 4, 8]
+        examples:
+          - title: GET exchange
+            provenance: captured
+            target: RH2 over I2C
+            description: Captured on 2025-10-10 during normal communications over I2C with the ESP32 co-processor.
+              Toit on the ESP32 sends the request; RH2 P1 v2287 responds. These are the original captured bytes.
+            frames:
+              - role: request
+                label: GET request for device ids
+                encoding: hex
+                bytes: 03 14 00 23 00 02 00 05 01 01 02 04 1F BB 35 E2 00 00 BF A9
+              - role: response
+                label: Device IDs response
+                encoding: hex
+                bytes: 03 41 00 23 00 02 00 03 04 04 1F BB 35 E2 01 00 03 00 01 02 03 04 03 6D A1 00 0F 38 36
+                  34 39 35 30 30 36 30 32 31 32 35 38 37 14 38 39 34 35 37 33 30 30 30 30 30 30 32 32 32 31 34
+                  38 30 36 06 FB
   36:
     name: Device Time
     id: deviceTime
@@ -1917,85 +2017,54 @@ messages:
             name: Hot
             id: hot
     methods:
-      GET:
-        title: Read GPS state
-        description: Return GPS Control state, not a position fix.
-        request: null
-        response:
-          1: null
-          2: null
-        exchange:
-          request:
-            title: GET request
-            description: No payload fields are needed.
-            headers:
-              1: {}
-              5:
-                presence: required
-                value: 2
-          response:
-            title: GPS state (MT39)
-            description: >-
-              A successful GET returns this payload directly, without a separate success ACK.
-              Start Mode is SET-only and is not returned. An unsuccessful request returns MT5
-              (ACK) with Status, not this payload.
-            headers:
-              3: {}
-              4:
-                value: 0
-            fields:
-              1:
-                presence: required
-              2:
-                presence: required
-          errors:
-            - code: 7
-              description: "Not Supported: the product or firmware does not support this operation."
-      SET:
-        title: Configure corrections and start mode
-        description: Apply GPS Control inputs.
+      - method: GET
+        key: get
+        name: state
+        description: |
+          Return GPS Control state, not a position fix.
+
+          Request: No payload fields are needed.
+
+          Response: A successful GET returns this payload directly, without a separate success ACK.
+          Start Mode is SET-only and is not returned. An unsuccessful request returns MT5 (ACK) with
+          Status, not this payload.
+
+          Status 7: Not Supported: the product or firmware does not support this operation.
         request:
-          2: {}
-          3: {}
-        response: null
-        exchange:
-          request:
-            title: SET request
-            description: >-
-              A correction-service request alone does not keep GPS/RTK running; an external
-              Position subscription or device-mode ownership is also required.
-            headers:
-              1: {}
-              5:
-                presence: required
-                value: 1
-            fields:
-              2: {}
-              3: {}
-          response:
-            messageId: 5
-            title: Response (MT5 - ACK)
-            description: >-
-              For a request with a nonzero Message ID, successful SET returns an ACK, not GPS state. Use
-              GET to read the current state afterward.
-            headers:
-              3: {}
-              4:
-                presence: required
-                value: 0
-            fields:
-              1:
-                presence: required
-                value: 39
-          errors:
-            - code: 4
-              description: >-
-                Invalid Parameter: a read-only GPS status field or an unsupported start mode was
-                supplied.
-            - code: 5
-              description: "Invalid State: the correction service cannot be enabled in the current device state."
-            - code: 7
-              description: "Not Supported: the product or firmware does not support this operation."
+          headersOptional: [1]
+        response:
+          type: 39
+          headersOptional: [3, 4]
+          headerValues: {4: 0}
+          fieldsRequired: [1, 2]
+      - method: SET
+        key: set
+        name: control
+        description: |
+          Apply GPS Control inputs.
+
+          Request: A correction-service request alone does not keep GPS/RTK running; an external
+          Position subscription or device-mode ownership is also required.
+
+          Response: For a request with a nonzero Message ID, successful SET returns an ACK, not GPS
+          state. Use GET to read the current state afterward.
+
+          Status 4: Invalid Parameter: a read-only GPS status field or an unsupported start mode was
+          supplied.
+
+          Status 5: Invalid State: the correction service cannot be enabled in the current device state.
+
+          Status 7: Not Supported: the product or firmware does not support this operation.
+        request:
+          headersOptional: [1]
+          fieldsOptional: [2, 3]
+        response:
+          type: 5
+          headersOptional: [3]
+          headersRequired: [4]
+          headerValues: {4: 0}
+          fieldsRequired: [1]
+          fieldValues: {1: 39}
   40:
     name: Haptics Control
     id: hapticsControl
@@ -3212,10 +3281,14 @@ messages:
   58:
     name: Message Box
     id: _msgBox
-    description: >-
+    description: |
       Message Box keeps up to 1024 bytes of server-managed data cached on the device for a connected
       application. GET reads the local cache, SUBSCRIBE delivers later cache updates, and SET
       replaces or clears the cached bytes.
+
+      The cached feature requires supporting firmware. Unsupported products return Not Supported
+      (Status header 4, code 7). Independent Transmit Now uploads are documented separately below
+      and do not imply support for the cached feature.
     target: Viper devices only
     versions:
       2:
@@ -3288,350 +3361,306 @@ messages:
         type: bytes
         versions: [2]
     methods:
-      GET:
-        title: Read the cached message
-        description: >-
+      - method: GET
+        key: get
+        version: 1
+        defaultVersion: true
+        name: cached
+        description: |
           GET chooses its own response format, regardless of the selected subscription format. A
           successful GET returns MT58 directly, rather than a separate success ACK.
-        exchange:
-          errors:
-            - code: 4
-              description: "Invalid Parameter: a decoded Message Version value above 2."
-            - code: 7
-              description: "Not Supported: the product or firmware does not support this operation."
-        versions:
-          2:
-            title: 2026-10 · complete payload
-            description: Select the complete extended payload and its CRC-16/XMODEM.
-            request:
-              title: GET request
-              description: No payload fields are needed.
-              headers:
-                1: {}
-                5:
-                  presence: required
-                  value: 2
-                22:
-                  presence: required
-                  value: 2
-            response:
-              title: Cached payload
-              description: >-
-                A successful GET returns this MT58 payload. An unsuccessful request returns
-                MT5 (ACK) with Status instead. Version 2 returns CRC field 2; legacy checksum
-                field 1 and version 1 chunks are not returned.
-              headers:
-                3: {}
-                4:
-                  value: 0
-                22:
-                  presence: required
-                  value: 2
-              fields:
-                2:
-                  presence: required
-                129:
-                  maxBytes: 1024
-          1:
-            title: 2025-10 · legacy chunks
-            description: Use the unchanged legacy wire layout and additive checksum.
-            request:
-              title: GET request
-              description: >-
-                No payload fields are needed. A missing, zero, or malformed-width Message Version
-                selects version 1; explicit value 1 also selects version 1.
-              headers:
-                1: {}
-                5:
-                  presence: required
-                  value: 2
-                22: {}
-            response:
-              title: Legacy cached payload
-              description: >-
-                A successful GET returns this MT58 payload. An unsuccessful request returns
-                MT5 (ACK) with Status instead. Legacy replies use checksum field 1 and nonempty
-                payload chunks 10-14; they do not include header 22, CRC field 2, or field 129.
-              headers:
-                3: {}
-                4:
-                  value: 0
-              fields:
-                1:
-                  presence: required
-                10:
-                  maxBytes: 255
-                11:
-                  maxBytes: 255
-                12:
-                  maxBytes: 255
-                13:
-                  maxBytes: 255
-                14:
-                  maxBytes: 255
-      SET:
-        title: Replace or clear the cached message
-        description: >-
+
+          Use the unchanged legacy wire layout and additive checksum.
+
+          Request: No payload fields are needed. A missing, zero, or malformed-width Message Version
+          selects version 1; explicit value 1 also selects version 1.
+
+          Response: A successful GET returns this MT58 payload. An unsuccessful request returns MT5
+          (ACK) with Status instead. Legacy replies use checksum field 1 and nonempty payload chunks
+          10-14; they do not include header 22, CRC field 2, or field 129.
+
+          Status 4: Invalid Parameter: a decoded Message Version value above 2.
+
+          Status 7: Not Supported: the product or firmware does not support this operation.
+        request:
+          headersOptional: [1, 22]
+          headerValues: {22: 1}
+        response:
+          type: 58
+          headersOptional: [3, 4]
+          headerValues: {4: 0}
+          fieldsRequired: [1]
+          fieldsOptional: [10, 11, 12, 13, 14]
+          fieldConstraints:
+            10:
+              maxBytes: 255
+            11:
+              maxBytes: 255
+            12:
+              maxBytes: 255
+            13:
+              maxBytes: 255
+            14:
+              maxBytes: 255
+          headersAbsent: [22]
+      - method: GET
+        key: get
+        version: 2
+        name: cachedSingleField
+        description: |
+          GET chooses its own response format, regardless of the selected subscription format. A
+          successful GET returns MT58 directly, rather than a separate success ACK.
+
+          Select the complete extended payload and its CRC-16/XMODEM.
+
+          Request: No payload fields are needed.
+
+          Response: A successful GET returns this MT58 payload. An unsuccessful request returns MT5
+          (ACK) with Status instead. Version 2 returns CRC field 2; legacy checksum field 1 and version
+          1 chunks are not returned.
+
+          Status 4: Invalid Parameter: a decoded Message Version value above 2.
+
+          Status 7: Not Supported: the product or firmware does not support this operation.
+
+          The device calculates and stores CRC-16/XMODEM of the cached payload: polynomial 0x1021,
+          initial value 0x0000, no input or output reflection, final XOR 0x0000. The outer message-frame
+          CRC protects the complete frame. The 16-bit payload CRC can collide for different payloads; an
+          accepted SET still applies changed bytes even when their CRC matches the previous CRC.
+
+          The date labels identify when each documented format was introduced in source, not a firmware
+          release date. The 2026-10 format uses Message Version 2; the earlier 2025-10 format uses
+          Message Version 1. This header-22 selector is separate from protocol version 3. The numeric
+          values remain visible in the request and response header documentation.
+        request:
+          headersOptional: [1]
+          headersRequired: [22]
+          headerValues: {22: 2}
+        response:
+          type: 58
+          headersOptional: [3, 4]
+          headerValues: {4: 0, 22: 2}
+          headersRequired: [22]
+          fieldsRequired: [2]
+          fieldsOptional: [129]
+          fieldConstraints:
+            129:
+              maxBytes: 1024
+      - method: SET
+        key: set
+        version: 2
+        name: cachedSingleField
+        description: |
           Every accepted SET updates the cache, writes it to persistent storage when enabled, and
           publishes to current subscribers, even for identical bytes. SET does not change the selected
           subscription format.
-        versions:
-          2:
-            request:
-              title: SET request
-              description: >-
-                The device calculates the payload CRC; the outer message-frame CRC protects the SET
-                request itself.
-              headers:
-                1: {}
-                5:
-                  presence: required
-                  value: 1
-                22:
-                  presence: required
-                  value: 2
-              fields:
-                129:
-                  presence: required
-                  maxBytes: 1024
-            response:
-              messageId: 5
-              title: Response (MT5 - ACK)
-              description: >-
-                For a request with a nonzero Message ID, successful SET returns an ACK. It does not return
-                the cached bytes; subscriber publications are separate asynchronous messages and are not
-                this reply.
-              headers:
-                3: {}
-                4:
-                  presence: required
-                  value: 0
-              fields:
-                1:
-                  presence: required
-                  value: 58
-            errors:
-              - code: 2
-                description: "Missing Parameter: field 129 is absent."
-              - code: 4
-                description: >-
-                  Invalid Parameter: Message Version is missing, malformed-width, or any value other than
-                  2; or field 129 exceeds 1024 bytes.
-              - code: 7
-                description: "Not Supported: the product or firmware does not support this operation."
-      SUBSCRIBE:
-        title: Subscribe to cached-message updates
-        description: >-
+
+          Request: The device calculates the payload CRC; the outer message-frame CRC protects the SET
+          request itself.
+
+          Response: For a request with a nonzero Message ID, successful SET returns an ACK. It does not
+          return the cached bytes; subscriber publications are separate asynchronous messages and are
+          not this reply.
+
+          Status 2: Missing Parameter: field 129 is absent.
+
+          Status 4: Invalid Parameter: Message Version is missing, malformed-width, or any value other
+          than 2; or field 129 exceeds 1024 bytes.
+
+          Status 7: Not Supported: the product or firmware does not support this operation.
+        request:
+          headersOptional: [1]
+          headersRequired: [22]
+          headerValues: {22: 2}
+          fieldsRequired: [129]
+          fieldConstraints:
+            129:
+              maxBytes: 1024
+          fieldsIgnored: [1, 2]
+          descriptionOverrides:
+            129: |
+              New cached message bytes.
+              An empty value clears the cache.
+        response:
+          type: 5
+          headersOptional: [3]
+          headersRequired: [4]
+          headerValues: {4: 0}
+          fieldsRequired: [1]
+          fieldValues: {1: 58}
+      - method: SUBSCRIBE
+        key: subscribe
+        version: 1
+        defaultVersion: true
+        name: cached
+        description: |
           The latest valid SUBSCRIBE selects one shared format for all Message Box publications, not a
-          format per subscriber. A decoded version above 2 leaves both the existing format selection
-          and subscription unchanged. Control acknowledgment and later publications are distinct
-          messages.
-        exchange:
-          response:
-            messageId: 5
-            title: Response (MT5 - ACK)
-            description: >-
-              For a request with a nonzero Message ID, successful SUBSCRIBE returns a control ACK
-              confirming the subscription request only. It does not contain the cache. Success ACKs
-              are suppressed for an omitted or zero Message ID; error ACKs are not suppressed for this
-              reason. Updates arrive as asynchronous MT58 publications, not as direct replies to
-              SUBSCRIBE.
-            headers:
-              3: {}
-              4:
-                presence: required
-                value: 0
-            fields:
-              1:
-                presence: required
-                value: 58
-          errors:
-            - code: 4
-              description: >-
-                Invalid Parameter: a decoded Message Version value above 2; existing selection and
-                subscription are unchanged.
-            - code: 7
-              description: "Not Supported: the product or firmware does not support this operation."
-        versions:
-          2:
-            title: Version 2 · complete-payload publications
-            description: Explicit version 2 selects the shared extended-payload and CRC publication format.
-            request:
-              title: SUBSCRIBE request
-              description: >-
-                No payload fields are needed. A nonzero Message ID requests a setup acknowledgment;
-                omitting Subscription ID selects the default subscription (0).
-              headers:
-                1: {}
-                5:
-                  presence: required
-                  value: 3
-                6: {}
-                7: {}
-                16: {}
-                17: {}
-                22:
-                  presence: required
-                  value: 2
-            publication:
-              title: Cached payload update
-              description: >-
-                This is an asynchronous cache update, not a direct reply to SUBSCRIBE; it has no
-                Response To header. Version 2 identifies the format and includes the cached CRC.
-              headers:
-                17: {}
-                22:
-                  presence: required
-                  value: 2
-              fields:
-                2:
-                  presence: required
-                129:
-                  maxBytes: 1024
-          1:
-            title: Version 1 · legacy publications
-            description: >-
-              Omitted, explicitly 0, malformed-width, or explicit version 1 selects the shared legacy
-              publication format.
-            request:
-              title: SUBSCRIBE request
-              description: >-
-                No payload fields are needed. A nonzero Message ID requests a setup acknowledgment;
-                omitting Subscription ID selects the default subscription (0).
-              headers:
-                1: {}
-                5:
-                  presence: required
-                  value: 3
-                6: {}
-                7: {}
-                16: {}
-                17: {}
-                22: {}
-            publication:
-              title: Legacy cached payload update
-              description: >-
-                This is an asynchronous cache update, not a direct reply to SUBSCRIBE; it has no
-                Response To header.
-              headers:
-                17: {}
-              fields:
-                1:
-                  presence: required
-                10:
-                  maxBytes: 255
-                11:
-                  maxBytes: 255
-                12:
-                  maxBytes: 255
-                13:
-                  maxBytes: 255
-                14:
-                  maxBytes: 255
-      UNSUBSCRIBE:
-        title: Stop a subscription
-        description: >-
+          format per subscriber. A decoded version above 2 leaves both the existing format selection and
+          subscription unchanged. Control acknowledgment and later publications are distinct messages.
+
+          Omitted, explicitly 0, malformed-width, or explicit version 1 selects the shared legacy
+          publication format.
+
+          Request: No payload fields are needed. A nonzero Message ID requests a setup acknowledgment;
+          omitting Subscription ID selects the default subscription (0).
+
+          Response: For a request with a nonzero Message ID, successful SUBSCRIBE returns a control ACK
+          confirming the subscription request only. It does not contain the cache. Success ACKs are
+          suppressed for an omitted or zero Message ID; error ACKs are not suppressed for this reason.
+          Updates arrive as asynchronous MT58 publications, not as direct replies to SUBSCRIBE.
+
+          Publication: This is an asynchronous cache update, not a direct reply to SUBSCRIBE; it has no
+          Response To header.
+
+          Status 4: Invalid Parameter: a decoded Message Version value above 2; existing selection and
+          subscription are unchanged.
+
+          Status 7: Not Supported: the product or firmware does not support this operation.
+        request:
+          headersOptional: [1, 6, 7, 16, 17, 22]
+          headerValues: {22: 1}
+          headerDefaults: {17: 0}
+        response:
+          type: 5
+          headersOptional: [3]
+          headersRequired: [4]
+          headerValues: {4: 0}
+          fieldsRequired: [1]
+          fieldValues: {1: 58}
+        publication:
+          type: 58
+          headersOptional: [17]
+          fieldsRequired: [1]
+          fieldsOptional: [10, 11, 12, 13, 14]
+          fieldConstraints:
+            10:
+              maxBytes: 255
+            11:
+              maxBytes: 255
+            12:
+              maxBytes: 255
+            13:
+              maxBytes: 255
+            14:
+              maxBytes: 255
+          headersAbsent: [3, 4, 22]
+      - method: SUBSCRIBE
+        key: subscribe
+        version: 2
+        name: cachedSingleField
+        description: |
+          The latest valid SUBSCRIBE selects one shared format for all Message Box publications, not a
+          format per subscriber. A decoded version above 2 leaves both the existing format selection and
+          subscription unchanged. Control acknowledgment and later publications are distinct messages.
+
+          Explicit version 2 selects the shared extended-payload and CRC publication format.
+
+          Request: No payload fields are needed. A nonzero Message ID requests a setup acknowledgment;
+          omitting Subscription ID selects the default subscription (0).
+
+          Response: For a request with a nonzero Message ID, successful SUBSCRIBE returns a control ACK
+          confirming the subscription request only. It does not contain the cache. Success ACKs are
+          suppressed for an omitted or zero Message ID; error ACKs are not suppressed for this reason.
+          Updates arrive as asynchronous MT58 publications, not as direct replies to SUBSCRIBE.
+
+          Publication: This is an asynchronous cache update, not a direct reply to SUBSCRIBE; it has no
+          Response To header. Version 2 identifies the format and includes the cached CRC.
+
+          Status 4: Invalid Parameter: a decoded Message Version value above 2; existing selection and
+          subscription are unchanged.
+
+          Status 7: Not Supported: the product or firmware does not support this operation.
+        request:
+          headersOptional: [1, 6, 7, 16, 17]
+          headersRequired: [22]
+          headerValues: {22: 2}
+          headerDefaults: {17: 0}
+        response:
+          type: 5
+          headersOptional: [3]
+          headersRequired: [4]
+          headerValues: {4: 0}
+          fieldsRequired: [1]
+          fieldValues: {1: 58}
+        publication:
+          type: 58
+          headersOptional: [17]
+          headersRequired: [22]
+          headerValues: {22: 2}
+          fieldsRequired: [2]
+          fieldsOptional: [129]
+          fieldConstraints:
+            129:
+              maxBytes: 1024
+          headersAbsent: [3, 4]
+      - method: UNSUBSCRIBE
+        key: unsubscribe
+        name: cached
+        description: |
           Remove the addressed subscription. Neither UNSUBSCRIBE nor subscription expiry resets the
           shared publication-format selection. If Subscription ID is absent, this removes the default
           subscription (ID 0).
-        exchange:
-          request:
-            title: UNSUBSCRIBE request
-            description: No payload fields are needed.
-            headers:
-              1: {}
-              5:
-                presence: required
-                value: 5
-              17: {}
-              22:
-                presence: ignored
-                description: UNSUBSCRIBE does not select or reset the publication format.
-          response:
-            messageId: 5
-            title: Response (MT5 - ACK)
-            description: >-
-              For a request with a nonzero Message ID, successful UNSUBSCRIBE returns a control ACK
-              confirming the unsubscribe request, not a final cached-message publication. Success ACKs
-              are suppressed for an omitted or zero Message ID; error ACKs are not suppressed for this
-              reason.
-            headers:
-              3: {}
-              4:
-                presence: required
-                value: 0
-            fields:
-              1:
-                presence: required
-                value: 58
-          errors:
-            - code: 7
-              description: "Not Supported: the product or firmware does not support this operation."
-    contexts:
-      tracking-session:
-        title: Tracking-session uploads
-        description: >-
+
+          Request: No payload fields are needed.
+
+          Response: For a request with a nonzero Message ID, successful UNSUBSCRIBE returns a control
+          ACK confirming the unsubscribe request, not a final cached-message publication. Success ACKs
+          are suppressed for an omitted or zero Message ID; error ACKs are not suppressed for this
+          reason.
+
+          Status 7: Not Supported: the product or firmware does not support this operation.
+
+          Request: Message Version (header 22) is ignored; UNSUBSCRIBE does not select or reset the
+          publication format.
+        request:
+          headersOptional: [1, 17]
+          headersIgnored: [22]
+          headerDefaults: {17: 0}
+        response:
+          type: 5
+          headersOptional: [3]
+          headersRequired: [4]
+          headerValues: {4: 0}
+          fieldsRequired: [1]
+          fieldValues: {1: 58}
+      - method: NONE
+        key: tracking-session
+        version: 2
+        name: trackingUpload
+        direction: deviceToServer
+        target: Viper or Transmit Now upload-enabled firmware
+        description: |
           A separate device-to-server context, not a GET response or subscription update.
           Tracking-session messages always use Message Version 2. Field 129 may carry independent
-          Transmit Now upload data, not the cached down-synced payload. Cached-message CRC reporting
-          is Viper-only. Independent Transmit Now uploads can use MT58 without cached Message Box
-          support; those upload-only messages omit field 2.
-        target: Viper or Transmit Now upload-enabled firmware
-        versions:
-          2:
-            publication:
-              title: Device upload (MT58)
-              description: >-
-                When Message Box support is enabled, field 2 reports the cached-message CRC, including 0
-                for an empty cache. Independent upload bytes in field 129 do not form part of that
-                cached-message CRC.
-              headers:
-                22:
-                  presence: required
-                  value: 2
-              fields:
-                2:
-                  description: >-
-                    Present when Message Box support is enabled: CRC-16/XMODEM of the cached down-synced
-                    message, not a checksum of the upload in field 129. Zero for an empty cache.
-                129:
-                  description: >-
-                    Independent Transmit Now upload data; do not compare its CRC with field 2 to validate
-                    the upload.
-    notes:
-      - id: support
-        title: Unsupported products
-        placement: overview
-        description: >-
-          The cached feature requires supporting firmware. Unsupported products return Not
-          Supported (Status header 4, code 7). Independent Transmit Now uploads are documented
-          separately below and do not imply support for the cached feature.
-      - id: sync-lifecycle
-        title: How syncing works
-        placement: overview
-        description: |
-          The device reports its cached-message checksum during a tracking session. If a completed session contains a valid report and the server's configured data has a different checksum, the server can send a version 2 SET with the desired bytes. Unconfigured or invalid server data leaves the cache unchanged; an explicitly configured empty payload requests a clear.
+          Transmit Now upload data, not the cached down-synced payload. Cached-message CRC reporting is
+          Viper-only. Independent Transmit Now uploads can use MT58 without cached Message Box support;
+          those upload-only messages omit field 2.
 
-          When the device accepts the SET, it replaces the cache, saves it when persistent storage is enabled, and publishes to current subscribers. GET reads this local cache; subscribing does not itself fetch data from the server.
+          Publication: When Message Box support is enabled, field 2 reports the cached-message CRC,
+          including 0 for an empty cache. Independent upload bytes in field 129 do not form part of that
+          cached-message CRC.
 
-          Later tracking-session reports let the server check the reported cache checksum and offer the update again if it still differs. Sending an update or receiving an ACK alone does not confirm that the cache is synchronized.
-      - id: message-versions
-        title: Format dates and wire selectors
-        placement: reference
-        description: >-
-          The date labels identify when each documented format was introduced in source, not a
-          firmware release date. The 2026-10 format uses Message Version 2; the earlier 2025-10
-          format uses Message Version 1. This header-22 selector is separate from protocol version 3.
-          The numeric values remain visible in the request and response header documentation.
-      - id: checksum-scope
-        title: Payload CRC and frame CRC are different
-        placement: reference
-        description: >-
-          The device calculates and stores CRC-16/XMODEM of the cached payload: polynomial 0x1021,
-          initial value 0x0000, no input or output reflection, final XOR 0x0000. The outer
-          message-frame CRC protects the complete frame. The 16-bit payload CRC can collide for
-          different payloads; an accepted SET still applies changed bytes even when their CRC matches
-          the previous CRC.
+          The device reports its cached-message checksum during a tracking session. If a completed
+          session contains a valid report and the server's configured data has a different checksum, the
+          server can send a version 2 SET with the desired bytes. Unconfigured or invalid server data
+          leaves the cache unchanged; an explicitly configured empty payload requests a clear.
+
+          When the device accepts the SET, it replaces the cache, saves it when persistent storage is
+          enabled, and publishes to current subscribers. GET reads this local cache; subscribing does
+          not itself fetch data from the server.
+
+          Later tracking-session reports let the server check the reported cache checksum and offer the
+          update again if it still differs. Sending an update or receiving an ACK alone does not confirm
+          that the cache is synchronized.
+        publication:
+          type: 58
+          headersRequired: [22]
+          headerValues: {22: 2}
+          fieldsOptional: [2, 129]
+          descriptionOverrides:
+            2: 'Present when Message Box support is enabled: CRC-16/XMODEM of the cached down-synced message,
+              not a checksum of the upload in field 129. Zero for an empty cache.'
+            129: Independent Transmit Now upload data; do not compare its CRC with field 2 to validate the upload.
   61:
     name: GPS Diagnostics
     id: gpsDiagnostics
