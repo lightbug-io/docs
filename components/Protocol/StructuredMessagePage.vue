@@ -76,8 +76,11 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
         acknowledgment: usage.messageId === 5,
         referenceAnchors: usage.messageId === 5
           ? (['headers', 'fields'] as const).flatMap(kind => Object.keys(usage[kind] || {}).map(id => `${anchor}-${role}-${kind}-${id}`))
-          // Preserve field deep links when a shortened input list omits them.
-          : [...sharedHeaders.map(id => `${anchor}-${role}-headers-${id}`), ...Object.keys((usage.messageId === undefined ? message.value : props.yamlData.messages?.[usage.messageId])?.data || {})
+          // Preserve header and field deep links when a shortened input list omits them.
+          : [...sharedHeaders.map(id => `${anchor}-${role}-headers-${id}`),
+            ...Object.keys(props.yamlData.header || {}).filter(id => !Object.prototype.hasOwnProperty.call(usage.headers || {}, id))
+              .map(id => `${anchor}-${role}-headers-${id}`),
+            ...Object.keys((usage.messageId === undefined ? message.value : props.yamlData.messages?.[usage.messageId])?.data || {})
             .filter(id => !Object.prototype.hasOwnProperty.call(usage.fields || {}, id))
             .map(id => `${anchor}-${role}-fields-${id}`)],
         groups: usage.messageId === 5 ? [] : (['headers', 'fields'] as const).map(kind => ({
