@@ -17,7 +17,7 @@ For all items in stock, we aim to dispatch your order within 1-3 days. Shipping 
 
 Dispatch time: It can take 1-3 days for your order to be processed, packaged and collected by the courier from our office.
 
-Shipping time: Shipping times will be shown at checkout after you enter your address. This is approximately how long it will take for your order to arrive once it has collected by the courier from our office.
+Shipping time: Shipping times will be shown at checkout after you enter your address. This is approximately how long it will take for your order to arrive once it has been collected by the courier from our office.
 
 ## Will I have to pay customs or import fees?
 

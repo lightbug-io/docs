@@ -27,7 +27,7 @@ Please [contact us](https://lightbug.io/contact/) and we’ll try our best to re
 
 Each tracker comes with 3 years warranty against manufacturing defects.
 
-# How to maintain a healthy battery when storing/shelving trackers?
+## How to maintain a healthy battery when storing/shelving trackers?
 
 If you are planning on not using a tracker for a while, please ensure that you fully charge the tracker before deactivating it.
 

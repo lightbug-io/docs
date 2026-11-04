@@ -122,7 +122,7 @@ When using this connection for a forwarder, you do not need to select any payloa
 
 ##### Subscriptions
 
-Forwarding a device to Lightbug Cloud will automatically create a [subscription](/devices/api/subscriptions/) for [Position messages](/devices/api/messages/15-position) for the device when connected to the Chasm link.
+Forwarding a device to Lightbug Cloud will automatically create a [subscription](/devices/api/subscriptions/) for [Position messages](/devices/api/messages/15-position) for the device when connected to L1 (Cloud link 1).
 
 The interval of this subscription will be determined by the device's configured reporting interval, for example a 10s device interval setting, will result in `10000ms` interval subscriptions.
 

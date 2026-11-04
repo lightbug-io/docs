@@ -21,4 +21,4 @@ If you [contact us](https://lightbug.io/contact/) we can share trackers between 
 
 If you need to change your email address after creating your Lightbug account, you need to [contact our support team](https://lightbug.io/contact/) and we will change it for you.
 
-It is not possible for you to update this information on the any of our portals.
+It is not possible for you to update this information on any of our portals.

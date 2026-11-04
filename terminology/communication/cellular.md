@@ -15,3 +15,5 @@ GSM is one of the older generations of mobile network technology.
 ## LTE
 
 LTE is a newer mobile network standard that is commonly used for higher-speed and more reliable cellular data connections.
+
+**Reading** [GSM](https://en.wikipedia.org/wiki/GSM), [LTE](https://en.wikipedia.org/wiki/LTE_(telecommunication)), [Cellular Network](https://en.wikipedia.org/wiki/Cellular_network)

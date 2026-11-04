@@ -11,13 +11,13 @@ There is no physical on/off button on any of our trackers, but you can disable t
 
 If you no longer need the device, you can cancel your subscription at any time and reactivate devices at a later date.
 
-There are other forms of control accessible via APIs, such as the ability to lock the device in sleep mode for up to 24 hours, which will temporarily disable location updates when moving. Or the ability to put a device in deep sleep, there is will need to be put on charge or button pressed to wake it up.
+There are other forms of control accessible via APIs, such as the ability to lock the device in sleep mode for up to 24 hours, which will temporarily disable location updates when moving. Or the ability to put a device in deep sleep, the device will need to be put on charge or button pressed to wake it up.
 
 ## How long will the battery last? ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/107HL9y.png){width=100 style="float:right"}
 
 The battery life of the device depends on your required settings.
 
-The best way to find out the estimated battery life is to use our [battery life calculator](https://lightbug.io/) on our website.
+The best way to find out the estimated battery life is to use the [battery life calculator](https://lightbug.io/) on our website.
 
 ## Can the devices operate in extreme weather conditions?
 
