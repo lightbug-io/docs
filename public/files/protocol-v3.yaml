@@ -1216,9 +1216,7 @@ messages:
   31:
     name: GSM Control
     id: gsmControl
-    description: >-
-      GET returns GSM state directly. Successful SET operations return an ACK only when the request
-      includes a nonzero Message ID.
+    description: Controls the GSM modem, including flight mode and network search.
     group: gsm
     header:
       - 5
@@ -3452,8 +3450,8 @@ messages:
                   description: Omitted, explicitly 0, or malformed-width values resolve to 0 and select version
                     1; an explicit 1 also selects version 1.
                   values:
-                    '0': Version 1 (also the omitted/malformed-width fallback)
-                    '1': Version 1
+                    0: Version 1 (also the omitted/malformed-width fallback)
+                    1: Version 1
             response:
               title: Legacy cached payload
               description: A successful GET returns this MT58 payload. An unsuccessful request returns MT5 (ACK)
@@ -3639,8 +3637,8 @@ messages:
                   description: Omitted, explicitly 0, or malformed-width values resolve to 0 and select version
                     1; an explicit 1 also selects version 1.
                   values:
-                    '0': Version 1 (also the omitted/malformed-width fallback)
-                    '1': Version 1
+                    0: Version 1 (also the omitted/malformed-width fallback)
+                    1: Version 1
             publication:
               title: Legacy cached payload update
               description: Version 1 updates use the additive checksum and legacy chunks. Empty payload data
