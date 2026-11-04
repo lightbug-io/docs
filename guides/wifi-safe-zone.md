@@ -10,9 +10,9 @@ editLink: false
 **You will need to be on the Unlimited Data Plan (as this allows for motion detection) to use this feature.**
 :::  
 
-- **Target Audience**: First time users  
-- **Difficulty**: Easy  
-- **Prerequisites**: A Lightbug account and access to the mobile app or web portal  
+**`Target Audience:`** First time users  
+**`Difficulty:`** Easy  
+**`Prerequisites:`** A Lightbug account and access to the mobile app or web portal  
 
 ## Guide  
 The benefit of setting up a `home Wi-fi safe-zone` over a `GPS safe-zone` is that the device will check approx. `every 5 minutes` whether the device is in range of the `Wi-Fi`. If the device `is not`, you will be sent a `notification`. Whereas, if the device leaves the `GPS safe-zone`, the notification will be sent at the `next location update`. 
@@ -28,7 +28,7 @@ Select `'Settings'` in the menu on the top right of the screen
 Locate the `Safe-zone Setup` box
 ![](https://upload.r2.lb.chasm.cloud/2026/11/wifi-safe-zone-desktop/Wifi-Safe-Zone-Desktop-2-47be2e2f-203b-4606-a6ec-5a3784d16163.png)  
 #### Step 3  
-Turn on the `'Ignore motion whe near home Wi-Fi'` setting  
+Turn on the `'Ignore motion when near home Wi-Fi'` setting  
 ![](https://upload.r2.lb.chasm.cloud/2026/11/wifi-safe-zone-desktop/Wifi-Safe-Zone-Desktop-3-655994fc-8411-4ef7-b660-77c39e25d516.png) 
 #### Step 4  
 Enter the name of the Wi-Fi network  
@@ -44,7 +44,7 @@ Open the Menu and select `'Settings'`
 Scroll to the bottom of the `'Settings'` page until you find the `Safe-zone Setup` field  
 ![](https://upload.r2.lb.chasm.cloud/2026/11/wifi-safe-zone-app/Wifi-Safe-Zone-App-2-2b27d049-a622-4f13-885e-81d8b377be31.jpg) 
 #### Step 3  
-Turn on the `'Ignore motion whe near home Wi-Fi'` setting  
+Turn on the `'Ignore motion when near home Wi-Fi'` setting  
 ![](https://upload.r2.lb.chasm.cloud/2026/11/wifi-safe-zone-app/Wifi-Safe-Zone-App-3-b7018ed5-835e-4885-8fbc-d15579917e19.jpg)
 #### Step 4  
 Enter the name of the Wi-Fi network  
