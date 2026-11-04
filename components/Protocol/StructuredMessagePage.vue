@@ -325,13 +325,13 @@ onBeforeUnmount(() => {
       <MessageOutline :entries="outlineEntries" :active-id="activeSection" :message-id="messageId" :message-name="message.name" />
     </div>
     <div class="message-content">
-    <p :id="`message-${messageId}-overview`" class="message-summary">{{ documentation.summary }}</p>
+    <p :id="`message-${messageId}-overview`" class="message-summary"><DocumentationText :text="documentation.summary" :messages="yamlData.messages" /></p>
     <p v-if="documentation.target" class="support-context"><strong>Applies to</strong> {{ documentation.target }}</p>
 
     <div v-if="overviewNotes.length" :id="`message-${messageId}-notes`" class="overview-notes">
       <section v-for="note in overviewNotes" :key="note.id" class="overview-note" :aria-labelledby="`message-${messageId}-note-${note.id}`">
         <h2 :id="`message-${messageId}-note-${note.id}`">{{ note.title }}</h2>
-        <p class="prose">{{ note.description }}</p>
+        <p class="prose"><DocumentationText :text="note.description" :messages="yamlData.messages" /></p>
       </section>
     </div>
 
@@ -397,8 +397,8 @@ onBeforeUnmount(() => {
           <component :is="hasFormats ? 'h3' : 'h2'" :id="`${panel.anchor}-heading`" class="operation-heading">
             <a class="operation-heading-link" :href="`#${panel.anchor}`">{{ panel.operation.title }}</a>
           </component>
-          <p v-if="panel.operation.description" class="prose">{{ panel.operation.description }}</p>
-          <p v-if="panel.variantId && panel.variant.description && panel.variant.description !== panel.operation.description" class="prose">{{ panel.variant.description }}</p>
+          <p v-if="panel.operation.description" class="prose"><DocumentationText :text="panel.operation.description" :messages="yamlData.messages" /></p>
+          <p v-if="panel.variantId && panel.variant.description && panel.variant.description !== panel.operation.description" class="prose"><DocumentationText :text="panel.variant.description" :messages="yamlData.messages" /></p>
           <p v-if="panel.target" class="target-context"><strong>Target</strong> {{ panel.target }}</p>
 
       </div>
@@ -409,7 +409,7 @@ onBeforeUnmount(() => {
             <span v-for="anchor in context.referenceAnchors" :id="anchor" :key="anchor" class="operation-anchor" aria-hidden="true"></span>
             <component :is="hasFormats ? 'h4' : 'h3'" :id="`${panel.anchor}-${context.role}`" class="context-heading">{{ context.title }}</component>
             <p v-if="context.subtitle" class="context-subtitle">{{ context.subtitle }}</p>
-            <p v-if="context.description" class="prose">{{ context.description }}</p>
+            <p v-if="context.description" class="prose"><DocumentationText :text="context.description" :messages="yamlData.messages" /></p>
             <p v-if="context.role === 'response'" class="response-reference"><a :href="responseReferenceUrl">Correlation, status and acknowledgment rules</a><template v-if="context.acknowledgment"> · <a :href="acknowledgmentUrl">MT5 packet format</a></template></p>
             <div v-for="group in context.groups" :key="group.kind" class="field-group" :class="{ 'header-group': group.kind === 'headers' }">
               <component :is="hasFormats ? 'h5' : 'h4'" class="field-group-heading">{{ group.title }}</component>
@@ -448,7 +448,7 @@ onBeforeUnmount(() => {
               <dl class="error-list">
                 <div v-for="error in panel.errors" :key="error.code">
                   <dt><code>{{ error.code }}</code> {{ error.name }}</dt>
-                  <dd class="prose">{{ error.description }}</dd>
+                  <dd class="prose"><DocumentationText :text="error.description" :messages="yamlData.messages" /></dd>
                 </div>
               </dl>
             </section>
@@ -470,7 +470,7 @@ onBeforeUnmount(() => {
               <component :is="hasFormats ? 'h4' : 'h3'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`" class="example-title"><span v-if="example.showNumber" class="example-number">Example {{ example.exampleIndex + 1 }}</span>{{ example.stageTitle }}</component>
               <details v-if="example.startsExchange && example.description" class="example-details">
                 <summary><span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured' }}</span><template v-if="example.target"> · {{ example.target }}</template> · <span class="details-label">Details</span></summary>
-                <p class="prose">{{ example.description }}</p>
+                <p class="prose"><DocumentationText :text="example.description" :messages="yamlData.messages" /></p>
               </details>
               <p v-else class="example-context"><span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured' }}</span><template v-if="example.target"> · {{ example.target }}</template></p>
               <p v-if="example.provenance === 'generated'" class="provenance-note">Generated for illustration; not a device capture.</p>
@@ -500,7 +500,7 @@ onBeforeUnmount(() => {
             <dl class="error-list">
               <div v-for="error in panel.errors" :key="error.code">
                 <dt><code>{{ error.code }}</code> {{ error.name }}</dt>
-                <dd class="prose">{{ error.description }}</dd>
+                <dd class="prose"><DocumentationText :text="error.description" :messages="yamlData.messages" /></dd>
               </div>
             </dl>
           </section>
@@ -510,7 +510,7 @@ onBeforeUnmount(() => {
     <div v-if="referenceNotes.length" :id="overviewNotes.length ? undefined : `message-${messageId}-notes`" class="reference-notes">
       <section v-for="note in referenceNotes" :key="note.id" class="reference-note" :aria-labelledby="`message-${messageId}-note-${note.id}`">
         <h2 :id="`message-${messageId}-note-${note.id}`">{{ note.title }}</h2>
-        <p class="prose">{{ note.description }}</p>
+        <p class="prose"><DocumentationText :text="note.description" :messages="yamlData.messages" /></p>
       </section>
     </div>
     <section v-if="message.examples?.length" :id="`message-${messageId}-wire-examples`" class="message-constants">
