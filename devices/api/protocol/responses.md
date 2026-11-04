@@ -52,6 +52,42 @@ A request may select a format, and a response or publication may identify the fo
 
 For example, current-format Message Box GET responses and publications carry header 22 with value `2`, but its MT5 control ACKs and terminal subscription status messages do not. Legacy Message Box responses omit it. [Message Box's format sections](../messages/58-message-box#message-58-format-current) describe those differences; the dates used as documentation format names do not replace numeric values on the wire.
 
+## Interaction revisions
+
+Usage documentation lives inline at `messages[messageId].interactions`. Each named interaction defines one or more messages through `request`, direct successful `response` (including ACK where applicable), and/or later or unsolicited `publication` stages. These definitions drive the documentation and SDK-facing usage metadata; they are not an index of definitions elsewhere.
+
+Interaction revisions and wire message formats are independent. For example, the first revision of this interaction uses Message Box's existing format 2:
+
+```yaml
+messages:
+  58:
+    # Existing data fields and wire-version definitions remain here.
+    interactions:
+      replace-message-box:
+        method: SET
+        versions:
+          1:
+            messageVersion: 2
+            request:
+              headers:
+                5: {presence: required, value: 1}
+                22: {presence: required, value: 2, maxBytes: 1}
+              fields:
+                129: {presence: required, maxBytes: 1024}
+            response:
+              messageId: 5
+```
+
+Stages inherit the containing message type unless they specify `messageId`, so the response above uses the existing MT5 definition. Field names, types, units, enums and descriptions come from that message's `data` and the shared `header` definitions.
+
+Request mappings list expected inputs, optional by default; mark required inputs explicitly. Leave unrelated inputs out, and keep important ignored or rejected input behavior in concise descriptions. An unlisted input is not a statement that firmware ignores, rejects or accepts it. Response and publication mappings can still mark omitted fields where wire-format or correlation differences matter. Write field descriptions only where the meaning differs.
+
+Existing method-keyed SDK request/response maps remain available without duplicating the interaction documentation.
+
+`messageVersion` references the containing message's existing wire-version definition. It does not itself insert header 22; the stage's headers describe what is sent. Unversioned controls omit it, even if other interactions on that message use versioned payloads. A new interaction revision may reuse the same wire version. Publication-only interactions need no dummy request or method. Applicability can be narrowed with `target` without making fields required.
+
+An interaction describes an exchange, not arbitrary ordered sequences of requests. Its stages remain subject to the correlation, suppression and target rules above; defining a response does not guarantee it is sent.
+
 ## Subscription replies and later updates
 
 A subscription's control reply and its later publications are different events. A control ACK reports the command status; it is not the subscribed data. Later publications can have their own headers, payload and status behavior.
