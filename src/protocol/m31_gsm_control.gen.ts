@@ -28,7 +28,7 @@ export interface GSMControlData {
   enable_flight_mode?: boolean;
   duration?: number;
   is_gsm_active?: boolean;
-  /** Note this will always be true when GETting state in flight mode (as control has been taken). */
+  /** GET: true only during an external modem reservation; omitted otherwise. Flight mode does not imply ownership. Use message 32 to request or release control. */
   request_control?: boolean;
 }
 
@@ -119,7 +119,8 @@ export class GSMControl extends ProtocolMessage {
   }
 
   /**
-   * Note this will always be true when GETting state in flight mode (as control has been taken).
+   * GET: true only during an external modem reservation; omitted otherwise.
+   * Flight mode does not imply ownership. Use message 32 to request or release control.
    */
   get request_control(): boolean | undefined {
     const raw = this.rawMessage.data[MD_GSM_CONTROL_REQUEST_CONTROL];
