@@ -44,7 +44,7 @@ Use **Copy** to copy the link or **Open share** to view it. Anyone with the link
 
 The URL is made up of the device ID, start time, end time, and a random token to prevent guessing of URLs.
 
-![Share created confirmation with the share link, Copy button, and Open share link =800x](/images/share-created-confirmation.svg)
+![Share created confirmation with the share link, Copy button, and Open share link =800x](https://upload.r2.lb.chasm.cloud/2026/11/share-created-confirmation.svg)
 
 ## Viewing
 
