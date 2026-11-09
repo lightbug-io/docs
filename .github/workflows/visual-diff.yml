@@ -1,0 +1,125 @@
+name: Visual diff report
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Open pull request number targeting main (forks allowed)
+        required: true
+        type: string
+      routes:
+        description: Optional comma-separated routes; blank captures all rendered routes
+        required: false
+        type: string
+      profiles:
+        description: Viewport profiles
+        required: true
+        type: choice
+        default: both
+        options: [desktop, mobile, both]
+permissions: {}
+jobs:
+  resolve:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      pr: ${{ steps.check.outputs.pr }}
+      base: ${{ steps.check.outputs.base }}
+      head: ${{ steps.check.outputs.head }}
+      repo: ${{ steps.check.outputs.repo }}
+      repositoryId: ${{ steps.check.outputs.repositoryId }}
+      headRepositoryId: ${{ steps.check.outputs.headRepositoryId }}
+      run: ${{ steps.check.outputs.run }}
+      attempt: ${{ steps.check.outputs.attempt }}
+      workflowSha: ${{ steps.check.outputs.workflowSha }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: .github/visual
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        id: check
+        with:
+          script: await require('./.github/visual/workflow.cjs').resolve({ github, context, core });
+  capture:
+    needs: resolve
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    outputs:
+      upload: ${{ steps.upload.outcome }}
+    steps:
+      # Fresh runner; no shared caches, secrets, write token, or retained git credentials.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          path: tooling
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ needs.resolve.outputs.base }}
+          path: base
+          persist-credentials: false
+          submodules: recursive
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          repository: ${{ needs.resolve.outputs.repo }}
+          ref: ${{ needs.resolve.outputs.head }}
+          path: head
+          persist-credentials: false
+          submodules: recursive
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22.23.4'
+      - run: npm ci --prefix tooling/.github/visual
+      - run: npm exec --prefix tooling/.github/visual -- playwright install --with-deps chromium
+      - name: Build and capture exact commits
+        env:
+          BASE_SHA: ${{ needs.resolve.outputs.base }}
+          HEAD_SHA: ${{ needs.resolve.outputs.head }}
+          ROUTES: ${{ inputs.routes }}
+          PROFILES: ${{ inputs.profiles == 'both' && 'desktop,mobile' || inputs.profiles }}
+        run: node tooling/.github/visual/cli.mjs --base-dir base --head-dir head --base-sha "$BASE_SHA" --head-sha "$HEAD_SHA" --output "$RUNNER_TEMP/visual-report" --routes "$ROUTES" --profiles "$PROFILES"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        id: upload
+        if: always()
+        with:
+          name: visual-diff-pr-${{ needs.resolve.outputs.pr }}-${{ needs.resolve.outputs.head }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/visual-report/
+          if-no-files-found: error
+          retention-days: 7
+          include-hidden-files: false
+  comment:
+    if: always() && needs.resolve.result == 'success'
+    needs: [resolve, capture]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    concurrency:
+      group: visual-diff-comment-${{ needs.resolve.outputs.pr }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      # Never download a report or execute PR code in this write-enabled job.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          sparse-checkout: .github/visual
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          EXPECTED: ${{ toJSON(needs.resolve.outputs) }}
+          CAPTURE_RESULT: ${{ needs.capture.result }}
+          UPLOAD_RESULT: ${{ needs.capture.outputs.upload }}
+        with:
+          script: |
+            await require('./.github/visual/workflow.cjs').announce({ github, context,
+              expected: JSON.parse(process.env.EXPECTED), captureResult: process.env.CAPTURE_RESULT,
+              uploadResult: process.env.UPLOAD_RESULT });
