@@ -30,10 +30,14 @@ function run(command, args, cwd, log, extraEnv = {}) {
     // This is hygiene, not a sandbox. Use isolated read-only CI for untrusted PRs.
     const allowed = ['PATH', 'HOME', 'TMPDIR', 'TMP', 'TEMP', 'SystemRoot', 'COMSPEC', 'PATHEXT', 'HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY', 'http_proxy', 'https_proxy', 'no_proxy', 'npm_config_cache'];
     const env = Object.fromEntries(allowed.filter(k => process.env[k] !== undefined).map(k => [k, process.env[k]]));
-    const child = spawn(command, args, { cwd, env: { ...env, ...extraEnv }, shell: false, stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn(command, args, { cwd, env: { ...env, ...extraEnv }, shell: process.platform === 'win32' && command === 'npm.cmd', detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'] });
     let stdout = '', timedOut = false;
-    const timer = setTimeout(() => { timedOut = true; child.kill('SIGTERM'); }, 15 * 60 * 1000);
-    const killTimer = setTimeout(() => child.kill('SIGKILL'), 15 * 60 * 1000 + 5000);
+    const kill = signal => {
+      try { if (process.platform !== 'win32' && child.pid) process.kill(-child.pid, signal); else child.kill(signal); }
+      catch (error) { if (error.code !== 'ESRCH') throw error; }
+    };
+    const timer = setTimeout(() => { timedOut = true; kill('SIGTERM'); }, 15 * 60 * 1000);
+    const killTimer = setTimeout(() => kill('SIGKILL'), 15 * 60 * 1000 + 5000);
     child.stdout.on('data', data => { if (log) process.stdout.write(data); else { stdout += data; if (stdout.length > 1024 * 1024) child.kill('SIGTERM'); } });
     child.stderr.on('data', data => { if (log) process.stderr.write(data); });
     child.once('error', error => { clearTimeout(timer); clearTimeout(killTimer); reject(error); });

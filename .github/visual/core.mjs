@@ -68,7 +68,8 @@ export async function serve(directory, base = '/docs/visual/') {
       if (!pathname.startsWith(base) || /[\\\x00]/.test(pathname)) { res.writeHead(404).end(); return; }
       const requested = path.resolve(root, pathname.slice(base.length));
       if (requested !== root && !requested.startsWith(root + path.sep)) { res.writeHead(404).end(); return; }
-      for (const candidate of [requested, requested + '.html', path.join(requested, 'index.html')]) {
+      const candidates = pathname.endsWith('/') ? [path.join(requested, 'index.html')] : [requested, requested + '.html', path.join(requested, 'index.html')];
+      for (const candidate of candidates) {
         try {
           const real = await fs.realpath(candidate);
           if (!real.startsWith(root + path.sep) || !(await fs.stat(real)).isFile()) continue;
