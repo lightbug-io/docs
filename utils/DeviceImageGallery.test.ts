@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { compileScript, compileTemplate, parse } from '@vue/compiler-sfc'
-import { createApp, createSSRApp, h, nextTick, ref, type App, type Component } from 'vue'
+import { createApp, createSSRApp, computed, h, nextTick, ref, type App, type Component } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 const { load: parseYaml } = require('js-yaml')
 import ts from 'typescript'
@@ -12,7 +12,9 @@ const source = read('components/DeviceImageGallery.vue')
 const page = read('devices/pro/index.md')
 const imageSources: string[] = parseYaml(read('public/device-specs/pro/v3.yaml')).product.images
 const galleryConfig = page.slice(page.indexOf('const viewLabels'), page.indexOf('</script>'))
-const proImages = new Function('specs', galleryConfig + '\nreturn galleryImages')({ product: { images: imageSources } })
+const loadSpec = evaluate(ts.transpileModule(read('utils/loadSpec.js'), { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true } }).outputText).default
+const proSpec = loadSpec(read('public/device-specs/pro/v3.yaml'))
+const proImages = new Function('specs', 'computed', galleryConfig + '\nreturn galleryImages')(proSpec, computed).value
 const labels: string[] = proImages.map((image: any) => image.label)
 const proProps = {
     images: proImages,

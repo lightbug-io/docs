@@ -22,12 +22,15 @@ The specification tables, PDF download, capability links and image components ta
 `DeviceImageGallery` also works on its own. It accepts any number of image URLs, uses contain-fit framing by default, hides itself for an empty list, and omits navigation for one image. For descriptive labels, alt text or artwork-specific framing, map the YAML URLs to objects in the page:
 
 ```js
-const galleryImages = specs.product.images.map((src, index) => ({
+import { computed } from 'vue'
+
+// loadSpec returns a ref: unwrap it in JavaScript (templates unwrap it automatically).
+const galleryImages = computed(() => (specs.value?.product?.images ?? []).map((src, index) => ({
   src,
   label: viewLabels[index],
   alt: viewDescriptions[index],
   // Optional: fit ('contain' or 'cover'), scale (default 1), offsetY (percent, default 0).
-}))
+})))
 ```
 
 Pass that array as `:images="galleryImages"`. Missing labels fall back to “Image 1”, “Image 2”, etc.; missing alt text uses the label. Explicit empty alt text is preserved. The optional `aspect-ratio` prop controls the stage and thumbnail shape (default `4 / 3`). Add an `id` at the callsite only when the page needs a gallery anchor.

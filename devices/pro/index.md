@@ -3,12 +3,13 @@ aside: true
 ---
 
 <script setup>
+import { computed } from 'vue'
 import spec from '../../public/device-specs/pro/v3.yaml?raw'
 import loadSpec from '../../utils/loadSpec'
 
 const specs = loadSpec(spec)
 const viewLabels = ['Front angle', 'Top side', 'Back', 'Side']
-const galleryImages = specs.product.images.map((src, index) => ({
+const galleryImages = computed(() => (specs.value?.product?.images ?? []).map((src, index) => ({
   src,
   label: viewLabels[index] ?? `Image ${index + 1}`,
   alt: `Shared Pro enclosure, ${(viewLabels[index] ?? `image ${index + 1}`).toLowerCase()} view`,
@@ -16,7 +17,7 @@ const galleryImages = specs.product.images.map((src, index) => ({
   fit: 'cover',
   scale: 1.25,
   offsetY: index === 3 ? -20.833333 : 0,
-}))
+})))
 </script>
 
 # Pro
