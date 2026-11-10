@@ -67,35 +67,35 @@ async function navigateImages(event: KeyboardEvent, index: number) {
 </script>
 
 <template>
-  <figure v-if="currentImage" class="device-gallery" :aria-label="props.ariaLabel" :style="{ '--gallery-aspect-ratio': props.aspectRatio }">
-    <div class="device-gallery__stage">
+  <figure v-if="currentImage" class="device-image-gallery" :aria-label="props.ariaLabel" :style="{ '--gallery-aspect-ratio': props.aspectRatio }">
+    <div class="device-image-gallery__stage">
       <img
         v-if="!imageFailed"
         :key="currentImage.src"
         :src="currentImage.url"
         :alt="currentImage.alt"
-        class="device-gallery__image"
+        class="device-image-gallery__image"
         :style="currentImage.style"
         width="1920"
         height="1080"
         decoding="async"
         @error="imageFailed = true"
       />
-      <p v-else class="device-gallery__error" role="status">This image could not load.<template v-if="images.length > 1"> Try another view.</template></p>
+      <p v-else class="device-image-gallery__error" role="status">This image could not load.<template v-if="images.length > 1"> Try another view.</template></p>
     </div>
-    <div v-if="images.length > 1" ref="thumbnails" class="device-gallery__thumbnails" role="group" aria-label="Choose image" :style="{ gridTemplateColumns: `repeat(${Math.min(images.length, 4)}, minmax(0, 1fr))` }">
+    <div v-if="images.length > 1" ref="thumbnails" class="device-image-gallery__thumbnails" role="group" aria-label="Choose image" :style="{ gridTemplateColumns: `repeat(${Math.min(images.length, 4)}, minmax(0, 1fr))` }">
       <button
         v-for="(image, index) in images"
         :key="`${index}:${image.src}`"
         type="button"
-        class="device-gallery__thumbnail"
+        class="device-image-gallery__thumbnail"
         :aria-label="`Show ${image.label}`"
         :aria-pressed="selectedIndex === index"
         :disabled="!interactive"
         @click="selectImage(index)"
         @keydown="navigateImages($event, index)"
       >
-        <span class="device-gallery__thumbnail-image"><img :src="image.url" :style="image.style" alt="" width="1920" height="1080" decoding="async" /></span>
+        <span class="device-image-gallery__thumbnail-image"><img :src="image.url" :style="image.style" alt="" width="1920" height="1080" decoding="async" /></span>
         <span>{{ image.label }}</span>
       </button>
     </div>
@@ -105,13 +105,13 @@ async function navigateImages(event: KeyboardEvent, index: number) {
 </template>
 
 <style scoped>
-.device-gallery {
+.device-image-gallery {
   width: 100%;
   max-width: 20rem;
   min-width: 0;
   margin: 0;
 }
-.device-gallery__stage {
+.device-image-gallery__stage {
   display: grid;
   place-items: center;
   position: relative;
@@ -121,8 +121,8 @@ async function navigateImages(event: KeyboardEvent, index: number) {
   border: 1px solid var(--vp-c-divider);
   border-radius: 14px;
 }
-.device-gallery__image,
-.device-gallery__thumbnail-image img {
+.device-image-gallery__image,
+.device-image-gallery__thumbnail-image img {
   display: block;
   position: absolute;
   inset: 0;
@@ -130,12 +130,12 @@ async function navigateImages(event: KeyboardEvent, index: number) {
   height: 100%;
   object-position: center;
 }
-.device-gallery__thumbnails {
+.device-image-gallery__thumbnails {
   display: grid;
   gap: 6px;
   margin-top: 10px;
 }
-.device-gallery__thumbnail {
+.device-image-gallery__thumbnail {
   min-width: 0;
   min-height: 44px;
   padding: 3px 3px 6px;
@@ -148,7 +148,7 @@ async function navigateImages(event: KeyboardEvent, index: number) {
   line-height: 1.4;
   cursor: pointer;
 }
-.device-gallery__thumbnail-image {
+.device-image-gallery__thumbnail-image {
   display: block;
   position: relative;
   aspect-ratio: var(--gallery-aspect-ratio);
@@ -157,26 +157,26 @@ async function navigateImages(event: KeyboardEvent, index: number) {
   border-radius: 5px;
   background: #fff;
 }
-.device-gallery__thumbnail:hover { border-color: var(--vp-c-divider); }
-.device-gallery__thumbnail[aria-pressed="true"] {
+.device-image-gallery__thumbnail:hover { border-color: var(--vp-c-divider); }
+.device-image-gallery__thumbnail[aria-pressed="true"] {
   border-color: var(--vp-c-brand-1);
   color: var(--vp-c-text-1);
   font-weight: 600;
 }
-.device-gallery__thumbnail:focus-visible {
+.device-image-gallery__thumbnail:focus-visible {
   outline: 2px solid var(--vp-c-text-1);
   outline-offset: 3px;
 }
-.device-gallery__thumbnail:disabled { cursor: default; }
-.device-gallery figcaption,
-.device-gallery noscript {
+.device-image-gallery__thumbnail:disabled { cursor: default; }
+.device-image-gallery figcaption,
+.device-image-gallery noscript {
   display: block;
   margin-top: 9px;
   color: var(--vp-c-text-2);
   font-size: .75rem;
   line-height: 1.5;
 }
-.device-gallery__error {
+.device-image-gallery__error {
   padding: 1rem;
   color: #3c3c43;
   font-size: .875rem;

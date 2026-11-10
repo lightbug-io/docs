@@ -22,7 +22,7 @@ const proProps = {
     caption: 'Shared exterior views for Pro3 and ProN/PR2.',
 }
 const { descriptor } = parse(source, { filename: 'DeviceImageGallery.vue' })
-const compiled = compileScript(descriptor, { id: 'device-gallery-test', inlineTemplate: true })
+const compiled = compileScript(descriptor, { id: 'device-image-gallery-test', inlineTemplate: true })
 const javascript = ts.transpileModule(compiled.content, {
     compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.CommonJS, esModuleInterop: true },
 }).outputText
@@ -61,7 +61,7 @@ async function mount(props: Record<string, any> = proProps) {
     await nextTick()
 }
 const buttons = () => Array.from(host.querySelectorAll<HTMLButtonElement>('button'))
-const mainImage = () => host.querySelector<HTMLImageElement>('.device-gallery__image')!
+const mainImage = () => host.querySelector<HTMLImageElement>('.device-image-gallery__image')!
 async function press(index: number, key: string) {
     const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })
     buttons()[index].dispatchEvent(event)
@@ -92,7 +92,7 @@ describe('Reusable device image gallery', () => {
         const html = await renderToString(createSSRApp(DeviceImageGallery, proProps))
         const ssr = document.createElement('div')
         ssr.innerHTML = html
-        expect(ssr.querySelector('.device-gallery__image')?.getAttribute('src')).toBe(servedUrl(0))
+        expect(ssr.querySelector('.device-image-gallery__image')?.getAttribute('src')).toBe(servedUrl(0))
         expect(ssr.querySelectorAll('button[disabled]')).toHaveLength(4)
         expect(ssr.querySelectorAll('button[aria-pressed="true"]')).toHaveLength(1)
         expect(html).toContain('Shared exterior views for Pro3 and ProN/PR2.')
