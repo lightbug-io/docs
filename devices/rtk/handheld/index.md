@@ -3,15 +3,44 @@ aside: false
 ---
 
 <script setup>
+import { computed } from 'vue'
 import spec from '../../../public/device-specs/rtk/v2.yaml?raw'
 import loadSpec from '../../../utils/loadSpec'
 
 const specs = loadSpec(spec)
+const viewLabels = ['Front angle', 'Top side', 'Back', 'Side']
+// Frame the existing renders without changing the source artwork or specification data.
+const viewScales = [1, 1, 1, 1]
+const viewOffsets = [13, 11, 4, -4]
+const galleryImages = computed(() => (specs.value?.product?.images ?? []).map((src, index) => ({
+  src,
+  label: viewLabels[index] ?? `Image ${index + 1}`,
+  alt: `Handheld RTK, ${(viewLabels[index] ?? `image ${index + 1}`).toLowerCase()} view`,
+  fit: 'cover',
+  scale: viewScales[index] ?? 1,
+  offsetY: viewOffsets[index] ?? 0,
+})))
 </script>
 
 # Handheld RTK (RH2)
 
+<DeviceOverview>
+
 Reliable, ultra-accurate & affordable RTK tracking. For centimeter-level data capture and safety applications.
+
+## Feature guides {#capabilities}
+
+<DeviceCapabilities device="RH2" />
+
+<template #media>
+<DeviceImageGallery
+  id="images"
+  :images="galleryImages"
+  aria-label="Handheld RTK gallery"
+/>
+</template>
+
+</DeviceOverview>
 
 ## Guides
 
@@ -26,10 +55,6 @@ Our RH2 guides are still a work in progress, but these links may help you get st
 - Using the second processor, [Toit SDK](/devices/api/sdks/toit/)
   - With the default [Survey application](/devices/api/sdks/toit/applications/survey/)
   - With custom Toit applications, using the [Toit SDK documentation](/devices/api/sdks/toit/)
-
-## Feature guides {#capabilities}
-
-<DeviceCapabilities device="RH2" />
 
 ## Downloads
 

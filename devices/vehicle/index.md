@@ -6,13 +6,28 @@ next:
 ---
 
 <script setup>
+import { computed } from 'vue'
 import spec from '../../public/device-specs/vehicle/v3.yaml?raw'
 import loadSpec from '../../utils/loadSpec'
 
 const specs = loadSpec(spec)
+const viewLabels = ['Front angle', 'Top side', 'Other side', 'Side']
+// Frame the existing renders without changing the source artwork or specification data.
+const viewScales = [1.6, 1.6, 1.25, 1.6]
+const viewOffsets = [-27, -26, 0, -53]
+const galleryImages = computed(() => (specs.value?.product?.images ?? []).map((src, index) => ({
+  src,
+  label: viewLabels[index] ?? `Image ${index + 1}`,
+  alt: `Vehicle, ${(viewLabels[index] ?? `image ${index + 1}`).toLowerCase()} view`,
+  fit: 'cover',
+  scale: viewScales[index] ?? 1,
+  offsetY: viewOffsets[index] ?? 0,
+})))
 </script>
 
 # Vehicle (VT3)
+
+<DeviceOverview>
 
 <DownloadSpecButton :spec="specs" deviceTitle="Vehicle (VT3)" />
 
@@ -21,6 +36,16 @@ const specs = loadSpec(spec)
 <DeviceCapabilities device="VT3" />
 
 Do not apply the older GPS/GSM colour table or RH2 RGB charging table to VT3.
+
+<template #media>
+<DeviceImageGallery
+  id="images"
+  :images="galleryImages"
+  aria-label="Vehicle gallery"
+/>
+</template>
+
+</DeviceOverview>
 
 ## Vehicle connection status
 
@@ -39,10 +64,6 @@ The display can also appear when charging starts or ignition becomes high. Paire
 
 Follow the [installation checks](/devices/vehicle/installation#step-8-check-functionality) and confirm the reported external-power and ignition state where available. If those readings do not match the wiring, ask support before changing the installation.
 
-
-## Images
-
-<DeviceSpecImages :spec="specs" />
 
 ## Overview
 

@@ -88,6 +88,42 @@ describe('Reusable device image gallery', () => {
         expectSelection(0)
     })
 
+    test.each([
+        ['devices/zero/index.md', 'Zero', ['Front angle', 'Top side', 'Back', 'Side']],
+        ['devices/vehicle/index.md', 'Vehicle', ['Front angle', 'Top side', 'Other side', 'Side']],
+        ['devices/enviro/index.md', 'Enviro', ['Front angle', 'Top side', 'Back', 'Side']],
+        ['devices/rtk/handheld/index.md', 'Handheld RTK', ['Front angle', 'Top side', 'Back', 'Side']],
+        ['devices/rtk/vehicle.md', 'VT3 enclosure', ['Front angle', 'Top side', 'Other side', 'Side']],
+    ])('loads the actual %s script and all its YAML-backed gallery views', async (file, name, viewLabels) => {
+        const source = read(file as string)
+        const specPath = source.match(/import spec from '([^']+)\?raw'/)![1]
+        const rawSpec = readFileSync(path.resolve(__dirname, '..', path.dirname(file as string), specPath), 'utf8')
+        const script = source.match(/<script setup>([\s\S]*?)<\/script>/)![1].replace(/^import .*$/gm, '')
+        // Evaluate the complete page script with the real ref-returning loader.
+        const images = new Function('spec', 'loadSpec', 'computed', script + '\nreturn galleryImages.value')(rawSpec, loadSpec, computed)
+        const urls = parseYaml(rawSpec).product.images
+        expect(images.map((image: any) => image.src)).toEqual(urls)
+        expect(images.map((image: any) => image.label)).toEqual(viewLabels)
+        expect(source).toMatch(/<DeviceOverview>[\s\S]*<template #media>\s*<DeviceImageGallery\b[^>]*id="images"[^>]*:images="galleryImages"/)
+        expect(source).not.toContain('<DeviceSpecImages')
+        await mount({ images })
+        expect(buttons()).toHaveLength(urls.length)
+        for (let index = 0; index < urls.length; index++) {
+            buttons()[index].click()
+            await nextTick()
+            expect(mainImage().getAttribute('src')).toBe(`https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(urls[index])}`)
+            expect(mainImage().alt).toBe(`${name}, ${(viewLabels[index]).toLowerCase()} view`)
+            expect(buttons()[index].getAttribute('aria-pressed')).toBe('true')
+        }
+    })
+
+    test('qualifies VTRTK enclosure imagery without adding VT3 specifications or downloads', () => {
+        const source = read('devices/rtk/vehicle.md')
+        expect(source).toContain('caption="VT3 enclosure shown. The VTRTK demo uses this form factor."')
+        expect(source).toContain('Currently available for demo, with the form factor of a [VT3]')
+        expect(source).not.toMatch(/<DeviceSpec(?:Overview|Section)|<DownloadSpecButton/)
+    })
+
     test('server rendering supplies a stable default image and labels before JavaScript loads', async () => {
         const html = await renderToString(createSSRApp(DeviceImageGallery, proProps))
         const ssr = document.createElement('div')
