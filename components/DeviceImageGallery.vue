@@ -106,6 +106,8 @@ async function navigateImages(event: KeyboardEvent, index: number) {
 
 <style scoped>
 .device-image-gallery {
+  /* Keep direct #images links clear of the navigation and mobile page toolbar. */
+  scroll-margin-top: calc(var(--vp-nav-height, 64px) + 48px);
   width: 100%;
   max-width: 20rem;
   min-width: 0;
