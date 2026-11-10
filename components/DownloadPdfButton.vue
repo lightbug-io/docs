@@ -6,7 +6,6 @@
 </template>
 
 <script setup>
-import { withBase } from 'vitepress'
 import { ref } from 'vue'
 import { layoutPdfText, pdfImageWidth } from '../utils/PdfLayout'
 
@@ -44,7 +43,6 @@ const props = defineProps({
 
 function loadScript(src) {
   if (src.includes('jspdf') && window.jspdf) return Promise.resolve();
-  if (src.endsWith('/Lightbug-Spec.js') && window.jspdf?.jsPDF.API.lightbugSpecFontsLoaded) return Promise.resolve();
   const existing = document.querySelector(`script[src='${src}']`);
   if (existing?.pdfLoadPromise) return existing.pdfLoadPromise;
   const script = existing || document.createElement('script');
@@ -65,8 +63,6 @@ function loadScript(src) {
   return promise;
 }
 
-const loadFontScript = loadScript;
-
 /**
  * Render text with clickable links in PDF
  * @param {object} doc - jsPDF document
@@ -81,12 +77,21 @@ function renderTextWithLinks(doc, value, x, y, maxWidth) {
   layout.lines.forEach((line, index) => {
     for (const run of line) {
       const atY = y + index * layout.lineHeight;
+      const font = doc.getFont();
+      if (run.font) doc.setFont(run.font, 'normal');
+      const text = run.pdfText ?? run.text;
+      if (run.pdfText) {
+        const unicode = [...run.text].map(char => char.charCodeAt(0).toString(16).padStart(4, '0')).join('');
+        doc.internal.write(`/Span << /ActualText <FEFF${unicode}> >> BDC`);
+      }
       if (run.url !== undefined) {
         const url = new URL(run.url, window.location.href).href;
-        doc.textWithLink(run.text, x + run.x, atY, { url });
+        doc.textWithLink(text, x + run.x, atY, { url });
       } else {
-        doc.text(run.text, x + run.x, atY);
+        doc.text(text, x + run.x, atY);
       }
+      if (run.pdfText) doc.internal.write('EMC');
+      if (run.font) doc.setFont(font.fontName, font.fontStyle);
     }
   });
   return layout.height;
@@ -138,10 +143,9 @@ async function generatePdf() {
     await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
     jsPDFLoaded = true;
   }
-  await loadFontScript(withBase('/fonts/Lightbug-Spec.js'));
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  doc.setFont('Lightbug-Spec', 'normal');
+  configureStandardFonts(doc);
   const data = props.getPdfData ? props.getPdfData() : null;
   let y = 20;
   if (!data) return;
@@ -428,6 +432,17 @@ async function generatePdf() {
   doc.text(` | Generated: ${fullDate}`, 10 + urlWidth, pageHeight - 10);
   savePdfBlob(doc.output('blob'), data.title);
 }
+
+function configureStandardFonts(doc) {
+  doc.setFont('symbol', 'normal');
+  // jsPDF 2.5.1 omits these Symbol-encoded advances. Adobe's standard
+  // Symbol metrics keep text placement and clickable-link bounds consistent.
+  const widths = doc.getFont().metadata.Unicode.widths;
+  widths[0x46] = 0.763 * widths.fof; // capital phi
+  widths[0x6d] = 0.576 * widths.fof; // small mu
+  doc.setFont('helvetica', 'normal');
+}
+
 function measureRowHeight(doc, row) {
   const labelLines = doc.splitTextToSize(`${row.label}:`, 50 - 2 * cellPadding);
   const valueLayout = layoutPdfText(doc, String(row.value), 130 - 2 * cellPadding);

@@ -1,5 +1,5 @@
 /** Exercise the same merged PR3 YAML through the page's table and PDF components. */
-import { readFileSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import { compileScript, parse } from '@vue/compiler-sfc'
 import { createSSRApp, defineComponent, h, type Component } from 'vue'
@@ -10,8 +10,11 @@ const yaml = require('js-yaml')
 const root = path.join(__dirname, '..')
 const read = (file: string) => readFileSync(path.join(root, file), 'utf8')
 const page = read('devices/pro/index.md')
-const specPath = page.match(/import spec from '([^']+)\?raw'/)![1]
-const spec = yaml.load(readFileSync(path.resolve(root, 'devices/pro', specPath), 'utf8'))
+function specForPage(file: string) {
+    const specPath = read(file).match(/import spec from '([^']+)\?raw'/)![1]
+    return yaml.load(readFileSync(path.resolve(root, path.dirname(file), specPath), 'utf8'))
+}
+const spec = specForPage('devices/pro/index.md')
 const sectionNames = ['physical', 'integrations', 'user interface', 'connectivity', 'positioning', 'sensors', 'battery', 'charging', 'components']
 let capturedPdf: any
 
@@ -63,7 +66,33 @@ describe('Pro3 specification integration', () => {
         expect(page).toContain('<DeviceSpecOverview :spec="specs" />')
         expect(page).toContain('<DownloadSpecButton :spec="specs" deviceTitle="Pro (PR3)" label="Download PR3 PDF" />')
         expect([...page.matchAll(/<DeviceSpecSection :spec="specs" sectionName="([^"]+)"/g)].map(match => match[1])).toEqual(sectionNames)
-        expect(page).toContain('### Charging {#charging-specification}')
+    })
+
+    test('keeps current and legacy navigation pointing to the correct generation', () => {
+        const config = read('.vitepress/config.mts')
+        expect(config).toMatch(/text: 'Pro',\s+link: '\/devices\/pro\/'/)
+        expect(config).toMatch(/text: 'ProN \(PR2\)',\s+link: '\/devices\/history\/PR2'/)
+        expect(config).toContain("link: '/devices/history/#out-of-production'")
+        expect(read('devices.md')).toContain("'/devices/pro/'")
+        const [current, legacy] = read('devices/history/index.md').split('## Out of Production')
+        expect(current).toContain('](/devices/pro/)')
+        expect(current).not.toContain('SKU: PR2')
+        expect(legacy).toContain('](/devices/history/PR2)')
+        expect(page).toContain('](/devices/history/PR2)')
+        expect(read('devices/history/PR2.md')).toContain('](/devices/pro/)')
+        // Preserve existing deep links independently of headings and layout.
+        expect(page).toMatch(/\bid=["']pro-pr2["']/)
+        expect(read('devices/history/PR2.md')).toContain('{#pro-pr2}')
+    })
+
+    test('both generation pages link to existing local pages and assets', () => {
+        for (const file of ['devices/pro/index.md', 'devices/history/PR2.md']) {
+            for (const match of read(file).matchAll(/\]\((\/[^)]+)\)/g)) {
+                const target = match[1].split('#')[0].split('?')[0]
+                const candidates = [target + '.md', target + '/index.md', target + 'index.md', 'public' + target]
+                expect(candidates.some(candidate => existsSync(path.join(root, candidate)))).toBe(true)
+            }
+        }
     })
 
     test('renders PR3 overview and optional-sensor labels on the server', async () => {
@@ -107,9 +136,11 @@ describe('Pro3 specification integration', () => {
         expect(content).not.toMatch(/BQ25890|SIM7000|UWB/)
     })
 
-    test('retains PR2 identity in the legacy download', async () => {
-        const legacy = yaml.load(read('public/device-specs/pro/v2.yaml'))
-        const data = await pdfFor(legacy, 'ProN (PR2)')
+    test('retains PR2 identity in the specification used by the legacy page and download', async () => {
+        const legacy = specForPage('devices/history/PR2.md')
+        expect(legacy.product).toMatchObject({ name: 'ProN (PR2)', sku: 'PR2', prefix: 20, version: 2 })
+        const title = read('devices/history/PR2.md').match(/\bdeviceTitle="([^"]+)"/)![1]
+        const data = await pdfFor(legacy, title)
         expect(data.title).toBe('ProN (PR2)')
         expect(data.mainTable).toMatchObject({ Version: 2, SKU: 'PR2', 'Serial prefix': 20 })
     })

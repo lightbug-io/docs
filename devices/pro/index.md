@@ -25,7 +25,7 @@ The current Pro is Pro3 (PR3), a different hardware generation from [ProN (PR2)]
 
 </div>
 
-<ProImageGallery />
+<ProImageGallery :images="specs.product.images" />
 
 </div>
 </div>

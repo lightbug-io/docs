@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref } from 'vue'
-import exteriorImages from '../data/pro-exterior-images.json'
 
-// Share only the exterior artwork, never the legacy model's specification.
-const images = exteriorImages.map(image => ({
-  ...image,
-  // Match the image-serving route used by DeviceSpecImages on the PR2 archive.
-  url: `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(image.src)}`,
-}))
+const props = defineProps<{ images: string[] }>()
+const labels = ['Front angle', 'Top side', 'Back', 'Side']
+const images = computed(() => props.images.map((src, index) => ({
+  src,
+  label: labels[index] ?? `Image ${index + 1}`,
+  url: `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(src)}`,
+})))
 const selectedIndex = ref(0)
-const currentImage = computed(() => images[selectedIndex.value])
+const currentImage = computed(() => images.value[selectedIndex.value])
 const interactive = ref(false)
 const imageFailed = ref(false)
 const thumbnails = ref<HTMLDivElement>()
@@ -25,10 +25,10 @@ function selectImage(index: number) {
 async function navigateImages(event: KeyboardEvent, index: number) {
   let nextIndex: number
   switch (event.key) {
-    case 'ArrowRight': nextIndex = (index + 1) % images.length; break
-    case 'ArrowLeft': nextIndex = (index + images.length - 1) % images.length; break
+    case 'ArrowRight': nextIndex = (index + 1) % images.value.length; break
+    case 'ArrowLeft': nextIndex = (index + images.value.length - 1) % images.value.length; break
     case 'Home': nextIndex = 0; break
-    case 'End': nextIndex = images.length - 1; break
+    case 'End': nextIndex = images.value.length - 1; break
     default: return
   }
   event.preventDefault()

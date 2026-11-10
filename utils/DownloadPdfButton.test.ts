@@ -5,7 +5,7 @@ import { layoutPdfText, pdfImageWidth } from './PdfLayout'
 function setup() {
     const source = readFileSync(resolve(__dirname, '../components/DownloadPdfButton.vue'), 'utf8')
         .split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm, '')
-    return new Function('ref', 'withBase', 'layoutPdfText', 'pdfImageWidth', 'defineProps', source + '\nreturn {loadScript, downloadPdf, isDownloading, downloadError, savePdfBlob};')(
+    return new Function('ref', 'withBase', 'layoutPdfText', 'pdfImageWidth', 'defineProps', source + '\nreturn {loadScript, downloadPdf, isDownloading, downloadError, savePdfBlob, renderTextWithLinks, configureStandardFonts};')(
         (value: unknown) => ({ value }), (value: string) => value, layoutPdfText, pdfImageWidth, () => ({ getPdfData: () => null })
     )
 }
@@ -32,10 +32,9 @@ describe('PDF resources', () => {
         await second
     })
     test('reuses already registered resources from earlier navigation', async () => {
-        ;(window as any).jspdf = { jsPDF: { API: { lightbugSpecFontsLoaded: true } } }
-        document.head.innerHTML = '<script src="/fonts/Lightbug-Spec.js"></script>'
+        ;(window as any).jspdf = { jsPDF: {} }
+        document.head.innerHTML = '<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>'
         const button = setup()
-        await button.loadScript('/fonts/Lightbug-Spec.js')
         await button.loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
         expect(document.head.querySelectorAll('script')).toHaveLength(1)
     })
@@ -56,16 +55,37 @@ describe('PDF resources', () => {
         click.mockRestore()
         jest.useRealTimers()
     })
-    test('registers static regular and bold fonts once', () => {
-        const api = { events: [] as any[], lightbugSpecFontsLoaded: false }
-        ;(window as any).jspdf = { jsPDF: { API: api } }
-        const register = new Function(readFileSync(resolve(__dirname, '../public/fonts/Lightbug-Spec.js'), 'utf8'))
-        register(); register()
-        expect(api.events).toHaveLength(2)
-        const doc = { addFileToVFS: jest.fn(), addFont: jest.fn() }
-        api.events.forEach(([, callback]) => callback.call(doc))
-        expect(doc.addFont.mock.calls.map(call => call.slice(1))).toEqual([['Lightbug-Spec', 'normal'], ['Lightbug-Spec', 'bold']])
-        expect(doc.addFileToVFS.mock.calls.every(call => call[1].length > 10000)).toBe(true)
+    test('renders unsupported standard-font characters without losing their Unicode or links', () => {
+        let font = { fontName: 'helvetica', fontStyle: 'bold' }
+        const drawn: { text: string; font: string }[] = []
+        const draw = (text: string) => { drawn.push({ text, font: font.fontName }) }
+        const doc = {
+            getFont: () => font,
+            setFont: (fontName: string, fontStyle: string) => { font = { fontName, fontStyle } },
+            getTextWidth: (text: string) => text.length, getLineHeight: () => 10,
+            text: jest.fn(draw), textWithLink: jest.fn(draw), internal: { write: jest.fn() },
+        }
+        setup().renderTextWithLinks(doc, '<a href="https://example.com/spec">Φ 65.0*18.0</a><br>Wi‑Fi 6, μs', 10, 20, 180)
+        const writes = doc.internal.write.mock.calls.map(([value]) => value)
+        expect(writes).toEqual([
+            '/Span << /ActualText <FEFF03a6> >> BDC', 'EMC',
+            '/Span << /ActualText <FEFF2011> >> BDC', 'EMC',
+            '/Span << /ActualText <FEFF03bc> >> BDC', 'EMC',
+        ])
+        expect(doc.textWithLink).toHaveBeenCalledWith('F', 10, 20, { url: 'https://example.com/spec' })
+        expect(drawn).toEqual(expect.arrayContaining([
+            { text: 'F', font: 'symbol' }, { text: 'm', font: 'symbol' },
+            { text: '-', font: 'helvetica' }, { text: 'Wi', font: 'helvetica' },
+        ]))
+        expect(font).toEqual({ fontName: 'helvetica', fontStyle: 'bold' })
+    })
+    test('supplies missing Symbol advances for both layout and link measurement', () => {
+        const widths: Record<string, number> = { fof: 100 }
+        const doc = { getFont: () => ({ metadata: { Unicode: { widths } } }), setFont: jest.fn() }
+        setup().configureStandardFonts(doc)
+        expect(widths[0x46]).toBeCloseTo(76.3)
+        expect(widths[0x6d]).toBeCloseTo(57.6)
+        expect(doc.setFont).toHaveBeenLastCalledWith('helvetica', 'normal')
     })
     test('ignores repeat clicks in flight and resets state after a resource failure', async () => {
         const button = setup()
