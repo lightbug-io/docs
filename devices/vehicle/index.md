@@ -16,9 +16,11 @@ const specs = loadSpec(spec)
 
 <DownloadSpecButton :spec="specs" deviceTitle="Vehicle (VT3)" />
 
-## Capabilities
+## Feature guides {#capabilities}
 
-- [Four power LEDs](/devices/capabilities/four-power-leds), with the VT3 connection display described below. Do not apply the older GPS/GSM colour table or RH2 RGB charging table to these indicators.
+<DeviceCapabilities device="VT3" />
+
+Do not apply the older GPS/GSM colour table or RH2 RGB charging table to VT3.
 
 ## Vehicle connection status
 
@@ -29,9 +31,9 @@ After showing battery status, a short status-button press shows ignition and cha
 | 1 and 2 | The device detects ignition high |
 | 3 and 4 | The device reports that it is charging |
 
-Both pairs can flash when both conditions are true. These are logical indicator numbers, not a left-to-right enclosure diagram. The diagram below does not assert the physical colour or orientation for a hardware revision.
+Both pairs can flash when both conditions are true. These are logical indicator numbers, not a left-to-right enclosure diagram. The example below does not assert the physical colour or orientation for a hardware revision. Choose the reported conditions, then play or step through the five cycles.
 
-![Vehicle connection pattern: indicators 1 and 2 flash for ignition high, indicators 3 and 4 for charging, and all four for both. Five cycles, about 0.3 seconds on and 0.2 seconds off. Neutral shading indicates on and is not an LED colour.](/images/devices/general/led-vehicle-status.svg)
+<LedDemo mode="vehicle" />
 
 The display can also appear when charging starts or ignition becomes high. Paired flashing can therefore be normal. External power does not always mean the battery is currently charging, so an unlit charging pair alone is not proof of a wiring fault.
 

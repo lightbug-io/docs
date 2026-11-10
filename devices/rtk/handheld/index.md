@@ -15,10 +15,6 @@ const { getPdfData } = useDeviceSpec(specs, {})
 
 Reliable, ultra-accurate & affordable RTK tracking. For centimeter-level data capture and safety applications.
 
-## Capabilities
-
-- [RGB status LEDs](/devices/capabilities/rgb-status-leds). See [RH2 LED indicators](/devices/rtk/handheld/leds) for the model's charging colours, status behaviour and application-controlled feedback.
-
 ## Guides
 
 Our RH2 guides are still a work in progress, but these links may help you get started for expected use cases:
@@ -32,6 +28,10 @@ Our RH2 guides are still a work in progress, but these links may help you get st
 - Using the second processor, [Toit SDK](/devices/api/sdks/toit/)
   - With the default [Survey application](/devices/api/sdks/toit/applications/survey/)
   - With custom Toit applications, using the [Toit SDK documentation](/devices/api/sdks/toit/)
+
+## Feature guides {#capabilities}
+
+<DeviceCapabilities device="RH2" />
 
 ## Downloads
 

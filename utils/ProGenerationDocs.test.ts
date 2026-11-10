@@ -2,6 +2,7 @@
 import { readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 import { parse } from 'yaml'
+import { capabilitiesForDevice } from './DeviceCapabilities'
 
 const root = path.resolve(__dirname, '..')
 const read = (file: string) => readFileSync(path.join(root, file), 'utf8')
@@ -9,7 +10,8 @@ const read = (file: string) => readFileSync(path.join(root, file), 'utf8')
 describe('Pro generation documentation', () => {
     test('uses the current Pro route for PR3 without importing the PR2 specification', () => {
         const page = read('devices/pro/index.md')
-        expect(page).toContain('# Pro3 (PR3)')
+        expect(page).toContain('\n# Pro\n')
+        expect(page).toContain('The current Pro is Pro3 (PR3)')
         expect(page).not.toMatch(/import\s+spec|DownloadSpecButton|device-specs\/pro\/v2/)
         expect(page).toContain('not a complete Pro3 specification')
         expect(page).toContain('Cellular bands, wireless features, charging limits and certifications')
@@ -29,7 +31,7 @@ describe('Pro generation documentation', () => {
 
     test('routes the main gallery to PR3 and legacy navigation to PR2', () => {
         const config = read('.vitepress/config.mts')
-        expect(config).toMatch(/text: 'Pro3 \(PR3\)',\s+link: '\/devices\/pro\/'/)
+        expect(config).toMatch(/text: 'Pro',\s+link: '\/devices\/pro\/'/)
         expect(config).toContain("{ text: 'ProN (PR2)', link: '/devices/history/PR2' }")
         expect(read('devices.md')).toContain("withBase('/devices/pro/')")
         expect(read('devices.md')).not.toContain('/devices/pro/pro3')
@@ -48,10 +50,10 @@ describe('Pro generation documentation', () => {
     test('separates PR3 power LEDs from the older PR2 diagnostic pair', () => {
         const current = read('devices/pro/index.md')
         const legacy = read('devices/history/PR2.md')
-        expect(current).toContain('hardware revisions 02–04')
-        expect(current).toContain('four orange indicators')
+        expect(current).toContain('On revisions 02–04')
+        expect(capabilitiesForDevice('PR3')[0].note).toContain('Four orange indicators')
         expect(current).toContain('does not have the separate')
-        expect(legacy).toContain('/devices/capabilities/gps-gsm-status-leds#pro-pr2')
+        expect(capabilitiesForDevice('PR2')[1].link).toBe('/devices/capabilities/gps-gsm-status-leds#pro-pr2')
         expect(legacy).toContain('## Two red lights and four orange lights after a restart')
     })
 

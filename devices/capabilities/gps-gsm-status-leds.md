@@ -30,6 +30,8 @@ When GPS is asleep, its indicator can reflect whether the **previous** fix attem
 
 ## Devices and colour variants
 
+<CapabilityDevices capability="gps-gsm-status-leds" />
+
 ### Pro PR2 {#pro-pr2}
 
 [ProN/PR2](/devices/history/PR2), device ID prefix 20, has four battery indicators and the separate GPS/GSM pair. PR2 designs use red with amber or yellow depending on the board revision. Its [two-red/four-orange startup example](/devices/history/PR2#two-red-lights-and-four-orange-lights-after-a-restart) belongs to this model, not Pro3.

@@ -2,15 +2,13 @@
 aside: true
 ---
 
-<!-- cspell:ignore Quectel HALMD Richtek -->
+# Pro
 
-# Pro3 (PR3)
+The current Pro is Pro3 (PR3), a different hardware generation from [ProN (PR2)](/devices/history/PR2). The two generations share the same external appearance, so use the product code and hardware revision to identify your device before following its instructions. ProN (PR2) is now a legacy model and is no longer in production.
 
-Pro3 is a different hardware generation from [ProN (PR2)](/devices/history/PR2). The two generations share the same external appearance, so use the product code and hardware revision to identify your device before following its instructions. ProN (PR2) is now a legacy model and is no longer in production.
+## Feature guides {#capabilities}
 
-## Capabilities
-
-- [Four power LEDs](/devices/capabilities/four-power-leds): four orange indicators on hardware revisions 02–04, used for battery level, charging and temporary patterns.
+<DeviceCapabilities device="PR3" />
 
 Pro3 does not have the separate [GPS and GSM status LEDs](/devices/capabilities/gps-gsm-status-leds) used by the older ProN/PR2. Use the product code and revision, not the enclosure appearance, to choose the matching documentation.
 
@@ -22,16 +20,12 @@ The enclosure image is shared with ProN/PR2. It does not identify the internal e
 
 ## Hardware generations
 
-| Feature | ProN / PR2 | Pro3 / PR3 |
+| Generation | LED layout | Documentation |
 | --- | --- | --- |
-| LED layout | Four battery indicators plus two diagnostic indicators | Four orange indicators on revisions 02–04 |
-| Cellular platform | SIMCom SIM7000 family | SIMCom A76xx family |
-| Controller | STM32WB55 | STM32WLE5 |
-| Companion processor | ESP8285 | ESP32 family; ESP32-C6FH4 on revision 04 |
-| GNSS receiver | Integrated SIM7000G receiver in the PR2 specification | Separate Quectel LC79HALMD on revision 04 |
-| Charger | Texas Instruments BQ25890H in the PR2 specification | Richtek RT9471 on revision 04 |
+| Pro3 / PR3 (current) | Four orange indicators on revisions 02–04 | This page |
+| ProN / PR2 (legacy) | Four battery indicators plus two diagnostic indicators | [PR2 archive](/devices/history/PR2) |
 
-This is a hardware comparison, not a complete Pro3 specification. Cellular bands, wireless features, charging limits and certifications must be checked for the supplied Pro3 revision. The [PR2 specification download](/devices/history/PR2) applies to PR2 only.
+This is a generation guide, not a complete Pro3 specification. Cellular bands, wireless features, charging limits and certifications must be checked for the supplied Pro3 revision. The [PR2 specification download](/devices/history/PR2) applies to PR2 only.
 
 ## LED indicators
 

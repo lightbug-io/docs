@@ -1,6 +1,7 @@
 /** @jest-environment node */
 import { readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
+import { capabilitiesForDevice, devicesForCapability, capabilitySidebar } from './DeviceCapabilities'
 
 const root = path.resolve(__dirname, '..')
 const read = (file: string) => readFileSync(path.join(root, file), 'utf8')
@@ -10,8 +11,9 @@ const capabilityNames = ['four-power-leds', 'gps-gsm-status-leds', 'rgb-status-l
 // These documentation checks do not replace hardware tests.
 describe('Reusable LED capabilities', () => {
     test.each(capabilityNames)('%s is discoverable from the capability index and sidebar', name => {
-        expect(read('devices/capabilities/index.md')).toContain(`./${name}.md`)
-        expect(read('.vitepress/config.mts')).toContain(`/devices/capabilities/${name}`)
+        expect(read('devices/capabilities/index.md')).toContain('<CapabilityCatalogue />')
+        expect(read('.vitepress/config.mts')).toContain('items: capabilitySidebar()')
+        expect(capabilitySidebar().flatMap(group => group.items).some(item => item.link.endsWith(name))).toBe(true)
         expect(read('guides/leds.md')).toContain(`/devices/capabilities/${name}`)
     })
 
@@ -21,7 +23,7 @@ describe('Reusable LED capabilities', () => {
         expect(page).toContain('| 80% or more | 4 indicators |')
         expect(page).toContain('Below about 95%')
         for (const file of ['devices/pro/index.md', 'devices/history/PR2.md', 'devices/zero/index.md', 'devices/enviro/index.md', 'devices/vehicle/index.md']) {
-            expect(read(file)).toContain('/devices/capabilities/four-power-leds')
+            expect(read(file)).toContain('<DeviceCapabilities device=')
             expect(read(file)).not.toContain('| 20% to below 40% |')
         }
         expect(existsSync(path.join(root, '.vitepress/includes/led-battery-bars.md'))).toBe(false)
@@ -37,20 +39,22 @@ describe('Reusable LED capabilities', () => {
 
     test.each(['zero', 'enviro'])('%s declares both power and diagnostic capabilities', model => {
         const page = read(`devices/${model}/index.md`)
-        expect(page).toContain('## Capabilities')
-        expect(page).toContain('/devices/capabilities/four-power-leds')
-        expect(page).toContain(`/devices/capabilities/gps-gsm-status-leds#${model}-`)
+        expect(page).toContain('## Feature guides')
+        const features = capabilitiesForDevice(model === 'zero' ? 'ZE2' : 'EN2')
+        expect(features.map(feature => feature.capability)).toEqual(['four-power-leds', 'gps-gsm-status-leds'])
     })
 
     test('puts RH2 implementation details under the device, not in a guide or generic capability', () => {
         const device = read('devices/rtk/handheld/leds.md')
         const capability = read('devices/capabilities/rgb-status-leds.md')
-        expect(read('devices/rtk/handheld/index.md')).toContain('/devices/rtk/handheld/leds')
+        expect(read('devices/rtk/handheld/index.md')).toContain('<DeviceCapabilities device="RH2" />')
+        expect(capabilitiesForDevice('RH2')[0].detailLink).toBe('/devices/rtk/handheld/leds')
         expect(device).toContain('/devices/capabilities/rgb-status-leds')
         expect(device).toContain('99%')
         expect(device).toContain('When armed and active')
         expect(device).toContain('## Application-controlled feedback')
-        expect(capability).toContain('/devices/rtk/handheld/leds')
+        expect(capability).toContain('<CapabilityDevices capability="rgb-status-leds" />')
+        expect(devicesForCapability('rgb-status-leds')[0].id).toBe('RH2')
         expect(capability).not.toContain('| Below 30% |')
     })
 

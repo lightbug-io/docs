@@ -28,10 +28,9 @@ If you are unsure which model you have, check its product code or ask [support](
 
 <DownloadSpecButton :spec="specs" deviceTitle="ProN (PR2)" />
 
-## Capabilities
+## Feature guides {#capabilities}
 
-- [Four power LEDs](/devices/capabilities/four-power-leds) for battery level and charging progress.
-- [GPS and GSM status LEDs](/devices/capabilities/gps-gsm-status-leds#pro-pr2) for the two separate diagnostic indicators. PR2 designs use red with amber or yellow, depending on the revision.
+<DeviceCapabilities device="PR2" />
 
 Use the [LED guide](/guides/leds) to interpret a pattern in context. The PR2 startup example is below.
 

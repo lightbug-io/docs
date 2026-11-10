@@ -13,12 +13,11 @@ const specs = loadSpec(spec)
 
 <DownloadSpecButton :spec="specs" deviceTitle="Zero (ZE2)" />
 
-## Capabilities
+## Feature guides {#capabilities}
 
-- [Four power LEDs](/devices/capabilities/four-power-leds) for battery level and charging.
-- [GPS and GSM status LEDs](/devices/capabilities/gps-gsm-status-leds#zero-ze2) for the separate diagnostic indicators, with model/revision-specific colours.
+<DeviceCapabilities device="ZE2" />
 
-For an unfamiliar pattern, start with the [LED guide](/guides/leds). This page covers ZE2; do not choose a capability from the family name alone.
+This page covers ZE2; use the model and revision when following the [LED guide](/guides/leds).
 
 ## Images
 

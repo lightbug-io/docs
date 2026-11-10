@@ -19,7 +19,7 @@ The standard RGB charging display changes colour with the approximate battery le
 
 Brightness varies in steps about every half-second while charging below approximately 99%. At about 99% or above, that variation stops. Green starts at about 90%; it is not an exact full-battery indication or proof of an RTK fix.
 
-![RH2 charging colours: red below 30 percent, orange from 30 to below 70, yellow-green from 70 to below 90, green at 90 or more. Brightness varies below about 99 percent and is steady at about 99 percent or more.](/images/devices/general/led-rh2-charging.svg)
+<LedDemo mode="rh2" />
 
 Do not apply the four-bar, 95% charging rule from Pro3 or the older ProN/Zero/Enviro guides to RH2.
 

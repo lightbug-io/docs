@@ -10,9 +10,7 @@ A red, green or other colour is meaningful only in the context of the model, fir
 
 ## Devices
 
-| Device | Model-specific documentation |
-| --- | --- |
-| [Handheld RTK / RH2](/devices/rtk/handheld/) | [LED layout, charging colours and application feedback](/devices/rtk/handheld/leds) |
+<CapabilityDevices capability="rgb-status-leds" />
 
 ## Standard status and application control
 

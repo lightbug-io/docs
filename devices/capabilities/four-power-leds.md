@@ -8,13 +8,7 @@ Four power LEDs show approximate battery level and charging progress. The same i
 
 ## Devices
 
-| Device | Implementation and limits |
-| --- | --- |
-| [Pro3 / PR3](/devices/pro/) | Four orange indicators on hardware revisions 02–04; no separate GPS/GSM diagnostic pair |
-| [ProN / PR2](/devices/history/PR2) | Four battery indicators, alongside two separate GPS/GSM diagnostic indicators |
-| [Zero / ZE2](/devices/zero/) | Four battery indicators, alongside two separate GPS/GSM diagnostic indicators |
-| [Enviro / EN2](/devices/enviro/) | Four battery indicators, alongside two separate GPS/GSM diagnostic indicators |
-| [Vehicle / VT3](/devices/vehicle/) | Four indicators also used for the [vehicle connection display](/devices/vehicle/#vehicle-connection-status); physical colours and orientation depend on the revision |
+<CapabilityDevices capability="four-power-leds" />
 
 The ZE3 revision 01 design also has four orange indicators and the standard firmware uses this display. That design evidence does not establish which firmware is installed on a supplied ZE3; check the revision with support. ZE3 does not have the older Zero ZE2 diagnostic pair.
 
@@ -32,9 +26,9 @@ A short status-button press normally shows the battery level briefly. The four i
 | 60% to below 80% | 3 indicators |
 | 80% or more | 4 indicators |
 
-![Illustrated battery bands: below 20 percent the first indicator flashes off charge; at least 20, 40, 60 and 80 percent shows one, two, three and four indicators.](/images/devices/general/led-battery-levels.svg)
+<LedDemo mode="battery" />
 
-These bands apply to the normal battery display only. Four lights are not an exact 100% reading. The diagram illustrates the pattern, not a physical case layout or a colour specification for every model.
+These bands apply to the normal battery display only. Four lights are not an exact 100% reading. The example illustrates the pattern, not a physical case layout or a colour specification for every model. Change the battery level to compare the bands; play or step through a blinking pattern.
 
 ## Charging
 
@@ -42,7 +36,7 @@ These bands apply to the normal battery display only. Four lights are not an exa
 - At about 95% or above, the normal charging display becomes steady. This means a high charge level, not an exact 100% reading.
 - When unplugged and resting, the lights normally go out after any temporary status display finishes. A button press, startup or other activity can still light them.
 
-![Charging example at three bars: two steady indicators and a third that alternates on and off every second, with the fourth off. Two static frames illustrate the repeating pattern.](/images/devices/general/led-charging.svg)
+<LedDemo mode="charging" />
 
 These are battery-bar patterns, not RH2's RGB charging colours.
 

@@ -1,18 +1,15 @@
+---
+aside: false
+---
+
 # Capabilities
 
-Many of our devices share common capabilities. These capabilities are features that can be used across different devices, and integrate into various parts of our ecosystem, such as the Cloud App, APIs, and more.
+Shared features, explained once and linked from the devices that use them.
 
-Collected here for convenience.
+**A growing collection.** These guides cover selected capabilities, not everything a Lightbug device can do. An unlisted device or feature is not a statement that it is unsupported. Check the [device pages](/devices) and specifications for the complete product information available so far.
 
-::: warning ⚠️ Not all capabilities listed
-We are building out this documentation section
-:::
+<CapabilityCatalogue />
 
-## Available capabilities
+## Where to start
 
-- [BLE scanning](./ble-scanning.md)
-- [Four power LEDs](./four-power-leds.md): the reusable battery-bar and charging display.
-- [GPS and GSM status LEDs](./gps-gsm-status-leds.md): the separate diagnostic pair found on some older devices.
-- [RGB status LEDs](./rgb-status-leds.md): colour/brightness status displays, with model-specific meanings and overrides.
-
-A device page identifies which capabilities it has and describes its hardware-specific details. Capability pages define the shared feature and its limits. For help interpreting an unfamiliar pattern, use the [LED guide](/guides/leds).
+The device pages identify the model, revision limits and relevant feature guides. For an unfamiliar light pattern, start with [Understanding your device LEDs](/guides/leds).

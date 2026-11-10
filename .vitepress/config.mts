@@ -15,6 +15,7 @@ import { include } from "@mdit/plugin-include";
 import { withSidebar, generateSidebar } from 'vitepress-sidebar';
 import yamlEmbed from '../utils/markdownit-yaml-plugin.js';
 import container from 'markdown-it-container';
+import { capabilitySidebar } from '../utils/DeviceCapabilities';
 
 
 const base = process.env.PREVIEW_BASE || "/"
@@ -432,7 +433,7 @@ export default withMermaid(defineConfig({
                   link: '/devices/zero/',
                 },
                 {
-                  text: 'Pro3 (PR3)',
+                  text: 'Pro',
                   link: '/devices/pro/',
                 },
                 {
@@ -491,15 +492,7 @@ export default withMermaid(defineConfig({
         {
           text: 'Capabilities',
           link : '/devices/capabilities/',
-          items: [
-            {
-              text: 'BLE Scanning',
-              link: '/devices/capabilities/ble-scanning',
-            },
-            { text: 'Four power LEDs', link: '/devices/capabilities/four-power-leds' },
-            { text: 'GPS and GSM status LEDs', link: '/devices/capabilities/gps-gsm-status-leds' },
-            { text: 'RGB status LEDs', link: '/devices/capabilities/rgb-status-leds' },
-          ]
+          items: capabilitySidebar(),
         },
         {
           text: 'API',

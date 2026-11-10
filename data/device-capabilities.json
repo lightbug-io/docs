@@ -1,0 +1,32 @@
+{
+  "coverage": "partial",
+  "groups": [
+    { "id": "connectivity", "title": "Connectivity" },
+    { "id": "leds", "title": "LED indicators" }
+  ],
+  "capabilities": [
+    { "id": "ble-scanning", "group": "connectivity", "title": "BLE scanning", "link": "/devices/capabilities/ble-scanning", "summary": "Discover nearby Bluetooth devices and their advertising data." },
+    { "id": "four-power-leds", "group": "leds", "title": "Four power LEDs", "link": "/devices/capabilities/four-power-leds", "summary": "Battery level and charging on a four-bar display." },
+    { "id": "gps-gsm-status-leds", "group": "leds", "title": "GPS and GSM status LEDs", "link": "/devices/capabilities/gps-gsm-status-leds", "summary": "The separate diagnostic pair used by some older trackers." },
+    { "id": "rgb-status-leds", "group": "leds", "title": "RGB status LEDs", "link": "/devices/capabilities/rgb-status-leds", "summary": "Colour and brightness displays with model-specific meanings." }
+  ],
+  "devices": [
+    { "id": "PR3", "title": "Pro (PR3)", "link": "/devices/pro/" },
+    { "id": "PR2", "title": "ProN (PR2)", "link": "/devices/history/PR2" },
+    { "id": "ZE2", "title": "Zero (ZE2)", "link": "/devices/zero/" },
+    { "id": "EN2", "title": "Enviro (EN2)", "link": "/devices/enviro/" },
+    { "id": "VT3", "title": "Vehicle (VT3)", "link": "/devices/vehicle/" },
+    { "id": "RH2", "title": "Handheld RTK (RH2)", "link": "/devices/rtk/handheld/" }
+  ],
+  "relationships": [
+    { "device": "PR3", "capability": "four-power-leds", "note": "Four orange indicators on hardware revisions 02–04; no separate GPS/GSM diagnostic pair." },
+    { "device": "PR2", "capability": "four-power-leds", "note": "Four battery indicators, alongside the separate GPS/GSM diagnostic pair." },
+    { "device": "PR2", "capability": "gps-gsm-status-leds", "capabilityAnchor": "pro-pr2", "note": "Red with amber or yellow, depending on the board revision." },
+    { "device": "ZE2", "capability": "four-power-leds", "note": "Four battery indicators, alongside the separate GPS/GSM diagnostic pair." },
+    { "device": "ZE2", "capability": "gps-gsm-status-leds", "capabilityAnchor": "zero-ze2", "note": "Revision 05 uses yellow and red. This mapping is for ZE2, not ZE3." },
+    { "device": "EN2", "capability": "four-power-leds", "note": "Four battery indicators, alongside the separate GPS/GSM diagnostic pair." },
+    { "device": "EN2", "capability": "gps-gsm-status-leds", "capabilityAnchor": "enviro-en2", "note": "Exact diagnostic colours depend on the supplied board revision." },
+    { "device": "VT3", "capability": "four-power-leds", "detailLink": "/devices/vehicle/#vehicle-connection-status", "detailTitle": "VT3 connection display", "note": "Also used for ignition and charging status; physical colours and orientation depend on the revision." },
+    { "device": "RH2", "capability": "rgb-status-leds", "detailLink": "/devices/rtk/handheld/leds", "detailTitle": "RH2 LED indicators", "note": "Model-specific charging colours, configured status and application feedback." }
+  ]
+}
