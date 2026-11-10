@@ -2,6 +2,13 @@
 aside: true
 ---
 
+<script setup>
+import spec from '../../public/device-specs/pro/v3.yaml?raw'
+import loadSpec from '../../utils/loadSpec'
+
+const specs = loadSpec(spec)
+</script>
+
 # Pro
 
 <div class="pro-overview">
@@ -9,6 +16,8 @@ aside: true
 <div class="pro-overview__copy">
 
 The current Pro is Pro3 (PR3), a different hardware generation from [ProN (PR2)](/devices/history/PR2). The two generations share the same external appearance, so use the product code and hardware revision to identify your device before following its instructions. ProN (PR2) is now a legacy model and is no longer in production.
+
+<DownloadSpecButton :spec="specs" deviceTitle="Pro (PR3)" label="Download PR3 PDF" />
 
 ## Feature guides {#capabilities}
 
@@ -30,7 +39,7 @@ Pro3 does not have the separate [GPS and GSM status LEDs](/devices/capabilities/
 | Pro3 / PR3 (current) | Four orange indicators on revisions 02–04 | This page |
 | ProN / PR2 (legacy) | Four battery indicators plus two diagnostic indicators | [PR2 archive](/devices/history/PR2) |
 
-This is a generation guide, not a complete Pro3 specification. Cellular bands, wireless features, charging limits and certifications must be checked for the supplied Pro3 revision. The [PR2 specification download](/devices/history/PR2) applies to PR2 only.
+The [specifications below](#specifications) and PDF download describe Pro3 (PR3), device ID prefix 52. The [PR2 specification download](/devices/history/PR2) applies to PR2 only. Check the supplied hardware revision when using optional features or choosing accessories.
 
 ## LED indicators
 
@@ -44,9 +53,53 @@ The charger can trigger a protection pattern that differs from the normal chargi
 
 ## Charging
 
-Use the charging accessory and power supply specified for your Pro3 revision. Do not apply PR2 voltage/current ratings or charging-time instructions to Pro3.
+Use the charging accessory and power supply specified for your Pro3 revision, within the [Pro3 charging limits](#charging-specification). The actual charge rate depends on the input source, battery and thermal conditions. Do not apply PR2 voltage/current ratings or charging-time instructions to Pro3.
 
 See [four power LED charging patterns](/devices/capabilities/four-power-leds#charging) for the normal blinking and steady states. A steady high-charge display is not an exact 100% reading.
+
+## Specifications
+
+The overview, tables and PDF use the same Pro3 specification. Optional sensors and features requiring compatible firmware are labelled in the tables. Component specifications describe the individual parts, not additional finished-product guarantees.
+
+### Overview
+
+<DeviceSpecOverview :spec="specs" />
+
+### Physical
+
+<DeviceSpecSection :spec="specs" sectionName="physical" />
+
+### Integrations
+
+<DeviceSpecSection :spec="specs" sectionName="integrations" />
+
+### User interface
+
+<DeviceSpecSection :spec="specs" sectionName="user interface" />
+
+### Connectivity
+
+<DeviceSpecSection :spec="specs" sectionName="connectivity" />
+
+### Positioning
+
+<DeviceSpecSection :spec="specs" sectionName="positioning" />
+
+### Sensors
+
+<DeviceSpecSection :spec="specs" sectionName="sensors" />
+
+### Battery
+
+<DeviceSpecSection :spec="specs" sectionName="battery" />
+
+### Charging {#charging-specification}
+
+<DeviceSpecSection :spec="specs" sectionName="charging" />
+
+### Components
+
+<DeviceSpecSection :spec="specs" sectionName="components" />
 
 ## Earlier Pro generations {#pro-pr2}
 
@@ -54,7 +107,7 @@ The [ProN/PR2 archive](/devices/history/PR2) contains its specifications, images
 
 ## Get help
 
-For specifications or troubleshooting, [contact support](https://lightbug.io/contact/) with the product code, device ID and hardware revision if known. Include whether the device is charging and a short video if you are asking about a repeating light pattern.
+For help with your hardware revision or troubleshooting, [contact support](https://lightbug.io/contact/) with the product code, device ID and hardware revision if known. Include whether the device is charging and a short video if you are asking about a repeating light pattern.
 
 <style scoped>
 /* cspell:ignore minmax */

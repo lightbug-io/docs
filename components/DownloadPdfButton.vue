@@ -1,14 +1,18 @@
 <template>
   <div class="pdf-btn-wrapper">
-    <button @click="downloadPdf" class="pdf-download-btn">{{ props.label }}</button>
+    <button @click="downloadPdf" class="pdf-download-btn" :disabled="isDownloading">{{ isDownloading ? 'Generating PDF…' : props.label }}</button>
+    <span v-if="downloadError" role="alert">{{ downloadError }}</span>
   </div>
 </template>
 
 <script setup>
 import { withBase } from 'vitepress'
-import { htmlAnchorsToPlainText, parseHtmlForPdfLinks } from '../utils/PdfText'
-import { onMounted } from 'vue';
+import { ref } from 'vue'
+import { layoutPdfText, pdfImageWidth } from '../utils/PdfLayout'
+
 let jsPDFLoaded = false;
+const isDownloading = ref(false);
+const downloadError = ref('');
 
 // Text sizes
 const titleSize = 20;
@@ -39,89 +43,53 @@ const props = defineProps({
 });
 
 function loadScript(src) {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src='${src}']`)) return resolve();
-    const script = document.createElement('script');
-    script.src = src;
+  if (src.includes('jspdf') && window.jspdf) return Promise.resolve();
+  if (src.endsWith('/Lightbug-Spec.js') && window.jspdf?.jsPDF.API.lightbugSpecFontsLoaded) return Promise.resolve();
+  const existing = document.querySelector(`script[src='${src}']`);
+  if (existing?.pdfLoadPromise) return existing.pdfLoadPromise;
+  const script = existing || document.createElement('script');
+  const promise = new Promise((resolve, reject) => {
     script.onload = resolve;
-    script.onerror = reject;
-    document.head.appendChild(script);
+    script.onerror = () => {
+      script.remove();
+      reject(new Error(`Unable to load PDF resource: ${src}`));
+    };
+    if (!existing) {
+      script.src = src;
+      document.head.appendChild(script);
+    } else if (src.includes('jspdf') && window.jspdf) {
+      resolve();
+    }
   });
+  script.pdfLoadPromise = promise;
+  return promise;
 }
 
-function loadFontScript(src) {
-  return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src='${src}']`)) return resolve();
-    const script = document.createElement('script');
-    script.src = src;
-    script.onload = resolve;
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
-}
-
-onMounted(async () => {
-  if (!jsPDFLoaded) {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
-    jsPDFLoaded = true;
-  }
-});
+const loadFontScript = loadScript;
 
 /**
  * Render text with clickable links in PDF
  * @param {object} doc - jsPDF document
- * @param {Array} segments - Array of text segments from parseHtmlForPdfLinks
+ * @param {string} value - HTML text to lay out and render
  * @param {number} x - Starting x position
  * @param {number} y - Y position
  * @param {number} maxWidth - Maximum width for text wrapping
  * @returns {number} Height used by the rendered text
  */
-function renderTextWithLinks(doc, segments, x, y, maxWidth) {
-  let currentX = x;
-  let currentY = y;
-  const lineHeight = doc.getLineHeight() * 0.352778; // convert pt to mm
-  let usedHeight = lineHeight;
-
-  for (const segment of segments) {
-    if (!segment.text) continue;
-
-    // Split text into words for proper wrapping
-    const words = segment.text.split(/\s+/);
-
-    for (let i = 0; i < words.length; i++) {
-      const word = words[i];
-      const wordWidth = doc.getTextWidth(word + ' ');
-
-      // Check if we need to wrap to next line
-      if (currentX + wordWidth > x + maxWidth && currentX > x) {
-        currentX = x;
-        currentY += lineHeight;
-        usedHeight += lineHeight;
-      }
-
-      // Render the word
-      if (segment.isLink) {
-        // Make absolute URLs for relative links
-        let fullUrl = segment.url;
-        if (fullUrl.startsWith('/')) {
-          fullUrl = window.location.origin + fullUrl;
-        }
-        doc.textWithLink(word, currentX, currentY, { url: fullUrl });
+function renderTextWithLinks(doc, value, x, y, maxWidth) {
+  const layout = layoutPdfText(doc, value, maxWidth);
+  layout.lines.forEach((line, index) => {
+    for (const run of line) {
+      const atY = y + index * layout.lineHeight;
+      if (run.url !== undefined) {
+        const url = new URL(run.url, window.location.href).href;
+        doc.textWithLink(run.text, x + run.x, atY, { url });
       } else {
-        doc.text(word, currentX, currentY);
-      }
-
-      currentX += wordWidth;
-
-      // Add space after word (except for last word)
-      if (i < words.length - 1) {
-        const spaceWidth = doc.getTextWidth(' ');
-        currentX += spaceWidth;
+        doc.text(run.text, x + run.x, atY);
       }
     }
-  }
-
-  return usedHeight;
+  });
+  return layout.height;
 }
 
 /**
@@ -152,10 +120,28 @@ async function cropImageToDataUrl(imgSrc, cropX, cropY, cropWidth, cropHeight) {
 }
 
 async function downloadPdf() {
-  await loadFontScript(withBase('/fonts/Raleway-VariableFont_wght-normal.js'));
+  if (isDownloading.value) return;
+  isDownloading.value = true;
+  downloadError.value = '';
+  try {
+    await generatePdf();
+  } catch (error) {
+    console.error('Unable to generate PDF:', error);
+    downloadError.value = 'Unable to generate PDF. Please try again.';
+  } finally {
+    isDownloading.value = false;
+  }
+}
+
+async function generatePdf() {
+  if (!jsPDFLoaded) {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    jsPDFLoaded = true;
+  }
+  await loadFontScript(withBase('/fonts/Lightbug-Spec.js'));
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
-  doc.setFont('Raleway-VariableFont_wgh');
+  doc.setFont('Lightbug-Spec', 'normal');
   const data = props.getPdfData ? props.getPdfData() : null;
   let y = 20;
   if (!data) return;
@@ -195,7 +181,7 @@ async function downloadPdf() {
 
   // Title
   doc.setFontSize(titleSize);
-  doc.text('Lightbug ' + data.title || 'Device', textSize, y);
+  doc.text('Lightbug ' + (data.title || 'Device'), textSize, y);
   y += 10;
   // Description
   if (data.description) {
@@ -203,8 +189,7 @@ async function downloadPdf() {
     doc.setTextColor(60, 60, 60);
 
     // Parse description for links and render with clickable links
-    const descSegments = parseHtmlForPdfLinks(data.description);
-    const descHeight = renderTextWithLinks(doc, descSegments, textSize, y, 180);
+    const descHeight = renderTextWithLinks(doc, data.description, textSize, y, 180);
     y += descHeight + 10;
 
     doc.setTextColor(0, 0, 0);
@@ -212,7 +197,7 @@ async function downloadPdf() {
 
   // Images (row, cropped if params present)
   if (data.images && data.images.length) {
-    const maxWidth = 50; // mm per image
+    const maxWidth = pdfImageWidth(data.images.length, doc.internal.pageSize.getWidth());
     const spacing = 5; // mm between images
     let totalWidth = data.images.length * maxWidth + (data.images.length - 1) * spacing;
     let startX = (doc.internal.pageSize.getWidth() - totalWidth) / 2;
@@ -275,11 +260,12 @@ async function downloadPdf() {
   // Main Table
   if (data.mainTable) {
     // Calculate total height needed for main table
+    doc.setFontSize(tableTextSize);
     let mainTableHeight = rowHeight; // header
     for (const [attr, val] of Object.entries(data.mainTable)) {
       if (val) {
         const attrLines = doc.splitTextToSize(`${attr}:`, 50 - 2 * cellPadding);
-        const valLines = doc.splitTextToSize(val, 130 - 2 * cellPadding);
+        const valLines = layoutPdfText(doc, String(val), 130 - 2 * cellPadding).lines;
         const lineCount = Math.max(attrLines.length, valLines.length);
         // Calculate height based on font size and line count
         const lineHeightPt = doc.getLineHeight();
@@ -309,11 +295,10 @@ async function downloadPdf() {
         const attrLines = doc.splitTextToSize(`${attr}:`, 50 - 2 * cellPadding);
 
         // Parse value for links
-        const valSegments = parseHtmlForPdfLinks(String(val));
+        const valSegments = String(val);
 
         // For now, estimate height using plain text method for layout
-        const cleanVal = typeof val === 'string' ? htmlAnchorsToPlainText(val) : String(val);
-        const valLines = doc.splitTextToSize(cleanVal, 130 - 2 * cellPadding);
+        const valLines = layoutPdfText(doc, String(val), 130 - 2 * cellPadding).lines;
         const lineCount = Math.max(attrLines.length, valLines.length);
         // Calculate height based on font size and line count
         const lineHeightPt = doc.getLineHeight();
@@ -347,8 +332,10 @@ async function downloadPdf() {
         y += sectionSpacing;
       }
       isFirstSection = false;
-      // Section title as table header
-      if (y + rowHeight > pageHeight - bottomMargin) {
+      // Keep a heading with the first data row rather than orphaning it.
+      const firstRow = section.subsections[0]?.rows[0];
+      const firstRowHeight = firstRow ? measureRowHeight(doc, firstRow) : 0;
+      if (y + 2 * rowHeight + firstRowHeight > pageHeight - bottomMargin) {
         doc.addPage();
         y = topMargin;
       }
@@ -365,7 +352,8 @@ async function downloadPdf() {
       doc.setFontSize(tableTextSize);
       for (const subsection of section.subsections) {
         // Subsection heading row
-        if (y + rowHeight > pageHeight - bottomMargin) {
+        const firstRowHeight = subsection.rows[0] ? measureRowHeight(doc, subsection.rows[0]) : 0;
+        if (y + rowHeight + firstRowHeight > pageHeight - bottomMargin) {
           doc.addPage();
           y = topMargin;
         }
@@ -381,11 +369,10 @@ async function downloadPdf() {
 
           // Convert the row value to PDF text and clickable links
           const valRaw = String(row.value);
-          const valSegments = parseHtmlForPdfLinks(valRaw);
+          const valSegments = valRaw;
 
           // For layout estimation, use plain text
-          const cleanVal = htmlAnchorsToPlainText(valRaw);
-          const valLines = doc.splitTextToSize(cleanVal, 130 - 2 * cellPadding);
+          const valLines = layoutPdfText(doc, valRaw, 130 - 2 * cellPadding).lines;
           const lineCount = Math.max(attrLines.length, valLines.length);
           // Calculate height based on font size and line count
           const lineHeightPt = doc.getLineHeight();
@@ -439,10 +426,24 @@ async function downloadPdf() {
   doc.textWithLink(url, 10, pageHeight - 10, { url });
   doc.setTextColor(0, 0, 0); // reset to black for the rest
   doc.text(` | Generated: ${fullDate}`, 10 + urlWidth, pageHeight - 10);
-  // Open PDF in new tab instead of downloading
-  const pdfBlob = doc.output('blob');
-  const blobUrl = URL.createObjectURL(pdfBlob);
-  window.open(blobUrl, '_blank');
+  savePdfBlob(doc.output('blob'), data.title);
+}
+function measureRowHeight(doc, row) {
+  const labelLines = doc.splitTextToSize(`${row.label}:`, 50 - 2 * cellPadding);
+  const valueLayout = layoutPdfText(doc, String(row.value), 130 - 2 * cellPadding);
+  return Math.max(labelLines.length, valueLayout.lines.length) * valueLayout.lineHeight + 2 * cellPadding;
+}
+
+function savePdfBlob(blob, title) {
+  const blobUrl = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = blobUrl;
+  link.download = `Lightbug-${(title || 'Device').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '')}-specification.pdf`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  // Allow the browser time to start the download before releasing the object URL.
+  setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
 }
 </script>
 
