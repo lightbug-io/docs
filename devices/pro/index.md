@@ -15,7 +15,7 @@ const specs = loadSpec(spec)
 <div class="pro-overview__layout">
 <div class="pro-overview__copy" id="pro-pr2">
 
-The current Pro is Pro3 (PR3), a different hardware generation from [ProN (PR2)](/devices/history/PR2). The two generations share the same external appearance, so use the product code and hardware revision to identify your device before following its instructions. ProN (PR2) is now a legacy model and is no longer in production.
+The current Pro is Pro3 (PR3), a different hardware generation from [ProN (PR2)](/devices/history/PR2). The two generations share the same external appearance, so use the product code and device ID to identify your device before following its instructions. ProN (PR2) is now a legacy model and is no longer in production.
 
 <DownloadSpecButton :spec="specs" deviceTitle="Pro (PR3)" label="Download PR3 PDF" />
 

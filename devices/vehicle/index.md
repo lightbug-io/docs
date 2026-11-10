@@ -31,7 +31,7 @@ After showing battery status, a short status-button press shows ignition and cha
 | 1 and 2 | The device detects ignition high |
 | 3 and 4 | The device reports that it is charging |
 
-Both pairs can flash when both conditions are true. These are logical indicator numbers, not a left-to-right enclosure diagram. The example below does not assert the physical colour or orientation for a hardware revision. Choose the reported conditions, then play or step through the five cycles.
+Both pairs can flash when both conditions are true. These are logical indicator numbers, not a left-to-right enclosure diagram. The example below shows the reported conditions, not the physical colour or orientation of the indicators. Choose the reported conditions, then play or step through the five cycles.
 
 <LedDemo mode="vehicle" />
 

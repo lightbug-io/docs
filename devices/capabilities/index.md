@@ -12,4 +12,4 @@ Shared features, explained once and linked from the devices that use them.
 
 ## Where to start
 
-The device pages identify the model, revision limits and relevant feature guides. For an unfamiliar light pattern, start with [Understanding your device LEDs](/guides/leds).
+The device pages identify the model and relevant feature guides. For an unfamiliar light pattern, start with [Understanding your device LEDs](/guides/leds).

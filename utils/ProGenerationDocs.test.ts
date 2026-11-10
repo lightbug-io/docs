@@ -65,7 +65,7 @@ describe('Pro generation documentation', () => {
 
     test('separates PR3 power LEDs from the older PR2 diagnostic pair', () => {
         const legacy = read('devices/history/PR2.md')
-        expect(capabilitiesForDevice('PR3')[0].note).toContain('Four orange indicators')
+        expect(capabilitiesForDevice('PR3')[0].note).toContain('Four power indicators')
         expect(capabilitiesForDevice('PR2')[1].link).toBe('/devices/capabilities/gps-gsm-status-leds#pro-pr2')
         expect(legacy).toContain('## Two red lights and four orange lights after a restart')
     })

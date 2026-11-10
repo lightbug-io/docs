@@ -22,7 +22,7 @@ The Pro family includes different hardware generations. **The specifications and
 | Your device | Where to start |
 | --- | --- |
 | ProN / Pro PR2 | Continue on this page. This model has four battery indicators and two separate GPS/mobile-network indicators. |
-| Pro3 / PR3 | Use the [Pro3 device page](/devices/pro/). Revisions 02–04 have four orange indicators and different electronics. |
+| Pro3 / PR3 | Use the [Pro3 device page](/devices/pro/). This model has four power indicators and different electronics. |
 
 If you are unsure which model you have, check its product code or ask [support](https://lightbug.io/contact/) with the device ID. Do not choose a guide from the name “Pro” alone.
 

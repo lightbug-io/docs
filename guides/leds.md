@@ -15,7 +15,7 @@ Check the product code on the label or in your device details. ProN (PR2) and Pr
 
 | Device | LED capabilities and model details |
 | --- | --- |
-| [Pro3 / PR3](/devices/pro/) | [Four power LEDs](/devices/capabilities/four-power-leds); orange on revisions 02–04, without separate GPS/GSM diagnostics |
+| [Pro3 / PR3](/devices/pro/) | [Four power LEDs](/devices/capabilities/four-power-leds); without separate GPS/GSM diagnostics |
 | [ProN / PR2](/devices/history/PR2) | [Four power LEDs](/devices/capabilities/four-power-leds) plus the older [GPS/GSM pair](/devices/capabilities/gps-gsm-status-leds#pro-pr2) |
 | [Zero / ZE2](/devices/zero/) | [Four power LEDs](/devices/capabilities/four-power-leds) plus the older [GPS/GSM pair](/devices/capabilities/gps-gsm-status-leds#zero-ze2) |
 | [Enviro / EN2](/devices/enviro/) | [Four power LEDs](/devices/capabilities/four-power-leds) plus the older [GPS/GSM pair](/devices/capabilities/gps-gsm-status-leds#enviro-en2) |
@@ -37,7 +37,7 @@ No lights does not necessarily mean the tracker is off or empty. Many devices tu
 
 Check charge, mobile coverage and the latest communication time. For a GPS test, use a clear view of the sky. If a pattern persists, charging does not progress, or the device stops communicating, [contact support](https://lightbug.io/contact/) with:
 
-- Product code and device ID, plus hardware/firmware revision if known.
+- Product code and device ID, plus firmware version if known.
 - Whether the device is charging or has just started.
 - The latest successful communication time.
 - A short video showing the order, colour and timing of the lights.

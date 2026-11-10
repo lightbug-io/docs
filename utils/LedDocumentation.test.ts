@@ -32,18 +32,18 @@ describe('Reusable LED capabilities', () => {
     test('omits the removed ZE3 model-note aside and its cross-reference', () => {
         const page = read('devices/capabilities/four-power-leds.md')
         expect(page).not.toContain('## Model notes')
-        expect(page).not.toContain('ZE3 revision 01')
+        expect(page).not.toMatch(/ZE3\s+revision\b/i)
         expect(page).not.toContain('That design evidence')
         expect(read('guides/leds.md')).not.toContain('four-power-leds#model-notes')
-        expect(read('guides/leds.md')).not.toContain('bounded ZE3 revision 01')
+        expect(read('guides/leds.md')).not.toMatch(/bounded ZE3\s+revision\b/i)
         expect(page).toContain('<LedDemo mode="battery" />')
         expect(page).toContain('<LedDemo mode="charging" />')
     })
 
     test('keeps diagnostic colours and sleeping GPS caveats explicit', () => {
         const page = read('devices/capabilities/gps-gsm-status-leds.md')
-        expect(page).toContain('Revision 05 uses yellow and red')
-        expect(page).toContain('exact diagnostic colours must be checked')
+        expect(page).toContain('Use the icons on the case to identify the indicators.')
+        expect(page).toContain('Use the diagnostic colours described in the supplied device instructions.')
         expect(page).toContain('**previous**')
         expect(page).toContain('not present on Pro3 or ZE3')
     })

@@ -14,7 +14,7 @@ The pair describes receiver and connection state, not a general fault code. It i
 
 ## Diagnostic display
 
-Use the model/revision notes below to identify the **secondary diagnostic colour**. It is not universally green. Both channels can be on together; this does not establish a third, universal mixed colour.
+Use the supplied device instructions to identify the **secondary diagnostic colour**, and the model notes below to check which indicators your device has. It is not universally green. Both channels can be on together; this does not establish a third, universal mixed colour.
 
 | Mobile-network indicator | What the standard display can mean |
 | --- | --- |
@@ -37,15 +37,15 @@ When GPS is asleep, its indicator can reflect whether the **previous** fix attem
 
 ### Pro PR2 {#pro-pr2}
 
-[ProN/PR2](/devices/history/PR2), device ID prefix 20, has four battery indicators and the separate GPS/GSM pair. PR2 designs use red with amber or yellow depending on the board revision. Its [two-red/four-orange startup example](/devices/history/PR2#two-red-lights-and-four-orange-lights-after-a-restart) belongs to this model, not Pro3.
+[ProN/PR2](/devices/history/PR2), device ID prefix 20, has four battery indicators and the separate GPS/GSM pair. Its [two-red/four-orange startup example](/devices/history/PR2#two-red-lights-and-four-orange-lights-after-a-restart) belongs to this model, not Pro3.
 
 ### Zero ZE2 {#zero-ze2}
 
-[ZeroN/ZE2](/devices/zero/), prefix 19, uses the same diagnostic logic. Revision 05 uses yellow and red diagnostic LEDs. A firmware channel named G does not establish that the physical light is green. Use the icons on the case to identify the indicators. ZE3 does not have this pair.
+[ZeroN/ZE2](/devices/zero/), prefix 19, uses the same diagnostic logic. A firmware channel named G does not establish that the physical light is green. Use the icons on the case to identify the indicators. ZE3 does not have this pair.
 
 ### Enviro EN2 {#enviro-en2}
 
-[EnviroN/EN2](/devices/enviro/), prefix 26, uses the shared diagnostic logic. Its exact diagnostic colours must be checked against the supplied board revision. Do not infer a colour chart from another six-indicator model; ask support if the colours differ from the supplied instructions.
+[EnviroN/EN2](/devices/enviro/), prefix 26, uses the shared diagnostic logic. Use the diagnostic colours described in the supplied device instructions. Do not infer a colour chart from another six-indicator model; ask support if the colours differ from the supplied instructions.
 
 ## Limits
 

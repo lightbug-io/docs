@@ -19,14 +19,14 @@
     { "id": "RH2", "title": "Handheld RTK (RH2)", "link": "/devices/rtk/handheld/", "listing": "current" }
   ],
   "relationships": [
-    { "device": "PR3", "capability": "four-power-leds", "note": "Four orange indicators on hardware revisions 02–04; no separate GPS/GSM diagnostic pair." },
+    { "device": "PR3", "capability": "four-power-leds", "note": "Four power indicators; no separate GPS/GSM diagnostic pair." },
     { "device": "PR2", "capability": "four-power-leds", "note": "Four battery indicators, alongside the separate GPS/GSM diagnostic pair." },
-    { "device": "PR2", "capability": "gps-gsm-status-leds", "capabilityAnchor": "pro-pr2", "note": "Red with amber or yellow, depending on the board revision." },
+    { "device": "PR2", "capability": "gps-gsm-status-leds", "capabilityAnchor": "pro-pr2", "note": "Separate GPS/GSM diagnostic indicators." },
     { "device": "ZE2", "capability": "four-power-leds", "note": "Four battery indicators, alongside the separate GPS/GSM diagnostic pair." },
-    { "device": "ZE2", "capability": "gps-gsm-status-leds", "capabilityAnchor": "zero-ze2", "note": "Revision 05 uses yellow and red. This mapping is for ZE2, not ZE3." },
+    { "device": "ZE2", "capability": "gps-gsm-status-leds", "capabilityAnchor": "zero-ze2", "note": "Separate GPS/GSM indicators. This mapping is for ZE2, not ZE3." },
     { "device": "EN2", "capability": "four-power-leds", "note": "Four battery indicators, alongside the separate GPS/GSM diagnostic pair." },
-    { "device": "EN2", "capability": "gps-gsm-status-leds", "capabilityAnchor": "enviro-en2", "note": "Exact diagnostic colours depend on the supplied board revision." },
-    { "device": "VT3", "capability": "four-power-leds", "detailLink": "/devices/vehicle/#vehicle-connection-status", "detailTitle": "VT3 connection display", "note": "Also used for ignition and charging status; physical colours and orientation depend on the revision." },
+    { "device": "EN2", "capability": "gps-gsm-status-leds", "capabilityAnchor": "enviro-en2", "note": "Use the diagnostic colours described in the supplied device instructions." },
+    { "device": "VT3", "capability": "four-power-leds", "detailLink": "/devices/vehicle/#vehicle-connection-status", "detailTitle": "VT3 connection display", "note": "Also used for ignition and charging status; logical indicator numbers are not an enclosure diagram." },
     { "device": "RH2", "capability": "rgb-status-leds", "detailLink": "/devices/rtk/handheld/leds", "detailTitle": "RH2 LED indicators", "note": "Model-specific charging colours, configured status and application feedback." }
   ]
 }

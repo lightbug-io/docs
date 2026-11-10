@@ -17,7 +17,7 @@ const specs = loadSpec(spec)
 
 <DeviceCapabilities device="ZE2" />
 
-This page covers ZE2; use the model and revision when following the [LED guide](/guides/leds).
+This page covers ZE2; use the product code and device ID when following the [LED guide](/guides/leds).
 
 ## Images
 
