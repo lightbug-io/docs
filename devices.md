@@ -24,10 +24,10 @@ Our core products have been rigorously tested in the field since and iterated on
     <p><strong>Zero</strong> - Our smallest GPS tracking device, and indeed one of the smallest in the world.</p>
   </div>
   <div class="device-item">
-    <a :href="withBase('/devices/pro/pro3')">
+    <a :href="withBase('/devices/pro/')">
       <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-PR2.png" alt="Pro3 GPS tracker enclosure" />
     </a>
-    <p><strong>Pro3 (PR3)</strong> - Our larger, industrial grade tracker. See the <a :href="withBase('/devices/pro/pro3')">Pro3 guide</a> for this generation.</p>
+    <p><strong>Pro3 (PR3)</strong> - Our larger, industrial grade tracker. See the <a :href="withBase('/devices/pro/')">Pro3 device page</a> for this generation.</p>
   </div>
   <div class="device-item">
     <a :href="withBase('/devices/vehicle/')">

@@ -16,13 +16,27 @@ const specs = loadSpec(spec)
 
 <DownloadSpecButton :spec="specs" deviceTitle="Vehicle (VT3)" />
 
-::: tip LED help
-VT3 has four indicators for battery status and brief ignition/charging indications. See the [VT3 LED guide](/guides/vehicle-leds); do not use the older ProN six-indicator or RH2 RGB colour table.
-:::
+## Capabilities
+
+- [Four power LEDs](/devices/capabilities/four-power-leds), with the VT3 connection display described below. Do not apply the older GPS/GSM colour table or RH2 RGB charging table to these indicators.
 
 ## Vehicle connection status
 
-A status-button press can show battery status followed by ignition/charging flashes. See [what each indicator pair means](/guides/vehicle-leds#vehicle-connection-status). External power and active battery charging are different states.
+After showing battery status, a short status-button press shows ignition and charging information in **five brief flash cycles**, about 0.3 seconds on and 0.2 seconds off:
+
+| Indicator pair | Flashes when |
+| --- | --- |
+| 1 and 2 | The device detects ignition high |
+| 3 and 4 | The device reports that it is charging |
+
+Both pairs can flash when both conditions are true. These are logical indicator numbers, not a left-to-right enclosure diagram. The diagram below does not assert the physical colour or orientation for a hardware revision.
+
+![Vehicle connection pattern: indicators 1 and 2 flash for ignition high, indicators 3 and 4 for charging, and all four for both. Five cycles, about 0.3 seconds on and 0.2 seconds off. Neutral shading indicates on and is not an LED colour.](/images/devices/general/led-vehicle-status.svg)
+
+The display can also appear when charging starts or ignition becomes high. Paired flashing can therefore be normal. External power does not always mean the battery is currently charging, so an unlit charging pair alone is not proof of a wiring fault.
+
+Follow the [installation checks](/devices/vehicle/installation#step-8-check-functionality) and confirm the reported external-power and ignition state where available. If those readings do not match the wiring, ask support before changing the installation.
+
 
 ## Images
 

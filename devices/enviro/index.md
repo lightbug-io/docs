@@ -13,9 +13,12 @@ const specs = loadSpec(spec)
 
 <DownloadSpecButton :spec="specs" deviceTitle="Enviro (EN2)" />
 
-::: tip LED help
-For this Enviro EN2 model, see [its LED layout and diagnostic caveats](/guides/tracker-leds#enviro-en2), plus the shared battery and charging patterns. Choose a different model in the [LED guide](/guides/leds) if the product code does not match.
-:::
+## Capabilities
+
+- [Four power LEDs](/devices/capabilities/four-power-leds) for battery level and charging.
+- [GPS and GSM status LEDs](/devices/capabilities/gps-gsm-status-leds#enviro-en2) for the separate diagnostic indicators, with model/revision-specific colours.
+
+For an unfamiliar pattern, start with the [LED guide](/guides/leds). This page covers EN2; do not choose a capability from the family name alone.
 
 ## Images
 
@@ -199,7 +202,7 @@ This connecter can be used with a magnetic cable or a pro charging dock.
 
 <!-- TODO side by side picture of 2 charging methods -->
 
-For six-indicator models, the battery lights show the charge level and the highest lit battery light blinks while charging below about 95%. At higher charge levels, the normal display becomes steady. See [charging patterns](/guides/tracker-leds#charging-patterns).
+For six-indicator models, the battery lights show the charge level and the highest lit battery light blinks while charging below about 95%. At higher charge levels, the normal display becomes steady. See [four power LED charging patterns](/devices/capabilities/four-power-leds#charging).
 
 When unplugged and resting, the lights normally go out, but a button press, restart or other device activity can still light them.
 

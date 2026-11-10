@@ -13,9 +13,12 @@ const specs = loadSpec(spec)
 
 <DownloadSpecButton :spec="specs" deviceTitle="Zero (ZE2)" />
 
-::: tip LED help
-For this Zero ZE2 model, see [its LED layout and diagnostic caveats](/guides/tracker-leds#zero-ze2), plus the shared battery and charging patterns. Choose a different model in the [LED guide](/guides/leds) if the product code does not match.
-:::
+## Capabilities
+
+- [Four power LEDs](/devices/capabilities/four-power-leds) for battery level and charging.
+- [GPS and GSM status LEDs](/devices/capabilities/gps-gsm-status-leds#zero-ze2) for the separate diagnostic indicators, with model/revision-specific colours.
+
+For an unfamiliar pattern, start with the [LED guide](/guides/leds). This page covers ZE2; do not choose a capability from the family name alone.
 
 ## Images
 
@@ -106,7 +109,7 @@ For this Zero ZE2 model, see [its LED layout and diagnostic caveats](/guides/tra
 
 The six indicators are four battery lights, one GPS light and one mobile-network light. Use the icons above the lights to identify them.
 
-See the [illustrated LED guide](/guides/tracker-leds) for battery levels, status colors, charging and restart patterns. The normal battery display uses 20%, 40%, 60% and 80% thresholds; startup lights are not a battery reading.
+The [four power LED capability](/devices/capabilities/four-power-leds) defines the battery and charging patterns. The [GPS/GSM status capability](/devices/capabilities/gps-gsm-status-leds#zero-ze2) describes the diagnostic pair and its colour caveats. Startup lights are not a battery reading.
 
 ## Buttons
 
@@ -116,7 +119,7 @@ The device has a single button that can be used to trigger different events.
 | ---------- | ------|------------------------------------------------------------------------------------------------------------------------------------ | -- |
 |  < 1 second | Battery and status LEDs will light up | | Shows you current status |
 | 1-3 second | The battery LEDs will flash from left to right in a cycle, and you will hear a small beep. | Send button press event & location | Initially sending an immediate location, followed by a more accurate location once found.
-| Long press | Startup feedback varies with firmware. | Restart | Follow the [model and firmware restart guidance](/faq/troubleshooting#restarting-a-tracker); do not rely on a fixed LED sequence or assume settings are preserved. |
+| 15 second | The battery LEDs may go blank for a second, but then will flash from left to right in a cycle, and you will hear a small beep. | Hard reset | Recommended if you are experiencing network related performance issues |
 
 ## Charging
 
@@ -126,7 +129,7 @@ This connecter can be used with a magnetic cable or a zero charging dock.
 
 <!-- TODO side by side picture of 2 charging methods -->
 
-For six-indicator models, the battery lights show the charge level and the highest lit battery light blinks while charging below about 95%. At higher charge levels, the normal display becomes steady. See [charging patterns](/guides/tracker-leds#charging-patterns).
+For six-indicator models, the battery lights show the charge level and the highest lit battery light blinks while charging below about 95%. At higher charge levels, the normal display becomes steady. See [four power LED charging patterns](/devices/capabilities/four-power-leds#charging).
 
 When unplugged and resting, the lights normally go out, but a button press, restart or other device activity can still light them.
 

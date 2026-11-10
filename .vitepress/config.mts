@@ -433,7 +433,7 @@ export default withMermaid(defineConfig({
                 },
                 {
                   text: 'Pro3 (PR3)',
-                  link: '/devices/pro/pro3',
+                  link: '/devices/pro/',
                 },
                 {
                   text: 'Vehicle',
@@ -460,6 +460,7 @@ export default withMermaid(defineConfig({
                     { text: 'Specification', link: '/devices/rtk/handheld/specification' },
                     { text: 'Application', link: '/devices/rtk/handheld/application' },
                     { text: 'External', link: '/devices/rtk/handheld/external' },
+                    { text: 'LED indicators', link: '/devices/rtk/handheld/leds' },
                     { text: 'Screen', link: '/devices/rtk/handheld/screen' },
                     { text: 'ESP32', link: '/devices/rtk/handheld/esp32' },
                     { text: 'Accessories', link: '/devices/rtk/handheld/accessories' },
@@ -481,7 +482,7 @@ export default withMermaid(defineConfig({
               link: '/devices/history/',
               collapsed: true,
               items: [
-                { text: 'ProN (PR2)', link: '/devices/pro/' },
+                { text: 'ProN (PR2)', link: '/devices/history/PR2' },
                 { text: 'VT2', link: '/devices/history/VT2' },
               ]
             }
@@ -495,6 +496,9 @@ export default withMermaid(defineConfig({
               text: 'BLE Scanning',
               link: '/devices/capabilities/ble-scanning',
             },
+            { text: 'Four power LEDs', link: '/devices/capabilities/four-power-leds' },
+            { text: 'GPS and GSM status LEDs', link: '/devices/capabilities/gps-gsm-status-leds' },
+            { text: 'RGB status LEDs', link: '/devices/capabilities/rgb-status-leds' },
           ]
         },
         {

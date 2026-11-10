@@ -3,49 +3,43 @@ aside: true
 order: 1
 ---
 
-# LED guide
+# Understanding your device LEDs
 
-**Start with your device model, not the colour of a light.** ProN (PR2) and Pro3 (PR3) look alike but have different LED hardware. Zero ZE2 and ZE3 are also different generations.
+Start with your device model and the situation: charging, starting up, responding to a button, or running an application. The same light can mean different things in those states.
 
-Check the product code on the label or in your device details. The device ID prefix can help identify the family. If you are unsure, [contact support](https://lightbug.io/contact/) with the device ID rather than selecting a guide by appearance alone.
+The reusable LED features are documented as [device capabilities](/devices/capabilities/). This guide helps you choose the right capability and model-specific details rather than defining another set of LED patterns.
 
-## Choose your model
+## Identify the device and its capabilities
 
-| Device | How to identify it | Matching LED guide |
-| --- | --- | --- |
-| Pro3 / PR3 | Prefix 52; four orange indicators on revisions 02–04 | [Pro3 battery, charging and restart patterns](/guides/pro3-leds) |
-| ProN / PR2 (legacy) | Prefix 20; four battery indicators plus GPS/mobile diagnostics | [ProN / PR2](/guides/tracker-leds#pro-pr2) |
-| Zero / ZE2 / ZeroN | Prefix 19; four battery indicators plus GPS/mobile diagnostics | [Zero ZE2](/guides/tracker-leds#zero-ze2) |
-| Enviro / EN2 / EnviroN | Prefix 26; four battery indicators plus GPS/mobile diagnostics | [Enviro EN2](/guides/tracker-leds#enviro-en2) |
-| Vehicle / VT3 | Prefix 40; four indicators | [Vehicle battery, ignition and charging patterns](/guides/vehicle-leds) |
-| Handheld RTK / RH2 | RH2 product code; RGB status display and application-controlled lights | [RH2 RGB status and application feedback](/guides/rtk-leds#handheld-rtk-rh2) |
-| Vehicle RTK / VTRTK | Vehicle RTK product code; four indicators | [VTRTK battery and ignition display](/guides/rtk-leds#vehicle-rtk-vtrtk) |
-| Zero3 / ZE3 | Prefix 49; four orange indicators on revision 01 | [ZE3 revision-specific guidance](/guides/ze3-leds) |
+Check the product code on the label or in your device details. ProN (PR2) and Pro3 (PR3) share the same external appearance but have different indicators. Zero ZE2 and ZE3 are also different generations.
 
-For VT2, RH1 or another earlier model, use its [legacy device documentation](/devices/history/) or ask support. Custom devices and applications can have their own LED meanings. Do not apply the table for a similar-looking model.
+| Device | LED capabilities and model details |
+| --- | --- |
+| [Pro3 / PR3](/devices/pro/) | [Four power LEDs](/devices/capabilities/four-power-leds); orange on revisions 02–04, without separate GPS/GSM diagnostics |
+| [ProN / PR2](/devices/history/PR2) | [Four power LEDs](/devices/capabilities/four-power-leds) plus the older [GPS/GSM pair](/devices/capabilities/gps-gsm-status-leds#pro-pr2) |
+| [Zero / ZE2](/devices/zero/) | [Four power LEDs](/devices/capabilities/four-power-leds) plus the older [GPS/GSM pair](/devices/capabilities/gps-gsm-status-leds#zero-ze2) |
+| [Enviro / EN2](/devices/enviro/) | [Four power LEDs](/devices/capabilities/four-power-leds) plus the older [GPS/GSM pair](/devices/capabilities/gps-gsm-status-leds#enviro-en2) |
+| [Vehicle / VT3](/devices/vehicle/) | [Four power LEDs](/devices/capabilities/four-power-leds), also used for its [connection display](/devices/vehicle/#vehicle-connection-status) |
+| [Handheld RTK / RH2](/devices/rtk/handheld/) | [RGB status LEDs](/devices/capabilities/rgb-status-leds); see the [RH2-specific colours and application feedback](/devices/rtk/handheld/leds) |
 
-## Identify what is happening
+The [four power LED capability](/devices/capabilities/four-power-leds#devices) also records the bounded ZE3 revision 01 design information. For other devices or earlier generations, use the matching [device documentation](/devices) or [legacy pages](/devices/history/), or ask support. Do not borrow a colour table from a similar-looking device.
 
-1. **Just started or restarted?** Wait for startup to finish. A startup pattern is not a battery measurement or a fault code by itself.
-2. **Connected to power?** Use the matching charging section. Charging, external power and ignition are different states on vehicle trackers.
-3. **Pressed a button?** The device may briefly show battery or connection information and then go dark.
-4. **Running an application or alarm?** Its feedback can override the standard display. For example, the RH2 Survey application's green/red flashes describe point submission, not the normal charge level.
+## Check what is happening
 
-No lights does not necessarily mean that a tracker is off. Many devices turn their lights off while resting to save power. A coloured light also does not prove that a new location has reached the server: check the latest successful communication in the app or portal.
+1. **Starting up?** Wait for startup to finish. On PR2, [two red lights and four orange lights can appear during startup](/devices/history/PR2#two-red-lights-and-four-orange-lights-after-a-restart). That is not the Pro3 layout or a universal fault code.
+2. **Charging?** Use either [four power LED charging patterns](/devices/capabilities/four-power-leds#charging) or the [RH2 RGB charging table](/devices/rtk/handheld/leds#charging-status), as appropriate. Do not mix their thresholds.
+3. **Just pressed a button?** A brief status display may finish and go dark. On VT3 the same indicators can also show ignition and charging.
+4. **Running an application or alarm?** Its feedback can replace standard status. For example, [RH2 Survey submission flashes](/devices/rtk/handheld/leds#application-controlled-feedback) are application events, not battery colours.
 
-## Restart and troubleshooting
+No lights does not necessarily mean the tracker is off or empty. Many devices turn their lights off while resting to save power. A coloured light also does not prove that a new location reached the server: check the latest successful communication in the app or portal.
 
-On the older ProN/PR2, [two red lights and four orange lights can appear during a restart](/guides/tracker-leds#two-red-lights-and-four-orange-lights-after-a-restart). This is not the Pro3 layout, and it is not a universal Lightbug fault code.
+## If the pattern is unexpected
 
-Avoid repeatedly resetting a tracker based on its lights alone. If updates do not resume, follow [tracker troubleshooting](/faq/troubleshooting#why-is-my-tracker-not-transmitting). If a restart is needed, use the [model and firmware guidance](/faq/troubleshooting#restarting-a-tracker), rather than a universal button duration or beep sequence.
-
-## When to contact support
-
-If a pattern persists, charging does not progress, or the device stops communicating, include:
+Check charge, mobile coverage and the latest communication time. For a GPS test, use a clear view of the sky. If a pattern persists, charging does not progress, or the device stops communicating, [contact support](https://lightbug.io/contact/) with:
 
 - Product code and device ID, plus hardware/firmware revision if known.
-- Whether it is charging, has external power, or has just restarted.
-- The latest successful communication time from the app or portal.
+- Whether the device is charging or has just started.
+- The latest successful communication time.
 - A short video showing the order, colour and timing of the lights.
 
-This guide covers normal device operation. Manufacturing tests, bootloader recovery and custom applications have separate instructions; their LED codes should not be used to diagnose a tracker in ordinary service.
+Manufacturing tests, recovery modes and custom applications have separate instructions. This guide covers ordinary device operation.

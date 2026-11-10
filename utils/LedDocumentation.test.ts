@@ -1,85 +1,90 @@
 /** @jest-environment node */
-import { readFileSync } from 'node:fs'
+import { readFileSync, existsSync } from 'node:fs'
 import path from 'node:path'
 
 const root = path.resolve(__dirname, '..')
 const read = (file: string) => readFileSync(path.join(root, file), 'utf8')
+const capabilityNames = ['four-power-leds', 'gps-gsm-status-leds', 'rgb-status-leds']
 
-// These regression checks protect the generation boundaries, old URLs and
-// shared source of battery thresholds. They do not replace hardware tests.
-describe('Model-specific LED documentation', () => {
-    test('makes Pro3 the only main Pro gallery and sidebar entry', () => {
-        const gallery = read('devices.md')
-        const core = read('.vitepress/config.mts').split("text: 'Core'")[1].split("text: 'RTK'")[0]
-        expect(gallery).toContain("withBase('/devices/pro/pro3')")
-        expect(gallery).not.toContain("withBase('/devices/pro/')")
-        expect(core).toContain("link: '/devices/pro/pro3'")
-        expect(core).not.toContain("link: '/devices/pro/'")
+// Protect the capability architecture, model boundaries and deliberately narrow scope.
+// These documentation checks do not replace hardware tests.
+describe('Reusable LED capabilities', () => {
+    test.each(capabilityNames)('%s is discoverable from the capability index and sidebar', name => {
+        expect(read('devices/capabilities/index.md')).toContain(`./${name}.md`)
+        expect(read('.vitepress/config.mts')).toContain(`/devices/capabilities/${name}`)
+        expect(read('guides/leds.md')).toContain(`/devices/capabilities/${name}`)
     })
 
-    test('archives PR2 without inventing an end date or losing its URL', () => {
-        const lineage = read('devices/history/index.md')
-        const [current, legacy] = lineage.split('## Out of Production')
-        expect(current).toContain('[Pro3](/devices/pro/pro3)')
-        expect(current).not.toContain('SKU: PR2')
-        expect(legacy).toContain('[ProN (PR2)](/devices/pro/)')
-        expect(legacy.split('SKU: PR2')[1].split('\n')[0]).not.toContain('<td>Discontinued</td>')
-        expect(read('devices/pro/index.md')).toContain('Legacy device')
-        expect(read('devices/pro/index.md')).toContain('{#pro-pr2}')
-        expect(lineage).toContain('{#lineage}')
+    test('defines four-bar thresholds once, on the capability page', () => {
+        const page = read('devices/capabilities/four-power-leds.md')
+        expect(page).toContain('| 20% to below 40% | 1 indicator |')
+        expect(page).toContain('| 80% or more | 4 indicators |')
+        expect(page).toContain('Below about 95%')
+        for (const file of ['devices/pro/index.md', 'devices/history/PR2.md', 'devices/zero/index.md', 'devices/enviro/index.md', 'devices/vehicle/index.md']) {
+            expect(read(file)).toContain('/devices/capabilities/four-power-leds')
+            expect(read(file)).not.toContain('| 20% to below 40% |')
+        }
+        expect(existsSync(path.join(root, '.vitepress/includes/led-battery-bars.md'))).toBe(false)
     })
 
-    test.each([
-        ['Pro3', '/guides/pro3-leds'], ['ProN', '/guides/tracker-leds#pro-pr2'],
-        ['Zero', '/guides/tracker-leds#zero-ze2'], ['Enviro', '/guides/tracker-leds#enviro-en2'],
-        ['Vehicle', '/guides/vehicle-leds'], ['RH2', '/guides/rtk-leds#handheld-rtk-rh2'],
-        ['VTRTK', '/guides/rtk-leds#vehicle-rtk-vtrtk'], ['ZE3', '/guides/ze3-leds'],
-    ])('routes %s to a matching guide', (_name, target) => {
-        expect(read('guides/leds.md')).toContain(`](${target})`)
-    })
-
-    test.each([
-        'guides/pro3-leds.md', 'guides/tracker-leds.md', 'guides/vehicle-leds.md',
-        'guides/rtk-leds.md', 'guides/ze3-leds.md',
-    ])('%s uses one shared source for four-bar thresholds', file => {
-        const page = read(file)
-        expect(page).toContain('<!--@include: ../.vitepress/includes/led-battery-bars.md-->')
-        expect(page).toContain('<!--@include: ../.vitepress/includes/led-bar-charging.md-->')
-    })
-
-    test.each(['zero', 'enviro'])('%s no longer borrows the PR2 restart example', model => {
-        const tip = read(`devices/${model}/index.md`).split('::: tip LED help')[1].split(':::')[0]
-        expect(tip).not.toContain('two-red-lights')
-        expect(tip).toContain(`#${model}-`)
-    })
-
-    test('repairs the vehicle target and removes the generic blue-light check', () => {
-        expect(read('devices/vehicle/index.md')).toContain('## Vehicle connection status')
-        expect(read('devices/vehicle/installation.md')).not.toContain('a blue light will be visibly glowing')
-        expect(read('guides/vehicle-leds.md')).toContain('not a left-to-right enclosure diagram')
-    })
-
-    test('separates RH2 RGB and application feedback from VTRTK bars', () => {
-        const page = read('guides/rtk-leds.md')
-        expect(page).toContain('99%')
-        expect(page).toContain('When armed and active')
-        expect(page).toContain("not RH2's RGB status display")
-        expect(read('devices/api/sdks/toit/applications/survey/index.md')).toContain('**application-controlled feedback**')
-    })
-
-    test('keeps diagnostic colours and hardware revision caveats explicit', () => {
-        const page = read('guides/tracker-leds.md')
+    test('keeps diagnostic colours and sleeping GPS caveats explicit', () => {
+        const page = read('devices/capabilities/gps-gsm-status-leds.md')
         expect(page).toContain('Revision 05 uses yellow and red')
         expect(page).toContain('exact diagnostic colours must be checked')
-        expect(page).toContain('previous')
-        expect(read('guides/ze3-leds.md')).toContain('does not establish which firmware is installed')
+        expect(page).toContain('**previous**')
+        expect(page).toContain('not present on Pro3 or ZE3')
     })
 
-    test('removes contradictory universal reset timing and beep promises', () => {
-        expect(read('faq/troubleshooting.md')).not.toContain('hold tracker button for 15 seconds')
-        expect(read('devices/zero/index.md')).not.toContain('| 15 second |')
-        expect(read('apps/cloud/reports/motion-data.md')).not.toContain('it should beep once')
-        expect(read('apps/cloud/reports/motion-data.md')).not.toContain('You must then reset the device twice')
-        expect(read('faq/troubleshooting.md')).toContain('Do not assume this action always preserves settings')
+    test.each(['zero', 'enviro'])('%s declares both power and diagnostic capabilities', model => {
+        const page = read(`devices/${model}/index.md`)
+        expect(page).toContain('## Capabilities')
+        expect(page).toContain('/devices/capabilities/four-power-leds')
+        expect(page).toContain(`/devices/capabilities/gps-gsm-status-leds#${model}-`)
+    })
+
+    test('puts RH2 implementation details under the device, not in a guide or generic capability', () => {
+        const device = read('devices/rtk/handheld/leds.md')
+        const capability = read('devices/capabilities/rgb-status-leds.md')
+        expect(read('devices/rtk/handheld/index.md')).toContain('/devices/rtk/handheld/leds')
+        expect(device).toContain('/devices/capabilities/rgb-status-leds')
+        expect(device).toContain('99%')
+        expect(device).toContain('When armed and active')
+        expect(device).toContain('## Application-controlled feedback')
+        expect(capability).toContain('/devices/rtk/handheld/leds')
+        expect(capability).not.toContain('| Below 30% |')
+    })
+
+    test('links Survey feedback to RH2 device details', () => {
+        expect(read('devices/api/sdks/toit/applications/survey/index.md')).toContain('/devices/rtk/handheld/leds#application-controlled-feedback')
+    })
+
+    test('keeps VT3 connection patterns on the VT3 page', () => {
+        const page = read('devices/vehicle/index.md')
+        expect(page).toContain('## Vehicle connection status')
+        expect(page).toContain('| 1 and 2 |')
+        expect(page).toContain('not a left-to-right enclosure diagram')
+        expect(read('devices/vehicle/installation.md')).not.toContain('a blue light will be visibly glowing')
+    })
+
+    test('does not add VTRTK LED documentation', () => {
+        expect(read('devices/rtk/vehicle.md')).not.toContain('## LED')
+        expect(read('guides/leds.md')).not.toContain('VTRTK')
+    })
+
+    test('leaves existing reset procedures outside this change', () => {
+        expect(read('faq/troubleshooting.md')).not.toContain('## Restarting a tracker')
+        expect(read('faq/troubleshooting.md')).toContain('hold tracker button for 15 seconds')
+        expect(read('devices/zero/index.md')).toContain('| 15 second |')
+        expect(read('apps/cloud/reports/motion-data.md')).toContain('You must then reset the device twice')
+        expect(read('guides/leds.md')).not.toContain('restarting-a-tracker')
+    })
+
+    test.each(['pro3-leds', 'tracker-leds', 'vehicle-leds', 'rtk-leds', 'ze3-leds'])('removes the duplicated %s guide', name => {
+        expect(existsSync(path.join(root, `guides/${name}.md`))).toBe(false)
+    })
+
+    test('keeps the practical guide linked to the PR2 startup example', () => {
+        expect(read('guides/leds.md')).toContain('/devices/history/PR2#two-red-lights-and-four-orange-lights-after-a-restart')
+        expect(read('faq/troubleshooting.md')).toContain('/devices/history/PR2#two-red-lights-and-four-orange-lights-after-a-restart')
     })
 })

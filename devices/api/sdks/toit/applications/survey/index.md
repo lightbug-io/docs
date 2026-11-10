@@ -147,7 +147,7 @@ However, the collected survey points can be sent in addition to this, with extra
 
 To send the collected points to the cloud, navigate to the [Actions](#actions) menu, and select the `Send to cloud` option.
 
-The Survey application gives a green flash for each successfully submitted point, or a red flash if submission fails. This is **application-controlled feedback**, not the normal battery/charging colour table or a universal RTK status code. See [RH2 status versus application feedback](/guides/rtk-leds#application-controlled-feedback).
+The Survey application gives a green flash for each successfully submitted point, or a red flash if submission fails. This is **application-controlled feedback**, not the normal battery/charging colour table or a universal RTK status code. See [RH2 status versus application feedback](/devices/rtk/handheld/leds#application-controlled-feedback).
 
 From the [Info](#info) screen, you can note the `Share` code, which can be used to view the submitted points using [share.chasm.cloud](/apps/chasm/share/), using the format `YYYYMMDD-<share code>`, e.g. `20250930-af3ge911e5`.
 

@@ -2,124 +2,57 @@
 aside: true
 ---
 
-<script setup>
-import spec from '../../public/device-specs/pro/v2.yaml?raw'
-import loadSpec from '../../utils/loadSpec'
+<!-- cspell:ignore Quectel HALMD Richtek -->
 
-const specs = loadSpec(spec)
-</script>
+# Pro3 (PR3)
 
-# ProN (PR2) {#pro-pr2}
+Pro3 is a different hardware generation from [ProN (PR2)](/devices/history/PR2). The two generations share the same external appearance, so use the product code and hardware revision to identify your device before following its instructions. ProN (PR2) is now a legacy model and is no longer in production.
 
-::: info Legacy device
-ProN (PR2) is no longer in production. This page and its specification download remain available for existing devices. For the newer generation, use the [Pro3 (PR3) page](/devices/pro/pro3).
-:::
+## Capabilities
 
-## Choose your Pro generation
+- [Four power LEDs](/devices/capabilities/four-power-leds): four orange indicators on hardware revisions 02–04, used for battery level, charging and temporary patterns.
 
-The Pro family includes different hardware generations. **The specifications and images on this page are for ProN (PR2), device ID prefix 20.**
-
-| Your device | Where to start |
-| --- | --- |
-| ProN / Pro PR2 | Continue on this page. This model has four battery indicators and two separate GPS/mobile-network indicators. |
-| Pro3 / PR3 | Use the [Pro3 device page](/devices/pro/pro3). Revisions 02–04 have four orange indicators and different electronics. |
-
-If you are unsure which model you have, check its product code or ask [support](https://lightbug.io/contact/) with the device ID. Do not choose a guide from the name “Pro” alone.
-
-<DownloadSpecButton :spec="specs" deviceTitle="ProN (PR2)" />
-
-::: tip LED help
-For this ProN/PR2 model, see the [model-specific LED guide](/guides/tracker-leds), including [two red and four orange lights after a restart](/guides/tracker-leds#two-red-lights-and-four-orange-lights-after-a-restart). The separate [Pro3 LED guide](/guides/pro3-leds) does not use this six-indicator layout.
-:::
+Pro3 does not have the separate [GPS and GSM status LEDs](/devices/capabilities/gps-gsm-status-leds) used by the older ProN/PR2. Use the product code and revision, not the enclosure appearance, to choose the matching documentation.
 
 ## Images
 
-<DeviceSpecImages :spec="specs" />
+![Pro3 tracker enclosure](https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-PR2.png)
 
-## Overview
+The enclosure image is shared with ProN/PR2. It does not identify the internal electronics or LED layout.
 
-<DeviceSpecOverview :spec="specs" />
+## Hardware generations
 
-<template v-if="specs.product.physical">
+| Feature | ProN / PR2 | Pro3 / PR3 |
+| --- | --- | --- |
+| LED layout | Four battery indicators plus two diagnostic indicators | Four orange indicators on revisions 02–04 |
+| Cellular platform | SIMCom SIM7000 family | SIMCom A76xx family |
+| Controller | STM32WB55 | STM32WLE5 |
+| Companion processor | ESP8285 | ESP32 family; ESP32-C6FH4 on revision 04 |
+| GNSS receiver | Integrated SIM7000G receiver in the PR2 specification | Separate Quectel LC79HALMD on revision 04 |
+| Charger | Texas Instruments BQ25890H in the PR2 specification | Richtek RT9471 on revision 04 |
 
-## Physical
+This is a hardware comparison, not a complete Pro3 specification. Cellular bands, wireless features, charging limits and certifications must be checked for the supplied Pro3 revision. The [PR2 specification download](/devices/history/PR2) applies to PR2 only.
 
-<DeviceSpecSection :spec="specs" sectionName="physical" />
+## LED indicators
 
-</template>
+The [four power LED capability](/devices/capabilities/four-power-leds) defines the normal battery and charging patterns. On revisions 02–04 these indicators are orange. They are also used during startup and for alerts, so four lit indicators are not always a battery reading.
 
-<template v-if="specs.product.integrations">
+There is no separate GPS/mobile-network colour table on Pro3. The older [PR2 example of two red and four orange lights](/devices/history/PR2#two-red-lights-and-four-orange-lights-after-a-restart) is not this model’s layout. Use the [LED guide](/guides/leds) for the first checks when a pattern is unfamiliar.
 
-## Integrations
+### Charger protection
 
-<DeviceSpecSection :spec="specs" sectionName="integrations" />
-
-</template>
-
-<template v-if="specs.product['user interface']">
-
-## User Interface
-
-<DeviceSpecSection :spec="specs" sectionName="user interface" />
-
-</template>
-
-<template v-if="specs.product.connectivity">
-
-## Connectivity
-
-<DeviceSpecSection :spec="specs" sectionName="connectivity" />
-
-</template>
-
-<template v-if="specs.product.positioning">
-
-## Positioning
-
-<DeviceSpecSection :spec="specs" sectionName="positioning" />
-
-</template>
-
-<template v-if="specs.product.sensors">
-
-## Sensors
-
-<DeviceSpecSection :spec="specs" sectionName="sensors" />
-
-</template>
-
-<template v-if="specs.product.battery">
-
-## Battery
-
-<DeviceSpecSection :spec="specs" sectionName="battery" />
-
-</template>
-
-<template v-if="specs.product.charging">
+The charger can trigger a protection pattern that differs from the normal charging blink. If two lights keep flashing together or charging does not progress, contact [support](https://lightbug.io/contact/) with a video and details of the charging accessory. Do not treat every flashing pattern as a battery reading.
 
 ## Charging
 
-<DeviceSpecSection :spec="specs" sectionName="charging" />
+Use the charging accessory and power supply specified for your Pro3 revision. Do not apply PR2 voltage/current ratings or charging-time instructions to Pro3.
 
-</template>
+See [four power LED charging patterns](/devices/capabilities/four-power-leds#charging) for the normal blinking and steady states. A steady high-charge display is not an exact 100% reading.
 
-<template v-if="specs.product.components">
+## Earlier Pro generations {#pro-pr2}
 
-## Components
+The [ProN/PR2 archive](/devices/history/PR2) contains its specifications, images and diagnostic-light information. PR2 is no longer in production.
 
-<DeviceSpecSection :spec="specs" sectionName="components" />
+## Get help
 
-</template>
-
-## Additional Charging Information
-
-Use the charging accessory supplied for your ProN/PR2 and a suitable power adapter. The connector on the power adapter or cable is not necessarily the connector on the tracker. Check the battery level and normal charging display rather than relying on a fixed initial charging time.
-
-On ProN/PR2, the battery lights show the charge level and the highest lit battery light blinks while charging below about 95%. At higher charge levels, the normal display becomes steady. See [charging patterns](/guides/tracker-leds#charging-patterns).
-
-When unplugged and resting, the lights normally go out, but a button press, restart or other device activity can still light them.
-
-::: warning
-It is advised to use an adapter plugged into a power socket rather than using a computer USB port or similar.
-:::
+For specifications or troubleshooting, [contact support](https://lightbug.io/contact/) with the product code, device ID and hardware revision if known. Include whether the device is charging and a short video if you are asking about a repeating light pattern.

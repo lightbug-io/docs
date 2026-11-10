@@ -8,4 +8,11 @@ Collected here for convenience.
 We are building out this documentation section
 :::
 
-The first capability that we are documenting is [BLE Scanning](./ble-scanning.md).
+## Available capabilities
+
+- [BLE scanning](./ble-scanning.md)
+- [Four power LEDs](./four-power-leds.md): the reusable battery-bar and charging display.
+- [GPS and GSM status LEDs](./gps-gsm-status-leds.md): the separate diagnostic pair found on some older devices.
+- [RGB status LEDs](./rgb-status-leds.md): colour/brightness status displays, with model-specific meanings and overrides.
+
+A device page identifies which capabilities it has and describes its hardware-specific details. Capability pages define the shared feature and its limits. For help interpreting an unfamiliar pattern, use the [LED guide](/guides/leds).
