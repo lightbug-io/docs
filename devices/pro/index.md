@@ -4,6 +4,10 @@ aside: true
 
 # Pro
 
+<div class="pro-overview">
+<div class="pro-overview__layout">
+<div class="pro-overview__copy">
+
 The current Pro is Pro3 (PR3), a different hardware generation from [ProN (PR2)](/devices/history/PR2). The two generations share the same external appearance, so use the product code and hardware revision to identify your device before following its instructions. ProN (PR2) is now a legacy model and is no longer in production.
 
 ## Feature guides {#capabilities}
@@ -12,11 +16,12 @@ The current Pro is Pro3 (PR3), a different hardware generation from [ProN (PR2)]
 
 Pro3 does not have the separate [GPS and GSM status LEDs](/devices/capabilities/gps-gsm-status-leds) used by the older ProN/PR2. Use the product code and revision, not the enclosure appearance, to choose the matching documentation.
 
-## Images
+</div>
 
-![Pro3 tracker enclosure](https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-PR2.png)
+<ProImageGallery />
 
-The enclosure image is shared with ProN/PR2. It does not identify the internal electronics or LED layout.
+</div>
+</div>
 
 ## Hardware generations
 
@@ -50,3 +55,24 @@ The [ProN/PR2 archive](/devices/history/PR2) contains its specifications, images
 ## Get help
 
 For specifications or troubleshooting, [contact support](https://lightbug.io/contact/) with the product code, device ID and hardware revision if known. Include whether the device is charging and a short video if you are asking about a repeating light pattern.
+
+<style scoped>
+/* cspell:ignore minmax */
+.pro-overview { container-type: inline-size; }
+.pro-overview__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+  margin-top: 1.5rem;
+}
+.pro-overview__copy { min-width: 0; }
+.pro-overview__copy > :first-child { margin-top: 0; }
+.pro-overview__copy > :last-child { margin-bottom: 0; }
+.pro-overview__layout > :deep(.pro-gallery) { justify-self: center; }
+/* Use the article's width, not the viewport: navigation may occupy both sides. */
+@container (min-width: 42rem) {
+  .pro-overview__layout { grid-template-columns: minmax(0, 1fr) 18rem; gap: 2rem; }
+  .pro-overview__layout > :deep(.pro-gallery) { justify-self: end; }
+}
+</style>

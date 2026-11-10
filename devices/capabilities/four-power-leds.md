@@ -28,7 +28,7 @@ A short status-button press normally shows the battery level briefly. The four i
 
 <LedDemo mode="battery" />
 
-These bands apply to the normal battery display only. Four lights are not an exact 100% reading. The example illustrates the pattern, not a physical case layout or a colour specification for every model. Change the battery level to compare the bands; play or step through a blinking pattern.
+Four lights are not an exact 100% reading. These examples use orange power LEDs; see your model for its layout and any display overrides.
 
 ## Charging
 

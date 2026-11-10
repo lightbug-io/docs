@@ -17,6 +17,7 @@ const clock = ref<PlaybackClock>({ elapsedMs: 0, startedAtMs: null })
 let timer: ReturnType<typeof setTimeout> | undefined
 let motionQuery: MediaQueryList | undefined
 
+const compact = computed(() => props.mode === 'battery' || props.mode === 'charging')
 const input = computed<LedDemoInput>(() => ({ mode: props.mode, percentage: percentage.value, ignition: ignition.value, vehicleCharging: vehicleCharging.value }))
 const pattern = computed(() => playbackPattern(input.value))
 const duration = computed(() => playbackDuration(pattern.value))
@@ -26,26 +27,27 @@ const canAnimate = computed(() => pattern.value.frames.length > 0)
 const finished = computed(() => canAnimate.value && Number.isFinite(duration.value) && elapsed.value >= duration.value)
 const title = computed(() => ({ battery: 'Battery level', charging: 'Charging progress', rh2: 'RH2 charging colour', vehicle: 'VT3 connection status' })[props.mode])
 const presets = computed(() => props.mode === 'rh2' ? [15, 50, 80, 95, 99] : props.mode === 'charging' ? [10, 35, 55, 75, 90, 95] : [10, 35, 55, 75, 90])
-const displayState = computed(() => !canAnimate.value ? 'Steady display' : playing.value ? 'Playing' : finished.value ? 'Finished' : 'Paused')
+// Repeating automatic motion needs an unobtrusive way to pause it.
+const showPause = computed(() => compact.value && ready.value && canAnimate.value && !Number.isFinite(duration.value) && !reducedMotion.value)
 const summary = computed(() => {
     if (frame.value.kind === 'rgb') return `${frame.value.colour} at ${percentage.value}%. ${frame.value.steady ? 'The light stays steady at 99% and above.' : 'Brightness increases in five steps, about 0.5 seconds each, then repeats.'}`
     if (frame.value.kind === 'vehicle') {
         const selected = ignition.value && vehicleCharging.value ? 'Both pairs flash together' : ignition.value ? 'Indicators 1 and 2 flash' : vehicleCharging.value ? 'Indicators 3 and 4 flash' : 'All four indicators stay off'
         return `${selected}.${canAnimate.value ? ' Five cycles: 0.3 seconds on, 0.2 seconds off.' : ' Turn on a condition to explore its pattern.'}`
     }
-    if (props.mode === 'battery' && percentage.value < 20) return 'Below 20%: the first indicator flashes six times, about 0.3 seconds on and 0.3 seconds off.'
-    if (props.mode === 'charging' && percentage.value < 95) return `Indicator ${frame.value.blinkingBar} blinks: 1 second on, 1 second off.${frame.value.blinkingBar! > 1 ? ' The lower indicators stay on.' : ' At least one indicator blinks while charging.'}`
-    if (props.mode === 'charging') return 'At 95% and above, all four indicators stay on.'
-    return `${frame.value.bars} of 4 indicators on. The level changes at 20%, 40%, 60% and 80%.`
+    if (props.mode === 'battery' && percentage.value < 20) return 'Low battery: the first LED flashes six times.'
+    if (props.mode === 'charging' && percentage.value < 95) return 'The highest lit LED blinks while charging.'
+    if (props.mode === 'charging') return 'All four LEDs stay on at 95% and above.'
+    return `${frame.value.bars} of 4 LEDs on.`
 })
 const frameDescription = computed(() => {
     const current = frame.value
     if (current.kind === 'rgb') return current.steady ? `${current.colour} · steady` : `${current.colour} · brightness step ${current.step} of 5`
     const on = current.lights.flatMap((lit, index) => lit ? [index + 1] : [])
     const lights = on.length ? `On: ${on.join(', ')}` : 'All indicators off'
+    if (compact.value) return lights
     if (current.phase === 'complete') return `${lights} · sequence complete`
     if (current.kind === 'vehicle' && canAnimate.value) return `${lights} · cycle ${current.cycle} of 5`
-    if (current.kind === 'bars' && current.cycle) return `${lights} · flash ${current.cycle} of 6`
     return lights
 })
 const rgbStyle = computed(() => {
@@ -83,7 +85,7 @@ function schedule() {
     timer = setTimeout(schedule, Math.max(1, next - nowElapsed))
 }
 function play() {
-    if (!ready.value || reducedMotion.value || !canAnimate.value) return
+    if (!ready.value || reducedMotion.value || !canAnimate.value || document.hidden || playing.value) return
     if (finished.value) reset()
     clock.value = startClock(clock.value, performance.now())
     schedule()
@@ -92,6 +94,15 @@ function replay() {
     reset()
     play()
 }
+function selectionChanged() {
+    reset()
+    if (compact.value) play()
+}
+function selectPreset(level: number) {
+    // Re-selecting a level replays a finite sequence without a separate control.
+    if (percentage.value === level) selectionChanged()
+    else percentage.value = level
+}
 function step() {
     pause()
     elapsed.value = finished.value ? 0 : nextFrameTime(pattern.value, elapsed.value)
@@ -99,18 +110,22 @@ function step() {
 }
 function motionChanged(event: MediaQueryListEvent) {
     reducedMotion.value = event.matches
-    if (event.matches) pause()
+    if (event.matches) {
+        if (compact.value) reset()
+        else pause()
+    }
 }
 function visibilityChanged() {
     if (document.hidden) pause()
 }
-watch(input, reset)
+watch(input, selectionChanged)
 onMounted(() => {
-    ready.value = true
     motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     reducedMotion.value = motionQuery.matches
     motionQuery.addEventListener('change', motionChanged)
     document.addEventListener('visibilitychange', visibilityChanged)
+    ready.value = true
+    if (compact.value) play()
 })
 onBeforeUnmount(() => {
     clearTimer()
@@ -120,13 +135,13 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <section class="led-demo" :aria-label="`${title} interactive example`">
+    <section class="led-demo" :class="{ 'led-demo--power': compact }" :aria-label="`${title} demo`">
         <header class="led-demo__header">
-            <div>
-                <span class="led-demo__eyebrow">INTERACTIVE EXAMPLE</span>
-                <p class="led-demo__title">{{ title }}</p>
+            <p class="led-demo__title">{{ title }}</p>
+            <div v-if="compact" class="led-demo__header-actions">
+                <button v-if="showPause" class="led-demo__pause" type="button" :aria-label="playing ? 'Pause animation' : 'Resume animation'" @click="playing ? pause() : play()">{{ playing ? 'Pause' : 'Resume' }}</button>
+                <strong class="led-demo__value">{{ percentage }}%</strong>
             </div>
-            <span class="led-demo__state" :class="{ 'led-demo__state--playing': playing }">{{ displayState }}</span>
         </header>
 
         <div class="led-demo__stage" :class="{ 'led-demo__stage--rgb': mode === 'rh2' }">
@@ -138,10 +153,10 @@ onBeforeUnmount(() => {
                 <div v-for="(on, index) in frame.lights" :key="index" class="led-demo__indicator">
                     <span class="led-demo__light" :class="{ 'led-demo__light--on': on }"></span>
                     <span class="led-demo__number">{{ index + 1 }}</span>
-                    <span class="led-demo__on-off">{{ on ? 'On' : 'Off' }}</span>
+                    <span v-if="!compact" class="led-demo__on-off">{{ on ? 'On' : 'Off' }}</span>
                 </div>
             </div>
-            <p class="led-demo__frame" :aria-live="playing ? 'off' : 'polite'" aria-atomic="true">{{ frameDescription }}</p>
+            <p class="led-demo__frame" :class="{ 'led-demo__sr-only': compact }" :aria-live="compact || playing ? 'off' : 'polite'" aria-atomic="true">{{ frameDescription }}</p>
         </div>
 
         <div class="led-demo__body">
@@ -152,25 +167,26 @@ onBeforeUnmount(() => {
             </fieldset>
             <div v-else class="led-demo__level">
                 <label class="led-demo__range-label">
-                    <span class="led-demo__range-heading"><span>Example battery level</span><strong>{{ percentage }}%</strong></span>
+                    <span class="led-demo__range-heading" :class="{ 'led-demo__sr-only': compact }"><span>Battery level</span><strong>{{ percentage }}%</strong></span>
                     <input v-model.number="percentage" type="range" min="0" max="100" step="1" :disabled="!ready" :aria-valuetext="`${percentage} percent`" />
                 </label>
                 <div class="led-demo__presets" role="group" aria-label="Example battery levels">
-                    <button v-for="level in presets" :key="level" type="button" :disabled="!ready" :aria-pressed="percentage === level" @click="percentage = level">{{ level }}%</button>
+                    <button v-for="level in presets" :key="level" type="button" :disabled="!ready" :aria-pressed="percentage === level" @click="selectPreset(level)">{{ level }}%</button>
                 </div>
             </div>
 
             <p class="led-demo__summary" aria-live="polite">{{ summary }}</p>
-            <div class="led-demo__playback" role="group" aria-label="Animation controls">
+            <div v-if="!compact" class="led-demo__playback" role="group" aria-label="Animation controls">
                 <button class="led-demo__primary" type="button" :disabled="!ready || !canAnimate || reducedMotion" @click="playing ? pause() : play()">
                     <span aria-hidden="true">{{ playing ? 'Ⅱ' : '▷' }}</span> {{ playing ? 'Pause' : finished ? 'Play again' : 'Play animation' }}
                 </button>
                 <button type="button" :disabled="!ready || !canAnimate" @click="replay">{{ reducedMotion ? 'Reset' : 'Replay' }}</button>
                 <button type="button" :disabled="!ready || !canAnimate" @click="step">Next frame <span aria-hidden="true">→</span></button>
             </div>
-            <p class="led-demo__hint">{{ !ready ? 'Interactive controls need JavaScript. This is a readable example frame.' : reducedMotion && canAnimate ? 'Reduced motion is on. Use Next frame to explore without animation.' : canAnimate ? 'Starts paused. Play the pattern, or explore one frame at a time.' : mode === 'battery' ? 'This level is steady. Choose 10% to explore the low-battery flash.' : mode === 'vehicle' ? 'Select ignition or charging to explore the flash sequence.' : mode === 'rh2' ? 'This level is steady. Choose a level below 99% to explore the brightness steps.' : 'This level is steady. Choose a level below 95% to explore the blink.' }}</p>
+            <p v-if="!ready" class="led-demo__hint">Enable JavaScript to adjust this example.</p>
+            <p v-else-if="compact && reducedMotion && canAnimate" class="led-demo__hint">Animation off for reduced motion.</p>
+            <p v-else-if="!compact" class="led-demo__hint">{{ reducedMotion && canAnimate ? 'Reduced motion is on. Use Next frame to explore without animation.' : canAnimate ? 'Starts paused. Play the pattern, or explore one frame at a time.' : mode === 'vehicle' ? 'Select ignition or charging to explore the flash sequence.' : 'This level is steady. Choose a level below 99% to explore the brightness steps.' }}</p>
         </div>
-        <footer class="led-demo__note">Illustration only, not live device data. {{ mode === 'rh2' ? 'Colour and brightness are approximate on screen.' : 'Numbers are logical indicators, not a physical layout. Shading means on, not a specified LED colour.' }}</footer>
     </section>
 </template>
 
@@ -194,10 +210,7 @@ onBeforeUnmount(() => {
 }
 .led-demo p { margin: 0; }
 .led-demo__header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 20px 24px 16px; }
-.led-demo__eyebrow { display: block; color: var(--demo-muted); font-size: 10px; font-weight: 650; letter-spacing: 0.13em; }
-.led-demo .led-demo__title { margin-top: 4px; font-size: 19px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.3; }
-.led-demo__state { padding: 4px 9px; border: 1px solid var(--demo-line); border-radius: 20px; color: var(--demo-muted); font-size: 11px; white-space: nowrap; }
-.led-demo__state--playing { border-color: var(--demo-accent); color: var(--demo-accent); }
+.led-demo .led-demo__title { font-size: 19px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.3; }
 .led-demo__stage { padding: 25px 20px 18px; border-block: 1px solid var(--demo-line); background: var(--demo-soft); }
 .led-demo__indicators { display: flex; justify-content: center; gap: clamp(16px, 6vw, 32px); }
 .led-demo__indicator { display: flex; flex-direction: column; align-items: center; gap: 3px; }
@@ -226,17 +239,34 @@ onBeforeUnmount(() => {
 .led-demo .led-demo__primary { border-color: var(--demo-ink); background: var(--demo-ink); color: var(--demo-panel); font-weight: 600; }
 .led-demo .led-demo__primary:hover:not(:disabled) { border-color: var(--demo-accent); background: var(--demo-accent); color: var(--demo-panel); }
 .led-demo .led-demo__hint { margin-top: 12px; color: var(--demo-muted); font-size: 11px; }
-.led-demo__note { padding: 12px 24px; border-top: 1px solid var(--demo-line); color: var(--demo-muted); font-size: 11px; line-height: 1.5; }
 .led-demo__conditions { display: flex; flex-wrap: wrap; gap: 8px 20px; padding: 0; margin: 0; border: 0; }
 .led-demo__conditions legend { margin-bottom: 10px; padding: 0; font-size: 12px; }
 .led-demo__check { display: flex; align-items: center; gap: 9px; min-height: 44px; cursor: pointer; font-size: 13px; }
 .led-demo__check input { flex-shrink: 0; width: 17px; height: 17px; accent-color: var(--demo-accent); }
 .led-demo__check small { display: block; color: var(--demo-muted); font-size: 11px; }
+/* Power displays stay compact; their LEDs are orange, unlike VT3's neutral demo. */
+.led-demo--power { margin: 18px 0; border-radius: 14px; }
+.led-demo--power .led-demo__header { min-height: 46px; padding: 10px 18px 0; }
+.led-demo--power .led-demo__title { font-size: 16px; }
+.led-demo .led-demo__pause { min-height: 32px; padding: 4px 6px; border-color: transparent; color: var(--demo-muted); font-size: 11px; }
+.led-demo--power .led-demo__stage { padding: 10px 18px 4px; border: 0; background: transparent; }
+.led-demo--power .led-demo__indicators { gap: 24px; }
+.led-demo--power .led-demo__light { width: 32px; height: 24px; margin-bottom: 3px; border-radius: 6px; }
+.led-demo--power .led-demo__light--on { border-color: #b85b05; background: #f59a23; box-shadow: 0 0 9px rgb(245 154 35 / 24%), inset 0 1px 1px rgb(255 255 255 / 35%); }
+.led-demo--power .led-demo__number { font-size: 10px; color: var(--demo-muted); }
+.led-demo--power .led-demo__body { padding: 6px 18px 14px; }
+.led-demo__header-actions { display: flex; align-items: center; gap: 10px; }
+.led-demo__value { font-size: 18px; font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: -0.04em; }
+.led-demo--power input[type="range"] { height: 28px; margin: 0 0 5px; }
+.led-demo--power .led-demo__presets { gap: 5px; }
+.led-demo--power .led-demo__presets button { min-height: 28px; padding: 4px 10px; }
+.led-demo--power .led-demo__summary { min-height: 0; margin: 10px 0 0; font-size: 12px; }
+.led-demo--power .led-demo__hint { margin-top: 7px; }
+.led-demo .led-demo__sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 @media (max-width: 420px) {
     .led-demo__header { padding: 17px 16px 14px; }
     .led-demo__body { padding: 18px 16px 16px; }
-    .led-demo__note { padding: 12px 16px; }
-    .led-demo .led-demo__title { font-size: 17px; }
+    .led-demo:not(.led-demo--power) .led-demo__title { font-size: 17px; }
     .led-demo__playback { gap: 6px; }
     .led-demo__playback button { padding: 7px 9px; }
 }

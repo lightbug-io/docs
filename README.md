@@ -47,6 +47,6 @@ PR preview workflows and administrator setup: [.github/preview](https://github.c
 - Add a capability and its group to the registry. The catalogue and grouped sidebar are generated from it.
 - Add each verified device relationship once, with revision caveats and an optional device-specific detail link. `DeviceCapabilities` renders a device's related guides; `CapabilityDevices` renders the reverse list.
 - Keep detailed behaviours on the capability or device page, not in the registry. Add only verified mappings: the existing BLE guide is listed, but its product coverage has not yet been enumerated here.
-- `LedDemo` provides paused, keyboard-accessible examples. Its pure display logic is tested separately from the prose; keep both aligned when thresholds or timing change. Examples are illustrative, not a connection to real hardware.
+- `LedDemo` provides keyboard-accessible examples. Battery and charging patterns animate when a matching level is selected, while respecting reduced-motion preferences. Its pure display logic is tested separately from the prose; keep both aligned when thresholds or timing change. Examples are illustrative, not a connection to real hardware.
 
 Run `npm test -- --runInBand` and `npm run build` after changing the registry, components or documentation. Tests check registry integrity, routes and the intended model boundaries.
