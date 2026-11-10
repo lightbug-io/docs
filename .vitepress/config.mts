@@ -6,6 +6,7 @@ import { useSidebar } from 'vitepress-openapi';
 import { loadSpec } from '../swagger/load';
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 import { pagefindPlugin } from 'vitepress-plugin-pagefind';
+import pagefindLoading from './plugins/pagefind-loading.cjs';
 import { withMermaid } from "vitepress-plugin-mermaid";
 import { imgSize } from "@mdit/plugin-img-size";
 import { figure } from "@mdit/plugin-figure";
@@ -234,6 +235,7 @@ export default withMermaid(defineConfig({
           return { code: code + `\nexport { ${match[1]} as OACodeSamples };\n`, map: null }
         },
       },
+      pagefindLoading.pagefindLoadingPlugin(),
       pagefindPlugin(),
     ],
   },
