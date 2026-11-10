@@ -1,11 +1,21 @@
 <template>
-  <div class="pdf-btn-wrapper">
-    <button @click="downloadPdf" class="pdf-download-btn" :disabled="isDownloading">{{ isDownloading ? 'Generating PDF…' : props.label }}</button>
+  <div class="pdf-btn-wrapper" :class="{ 'pdf-btn-wrapper--card': props.previewImage }">
+    <button type="button" @click="downloadPdf" class="pdf-download-btn" :class="{ 'pdf-download-btn--card': props.previewImage }" :disabled="isDownloading" :aria-busy="isDownloading">
+      <template v-if="props.previewImage">
+        <span class="pdf-download-card">
+          <img :src="withBase(props.previewImage)" alt="" class="pdf-preview-image" />
+          <span class="pdf-overlay">{{ isDownloading ? 'Generating…' : 'PDF' }}</span>
+        </span>
+        <span class="pdf-label-under">{{ props.label }}</span>
+      </template>
+      <template v-else>{{ isDownloading ? 'Generating PDF…' : props.label }}</template>
+    </button>
     <span v-if="downloadError" role="alert">{{ downloadError }}</span>
   </div>
 </template>
 
 <script setup>
+import { withBase } from 'vitepress'
 import { ref } from 'vue'
 import { layoutPdfText, pdfImageWidth } from '../utils/PdfLayout'
 
@@ -38,6 +48,10 @@ const props = defineProps({
   label: {
     type: String,
     default: 'Download PDF'
+  },
+  previewImage: {
+    type: String,
+    default: null
   }
 });
 
@@ -54,6 +68,11 @@ function loadScript(src) {
     };
     if (!existing) {
       script.src = src;
+      if (src === 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js') {
+        script.integrity = 'sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==';
+        script.crossOrigin = 'anonymous';
+        script.referrerPolicy = 'no-referrer';
+      }
       document.head.appendChild(script);
     } else if (src.includes('jspdf') && window.jspdf) {
       resolve();
@@ -493,4 +512,49 @@ function savePdfBlob(blob, title) {
   border-color: var(--vp-c-brand, #409eff);
   color: var(--vp-c-brand, #409eff);
 }
+.pdf-btn-wrapper--card {
+  display: block;
+  width: 148px;
+  margin: 0 0 0 8px;
+}
+.pdf-download-btn--card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 148px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  white-space: normal;
+  overflow: visible;
+}
+.pdf-download-btn--card:hover { background: transparent; }
+.pdf-download-card {
+  display: block;
+  position: relative;
+  width: 148px;
+  height: 210px;
+  overflow: hidden;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.pdf-download-btn--card:hover .pdf-download-card { box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); }
+.pdf-preview-image { width: 100%; height: 100%; object-fit: cover; }
+.pdf-overlay {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+.pdf-label-under { margin-top: 8px; font-size: 0.9rem; font-weight: 500; }
+.pdf-download-btn:focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: 4px; }
+.pdf-download-btn:disabled { cursor: wait; }
 </style>

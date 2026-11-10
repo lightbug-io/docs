@@ -3,12 +3,10 @@ aside: false
 ---
 
 <script setup>
-import { useDeviceSpec } from '../../../composables/useDeviceSpec.js'
 import spec from '../../../public/device-specs/rtk/v2.yaml?raw'
 import loadSpec from '../../../utils/loadSpec'
 
 const specs = loadSpec(spec)
-const { getPdfData } = useDeviceSpec(specs, {})
 </script>
 
 # Handheld RTK (RH2)
@@ -42,8 +40,9 @@ Our RH2 guides are still a work in progress, but these links may help you get st
     :previewImage="specs.product.booklet_preview"
     label="Promotional Brochure"
 />
-<DownloadSpecFile
-    :get-pdf-data="getPdfData"
+<DownloadSpecButton
+    :spec="specs"
+    deviceTitle="Handheld RTK (RH2)"
     preview-image="https://upload.r2.lb.chasm.cloud/2025/10/chrome_c9GfH7UCoY.png"
     label="Technical Specification"
 />

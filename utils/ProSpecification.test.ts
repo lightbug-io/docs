@@ -17,6 +17,7 @@ function specForPage(file: string) {
 const spec = specForPage('devices/pro/index.md')
 const sectionNames = ['physical', 'integrations', 'user interface', 'connectivity', 'positioning', 'sensors', 'battery', 'charging', 'components']
 let capturedPdf: any
+let capturedPreview: string | null
 
 function evaluate(source: string) {
     const javascript = ts.transpileModule(source, {
@@ -24,12 +25,13 @@ function evaluate(source: string) {
     }).outputText
     const exports: Record<string, any> = {}
     const resolve = (name: string): any => {
-        if (name === 'vitepress') return { withBase: (url: string) => `/docs/pr/40${url}` }
+        if (name === 'vitepress') return { withBase: (url: string) => /^(https?:)?\/\//.test(url) ? url : `/docs/pr/40${url}` }
         if (name.endsWith('/useDeviceSpec.js')) return evaluate(read('composables/useDeviceSpec.js'))
         if (name === './DownloadPdfButton.vue') return { __esModule: true, default: defineComponent({
-            props: ['getPdfData', 'label'],
+            props: ['getPdfData', 'label', 'previewImage'],
             setup(props) {
                 capturedPdf = props.getPdfData()
+                capturedPreview = props.previewImage
                 return () => h('button', props.label)
             },
         }) }
@@ -143,5 +145,38 @@ describe('Pro3 specification integration', () => {
         const data = await pdfFor(legacy, title)
         expect(data.title).toBe('ProN (PR2)')
         expect(data.mainTable).toMatchObject({ Version: 2, SKU: 'PR2', 'Serial prefix': 20 })
+    })
+
+    test('RH2 overview and specification page share the same complete PDF data and retain the preview', async () => {
+        const rh2 = specForPage('devices/rtk/handheld/index.md')
+        expect(rh2).toEqual(specForPage('devices/rtk/handheld/specification.md'))
+        const overview = read('devices/rtk/handheld/index.md')
+        expect(overview).toMatch(/<DownloadSpecButton\b[^>]*:spec="specs"/)
+        const previewImage = overview.match(/\bpreview-image="([^"]+)"/)![1]
+        const deviceTitle = overview.match(/\bdeviceTitle="([^"]+)"/)![1]
+        await renderToString(createSSRApp(Download, { spec: rh2, deviceTitle, previewImage, label: 'Technical Specification' }))
+        expect(capturedPreview).toBe(previewImage)
+        expect(capturedPdf).toEqual(await pdfFor(rh2, 'Handheld RTK (RH2)'))
+        expect(capturedPdf.mainTable).toMatchObject({ SKU: 'RH2', 'Serial prefix': 43, Version: 2 })
+        expect(capturedPdf.images).toEqual(rh2.product.images.map((url: string) => `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(url)}`))
+        expect(JSON.stringify(capturedPdf.sections)).toMatch(/Φ/)
+        expect(rh2.product.booklet).toBe('https://lightbug.io/rh2_rtk_handheld_booklet.pdf')
+    })
+
+    test.each([null, 'https://example.com/preview.png'])('shared PDF control renders an accessible button with preview %s', async previewImage => {
+        const html = await renderToString(createSSRApp(component('DownloadPdfButton.vue'), {
+            getPdfData: () => null, label: 'Technical Specification', previewImage,
+        }))
+        const root = document.createElement('div')
+        root.innerHTML = html
+        expect(root.querySelector('button')?.type).toBe('button')
+        expect(root.querySelector('button')?.disabled).toBe(false)
+        expect(root.querySelector('button')?.textContent).toContain('Technical Specification')
+        if (previewImage) {
+            expect(root.querySelector('img')?.getAttribute('src')).toBe(previewImage)
+            expect(root.querySelector('img')?.alt).toBe('')
+        } else {
+            expect(root.querySelector('img')).toBeNull()
+        }
     })
 })

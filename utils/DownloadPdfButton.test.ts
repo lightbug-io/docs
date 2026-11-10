@@ -92,6 +92,10 @@ describe('PDF resources', () => {
         const error = jest.spyOn(console, 'error').mockImplementation(() => {})
         const first = button.downloadPdf()
         expect(button.isDownloading.value).toBe(true)
+        const script = document.head.querySelector('script')!
+        expect(script.integrity).toBe('sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==')
+        expect(script.crossOrigin).toBe('anonymous')
+        expect(script.referrerPolicy).toBe('no-referrer')
         await button.downloadPdf()
         expect(document.head.querySelectorAll('script')).toHaveLength(1)
         document.head.querySelector('script')!.dispatchEvent(new Event('error'))
