@@ -1269,6 +1269,7 @@ messages:
                 1: {}
                 5: {presence: required, value: 2}
             response:
+              description: Successful GET returns GSM state directly.
               headers:
                 3: {}
                 4: {value: 0}
@@ -1384,7 +1385,6 @@ messages:
         id: sim2Iccid
         description: SIM2 ICCID if known, read-only and ignored by SET. This value may be cached from a previous read and stale.
         type: ascii
-        readonly: true
     methods:
       GET: null
       SET: null
@@ -1400,8 +1400,8 @@ messages:
                 5: {presence: required, value: 2}
             response:
               description: >-
-                APN and credentials are returned only while SIM2 is active. A cached SIM2 ICCID may
-                be returned with either active SIM.
+                Successful GET returns SIM settings directly. APN and credentials are returned only while
+                SIM2 is active. A cached SIM2 ICCID may be returned with either active SIM.
               headers:
                 3: {}
                 4: {value: 0}
@@ -3434,7 +3434,6 @@ messages:
                 1: {}
                 5: {presence: required, value: 2}
                 22:
-                  maxBytes: 1
                   description: Omitted, explicitly 0, or malformed-width values resolve to 0 and select version
                     1; an explicit 1 also selects version 1.
                   values:
@@ -3493,7 +3492,6 @@ messages:
                 5: {presence: required, value: 2}
                 22:
                   presence: required
-                  maxBytes: 1
                   value: 2
             response:
               title: Cached payload
@@ -3504,7 +3502,6 @@ messages:
                 4: {value: 0}
                 22:
                   presence: required
-                  maxBytes: 1
                   value: 2
               fields:
                 1:
@@ -3537,7 +3534,6 @@ messages:
                 5: {presence: required, value: 1}
                 22:
                   presence: required
-                  maxBytes: 1
                   value: 2
               fields:
                 129:
@@ -3615,7 +3611,6 @@ messages:
                   description: Subscription ID; omit for the default subscription (0). Use the same ID when
                     unsubscribing.
                 22:
-                  maxBytes: 1
                   description: Omitted, explicitly 0, or malformed-width values resolve to 0 and select version
                     1; an explicit 1 also selects version 1.
                   values:
@@ -3687,7 +3682,6 @@ messages:
                     unsubscribing.
                 22:
                   presence: required
-                  maxBytes: 1
                   value: 2
             publication:
               title: Cached payload update
@@ -3701,7 +3695,6 @@ messages:
                   description: Identifies nonzero subscription IDs for this publication.
                 22:
                   presence: required
-                  maxBytes: 1
                   value: 2
               fields:
                 1:
@@ -3764,7 +3757,6 @@ messages:
               headers:
                 22:
                   presence: required
-                  maxBytes: 1
                   value: 2
               fields:
                 2:
