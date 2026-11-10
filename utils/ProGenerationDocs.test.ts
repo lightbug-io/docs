@@ -15,9 +15,22 @@ describe('Pro generation documentation', () => {
         expect(page).toContain("../../public/device-specs/pro/v3.yaml?raw")
         expect(page).toContain('deviceTitle="Pro (PR3)"')
         expect(page).not.toMatch(/device-specs\/pro\/v2/)
-        expect(page).toContain('device ID prefix 52')
         expect(page).toContain('The overview, tables and PDF use the same Pro3 specification.')
         expect(existsSync(path.join(root, 'devices/pro/pro3.md'))).toBe(false)
+    })
+
+    test('keeps the product page focused without the removed comparison and support sections', () => {
+        const page = read('devices/pro/index.md')
+        expect(page).not.toContain('Pro3 does not have the separate')
+        expect(page).not.toContain('## Hardware generations')
+        expect(page).not.toContain('### Charger protection')
+        expect(page).not.toContain('## Get help')
+        expect(read('devices/capabilities/four-power-leds.md')).not.toContain('/devices/pro/#charger-protection')
+        expect(page).toContain('## Feature guides {#capabilities}')
+        expect(page).toContain('## LED indicators')
+        expect(page).toContain('## Charging')
+        expect(page).toContain('## Specifications')
+        expect(page).toContain('## Earlier Pro generations {#pro-pr2}')
     })
 
     test('archives PR2 using the existing history convention and its own specification', () => {
@@ -54,7 +67,6 @@ describe('Pro generation documentation', () => {
         const legacy = read('devices/history/PR2.md')
         expect(current).toContain('On revisions 02–04')
         expect(capabilitiesForDevice('PR3')[0].note).toContain('Four orange indicators')
-        expect(current).toContain('does not have the separate')
         expect(capabilitiesForDevice('PR2')[1].link).toBe('/devices/capabilities/gps-gsm-status-leds#pro-pr2')
         expect(legacy).toContain('## Two red lights and four orange lights after a restart')
     })

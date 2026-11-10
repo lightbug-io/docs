@@ -47,6 +47,7 @@ async function navigateImages(event: KeyboardEvent, index: number) {
         :src="currentImage.url"
         :alt="`Shared Pro enclosure, ${currentImage.label.toLowerCase()} view`"
         class="pro-gallery__image"
+        :class="{ 'pro-gallery__image--side': currentImage.label === 'Side' }"
         width="1920"
         height="1080"
         decoding="async"
@@ -66,7 +67,7 @@ async function navigateImages(event: KeyboardEvent, index: number) {
         @click="selectImage(index)"
         @keydown="navigateImages($event, index)"
       >
-        <span class="pro-gallery__thumbnail-image"><img :src="image.url" alt="" width="1920" height="1080" decoding="async" /></span>
+        <span class="pro-gallery__thumbnail-image"><img :src="image.url" :class="{ 'pro-gallery__image--side': image.label === 'Side' }" alt="" width="1920" height="1080" decoding="async" /></span>
         <span>{{ image.label }}</span>
       </button>
     </div>
@@ -103,6 +104,12 @@ async function navigateImages(event: KeyboardEvent, index: number) {
   object-position: center;
   /* The source artwork has wide white margins. Reframe without altering it. */
   transform: scale(1.25);
+}
+.pro-gallery__image--side,
+.pro-gallery__thumbnail-image img.pro-gallery__image--side {
+  /* Side crop center: (370 + 700 / 2) vs canvas center 1080 / 2.
+     Lift by (180 / 1080) * 1.25 at the shared zoom in both sizes. */
+  transform: translateY(-20.833333%) scale(1.25);
 }
 .pro-gallery__thumbnails {
   display: grid;

@@ -49,6 +49,7 @@ async function press(index: number, key: string) {
 
 function expectSelection(index: number) {
     expect(mainImage().getAttribute('src')).toBe(servedUrl(index))
+    expect(mainImage().classList.contains('pro-gallery__image--side')).toBe(images[index].label === 'Side')
     expect(mainImage().alt).toBe(`Shared Pro enclosure, ${images[index].label.toLowerCase()} view`)
     expect(buttons().map(button => button.getAttribute('aria-pressed'))).toEqual(images.map((_, i) => String(i === index)))
 }
@@ -105,13 +106,14 @@ describe('Pro exterior gallery', () => {
             expect(button.getAttribute('aria-label')).toBe(`Show ${images[index].label.toLowerCase()} view`)
             expect(button.querySelector('img')?.getAttribute('src')).toBe(servedUrl(index))
             expect(button.querySelector('img')?.alt).toBe('')
+            expect(button.querySelector('img')?.classList.contains('pro-gallery__image--side')).toBe(images[index].label === 'Side')
         })
         expectSelection(0)
     })
 
     test('every thumbnail selects its view and repeated clicks remain stable', async () => {
         await mount()
-        for (const index of [1, 2, 3, 0, 0]) {
+        for (const index of [1, 2, 3, 3, 0, 3, 1, 0, 0]) {
             buttons()[index].click()
             await nextTick()
             expectSelection(index)
@@ -166,6 +168,7 @@ describe('Pro exterior gallery', () => {
         expect(css).toMatch(/\.pro-gallery__stage\s*\{[^}]*overflow:\s*hidden/)
         expect(css).toContain('object-fit: cover')
         expect(css).toContain('transform: scale(1.25)')
+        expect(css).toMatch(/\.pro-gallery__image--side,\s*\.pro-gallery__thumbnail-image img\.pro-gallery__image--side\s*\{[^}]*transform: translateY\(-20\.833333%\) scale\(1\.25\)/)
         expect(css).toContain('grid-template-columns: repeat(4, minmax(0, 1fr))')
         expect(css).toContain('min-height: 44px')
         expect(css).toMatch(/\[aria-pressed="true"\]\s*\{[^}]*border-color:/)

@@ -37,7 +37,7 @@ Four lights are not an exact 100% reading. These examples use orange power LEDs;
 
 ## Other uses of the same indicators
 
-Startup, alarms, custom applications and remote LED control can temporarily replace the normal display. Some products also use the indicators for a connection or protection state: see the [VT3 connection display](/devices/vehicle/#vehicle-connection-status) and [Pro3 charger protection](/devices/pro/#charger-protection).
+Startup, alarms, custom applications and remote LED control can temporarily replace the normal display. Some products also use the indicators for a connection state: see the [VT3 connection display](/devices/vehicle/#vehicle-connection-status).
 
 For a practical starting point, use the [LED guide](/guides/leds). The number of visible indicators does not by itself establish the number of independently controllable API outputs.
 
