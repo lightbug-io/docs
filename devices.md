@@ -115,6 +115,4 @@ Our RTK products are designed for high accuracy applications, down to the centim
 
 ## Custom
 
-We also make [custom devices](/devices/custom). For earlier models, including ProN (PR2), see [legacy devices and lineage](/devices/history/#out-of-production).
-
-Need help with the lights? Start with the [LED guide by device model](/guides/leds).
+We also make [custom devices](/devices/custom).
