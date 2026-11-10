@@ -146,7 +146,8 @@ describe('compact power LED examples', () => {
         await mount()
         expect(currentFrame()).toBe('On: 1, 2')
         expect(jest.getTimerCount()).toBe(1)
-        expect(button('Pause').getAttribute('aria-label')).toBe('Pause animation')
+        expect(host.textContent).not.toMatch(/Pause|Resume/)
+        expect(host.querySelector('.led-demo__playback')).toBeNull()
         await advance(999)
         expect(currentFrame()).toBe('On: 1, 2')
         await advance(1)
@@ -157,20 +158,14 @@ describe('compact power LED examples', () => {
         expect(currentFrame()).toBe('On: 1, 2')
     })
 
-    test('quiet pause and resume preserve the current frame and remaining time', async () => {
+    test('power demos have no pause or resume buttons and a bounded width', async () => {
         await mount()
-        await advance(1750)
-        expect(currentFrame()).toBe('On: 1')
-        await click('Pause')
+        expect(host.textContent).not.toMatch(/Pause|Resume/)
+        expect(source).toContain('max-width: 28rem')
+        await click('95%')
         expect(jest.getTimerCount()).toBe(0)
-        await advance(5000)
-        expect(currentFrame()).toBe('On: 1')
-        expect(button('Resume').getAttribute('aria-label')).toBe('Resume animation')
-        await click('Resume')
-        await advance(249)
-        expect(currentFrame()).toBe('On: 1')
-        await advance(1)
-        expect(currentFrame()).toBe('On: 1, 2')
+        await click('55%')
+        expect(jest.getTimerCount()).toBe(1)
     })
 
     test('selection changes start the appropriate pattern and remove motion controls for a steady level', async () => {
@@ -184,7 +179,6 @@ describe('compact power LED examples', () => {
         expect(jest.getTimerCount()).toBe(1)
         await advance(1000)
         expect(currentFrame()).toBe('On: 1, 2, 3')
-        await click('Pause')
         await click('35%')
         expect(jest.getTimerCount()).toBe(1)
         expect(currentFrame()).toBe('On: 1')
@@ -232,11 +226,11 @@ describe('compact power LED examples', () => {
         motionChange?.({ matches: false })
         await nextTick()
         expect(jest.getTimerCount()).toBe(0)
-        await click('Resume')
+        await click('55%')
         expect(jest.getTimerCount()).toBe(1)
     })
 
-    test('hidden tabs pause playback and retain the frame until explicitly resumed', async () => {
+    test('hidden tabs pause playback and visible tabs resume the automatic pattern', async () => {
         await mount()
         await advance(1750)
         setHidden(true)
@@ -246,8 +240,7 @@ describe('compact power LED examples', () => {
         expect(currentFrame()).toBe('On: 1')
         setHidden(false)
         await nextTick()
-        expect(jest.getTimerCount()).toBe(0)
-        await click('Resume')
+        expect(jest.getTimerCount()).toBe(1)
         await advance(250)
         expect(currentFrame()).toBe('On: 1, 2')
     })

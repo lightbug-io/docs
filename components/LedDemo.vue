@@ -27,8 +27,6 @@ const canAnimate = computed(() => pattern.value.frames.length > 0)
 const finished = computed(() => canAnimate.value && Number.isFinite(duration.value) && elapsed.value >= duration.value)
 const title = computed(() => ({ battery: 'Battery level', charging: 'Charging progress', rh2: 'RH2 charging colour', vehicle: 'VT3 connection status' })[props.mode])
 const presets = computed(() => props.mode === 'rh2' ? [15, 50, 80, 95, 99] : props.mode === 'charging' ? [10, 35, 55, 75, 90, 95] : [10, 35, 55, 75, 90])
-// Repeating automatic motion needs an unobtrusive way to pause it.
-const showPause = computed(() => compact.value && ready.value && canAnimate.value && !Number.isFinite(duration.value) && !reducedMotion.value)
 const summary = computed(() => {
     if (frame.value.kind === 'rgb') return `${frame.value.colour} at ${percentage.value}%. ${frame.value.steady ? 'The light stays steady at 99% and above.' : 'Brightness increases in five steps, about 0.5 seconds each, then repeats.'}`
     if (frame.value.kind === 'vehicle') {
@@ -117,6 +115,7 @@ function motionChanged(event: MediaQueryListEvent) {
 }
 function visibilityChanged() {
     if (document.hidden) pause()
+    else if (compact.value && !finished.value) play()
 }
 watch(input, selectionChanged)
 onMounted(() => {
@@ -139,7 +138,6 @@ onBeforeUnmount(() => {
         <header class="led-demo__header">
             <p class="led-demo__title">{{ title }}</p>
             <div v-if="compact" class="led-demo__header-actions">
-                <button v-if="showPause" class="led-demo__pause" type="button" :aria-label="playing ? 'Pause animation' : 'Resume animation'" @click="playing ? pause() : play()">{{ playing ? 'Pause' : 'Resume' }}</button>
                 <strong class="led-demo__value">{{ percentage }}%</strong>
             </div>
         </header>
@@ -245,10 +243,9 @@ onBeforeUnmount(() => {
 .led-demo__check input { flex-shrink: 0; width: 17px; height: 17px; accent-color: var(--demo-accent); }
 .led-demo__check small { display: block; color: var(--demo-muted); font-size: 11px; }
 /* Power displays stay compact; their LEDs are orange, unlike VT3's neutral demo. */
-.led-demo--power { margin: 18px 0; border-radius: 14px; }
+.led-demo--power { width: 100%; max-width: 28rem; margin: 18px 0; border-radius: 14px; }
 .led-demo--power .led-demo__header { min-height: 46px; padding: 10px 18px 0; }
 .led-demo--power .led-demo__title { font-size: 16px; }
-.led-demo .led-demo__pause { min-height: 32px; padding: 4px 6px; border-color: transparent; color: var(--demo-muted); font-size: 11px; }
 .led-demo--power .led-demo__stage { padding: 10px 18px 4px; border: 0; background: transparent; }
 .led-demo--power .led-demo__indicators { gap: 24px; }
 .led-demo--power .led-demo__light { width: 32px; height: 24px; margin-bottom: 3px; border-radius: 6px; }

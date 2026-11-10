@@ -35,3 +35,8 @@ export function devicesForCapability(capabilityId: string) {
         ...registry.devices.find(item => item.id === relation.device)!,
     }))
 }
+
+/** Current documentation listings only; legacy relationships remain available elsewhere. */
+export function currentDevicesForCapability(capabilityId: string) {
+    return devicesForCapability(capabilityId).filter(device => device.listing === 'current')
+}

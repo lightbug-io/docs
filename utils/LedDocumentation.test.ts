@@ -53,7 +53,7 @@ describe('Reusable LED capabilities', () => {
         expect(device).toContain('99%')
         expect(device).toContain('When armed and active')
         expect(device).toContain('## Application-controlled feedback')
-        expect(capability).toContain('<CapabilityDevices capability="rgb-status-leds" />')
+        expect(capability).toContain('<CapabilityOverview capability="rgb-status-leds">')
         expect(devicesForCapability('rgb-status-leds')[0].id).toBe('RH2')
         expect(capability).not.toContain('| Below 30% |')
     })

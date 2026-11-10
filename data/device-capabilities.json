@@ -11,12 +11,12 @@
     { "id": "rgb-status-leds", "group": "leds", "title": "RGB status LEDs", "link": "/devices/capabilities/rgb-status-leds", "summary": "Colour and brightness displays with model-specific meanings." }
   ],
   "devices": [
-    { "id": "PR3", "title": "Pro (PR3)", "link": "/devices/pro/" },
-    { "id": "PR2", "title": "ProN (PR2)", "link": "/devices/history/PR2" },
-    { "id": "ZE2", "title": "Zero (ZE2)", "link": "/devices/zero/" },
-    { "id": "EN2", "title": "Enviro (EN2)", "link": "/devices/enviro/" },
-    { "id": "VT3", "title": "Vehicle (VT3)", "link": "/devices/vehicle/" },
-    { "id": "RH2", "title": "Handheld RTK (RH2)", "link": "/devices/rtk/handheld/" }
+    { "id": "PR3", "title": "Pro (PR3)", "link": "/devices/pro/", "listing": "current" },
+    { "id": "PR2", "title": "ProN (PR2)", "link": "/devices/history/PR2", "listing": "legacy" },
+    { "id": "ZE2", "title": "Zero (ZE2)", "link": "/devices/zero/", "listing": "current" },
+    { "id": "EN2", "title": "Enviro (EN2)", "link": "/devices/enviro/", "listing": "current" },
+    { "id": "VT3", "title": "Vehicle (VT3)", "link": "/devices/vehicle/", "listing": "current" },
+    { "id": "RH2", "title": "Handheld RTK (RH2)", "link": "/devices/rtk/handheld/", "listing": "current" }
   ],
   "relationships": [
     { "device": "PR3", "capability": "four-power-leds", "note": "Four orange indicators on hardware revisions 02–04; no separate GPS/GSM diagnostic pair." },

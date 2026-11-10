@@ -4,15 +4,11 @@ aside: true
 
 # Four power LEDs
 
+<CapabilityOverview capability="four-power-leds">
+
 Four power LEDs show approximate battery level and charging progress. The same indicators can also be used for startup sequences, alerts or model-specific functions. This capability describes the standard **four-bar display**, not every device that happens to have four visible lights.
 
-## Devices
-
-<CapabilityDevices capability="four-power-leds" />
-
-The ZE3 revision 01 design also has four orange indicators and the standard firmware uses this display. That design evidence does not establish which firmware is installed on a supplied ZE3; check the revision with support. ZE3 does not have the older Zero ZE2 diagnostic pair.
-
-[RH2 RGB status LEDs](/devices/rtk/handheld/leds) use a different display and are not covered by these battery-bar thresholds. Custom products, applications and firmware can also differ.
+</CapabilityOverview>
 
 ## Normal battery display
 
@@ -38,10 +34,13 @@ Four lights are not an exact 100% reading. These examples use orange power LEDs;
 
 <LedDemo mode="charging" />
 
-These are battery-bar patterns, not RH2's RGB charging colours.
 
 ## Other uses of the same indicators
 
 Startup, alarms, custom applications and remote LED control can temporarily replace the normal display. Some products also use the indicators for a connection or protection state: see the [VT3 connection display](/devices/vehicle/#vehicle-connection-status) and [Pro3 charger protection](/devices/pro/#charger-protection).
 
 For a practical starting point, use the [LED guide](/guides/leds). The number of visible indicators does not by itself establish the number of independently controllable API outputs.
+
+## Model notes
+
+The ZE3 revision 01 design also has four orange indicators and the standard firmware uses this display. That design evidence does not establish which firmware is installed on a supplied ZE3; check the revision with support. ZE3 does not have the older Zero ZE2 diagnostic pair.

@@ -485,6 +485,7 @@ export default withMermaid(defineConfig({
               items: [
                 { text: 'ProN (PR2)', link: '/devices/history/PR2' },
                 { text: 'VT2', link: '/devices/history/VT2' },
+                { text: 'Older...', link: '/devices/history/#out-of-production' },
               ]
             }
           ]

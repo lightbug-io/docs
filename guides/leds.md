@@ -22,7 +22,7 @@ Check the product code on the label or in your device details. ProN (PR2) and Pr
 | [Vehicle / VT3](/devices/vehicle/) | [Four power LEDs](/devices/capabilities/four-power-leds), also used for its [connection display](/devices/vehicle/#vehicle-connection-status) |
 | [Handheld RTK / RH2](/devices/rtk/handheld/) | [RGB status LEDs](/devices/capabilities/rgb-status-leds); see the [RH2-specific colours and application feedback](/devices/rtk/handheld/leds) |
 
-The [four power LED capability](/devices/capabilities/four-power-leds#devices) also records the bounded ZE3 revision 01 design information. For other devices or earlier generations, use the matching [device documentation](/devices) or [legacy pages](/devices/history/), or ask support. Do not borrow a colour table from a similar-looking device.
+The [four power LED capability](/devices/capabilities/four-power-leds#model-notes) also records the bounded ZE3 revision 01 design information. For other devices or earlier generations, use the matching [device documentation](/devices) or [legacy pages](/devices/history/), or ask support. Do not borrow a colour table from a similar-looking device.
 
 ## Check what is happening
 

@@ -4,13 +4,13 @@ aside: true
 
 # RGB status LEDs
 
+<CapabilityOverview capability="rgb-status-leds">
+
 RGB status LEDs use colour and brightness to indicate device state. They are a different capability from the [four power LED bar display](/devices/capabilities/four-power-leds) and the older [GPS/GSM diagnostic pair](/devices/capabilities/gps-gsm-status-leds).
 
 A red, green or other colour is meaningful only in the context of the model, firmware, configuration and application controlling it. There is no universal RGB colour table for all Lightbug devices.
 
-## Devices
-
-<CapabilityDevices capability="rgb-status-leds" />
+</CapabilityOverview>
 
 ## Standard status and application control
 

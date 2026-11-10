@@ -4,9 +4,13 @@ aside: true
 
 # GPS and GSM status LEDs
 
+<CapabilityOverview capability="gps-gsm-status-leds">
+
 Some older trackers have two diagnostic indicators: one for GPS and one for the mobile network, often labelled GSM. These are separate from the [four power LEDs](/devices/capabilities/four-power-leds).
 
 The pair describes receiver and connection state, not a general fault code. It is not present on Pro3 or ZE3, and is not the [RGB status LED capability](/devices/capabilities/rgb-status-leds) used by RH2.
+
+</CapabilityOverview>
 
 ## Diagnostic display
 
@@ -28,9 +32,8 @@ The mobile indicator is not confirmation that data reached the server. Check the
 
 When GPS is asleep, its indicator can reflect whether the **previous** fix attempt failed rather than whether there is a live fix now. A secondary-colour light alone is therefore not a guarantee of a current accurate location. Check the location timestamp and accuracy in the app or portal.
 
-## Devices and colour variants
+## Colour variants {#devices-and-colour-variants}
 
-<CapabilityDevices capability="gps-gsm-status-leds" />
 
 ### Pro PR2 {#pro-pr2}
 
