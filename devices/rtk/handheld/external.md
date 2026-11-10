@@ -21,9 +21,11 @@ IP67 SMA Connectors for external GNSS antennas (antenna seen is included as stan
 
 3 large buttons for easy operation with gloves and harsh environments.
 
-The device features two difference sets of RGB LEDs:
- - Status LED (corners): for indicating device status, charging etc.
- - Controllable LED (center, above the screen): for user control..
+The illustrated enclosure has two sets of RGB lights:
+ - Status lights at the corners, used for device status and charging.
+ - Application-controlled lights in the centre, above the screen.
+
+The physical layout does not by itself establish which software is controlling a light. Use the [RH2 LED indicators](/devices/rtk/handheld/leds) for the standard status display, and the running application’s instructions for its feedback. Do not apply Pro3 battery-bar patterns to RH2.
 
 ## Side
 

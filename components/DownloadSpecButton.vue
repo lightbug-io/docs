@@ -1,5 +1,5 @@
 <template>
-  <DownloadPdfButton :get-pdf-data="getPdfData" :label="label" />
+  <DownloadPdfButton :get-pdf-data="getPdfData" :label="label" :preview-image="previewImage" />
 </template>
 
 <script setup>
@@ -23,6 +23,11 @@ const props = defineProps({
     type: String,
     default: 'Download PDF'
   },
+  // Optional thumbnail card, used by the RH2 downloads area.
+  previewImage: {
+    type: String,
+    default: null
+  },
   // Optional mapping from term -> url
   termLinkMap: {
     type: Object,
@@ -33,7 +38,7 @@ const props = defineProps({
 
 // Use the composable with the parsed spec object
 const specRef = computed(() => props.spec)
-const { specs, displaySpecs, deviceTitle: computedTitle, genericSections, getPdfData: getBasePdfData } = useDeviceSpec(
+const { getPdfData: getBasePdfData } = useDeviceSpec(
   specRef,
   { termLinkMap: props.termLinkMap }
 )

@@ -13,6 +13,12 @@ const specs = loadSpec(spec)
 
 <DownloadSpecButton :spec="specs" deviceTitle="Enviro (EN2)" />
 
+## Feature guides {#capabilities}
+
+<DeviceCapabilities device="EN2" />
+
+This page covers EN2; use the product code and device ID when following the [LED guide](/guides/leds).
+
 ## Images
 
 <DeviceSpecImages :spec="specs" />
@@ -195,11 +201,9 @@ This connecter can be used with a magnetic cable or a pro charging dock.
 
 <!-- TODO side by side picture of 2 charging methods -->
 
-| State                    | Indication                                                                   |
-| ------------------------ | ---------------------------------------------------------------------------- |
-| Disconnected             | No LEDs will be on                                                           |
-| Connected, Charging      | Battery LEDs display the charge of the device, and will blink while charging |
-| Connected, Fully charged | Battery LEDs display the charge of the device, no blinking will happen       |
+For six-indicator models, the battery lights show the charge level and the highest lit battery light blinks while charging below about 95%. At higher charge levels, the normal display becomes steady. See [four power LED charging patterns](/devices/capabilities/four-power-leds#charging).
+
+When unplugged and resting, the lights normally go out, but a button press, restart or other device activity can still light them.
 
 ::: warning
 It is advised to use an adapter plugged into a power socket rather than using a computer USB port or similar.

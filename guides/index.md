@@ -14,6 +14,9 @@ hero:
       text: Terminology
       link: /terminology
 features:
+  - title: Understanding your device LEDs
+    details: Identify your device and follow its reusable LED capabilities and model-specific details.
+    link: /guides/leds
   - title: Adding your first device
     details: Get started with a Cloud account, add your first device, setup a plan, and start tracking.
     link: /guides/adding-your-first-device

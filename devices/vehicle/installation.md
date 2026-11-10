@@ -155,9 +155,9 @@ Ensure the plug is correctly oriented and aligned with the socket before pushing
 
 Before attaching the tracker and cables to the vehicle, ensure the device is in good working order.
 
-Should the wiring be correctly fitted, the battery of the tracker will be charging and a blue light will be visibly glowing through the plastic.
+For VT3, use a short status-button press to check the [vehicle connection display](/devices/vehicle/#vehicle-connection-status). The indicator pairs show ignition and active charging; a blue light is not a universal VT3 installation check. The older VT2 shown in the photographs can have a different display.
 
-You can also check the [vehicle connection status](/devices/vehicle/#vehicle-connection-status) with a button press to make the other device LEDs light up.
+Confirm that the reported external-power and ignition state, where available in your app or portal, matches the vehicle wiring. Check the latest successful communication too. External power does not always mean the battery is actively charging, so an unlit charging pair alone does not prove a wiring fault. If the readings do not match, contact support before changing the installation.
 
 ### Step 8: Secure the tracker
 

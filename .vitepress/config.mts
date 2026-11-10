@@ -15,6 +15,7 @@ import { include } from "@mdit/plugin-include";
 import { withSidebar, generateSidebar } from 'vitepress-sidebar';
 import yamlEmbed from '../utils/markdownit-yaml-plugin.js';
 import container from 'markdown-it-container';
+import { capabilitySidebar } from '../utils/DeviceCapabilities';
 
 
 const base = process.env.PREVIEW_BASE || "/"
@@ -460,6 +461,7 @@ export default withMermaid(defineConfig({
                     { text: 'Specification', link: '/devices/rtk/handheld/specification' },
                     { text: 'Application', link: '/devices/rtk/handheld/application' },
                     { text: 'External', link: '/devices/rtk/handheld/external' },
+                    { text: 'LED indicators', link: '/devices/rtk/handheld/leds' },
                     { text: 'Screen', link: '/devices/rtk/handheld/screen' },
                     { text: 'ESP32', link: '/devices/rtk/handheld/esp32' },
                     { text: 'Accessories', link: '/devices/rtk/handheld/accessories' },
@@ -477,11 +479,13 @@ export default withMermaid(defineConfig({
               link: '/devices/peripherals',
             },
             {
-              text: 'Lineage',
+              text: 'Legacy devices and lineage',
               link: '/devices/history/',
               collapsed: true,
               items: [
+                { text: 'ProN (PR2)', link: '/devices/history/PR2' },
                 { text: 'VT2', link: '/devices/history/VT2' },
+                { text: 'Older...', link: '/devices/history/#out-of-production' },
               ]
             }
           ]
@@ -489,12 +493,7 @@ export default withMermaid(defineConfig({
         {
           text: 'Capabilities',
           link : '/devices/capabilities/',
-          items: [
-            {
-              text: 'BLE Scanning',
-              link: '/devices/capabilities/ble-scanning',
-            },
-          ]
+          items: capabilitySidebar(),
         },
         {
           text: 'API',

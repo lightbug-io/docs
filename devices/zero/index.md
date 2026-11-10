@@ -13,6 +13,12 @@ const specs = loadSpec(spec)
 
 <DownloadSpecButton :spec="specs" deviceTitle="Zero (ZE2)" />
 
+## Feature guides {#capabilities}
+
+<DeviceCapabilities device="ZE2" />
+
+This page covers ZE2; use the product code and device ID when following the [LED guide](/guides/leds).
+
 ## Images
 
 <DeviceSpecImages :spec="specs" />
@@ -100,17 +106,9 @@ const specs = loadSpec(spec)
 
 ## LED Indicators
 
-The small icons above each of the indicators show what information they display.
+The six indicators are four battery lights, one GPS light and one mobile-network light. Use the icons above the lights to identify them.
 
-These indicators can light up while transmitting, or as the result of a button press.
-
-| Icon                                                                                                 | Name       | Description                                                                                                                                                              |
-| ---------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| <img src="/images/devices/general/status-battery.png" alt="Battery symbol" width="20" height="20" /> | Battery    | The current charge of the tracker with 1-4 LEDs glowing solid orange.<br><br> 🟧 1 LED: 0%-25%<br> 🟧🟧 2 LEDs: 25%-50%<br> 🟧🟧🟧 3 LEDs: 50%-75%<br> 🟧🟧🟧🟧 4 LEDs: 75%-100% |
-| <img src="/images/devices/general/status-gps.png" alt="GPS symbol" width="20" height="20" />         | GPS signal* | 🟧 Solid orange when operational<br> 🟥 Solid red when GPS is unavailable<br><br>It is normal for GPS to be unavailable when the tracker is indoors. |
-| <img src="/images/devices/general/status-gsm.png" alt="GSM symbol" width="20" height="20" />         | GSM signal*  | 🟧 Solid orange when operational<br> 🟥 Solid red when GSM is unavailable<br><br>GSM may not be available in areas with poor cell phone coverage. |
-
-*The signal indicators are primarily for diagnostic purposes.
+The [four power LED capability](/devices/capabilities/four-power-leds) defines the battery and charging patterns. The [GPS/GSM status capability](/devices/capabilities/gps-gsm-status-leds#zero-ze2) describes the diagnostic pair and its colour caveats. Startup lights are not a battery reading.
 
 ## Buttons
 
@@ -130,11 +128,9 @@ This connecter can be used with a magnetic cable or a zero charging dock.
 
 <!-- TODO side by side picture of 2 charging methods -->
 
-| State                    | Indication                                                                   |
-| ------------------------ | ---------------------------------------------------------------------------- |
-| Disconnected             | No LEDs will be on                                                           |
-| Connected, Charging      | Battery LEDs display the charge of the device, and will blink while charging |
-| Connected, Fully charged | Battery LEDs display the charge of the device, no blinking will happen       |
+For six-indicator models, the battery lights show the charge level and the highest lit battery light blinks while charging below about 95%. At higher charge levels, the normal display becomes steady. See [four power LED charging patterns](/devices/capabilities/four-power-leds#charging).
+
+When unplugged and resting, the lights normally go out, but a button press, restart or other device activity can still light them.
 
 ::: warning
 It is advised to use an adapter plugged into a power socket rather than using a computer USB port or similar.

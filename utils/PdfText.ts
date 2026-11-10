@@ -54,10 +54,3 @@ function appendText(segments: PdfTextSegment[], text: string) {
         segments.push({ text, isLink: false })
     }
 }
-
-/** Return the same text with link destinations included for PDF text measurement. */
-export function htmlAnchorsToPlainText(html: unknown): string {
-    return parseHtmlForPdfLinks(html)
-        .map(segment => segment.isLink ? `${segment.text} (${segment.url})` : segment.text)
-        .join('')
-}

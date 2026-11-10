@@ -1,6 +1,7 @@
 import { ref, watchEffect } from 'vue'
 import yaml from 'js-yaml'
 import { withBase } from 'vitepress'
+import { deviceImageUrl } from '../utils/DeviceImageUrl'
 
 // An allowed list of keys to use from the YAML for now.. (and order)
 const sectionKeys = ['physical','integrations','user interface','connectivity','positioning','sensors','battery','charging','components']
@@ -216,11 +217,7 @@ export function useDeviceSpec(specOrYaml, options = {}) {
   // Function to provide all data needed for PDF generation
   function getPdfData() {
     // Use CORS proxy for images if needed
-    const images = (specs.value?.product?.images || []).map(img =>
-      img.startsWith('https://lightbug.io/') || img.startsWith('https://lightbug.cloud/') || img.startsWith('https://upload.r2.lb.chasm.cloud/')
-        ? `https://cors-proxy.lightbug.workers.dev?url=${encodeURIComponent(img)}`
-        : withBase(img)
-    )
+    const images = (specs.value?.product?.images || []).map(deviceImageUrl)
     return {
       title: deviceTitle.value,
       description: specs.value?.product?.description || '',

@@ -13,6 +13,12 @@ After a device has determined its location, it has to connect to the internet vi
 
 Once the information has been received by our servers, during normal operation it should be visible to you within a few seconds.
 
+## Why are two lights red and four orange?
+
+On a Pro PR2 (device ID prefix 20), this can be part of a normal restart. Other Pro versions have different LED hardware. It is not by itself a fault code or a full-battery reading. Give the tracker time to start, then check its latest update in the app or portal.
+
+See the [PR2 startup example](/devices/history/PR2#two-red-lights-and-four-orange-lights-after-a-restart) for the pattern, or use the [LED guide](/guides/leds) to identify your device’s capabilities.
+
 ## Why is my tracker not transmitting?
 
 Always give your tracker a couple of minutes to send a location update.

@@ -3,106 +3,86 @@ aside: true
 ---
 
 <script setup>
-import spec from '../../public/device-specs/pro/v2.yaml?raw'
+import { computed } from 'vue'
+import spec from '../../public/device-specs/pro/v3.yaml?raw'
 import loadSpec from '../../utils/loadSpec'
 
 const specs = loadSpec(spec)
+const viewLabels = ['Front angle', 'Top side', 'Back', 'Side']
+const galleryImages = computed(() => (specs.value?.product?.images ?? []).map((src, index) => ({
+  src,
+  label: viewLabels[index] ?? `Image ${index + 1}`,
+  alt: `Shared Pro enclosure, ${(viewLabels[index] ?? `image ${index + 1}`).toLowerCase()} view`,
+  // Reframe the white margins and lower side artwork without changing the source images.
+  fit: 'cover',
+  scale: 1.25,
+  offsetY: index === 3 ? -20.833333 : 0,
+})))
 </script>
 
-# Pro (PR2)
+# Pro
 
-<DownloadSpecButton :spec="specs" deviceTitle="Pro (PR2)" />
+<DeviceOverview id="pro-pr2">
 
-## Images
+The current Pro is Pro3 (PR3), a different hardware generation from [ProN (PR2)](/devices/history/PR2). The two generations share the same external appearance, so use the product code and device ID to identify your device before following its instructions. ProN (PR2) is now a legacy model and is no longer in production.
 
-<DeviceSpecImages :spec="specs" />
+<DownloadSpecButton :spec="specs" deviceTitle="Pro (PR3)" label="Download PR3 PDF" />
 
-## Overview
+## Feature guides {#capabilities}
+
+<DeviceCapabilities device="PR3" />
+
+<template #media>
+<DeviceImageGallery
+  id="images"
+  :images="galleryImages"
+  aria-label="Pro enclosure gallery"
+  caption="Shared exterior views for Pro3 and ProN/PR2."
+/>
+</template>
+
+</DeviceOverview>
+
+## Specifications
+
+The overview, tables and PDF use the same Pro3 specification. Optional sensors and features requiring compatible firmware are labelled in the tables. Component specifications describe the individual parts, not additional finished-product guarantees.
+
+### Overview
 
 <DeviceSpecOverview :spec="specs" />
 
-<template v-if="specs.product.physical">
-
-## Physical
+### Physical
 
 <DeviceSpecSection :spec="specs" sectionName="physical" />
 
-</template>
-
-<template v-if="specs.product.integrations">
-
-## Integrations
+### Integrations
 
 <DeviceSpecSection :spec="specs" sectionName="integrations" />
 
-</template>
-
-<template v-if="specs.product['user interface']">
-
-## User Interface
+### User interface
 
 <DeviceSpecSection :spec="specs" sectionName="user interface" />
 
-</template>
-
-<template v-if="specs.product.connectivity">
-
-## Connectivity
+### Connectivity
 
 <DeviceSpecSection :spec="specs" sectionName="connectivity" />
 
-</template>
-
-<template v-if="specs.product.positioning">
-
-## Positioning
+### Positioning
 
 <DeviceSpecSection :spec="specs" sectionName="positioning" />
 
-</template>
-
-<template v-if="specs.product.sensors">
-
-## Sensors
+### Sensors
 
 <DeviceSpecSection :spec="specs" sectionName="sensors" />
 
-</template>
-
-<template v-if="specs.product.battery">
-
-## Battery
+### Battery
 
 <DeviceSpecSection :spec="specs" sectionName="battery" />
 
-</template>
-
-<template v-if="specs.product.charging">
-
-## Charging
+### Charging {#charging-specification}
 
 <DeviceSpecSection :spec="specs" sectionName="charging" />
 
-</template>
-
-<template v-if="specs.product.components">
-
-## Components
+### Components
 
 <DeviceSpecSection :spec="specs" sectionName="components" />
-
-</template>
-
-## Additional Charging Information
-
-The Pro tracker is charged using a USB-C connector, and should be charged for 8 hours before initial use.
-
-| State | Indication |
-|---|---|
-| Disconnected | No LED will be on |
-| Connected, Charging | LED will pulse red |
-| Connected, Fully charged | LED will be solid green |
-
-::: warning
-It is advised to use an adapter plugged into a power socket rather than using a computer USB port or similar.
-:::

@@ -25,9 +25,9 @@ Our core products have been rigorously tested in the field since and iterated on
   </div>
   <div class="device-item">
     <a :href="withBase('/devices/pro/')">
-      <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-PR2.png" alt="Pro GPS Tracker" />
+      <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-PR2.png" alt="Pro3 GPS tracker enclosure" />
     </a>
-    <p><strong>Pro</strong> - Our larger, industrial grade tracker.</p>
+    <p><strong>Pro</strong> - Our larger, industrial grade tracker. See the <a :href="withBase('/devices/pro/')">Pro3 device page</a> for this generation.</p>
   </div>
   <div class="device-item">
     <a :href="withBase('/devices/vehicle/')">
@@ -115,4 +115,4 @@ Our RTK products are designed for high accuracy applications, down to the centim
 
 ## Custom
 
-We also make [custom devices](/devices/custom), and have a number of devices that are [no longer in production](/devices/history/).
+We also make [custom devices](/devices/custom).
