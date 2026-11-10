@@ -15,6 +15,10 @@ const { getPdfData } = useDeviceSpec(specs, {})
 
 Reliable, ultra-accurate & affordable RTK tracking. For centimeter-level data capture and safety applications.
 
+::: tip LED help
+RH2 uses an RGB status display, with separate application-controlled feedback. See the [RH2 LED guide](/guides/rtk-leds#handheld-rtk-rh2) for charging colours and why a green light does not always mean a full battery, an RTK fix or a successful upload.
+:::
+
 ## Guides
 
 Our RH2 guides are still a work in progress, but these links may help you get started for expected use cases:

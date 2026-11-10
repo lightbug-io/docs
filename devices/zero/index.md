@@ -13,6 +13,10 @@ const specs = loadSpec(spec)
 
 <DownloadSpecButton :spec="specs" deviceTitle="Zero (ZE2)" />
 
+::: tip LED help
+For this Zero ZE2 model, see [its LED layout and diagnostic caveats](/guides/tracker-leds#zero-ze2), plus the shared battery and charging patterns. Choose a different model in the [LED guide](/guides/leds) if the product code does not match.
+:::
+
 ## Images
 
 <DeviceSpecImages :spec="specs" />
@@ -100,17 +104,9 @@ const specs = loadSpec(spec)
 
 ## LED Indicators
 
-The small icons above each of the indicators show what information they display.
+The six indicators are four battery lights, one GPS light and one mobile-network light. Use the icons above the lights to identify them.
 
-These indicators can light up while transmitting, or as the result of a button press.
-
-| Icon                                                                                                 | Name       | Description                                                                                                                                                              |
-| ---------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| <img src="/images/devices/general/status-battery.png" alt="Battery symbol" width="20" height="20" /> | Battery    | The current charge of the tracker with 1-4 LEDs glowing solid orange.<br><br> 🟧 1 LED: 0%-25%<br> 🟧🟧 2 LEDs: 25%-50%<br> 🟧🟧🟧 3 LEDs: 50%-75%<br> 🟧🟧🟧🟧 4 LEDs: 75%-100% |
-| <img src="/images/devices/general/status-gps.png" alt="GPS symbol" width="20" height="20" />         | GPS signal* | 🟧 Solid orange when operational<br> 🟥 Solid red when GPS is unavailable<br><br>It is normal for GPS to be unavailable when the tracker is indoors. |
-| <img src="/images/devices/general/status-gsm.png" alt="GSM symbol" width="20" height="20" />         | GSM signal*  | 🟧 Solid orange when operational<br> 🟥 Solid red when GSM is unavailable<br><br>GSM may not be available in areas with poor cell phone coverage. |
-
-*The signal indicators are primarily for diagnostic purposes.
+See the [illustrated LED guide](/guides/tracker-leds) for battery levels, status colors, charging and restart patterns. The normal battery display uses 20%, 40%, 60% and 80% thresholds; startup lights are not a battery reading.
 
 ## Buttons
 
@@ -120,7 +116,7 @@ The device has a single button that can be used to trigger different events.
 | ---------- | ------|------------------------------------------------------------------------------------------------------------------------------------ | -- |
 |  < 1 second | Battery and status LEDs will light up | | Shows you current status |
 | 1-3 second | The battery LEDs will flash from left to right in a cycle, and you will hear a small beep. | Send button press event & location | Initially sending an immediate location, followed by a more accurate location once found.
-| 15 second | The battery LEDs may go blank for a second, but then will flash from left to right in a cycle, and you will hear a small beep. | Hard reset | Recommended if you are experiencing network related performance issues |
+| Long press | Startup feedback varies with firmware. | Restart | Follow the [model and firmware restart guidance](/faq/troubleshooting#restarting-a-tracker); do not rely on a fixed LED sequence or assume settings are preserved. |
 
 ## Charging
 
@@ -130,11 +126,9 @@ This connecter can be used with a magnetic cable or a zero charging dock.
 
 <!-- TODO side by side picture of 2 charging methods -->
 
-| State                    | Indication                                                                   |
-| ------------------------ | ---------------------------------------------------------------------------- |
-| Disconnected             | No LEDs will be on                                                           |
-| Connected, Charging      | Battery LEDs display the charge of the device, and will blink while charging |
-| Connected, Fully charged | Battery LEDs display the charge of the device, no blinking will happen       |
+For six-indicator models, the battery lights show the charge level and the highest lit battery light blinks while charging below about 95%. At higher charge levels, the normal display becomes steady. See [charging patterns](/guides/tracker-leds#charging-patterns).
+
+When unplugged and resting, the lights normally go out, but a button press, restart or other device activity can still light them.
 
 ::: warning
 It is advised to use an adapter plugged into a power socket rather than using a computer USB port or similar.

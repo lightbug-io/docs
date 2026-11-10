@@ -32,10 +32,10 @@ To enable the report, you must enable the `Advanced Accelerometer Data` setting 
 
 ![](https://upload.r2.lb.chasm.cloud/2025/10/imgur/a0GmMTN.png)
 
-You must then reset the device twice for the changes to take effect with 10 minutes between resets.
+The steps needed to activate this setting depend on the device and firmware version. Confirm the activation procedure with support before restarting; do not assume that two resets ten minutes apart are required or safe for every device.
 
 ::: info
-You can reset the device by holding the button for 10 seconds, it should beep once and then the LEDs will flash.
+Use the [restart procedure for your model and firmware](/faq/troubleshooting#restarting-a-tracker). There is no universal beep or LED sequence, and some firmware/configurations can reset settings during a long press. Confirm the procedure with support if the installed version is uncertain.
 :::
 
 ### Positioning the device
@@ -45,7 +45,7 @@ In order to get correct data for tilt values, you must configure the 0 position 
 If this is not done, the tilt values will be incorrect.
 
 - Grab your tracker
-- Hold the button for 3 seconds, and release, the device should do 2 short beeps, and LEDs should flash.
+- On devices using this three-second button action, hold the button for 3 seconds and release. Audible and LED feedback varies by model and application; use the instructions supplied for your device.
 - Immediately place the device in desired position, this will be your baseline.
 
 If you want to change the baseline position of the device in the future, you will need to repeat this process.

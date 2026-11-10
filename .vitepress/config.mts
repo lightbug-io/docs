@@ -432,8 +432,8 @@ export default withMermaid(defineConfig({
                   link: '/devices/zero/',
                 },
                 {
-                  text: 'Pro',
-                  link: '/devices/pro/',
+                  text: 'Pro3 (PR3)',
+                  link: '/devices/pro/pro3',
                 },
                 {
                   text: 'Vehicle',
@@ -477,10 +477,11 @@ export default withMermaid(defineConfig({
               link: '/devices/peripherals',
             },
             {
-              text: 'Lineage',
+              text: 'Legacy devices and lineage',
               link: '/devices/history/',
               collapsed: true,
               items: [
+                { text: 'ProN (PR2)', link: '/devices/pro/' },
                 { text: 'VT2', link: '/devices/history/VT2' },
               ]
             }

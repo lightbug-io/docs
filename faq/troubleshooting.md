@@ -13,6 +13,12 @@ After a device has determined its location, it has to connect to the internet vi
 
 Once the information has been received by our servers, during normal operation it should be visible to you within a few seconds.
 
+## Why are two lights red and four orange?
+
+On a Pro PR2 (device ID prefix 20), this can be part of a normal restart. Other Pro versions have different LED hardware. It is not by itself a fault code or a full-battery reading. Give the tracker time to start, then check its latest update in the app or portal before resetting it again.
+
+See the [illustrated LED guide](/guides/tracker-leds#two-red-lights-and-four-orange-lights-after-a-restart) for the pattern, normal battery/status meanings and when to contact support.
+
 ## Why is my tracker not transmitting?
 
 Always give your tracker a couple of minutes to send a location update.
@@ -25,11 +31,19 @@ If it still hasn't sent a location update, make sure:
 
 If you have checked the above and your tracker is still not transmitting, try the following:
 
-- Force a location update (hold tracker button for 3 seconds)
-- Perform a reset (hold tracker button for 15 seconds)
+- Request a location update using the button action documented for your device and application
+- If needed, follow the [restart guidance](#restarting-a-tracker) for your model and firmware
 - Place the tracker outside for 5 minutes after completing all the above
 
 If the tracker is still not transmitting, please contact us.
+
+## Restarting a tracker
+
+Do not repeatedly reset a tracker just because a light is red. First check the [LED guide for your model](/guides/leds) and the latest successful communication.
+
+On standard current firmware for ProN/PR2, Zero/ZE2, Enviro/EN2, Pro3, VT3 and RH2, a long press reaches the restart action after about 10 seconds. **Release when the restart begins.** Button behaviour, the button to use and any sound can vary by model, application and firmware version. There is no universal beep or LED sequence.
+
+Depending on firmware and reset history, a long-press restart can clear settings or enter recovery mode. Do not assume this action always preserves settings. If the installed firmware or button behaviour is uncertain, check with [support](https://lightbug.io/contact/) before proceeding. Use the procedure supplied for other models.
 
 ## Why is my tracker giving inaccurate locations?
 

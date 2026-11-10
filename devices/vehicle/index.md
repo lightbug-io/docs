@@ -16,6 +16,14 @@ const specs = loadSpec(spec)
 
 <DownloadSpecButton :spec="specs" deviceTitle="Vehicle (VT3)" />
 
+::: tip LED help
+VT3 has four indicators for battery status and brief ignition/charging indications. See the [VT3 LED guide](/guides/vehicle-leds); do not use the older ProN six-indicator or RH2 RGB colour table.
+:::
+
+## Vehicle connection status
+
+A status-button press can show battery status followed by ignition/charging flashes. See [what each indicator pair means](/guides/vehicle-leds#vehicle-connection-status). External power and active battery charging are different states.
+
 ## Images
 
 <DeviceSpecImages :spec="specs" />

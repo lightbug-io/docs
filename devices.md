@@ -24,10 +24,10 @@ Our core products have been rigorously tested in the field since and iterated on
     <p><strong>Zero</strong> - Our smallest GPS tracking device, and indeed one of the smallest in the world.</p>
   </div>
   <div class="device-item">
-    <a :href="withBase('/devices/pro/')">
-      <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-PR2.png" alt="Pro GPS Tracker" />
+    <a :href="withBase('/devices/pro/pro3')">
+      <img src="https://upload.r2.lb.chasm.cloud/2025/10/product-front/LB-DEV-PR2.png" alt="Pro3 GPS tracker enclosure" />
     </a>
-    <p><strong>Pro</strong> - Our larger, industrial grade tracker.</p>
+    <p><strong>Pro3 (PR3)</strong> - Our larger, industrial grade tracker. See the <a :href="withBase('/devices/pro/pro3')">Pro3 guide</a> for this generation.</p>
   </div>
   <div class="device-item">
     <a :href="withBase('/devices/vehicle/')">
@@ -115,4 +115,6 @@ Our RTK products are designed for high accuracy applications, down to the centim
 
 ## Custom
 
-We also make [custom devices](/devices/custom), and have a number of devices that are [no longer in production](/devices/history/).
+We also make [custom devices](/devices/custom). For earlier models, including ProN (PR2), see [legacy devices and lineage](/devices/history/#out-of-production).
+
+Need help with the lights? Start with the [LED guide by device model](/guides/leds).
