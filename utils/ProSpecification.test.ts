@@ -26,6 +26,7 @@ function evaluate(source: string) {
     const exports: Record<string, any> = {}
     const resolve = (name: string): any => {
         if (name === 'vitepress') return { withBase: (url: string) => /^(https?:)?\/\//.test(url) ? url : `/docs/pr/40${url}` }
+        if (name.endsWith('/DeviceImageUrl')) return evaluate(read('utils/DeviceImageUrl.ts'))
         if (name.endsWith('/useDeviceSpec.js')) return evaluate(read('composables/useDeviceSpec.js'))
         if (name === './DownloadPdfButton.vue') return { __esModule: true, default: defineComponent({
             props: ['getPdfData', 'label', 'previewImage'],
