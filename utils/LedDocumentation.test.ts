@@ -29,6 +29,17 @@ describe('Reusable LED capabilities', () => {
         expect(existsSync(path.join(root, '.vitepress/includes/led-battery-bars.md'))).toBe(false)
     })
 
+    test('omits the removed ZE3 model-note aside and its cross-reference', () => {
+        const page = read('devices/capabilities/four-power-leds.md')
+        expect(page).not.toContain('## Model notes')
+        expect(page).not.toContain('ZE3 revision 01')
+        expect(page).not.toContain('That design evidence')
+        expect(read('guides/leds.md')).not.toContain('four-power-leds#model-notes')
+        expect(read('guides/leds.md')).not.toContain('bounded ZE3 revision 01')
+        expect(page).toContain('<LedDemo mode="battery" />')
+        expect(page).toContain('<LedDemo mode="charging" />')
+    })
+
     test('keeps diagnostic colours and sleeping GPS caveats explicit', () => {
         const page = read('devices/capabilities/gps-gsm-status-leds.md')
         expect(page).toContain('Revision 05 uses yellow and red')

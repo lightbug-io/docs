@@ -66,7 +66,7 @@ describe('Pro exterior gallery', () => {
         expect(page).toContain('<ProImageGallery />')
         expect(page).not.toContain('![Pro3 tracker enclosure]')
         expect(page).toContain('## Feature guides {#capabilities}')
-        expect(page).toContain('## Earlier Pro generations {#pro-pr2}')
+        expect(page).toContain('<div class="pro-overview__copy" id="pro-pr2">')
     })
 
     test('server rendering supplies a stable default image and labels before JavaScript loads', async () => {

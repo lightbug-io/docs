@@ -40,7 +40,3 @@ Four lights are not an exact 100% reading. These examples use orange power LEDs;
 Startup, alarms, custom applications and remote LED control can temporarily replace the normal display. Some products also use the indicators for a connection state: see the [VT3 connection display](/devices/vehicle/#vehicle-connection-status).
 
 For a practical starting point, use the [LED guide](/guides/leds). The number of visible indicators does not by itself establish the number of independently controllable API outputs.
-
-## Model notes
-
-The ZE3 revision 01 design also has four orange indicators and the standard firmware uses this display. That design evidence does not establish which firmware is installed on a supplied ZE3; check the revision with support. ZE3 does not have the older Zero ZE2 diagnostic pair.

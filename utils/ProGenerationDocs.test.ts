@@ -27,10 +27,11 @@ describe('Pro generation documentation', () => {
         expect(page).not.toContain('## Get help')
         expect(read('devices/capabilities/four-power-leds.md')).not.toContain('/devices/pro/#charger-protection')
         expect(page).toContain('## Feature guides {#capabilities}')
-        expect(page).toContain('## LED indicators')
-        expect(page).toContain('## Charging')
+        expect(page).not.toMatch(/^## (LED indicators|Charging|Earlier Pro generations)/m)
+        expect(page).toContain('### Charging {#charging-specification}')
+        expect(page.match(/^## .+$/gm)).toEqual(['## Feature guides {#capabilities}', '## Specifications'])
         expect(page).toContain('## Specifications')
-        expect(page).toContain('## Earlier Pro generations {#pro-pr2}')
+        expect(page).toContain('<div class="pro-overview__copy" id="pro-pr2">')
     })
 
     test('archives PR2 using the existing history convention and its own specification', () => {
@@ -58,14 +59,12 @@ describe('Pro generation documentation', () => {
         expect(current).toContain('[Pro3](/devices/pro/)')
         expect(current).not.toContain('SKU: PR2')
         expect(legacy).toContain('[ProN (PR2)](/devices/history/PR2)')
-        expect(read('devices/pro/index.md')).toContain('[ProN/PR2 archive](/devices/history/PR2)')
+        expect(read('devices/pro/index.md')).toContain('[ProN (PR2)](/devices/history/PR2)')
         expect(read('devices/history/PR2.md')).toContain('(/devices/pro/)')
     })
 
     test('separates PR3 power LEDs from the older PR2 diagnostic pair', () => {
-        const current = read('devices/pro/index.md')
         const legacy = read('devices/history/PR2.md')
-        expect(current).toContain('On revisions 02–04')
         expect(capabilitiesForDevice('PR3')[0].note).toContain('Four orange indicators')
         expect(capabilitiesForDevice('PR2')[1].link).toBe('/devices/capabilities/gps-gsm-status-leds#pro-pr2')
         expect(legacy).toContain('## Two red lights and four orange lights after a restart')
