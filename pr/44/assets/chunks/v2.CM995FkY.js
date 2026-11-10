@@ -1,0 +1,465 @@
+const n=`product:
+  name: "RH2 RTK Handheld"
+  tagline: "Wearable Precise Positioning"
+  description: "Our centimeter level accuracy tracking device with both indoor and outdoor positioning capabilities."
+  sku: RH2
+  prefix: 43
+  version: 2
+  booklet: "https://lightbug.io/rh2_rtk_handheld_booklet.pdf"
+  booklet_preview: "https://upload.r2.lb.chasm.cloud/2025/10/chrome_9nTix9gswA.png"
+  images:
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-front angle.png?x=600&y=0&w=600&h=1000"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-top side.png?x=600&y=0&w=600&h=1000"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-back.png?x=650&y=0&w=600&h=1000"
+  - "https://upload.r2.lb.chasm.cloud/2025/raw-renders/2025-07-01/RH2_w-side.png?x=700&y=70&w=600&h=1000"
+  physical:
+    size:
+      dimensions_mm:
+       - without_antenna: "95 x 72.6 x 30"
+       - with_antenna: "129.7 x 72.6 x 49.75"
+      weight_g: 240
+    certifications:
+      CE: "yes"
+    rating:
+      ip: "IP66"
+      operating temperature_c: "-20 to +60"
+    construction:
+      material: "Polycarbonate-ABS"
+      properties:
+        - "Fire-proof"
+        - "Shock Proof"
+        - "UV-stable"
+    connectors:
+      antenna: "IP67 SMA"
+      data_and_power:
+       - "5 pin Power + Data In/Out + Analogue input"
+       - "Suitable for docking & permanent wiring"
+      mount:
+        - "KickFast (wide range of attachments)"
+  integrations:
+    cloud:
+      supported_platforms:
+      - "Lightbug Cloud (Hosted or On-premise)"
+      - "Other clouds supported via Forwarding"
+      native_protocols:
+      - "UDP"
+      - "TCP"
+      forwarding_protocols:
+      - "MQTT"
+      - "HTTP(S)"
+      - "WebSocket"
+    on_device:
+      co_processor: "ESP32-C6"
+      control: "Control of device via APIs"
+      supported_platforms:
+        - "Toit (micro-containers)"
+        - "Arduino"
+        - "PlatformIO"
+        - "Espressif IDF"
+      external_interfaces:
+        wired_i2c: "Master or Slave"
+        usb: "Virtual Com Port (USB-C)"
+  connectivity:
+    cellular:
+      technologies:
+      - "LTE CAT-1"
+      - "GPRS"
+      - "EDGE"
+      territory: "Global"
+      bands:
+        LTE_FDD:
+          - B1
+          - B2
+          - B3
+          - B4
+          - B5
+          - B7
+          - B8
+          - B12
+          - B13
+          - B18
+          - B19
+          - B20
+          - B25
+          - B26
+          - B28
+          - B66
+        LTE_TDD:
+          - B38
+          - B39
+          - B40
+          - B41
+        GSM:
+          - 850MHz
+          - 900MHz
+          - 1800MHz
+          - 1900MHz
+    lora:
+      regions:
+        - "EU868"
+        - "US915"
+      p2p: "yes"
+      loRaWAN: "capable"
+    bluetooth-le:
+      version: "5.3"
+      roles:
+        - "Host"
+        - "Peripheral"
+    wifi:
+      version: "802.11ax"
+      frequency: "2.4GHz"
+      wifi_generation: "Wi‑Fi 6"
+    uwb:
+      channels:
+        - 5
+        - 9
+      notes: "Supports common UWB channels; compatible with TDoA/TWR systems (requires infrastructure)"
+    thread:
+      version: "IEEE 802.15.4"
+    zigbee:
+      version: "IEEE 802.15.4"
+  positioning:
+    gnss:
+      typical_accuracy_meters: "0.01-1"
+      chipset: "Quectel LC29H(EA) (L1/L5)"
+      chipset_options:
+        - "Ublox ZEDF9P (L1/L5)"
+      supported_update_rate: "1-10 Hz"
+      technologies:
+        - "RTK"
+        - "GPS"
+        - "QZSS"
+        - "GLONASS"
+        - "Galileo"
+        - "BeiDou"
+      constellations:
+        GPS:
+          bands:
+            L1 C/A: 1575.42
+            L5: 1176.45
+        QZSS:
+          bands:
+            L1 C/A: 1575.42
+            L5: 1176.45
+        GLONASS:
+          bands:
+            L1: "1602 + n x 0.5625 (n=-7,...6)"
+        Galileo:
+          bands:
+            E1: 1575.42
+            E5a: 1176.45
+        BeiDou:
+          bands:
+            B1I: 1561.098
+            B2a: 1176.45
+    uwb:
+      typical_accuracy_meters: "0.1-3"
+      notes: "Typical indoor accuracy; compatible with most UWB TDoA or TWR systems"
+    wifi:
+      typical_accuracy_meters: "2-20"
+      notes: "Based on RSSI & triangulation"
+    bluetooth:
+      typical_accuracy_meters: "2-20"
+      notes: "Based on RSSI & triangulation"
+  sensors:
+    accelerometer:
+      typical_accuracy_g: 0.01
+      range_g_force: "±2g/±4g/±8g/±16g"
+      range_gyro: "±125/±250/±500/±1000/±2000 dps"
+      modules:
+        - "6D Accelerometer + Gyroscope (available to ESP32)"
+        - "3D Accelerometer (main CPU)"
+      features:
+      - "Motion Detection"
+      - "Orientation & Tilt detection"
+      - "Shock and Vibration detection"
+    magnetometer:
+      description: "3D Magnetometer (Compass)"
+      range: ±50 gauss magnetic dynamic range"
+      resolution: "16-bit"
+    pressure:
+      description: "Barometric pressure sensor"
+      altitude_resolution_cm: 13
+    temperature:
+      description: "Non-calibrated internal temperature sensor"
+      typical_accuracy_c: 5
+      features:
+      - "Temperature Sensing (low accuracy)"
+      - "Thermal Protection"
+  charging:
+    inputs:
+      voltage_range_v: "4-14"
+      current_limit_a: "0.1 to 3.25"
+    features:
+      fast_charge: "Configurable up to 3A input"
+      configurable: "Configurable draw and charge rates"
+      docking: true
+      usb_c: true
+      notes: "Charging dock and USB-C available. Automatic power-path management supported."
+  user interface:
+    buttons:
+      "Multi-purpose":
+        - "x3 Large buttons"
+        - "Status Check"
+        - "Resets"
+        - "Menu Navigation"
+        - "User control"
+        - "User subscribable via ESP32"
+    leds:
+      "RGB Status (corner)":
+        - "RGB LED x2"
+        - "Used to display device status (chargins etc.)."
+        - "Is user controllable"
+      "RGB Strobe (central)":
+        - "High Brightness RGB LED x2"
+        - "Fully configurable RGB LED dome"
+        - "Is user controllable"
+    haptics:
+      type: "Powerful Vibration Motor"
+      purpose: "Haptic feedback for user interface"
+    siren:
+      decibel: 82
+      purpose: "Audible alert for personnel"
+    display:
+      type: "2.13\\" E-Paper"
+      front_light: "yes"
+      controllable_via:
+        - "ESP32 (user controllable)"
+        - Remote Server (UDP)
+  components:
+    cellular:
+      manufacturer: SIMCom Wireless Solutions Limited
+      model: A7672G
+      platform: ASR1603 platfom
+    specifications:
+        supported_technologies:
+        - "LTE CAT-1 (bis)"
+        - "GPRS"
+        - "EDGE"
+    frequency_bands:
+      gsm:
+        bands: "850/900/1800/1900MHz"
+        egsm_900mhz:
+          transmit_frequency_mhz: "880-915"
+          receive_frequency_mhz: "925-960"
+        dcs_1800mhz:
+          transmit_frequency_mhz: "1710-1785"
+          receive_frequency_mhz: "1805-1880"
+      lte_fdd:
+        - B1
+        - B2
+        - B3
+        - B4
+        - B5
+        - B7
+        - B8
+        - B12
+        - B13
+        - B18
+        - B19
+        - B20
+        - B25
+        - B26
+        - B28
+        - B66
+      lte_tdd:
+        - B38
+        - B39
+        - B40
+        - B41
+
+      data_transfer_rates_kbps:
+
+        lte_downlink: 10000
+        lte_uplink: 5000
+        edge_dl_ul: 236.8
+        gprs_dl_ul: 85.6
+
+
+      electrical_and_environmental:
+        supply_voltage_v: 3.4 ~ 4.2
+        temperature_range_c: -40 ~ +85
+        sim_card_support_v: 1.8/3.0
+
+        optional_functions:
+          - Jamming Detection
+          - TTS (Text To Speech)
+          - Embedded AT
+        firmware_management:
+          - Firmware Upgrade (USB/FOTA)
+
+      certifications:
+        - RoHS
+        - REACH
+        - CE-RED
+        - FCC
+        - Anatel* (under developing/on-going/planning)
+    P1 & LORA:
+      manufacturer: "STMicroelectronics"
+      model: "STM32WLE5xx"
+      # incorrect datasheet: "https://www.st.com/resource/en/datasheet/stm32wl55cc.pdf"
+      specifications:
+        chip_type: "Multiprotocol wireless 32-bit MCU, Arm® Cortex-M4 with FPU + Cortex-M0+ for real-time radio tasks"
+        radio_features:
+          frequency_range_mhz: "150 - 960"
+          supported_modulations: "LoRa, (G)FSK, (G)MSK, BPSK"
+          rx_sensitivity_dbm:
+            2fsK_1_2kbps: -123
+            LoRa_SF12_BW_10_4kHz: -148
+          programmable_output_power_dbm:
+            low_power_path: "+15"
+            high_power_path: "+22"
+          integrated_balun: "Yes (with IPD companion options for matching / filtering / balun)"
+        memory:
+          flash_memory_size: "Up to 1 Mbyte"
+          sram_size: "Up to 256 Kbytes"
+        operating_voltage_v: "1.8 to 3.6"
+        operating_temperature_c: "-40 to +105 (ambient), -40 to +85 (with radio)"
+        power_consumption_modes:
+          shutdown_at_3v: "31 nA"
+          standby_rtc_at_3v: "360 nA"
+          stop2_rtc_at_3v: "1.07 µA"
+          active_mcu_performance: "<72 µA/MHz (CoreMark benchmark)"
+          rx_active: "4.82 mA"
+          tx_active:
+            LoRa_125kHz_10dBm: "15 mA"
+            LoRa_125kHz_20dBm: "87 mA"
+    gnss:
+      manufacturer: "Quectel"
+      model: "LC29H(EA)"
+      specifications:
+        gnss_systems:
+          - "GPS"
+          - "QZSS"
+          - "GLONASS"
+          - "Galileo"
+          - "BDS"
+        receiver_type:
+          code: "L1 C/A, L5 (GPS/QZSS), L1 (GLONASS), E1, E5a (Galileo), B1I, B2a (BDS)"
+        accuracy:
+          position: "0.01 m + 1 ppm CEP (RTK)"
+        time_to_first_fix:
+          cold_starts: "<30s"
+          hot_starts: "<1s"
+        max_altitude_m: 10000
+        max_velocity_ms: 500
+        max_acceleration_g: 4
+        nav_update_rate: "RTK: 1-10 Hz"
+        power_consumption_mw:
+          normal_operation_acquisition: 105.6
+          normal_operation_tracking: 105.6
+          power_saving_backup_mode: 0.073
+        operating_temperature_c: "-40 ~ +85"
+        supply_voltage_v: "3.1 ~ 3.6 (Typ. 3.3)"
+        interfaces:
+          i2c: "Yes (Up to 400 kbps)"
+          uart: "Yes (Adjustable: 9600-3000000 bps)"
+          spi: "Yes (Multiplexed from I2C and UART1)"
+    P2 & WIFI/BT:
+      manufacturer: "Espressif Systems"
+      model: "ESP32-C6"
+      datasheet: "https://www.espressif.com/sites/default/files/documentation/esp32-c6_datasheet_en.pdf"
+      specifications:
+        soc_description: "Ultra-low-power SoC with RISC-V single-core CPU, supports Wi-Fi 6 (802.11ax), Bluetooth LE, Zigbee, Thread"
+        wi_fi_protocols: "802.11 b/g/n/ac/ax (Wi-Fi 6), backward compatible"
+        wi_fi_frequency_range_mhz: "2412 ~ 2484"
+        tx_power_dbm:
+          802_11b: "+21"
+          802_11ax (MCS9, 20MHz): "+19.5"
+        radio_features:
+          bluetooth_specification: "5 LE"
+          ieee_802_15_4_support: "Yes"
+        cpu:
+          high_performance: "32-bit RISC-V up to 160 MHz"
+          low_power: "32-bit RISC-V up to 20 MHz"
+        memory:
+          rom: "320 KB"
+          hp_sram: "512 KB"
+          lp_sram: "16 KB"
+          external_flash: "TBD"
+        operating_voltage_v: "3.0 ~ 3.6"
+        crystal_frequency_range_mhz: "40"
+        power_consumption_deep_sleep_ua: 7
+        power_consumption_active_ma:
+          typical_receive: ~71-82
+          typical_transmit_max: ~354
+    accelerometer_1:
+      manufacturer: "STMicroelectronics"
+      model: "LIS3DHTR"
+      specifications:
+        device_type: "MEMS digital output motion sensor: ultra-low-power high-performance 3-axis 'nano' accelerometer"
+        data_output: "16-bit"
+        full_scale_range: "±2g/±4g/±8g/±16g (dynamically selectable)"
+        supply_voltage_v: "1.71 to 3.6"
+        operating_temperature_c: "-40 to +85"
+        power_consumption_ulp_ua: "down to 2 (normal mode at 1 Hz ODR)"
+    accelerometer_2:
+      manufacturer: "STMicroelectronics"
+      model: "LSM6DS3TR"
+      specifications:
+        device_type: "iNEMO inertial module: always-on 3D accelerometer and 3D gyroscope"
+        sensing_elements:
+          - "3D digital accelerometer"
+          - "3D digital gyroscope"
+        full_scale_range_accelerometer: "±2g/±4g/±8g/±16g (dynamically selectable)"
+        full_scale_range_gyroscope: "±125/±250/±500/±1000/±2000 dps (dynamically selectable)"
+        output_data_rate_accelerometer_hz: "1.6, 12.5, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664"
+        output_data_rate_gyroscope_hz: "12.5, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664"
+        supply_voltage_v:
+          analog: "1.71 to 3.6 V"
+          io_independent: "1.62 V (min)"
+        operating_temperature_c: "-40 to +85"
+        power_consumption_high_performance:
+            combo_mode_ma: "0.90 mA (in combo high-performance mode, ODR = 1.6 kHz)"
+            accelerometer_low_power_ua: "9 μA (at ODR = 12.5 Hz)"
+            power_down_ua: "3 μA (gyroscope and accelerometer current consumption)"
+    charger:
+      manufacturer: "Texas Instruments"
+      model: "BQ25890H"
+      specifications:
+        description: "I2C Controlled Single Cell 5-A Fast Charger with MaxChargeTM Technology"
+        charge_current_a: "5 (Fast charge current, adjustable from 128mA to 5056mA)"
+        charge_efficiency_percent:
+          at_2a: 93
+          at_3a: 91
+        usb_otg_output_v: "4.5 to 5.5 (adjustable)"
+        usb_otg_output_current_a: "2.4"
+        boost_efficiency_percent: "93 (at 5V, 1A output)"
+        input_voltage_range_v: "3.9 to 14"
+        input_current_limit_a: "0.1 to 3.25 (50-mA resolution, automatically set by source detection)"
+        battery_discharge_mosfet_resistance_mohm: 11
+        battery_discharge_current_a: "up to 9 (peak, up to 1 sec duration)"
+        integrated_adc_for_monitoring:
+        - "Voltage"
+        - "Temperature"
+        - "Charge Current"
+        power_path_management: "Narrow VDC (NVDC), with automatic power path selection"
+        operating_temperature_c: "-40 to 85"
+  battery:
+    overall:
+      capacity_mah: 6700
+      pack_configuration: "1S2P"
+      voltage_v: 3.6
+      continuous_use_hours: ">50"
+      operating_temperature_c: "-10 to +60 (standard); -40 to +60 (optional)"
+    cells:
+      type: 18650
+      spec:
+        model: "18650 3350mAh"
+        type: "Li-ion Cell"
+        nominal_voltage_v: 3.6
+        nominal_capacity_mah: 3350
+        nominal_energy_wh: 12.21
+        physical_dimensions_mm: "Φ 65.0*18.0"
+        appearance: "Blue cylindrical battery"
+        certifications_and_tests:
+          standard: "UN38.3 (UNITED NATIONS 'Recommendations on the TRANSPORT OF DANGEROUS GOODS' Manual of Tests and Criteria ST/SG/AC.10/11/Rev.6, 38.3)"
+          tests:
+            "Altitude simulation": "No leakage, no venting, no disassembly, no rupture & no fire"
+            "Thermal test": "No leakage, no venting, no disassembly, no rupture & no fire"
+            "Vibration": "No leakage, no venting, no disassembly, no rupture & no fire"
+            "Shock": "Included as a test item in the UN38.3 report"
+            "External short circuit": "No disassembly, no rupture & no fire (Max external temperature: 66.4 ~ 78.8°C)"
+            "Impact": "No disassembly & no fire (Max external temperature: 106.9 ~ 129.2°C)"
+            "Forced discharge": "No disassembly & no fire"
+`;export{n as s};
