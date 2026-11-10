@@ -3,13 +3,28 @@ aside: true
 ---
 
 <script setup>
+import { computed } from 'vue'
 import spec from '../../public/device-specs/enviro/v2.yaml?raw'
 import loadSpec from '../../utils/loadSpec'
 
 const specs = loadSpec(spec)
+const viewLabels = ['Front angle', 'Top side', 'Back', 'Side']
+// Frame the existing renders without changing the source artwork or specification data.
+const viewScales = [1.4, 1.4, 1.4, 1.4]
+const viewOffsets = [0, 0, -8, -24]
+const galleryImages = computed(() => (specs.value?.product?.images ?? []).map((src, index) => ({
+  src,
+  label: viewLabels[index] ?? `Image ${index + 1}`,
+  alt: `Enviro, ${(viewLabels[index] ?? `image ${index + 1}`).toLowerCase()} view`,
+  fit: 'cover',
+  scale: viewScales[index] ?? 1,
+  offsetY: viewOffsets[index] ?? 0,
+})))
 </script>
 
 # Enviro (EN2)
+
+<DeviceOverview>
 
 <DownloadSpecButton :spec="specs" deviceTitle="Enviro (EN2)" />
 
@@ -19,9 +34,15 @@ const specs = loadSpec(spec)
 
 This page covers EN2; use the product code and device ID when following the [LED guide](/guides/leds).
 
-## Images
+<template #media>
+<DeviceImageGallery
+  id="images"
+  :images="galleryImages"
+  aria-label="Enviro gallery"
+/>
+</template>
 
-<DeviceSpecImages :spec="specs" />
+</DeviceOverview>
 
 ## Overview
 
