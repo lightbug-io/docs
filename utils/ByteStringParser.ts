@@ -8,8 +8,6 @@ export interface ParsedBytes {
     hasHex: boolean;
 }
 
-export type ByteStringEncoding = 'auto' | 'decimal' | 'hex';
-
 /**
  * Extract valid byte values (0-255) from any input string.
  * Handles messy input with random text, hex values, and decimal integers.
@@ -29,15 +27,10 @@ export type ByteStringEncoding = 'auto' | 'decimal' | 'hex';
  * @param input - Raw input string potentially containing bytes
  * @returns Object with parsed bytes array and hex detection flag
  */
-export function parseByteString(input: string, encoding: ByteStringEncoding = 'auto'): ParsedBytes {
+export function parseByteString(input: string): ParsedBytes {
     if (!input || !input.trim()) {
         return { bytes: [], hasHex: false };
     }
-
-    // Explicit encodings are used by structured documentation. Auto remains
-    // available for the general-purpose log parser used elsewhere in the UI.
-    if (encoding === 'decimal') return parseDecimalBytes(input);
-    if (encoding === 'hex') return parseHexBytes(input);
 
     // Check if input looks like base64 first
     if (looksLikeBase64(input)) {

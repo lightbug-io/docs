@@ -20,11 +20,11 @@ import {
   documentationExamplesForContext,
   documentationTargetOverride,
   getDocumentationFormat,
-  getMessageDocumentation,
   getOperationVariant,
   resolveDocumentationFields,
   type DocumentationOperation,
 } from '../../utils/MessageDocumentation'
+import { getInteractionDocumentation } from '../../utils/ProtocolInteractions'
 
 const props = defineProps<{
   messageId: number
@@ -32,7 +32,7 @@ const props = defineProps<{
 }>()
 
 const message = computed(() => props.yamlData.messages?.[props.messageId])
-const documentation = computed(() => getMessageDocumentation(message.value))
+const documentation = computed(() => getInteractionDocumentation(props.yamlData, props.messageId))
 const copyStatus = ref('')
 const router = useRouter()
 let removeRouteCorrection: (() => void) | undefined
@@ -70,7 +70,7 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
         examplesTitle: `${label} examples`,
         title: role === 'request' ? 'Request' : role === 'response'
           ? `Expected response${view[role] ? ` (MT${contextId}${contextId === 5 ? ' - ACK' : ''})` : ''}`
-          : `${item.method ? 'Later publication' : 'Device upload'}${view[role] ? ` (MT${contextId})` : ''}`, 
+          : `${item.method ? 'Later publication' : 'Device upload'}${view[role] ? ` (MT${contextId})` : ''}`,
         subtitle: role !== 'request' && contextId !== 5 && !!item.method ? usage.title?.replace(/\s*\(MT\d+\)$/, '') : undefined,
         description: usage.description,
         acknowledgment: usage.messageId === 5,
@@ -104,6 +104,11 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
       errors: (view.errors || []).map(error => ({ ...error, name: props.yamlData.header?.[4]?.values?.[error.code]?.name })),
     }
   })
+}))
+
+const interactionLinks = computed(() => (documentation.value?.interactions || []).flatMap(interaction => {
+  const panel = panels.value.find(item => item.operation.id === interaction.operationId && item.variant.messageVersion === interaction.messageVersion)
+  return panel ? [{ ...interaction, anchor: panel.anchor }] : []
 }))
 
 function fieldsWithExamples(fields: ReturnType<typeof resolveDocumentationFields>, selectedPanels: typeof panels.value) {
@@ -323,6 +328,15 @@ onBeforeUnmount(() => {
     <div class="message-content">
     <p :id="`message-${messageId}-overview`" class="message-summary">{{ documentation.summary }}</p>
     <p v-if="documentation.target" class="support-context"><strong>Applies to</strong> {{ documentation.target }}</p>
+    <details v-if="interactionLinks.length" class="interaction-index">
+      <summary>Named interactions</summary>
+      <ul>
+        <li v-for="interaction in interactionLinks" :key="`${interaction.interactionId}/${interaction.interactionVersion}`">
+          <a :href="`#${interaction.anchor}`"><code>{{ interaction.interactionId }}</code> · revision {{ interaction.interactionVersion }}</a>
+          <span v-if="interaction.messageVersion !== undefined"> · wire version {{ interaction.messageVersion }}</span>
+        </li>
+      </ul>
+    </details>
 
     <div v-if="overviewNotes.length" :id="`message-${messageId}-notes`" class="overview-notes">
       <section v-for="note in overviewNotes" :key="note.id" class="overview-note" :aria-labelledby="`message-${messageId}-note-${note.id}`">
@@ -477,7 +491,7 @@ onBeforeUnmount(() => {
                 <button type="button" class="copy-button" :aria-label="`Copy bytes: ${example.title}, ${frame.label}`" @click="copyBytes(frame.bytes, frame.label)">Copy</button>
               </div>
               <div class="annotated-frame" :aria-labelledby="`${panel.anchor}-example-${example.exampleIndex + 1}-frame-${frame.frameIndex + 1}`">
-                <Message :byte-string="frame.bytes" :normalized-bytes="frame.normalizedBytes" :encoding="frame.encoding" display-type="hex" :yaml-data="yamlData" :default-collapsed="false" :show-generator-link="false" :show-controls="false" read-only />
+                <Message :byte-string="frame.bytes" :yaml-data="yamlData" :default-collapsed="false" :show-generator-link="false" :show-controls="false" read-only />
               </div>
               <details class="raw-bytes-details">
                 <summary>Raw bytes</summary>
@@ -534,6 +548,9 @@ onBeforeUnmount(() => {
 .structured-message p { color: var(--reference-muted); }
 .structured-message [id] { scroll-margin-top: calc(var(--message-sticky-top) + var(--message-jump-height, 64px) + 24px); }
 .structured-message .message-summary { margin: 16px 0 10px; font-size: 16px; line-height: 1.8; white-space: pre-line; }
+.interaction-index { margin: 12px 0; }
+.interaction-index summary { cursor: pointer; font-weight: 600; }
+.structured-message .interaction-index ul { margin: 8px 0; padding-left: 20px; }
 .support-context { font-size: 12px; }
 .support-context strong, .target-context strong { margin-right: 8px; font-weight: 600; }
 .message-navigation { position: sticky; top: var(--message-sticky-top); z-index: 10; min-width: 0; margin: 22px 0; align-self: start; }

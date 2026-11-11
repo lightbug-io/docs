@@ -52,6 +52,23 @@ A request may select a format, and a response or publication may identify the fo
 
 For example, current-format Message Box GET responses and publications carry header 22 with value `2`, but its MT5 control ACKs and terminal subscription status messages do not. Legacy Message Box responses omit it. [Message Box's format sections](../messages/58-message-box#message-58-format-current) describe those differences; the dates used as documentation format names do not replace numeric values on the wire.
 
+## Interaction revisions
+
+The protocol YAML's `interactions` catalog names documented exchanges that reuse an existing message's method or named context. Resolving an interaction supplies its `request`, direct successful `response` (including ACK where applicable), and/or later or unsolicited `publication` messages from that exchange. It does not guarantee that every stage is sent; the existing correlation, suppression and target rules still apply. This initial catalog describes exchanges, not arbitrary ordered sequences of requests.
+
+Interaction revisions and wire message formats are independent. For example, the first revision of this interaction uses Message Box's existing format 2:
+
+```yaml
+replace-message-box:
+  messageId: 58
+  method: SET
+  versions: {1: {messageVersion: 2}}
+```
+
+`messageVersion` selects an existing method/context variant. It does not itself insert header 22; the referenced exchange defines the actual headers. Unversioned methods or contexts omit `messageVersion`, even when their containing message has versioned payloads. A publication-only interaction references `context` instead of `method`, without inventing a request or wire method.
+
+Keep field definitions, descriptions, examples and applicability at their existing source. Interactions inherit them; an optional `target` can supply a more specific applicability description without making fields required. References share source semantics, so changes to an exchange require reviewing its interactions; a revision is not a frozen copy of that exchange. Existing `header`, `messages`, `data`, `methods` and message-version definitions remain usable without the catalog.
+
 ## Subscription replies and later updates
 
 A subscription's control reply and its later publications are different events. A control ACK reports the command status; it is not the subscribed data. Later publications can have their own headers, payload and status behavior.

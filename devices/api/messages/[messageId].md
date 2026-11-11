@@ -8,14 +8,14 @@ import { data as protocolData } from '../../../yaml-data.data.ts'
 import { computed } from 'vue'
 import { useRoute } from 'vitepress'
 import { useMessageSections } from '../../../composables/useMessageSections.js'
-import { getMessageDocumentation } from '../../../utils/MessageDocumentation'
+import { getInteractionDocumentation } from '../../../utils/ProtocolInteractions'
 import StructuredMessagePage from '../../../components/Protocol/StructuredMessagePage.vue'
 
 const route = useRoute()
 // Extract numeric ID from "12-close" format
 const messageId = computed(() => parseInt((route.data.params?.messageId || '').split('-')[0]))
 const messageData = computed(() => protocolData?.messages?.[messageId.value])
-const structuredDocumentation = computed(() => getMessageDocumentation(messageData.value))
+const structuredDocumentation = computed(() => getInteractionDocumentation(protocolData, messageId.value))
 
 // The legacy composable takes a numeric ID; re-create its view when the route changes.
 const sections = computed(() => useMessageSections(messageId.value, protocolData))
