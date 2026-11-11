@@ -28,6 +28,16 @@ describe('base.gen basic type functions', () => {
             expect(readTypedData([0x34, 0x12], 'uint16')).toBe(0x1234);
         });
 
+        it.each([
+            [[0x00, 0x80], -32768],
+            [[0xf3, 0xfd], -525],
+            [[0xff, 0x7f], 32767],
+            [[0], 0],
+            [[0xff], 255],
+        ])('should parse signed int16 bytes %j as %i', (bytes, value) => {
+            expect(readTypedData(bytes, 'int16')).toBe(value);
+        });
+
         it('should parse uint32 values correctly', () => {
             expect(readTypedData([0x78, 0x56, 0x34, 0x12], 'uint32')).toBe(0x12345678);
         });
@@ -98,6 +108,12 @@ describe('base.gen basic type functions', () => {
                 const read = readTypedData(written, 'int8');
                 expect(read).toBe(value);
             }
+        });
+
+        it.each([-32768, -525, 0, 255, 32767])('should round-trip int16 value %i', value => {
+            const bytes = writeTypedData(value, 'int16');
+            expect(bytes).toHaveLength(2);
+            expect(readTypedData(bytes, 'int16')).toBe(value);
         });
 
         it('should round-trip uint8 data', () => {

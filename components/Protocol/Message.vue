@@ -861,6 +861,14 @@ export default defineComponent({
                             displayValue = formattedValue;
                         }
 
+                        // MT34 uses INT16_MIN for an unavailable reading, not a temperature.
+                        if (messageType === 34 && payloadType === 13 && payloadValue === -32768) {
+                            displayValue = 'Unavailable (raw -32768)';
+                            unit = undefined;
+                            rawUnit = undefined;
+                            conversion = undefined;
+                        }
+
                         // Validate byte length against expected type size
                         if (props.showValidation) {
                             const expectedSize = getExpectedByteSize(payloadValueType);

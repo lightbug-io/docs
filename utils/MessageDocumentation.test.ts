@@ -372,6 +372,17 @@ describe('inline numeric-version authoring', () => {
 describe('Device Status reference', () => {
     const message = protocol.messages[34]
     const docs = getMessageDocumentation(message)!
+    it('documents optional fields 12–14 in GET responses and later publications', () => {
+        const message = protocol.messages[34];
+        expect(message.data[12]).toMatchObject({ id: 'batteryResistance', type: 'uint16', unit: 'mOhm' });
+        expect(message.data[13]).toMatchObject({ id: 'batteryResistanceTemperature', type: 'int16', conversion: 100, unit: 'C' });
+        expect(message.data[13].description).toContain('-32768 means unavailable');
+        expect(message.data[14]).toMatchObject({ id: 'batteryChargeAh', type: 'float32', unit: 'Ah' });
+        for (const context of [message.methods.GET.exchange.response, message.methods.SUBSCRIBE.exchange.publication]) {
+            for (const id of [12, 13, 14]) expect(context.fields[id]).toEqual({ presence: 'optional' });
+        }
+        expect(validateMessageDocumentation(protocol, 34)).toEqual([]);
+    });
     it('keeps the existing methods and wire fields without inventing a message version', () => {
         expect(Object.keys(message.methods)).toEqual(['GET', 'SUBSCRIBE', 'UNSUBSCRIBE'])
         expect(message.versions).toBeUndefined()
@@ -380,6 +391,8 @@ describe('Device Status reference', () => {
             ['1', 'bat', 'uint8'], ['2', 'signalStrength', 'uint8'], ['3', 'mode', 'uint8'],
             ['4', 'networkType', 'uint8'], ['5', 'mnc', 'uint16'], ['6', 'mcc', 'uint16'],
             ['7', 'fw', 'uint32'], ['10', 'deviceType', 'uint8'],
+            ['12', 'batteryResistance', 'uint16'], ['13', 'batteryResistanceTemperature', 'int16'],
+            ['14', 'batteryChargeAh', 'float32'],
         ])
         for (const operation of docs.operations) {
             expect(operation.messageVersion).toBeUndefined()
