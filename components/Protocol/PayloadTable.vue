@@ -34,6 +34,7 @@
                   </ul>
                 </span>
               </template>
+              <SentinelValues :sentinels="field.sentinels" />
             </td>
             <td>{{ field.type }}</td>
             <td>
@@ -61,9 +62,11 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
+import SentinelValues from './SentinelValues.vue';
 
 export default defineComponent({
   name: 'PayloadTable',
+  components: { SentinelValues },
   props: {
     messageId: {
       type: Number,

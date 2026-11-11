@@ -3,6 +3,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter, withBase } from 'vitepress'
 import Message from './Message.vue'
 import DocumentationText from './DocumentationText.vue'
+import SentinelValues from './SentinelValues.vue'
 import {
   activeMessageOutlineId,
   installMessageRouteCorrection,
@@ -362,6 +363,7 @@ onBeforeUnmount(() => {
                   <ul v-if="field.values.length" class="field-values">
                     <li v-for="value in field.values" :key="value.value"><code>{{ value.value }}</code><strong v-if="value.name"> · {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span></li>
                   </ul>
+                  <SentinelValues :sentinels="field.sentinels" />
                 </td>
                 <td v-if="group.fields.some(field => field.examples.length)" class="field-examples">
                   <div v-for="sample in field.examples" :key="`${sample.href}:${sample.value}`" class="field-example">
@@ -431,6 +433,7 @@ onBeforeUnmount(() => {
                         <code>{{ value.value }}</code><strong v-if="value.name"> · {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span>
                       </li>
                     </ul>
+                    <SentinelValues :sentinels="field.sentinels" />
                   </dd>
                 </div>
               </dl>

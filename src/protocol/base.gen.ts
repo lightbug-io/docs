@@ -247,6 +247,11 @@ export function readUint16LE(bytes: number[], offset: number): number {
   return bytes[offset] | (bytes[offset + 1] << 8);
 }
 
+export function readInt16LE(bytes: number[], offset: number): number {
+  const value = readUint16LE(bytes, offset);
+  return value & 0x8000 ? value - 0x10000 : value;
+}
+
 export function readUint32LE(bytes: number[], offset: number): number {
   return (
     bytes[offset] |
@@ -383,6 +388,8 @@ export function readTypedData(bytes: number[], type: string): any {
       return readInt8(bytes, 0);
     case 'uint16':
       return readUint16LE(bytes, 0);
+    case 'int16':
+      return readInt16LE(bytes, 0);
     case 'uint32':
       return readUint32LE(bytes, 0);
     case 'uint64':
@@ -475,6 +482,7 @@ export function writeTypedData(value: any, type: string): number[] {
     case 'int8':
       return writeInt8(value);
     case 'uint16':
+    case 'int16':
       return writeUint16LE(value);
     case 'uint32':
       return writeUint32LE(value);

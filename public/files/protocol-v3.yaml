@@ -1419,6 +1419,45 @@ messages:
           Type of device, relates to the SN prefix.
           For devices released from 2025 onwards, this is documented on the device specification page.
         type: uint8
+      12:
+        name: Battery Resistance
+        id: batteryResistance
+        type: uint16
+        unit: mOhm
+        description: >-
+          Estimated effective DC resistance of the whole battery pack, including protection
+          circuitry and connections, in milliohms. This can be a configured starting estimate
+          or a saved or newly learned value, not necessarily a fresh measurement.
+          Available on supported devices and builds, including Viper6 firmware 2763.
+          Omitted when unavailable.
+      13:
+        name: Battery Resistance Temperature
+        id: batteryResistanceTemperature
+        type: int16
+        sentinels:
+          -32768:
+            id: unavailable
+            name: Unavailable
+            description: No temperature was available at the resistance measurement.
+        raw-unit: cC
+        conversion: 100
+        unit: C
+        description: >-
+          Temperature at the latest battery resistance measurement, in centi-degrees Celsius
+          (divide by 100 for degrees Celsius, except for declared sentinels).
+          On RH2 this is the fuel gauge's internal temperature; Viper6
+          with an INA236 does not provide this temperature. Included with field 12 when
+          battery diagnostics are available; otherwise the field may be omitted.
+      14:
+        name: Lifetime Battery Charge Received
+        id: batteryChargeAh
+        type: float32
+        unit: Ah
+        description: >-
+          Cumulative charge received since tracking began or was reset, in amp-hours,
+          including partial charges. This is not the current remaining charge or rated
+          battery capacity. Divide by rated capacity in Ah for equivalent full charges.
+          Included with field 12 when battery diagnostics are available. Omitted when unavailable.
     methods:
       GET:
         title: Read device status
@@ -1455,6 +1494,9 @@ messages:
               "6": {presence: optional}
               "7": {presence: optional}
               "10": {presence: optional}
+              "12": {presence: optional}
+              "13": {presence: optional}
+              "14": {presence: optional}
           examples:
             - title: GET exchange
               provenance: captured
@@ -1544,6 +1586,9 @@ messages:
               "6": {presence: optional}
               "7": {presence: optional}
               "10": {presence: optional}
+              "12": {presence: optional}
+              "13": {presence: optional}
+              "14": {presence: optional}
       UNSUBSCRIBE:
         title: Stop the default status subscription
         description: >-

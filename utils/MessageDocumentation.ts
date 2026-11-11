@@ -1,5 +1,6 @@
 import { calculateCRC16XMODEM, getElementByteSize, parseRawMessage, readTypedData } from '../src/protocol/base.gen'
 import { parseByteString } from './ByteStringParser'
+import { formatSentinelValue } from './ProtocolSentinels'
 
 /** Structured message documentation. Wire definitions remain in header and message.data. */
 export interface DocumentationField {
@@ -71,6 +72,8 @@ export function capturedDocumentationValues(example: DocumentationExample, messa
                 const size = getElementByteSize(field.type)
                 if (size !== null && (/^u?int(8|16|32|64)$/.test(field.type) ? bytes.length > size : bytes.length !== size)) return []
                 const value = readTypedData(bytes, field.type)
+                const sentinel = formatSentinelValue(value, field)
+                if (sentinel !== undefined) return [{ id: Number(id), value: sentinel }]
                 const raw = field.conversion !== undefined
                 const declaredUnit = raw ? field['raw-unit'] : field.unit
                 const unit = typeof declaredUnit === 'string' ? declaredUnit : ''
@@ -245,6 +248,7 @@ export function resolveDocumentationFields(
             id: Number(key),
             name: definition.name,
             type: definition.type,
+            sentinels: definition.sentinels,
             baseDescription: definition.description || '',
             description: context.description ?? definition.description ?? '',
             presence: context.presence,

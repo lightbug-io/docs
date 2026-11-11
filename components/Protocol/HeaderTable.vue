@@ -33,6 +33,7 @@
                   </ul>
                 </span>
               </template>
+              <SentinelValues :sentinels="headerFieldData[fieldId].sentinels" />
             </td>
             <td>{{ headerFieldData[fieldId].type }}</td>
           </tr>
@@ -44,9 +45,11 @@
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue';
+import SentinelValues from './SentinelValues.vue';
 
 export default defineComponent({
   name: 'HeaderTable',
+  components: { SentinelValues },
   props: {
     messageId: {
       type: Number,
