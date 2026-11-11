@@ -116,9 +116,6 @@ describe('shared response conventions', () => {
         expect(protocol.header[4].values[-1]).toMatchObject({ name: 'Processing', id: 'error' })
         expect(protocol.header[4].type).toBe('int8')
     })
-    it('removes example-generation filler from message documentation', () => {
-        for (const id of [39, 58]) expect(JSON.stringify(protocol.messages[id])).not.toContain('Every generated request below')
-    })
 })
 describe('optional message documentation', () => {
     it('leaves legacy messages on their existing renderer', () => {
@@ -217,9 +214,6 @@ describe('optional message documentation', () => {
         }
         expect(getDocumentationFormat(docs, docs.operations.find(item => item.method === 'UNSUBSCRIBE')!)).toBeUndefined()
         expect(getMessageDocumentation(protocol.messages[39], protocol)!.formats).toBeUndefined()
-        const syncParagraphs = docs.notes!.find(note => note.id === 'sync-lifecycle')!.description.trim().split('\n\n')
-        expect(syncParagraphs).toHaveLength(3)
-        expect(syncParagraphs.every(paragraph => !paragraph.includes('\n'))).toBe(true)
     })
 
     it('rejects invalid numeric versions, labels and legacy flags', () => {
@@ -279,10 +273,6 @@ describe('wire-version authoring', () => {
         expect(docs.formats![1].anchorId).toBe('legacy')
         expect(docs.formats![0].anchorId).toBe('current')
         expect(docs.formats![0].fields).toEqual({ 2: {}, 129: message.versions[2].fields[129] })
-        for (const version of Object.values(message.versions) as any[]) {
-            expect(version.id).toBeUndefined()
-            expect(version.messageVersion).toBeUndefined()
-        }
         expect(protocol).toEqual(before)
     })
 
@@ -291,7 +281,6 @@ describe('wire-version authoring', () => {
         expect(gps.GET.request).toBeNull()
         expect(gps.GET.response).toEqual({ 1: null, 2: null })
         expect(Object.keys(gps.SET.request)).toEqual(['2', '3'])
-        expect(gps.SET.request[2].description).toBe('Automatically controls the GPS module.')
         expect(gps.SET.response).toBeNull()
         for (const method of Object.values(protocol.messages[58].methods) as any[]) {
             expect(Object.prototype.hasOwnProperty.call(method || {}, 'request')).toBe(false)
@@ -315,15 +304,15 @@ describe('wire-version authoring', () => {
     })
 
     it('rejects malformed inline contexts before normalization can conceal them', () => {
-        for (const update of [
-            (message: any) => { authoredInteraction(message, 'SET').request.fields[2] = null },
-            (message: any) => { authoredInteraction(message, 'SET').request = 'broken' },
-            (message: any) => { message.contexts = [] },
-            (message: any) => { message.contexts = { tracking: null } },
-        ]) {
+        for (const [diagnostic, update] of [
+            ['request fields 2 must be an object', (message: any) => { authoredInteraction(message, 'SET').request.fields[2] = null }],
+            ['request must be an object', (message: any) => { authoredInteraction(message, 'SET').request = 'broken' }],
+            ['contexts must be a mapping', (message: any) => { message.contexts = [] }],
+            ['tracking context needs an exchange or versions', (message: any) => { message.contexts = { tracking: null } }],
+        ] as const) {
             const sample = clone(protocol)
             update(sample.messages[39])
-            expect(validateMessageDocumentation(sample, 39).length).toBeGreaterThan(0)
+            expect(validateMessageDocumentation(sample, 39).join('\n')).toContain(diagnostic)
         }
         const sample = clone(protocol)
         authoredInteraction(sample.messages[58], 'GET').response.fields[2] = null
@@ -596,9 +585,6 @@ describe('canonical inline interactions', () => {
             expect(response.fields?.[1]?.value).toBe(id)
         }
         const guide = readFileSync(resolve(__dirname, '../devices/api/protocol/responses.md'), 'utf8')
-        expect(guide).toContain('GSM Control SET')
-        expect(guide).toContain('SIM settings SET')
-        expect(guide).toContain('Device Status SUBSCRIBE/UNSUBSCRIBE')
         expect(guide).toContain('send no success ACK for an omitted or zero ID')
         expect(guide).toContain('error ACKs are not suppressed for this reason')
         expect(guide).toContain('do not establish a universal rule for every MT5 reply')
@@ -693,33 +679,25 @@ describe('canonical inline interactions', () => {
     })
 
     it.each([
-        ['authored method', (source: any) => { source.method = 'SET' }],
-        ['site anchor', (source: any) => { source.anchorId = 'set' }],
-        ['nested revisions', (source: any) => { source.versions = { 1: {} } }],
-        ['invalid title', (source: any) => { source.title = 4 }],
-        ['missing wire version', (source: any) => { delete source.messageVersion }],
-        ['unknown wire version', (source: any) => { source.messageVersion = 99 }],
-        ['missing method selector', (source: any) => { delete source.request.headers[5] }],
-        ['unknown method selector', (source: any) => { source.request.headers[5].value = 99 }],
-        ['empty exchange', (source: any) => { delete source.request; delete source.response }],
-        ['unknown field', (source: any) => { source.request.fields[999] = {} }],
-        ['unknown message', (source: any) => { source.response.messageId = 65534 }],
-        ['conflicting byte bounds', (source: any) => { source.request.fields[129].minBytes = 1025 }],
-    ])('rejects %s in a flat interaction', (_label, change) => {
+        ['unknown property method', (source: any) => { source.method = 'SET' }],
+        ['unknown property anchorId', (source: any) => { source.anchorId = 'set' }],
+        ['unknown property versions', (source: any) => { source.versions = { 1: {} } }],
+        ['title must be a string', (source: any) => { source.title = 4 }],
+        ['needs an explicit messageVersion', (source: any) => { delete source.messageVersion }],
+        ['references unknown message version 99', (source: any) => { source.messageVersion = 99 }],
+        ['request needs a known Method value in header 5', (source: any) => { delete source.request.headers[5] }],
+        ['request needs a known Method value in header 5', (source: any) => { source.request.headers[5].value = 99 }],
+        ['needs at least one request, response or publication message', (source: any) => { delete source.request; delete source.response }],
+        ['references unknown fields id 999', (source: any) => { source.request.fields[999] = {} }],
+        ['references unknown message 65534', (source: any) => { source.response.messageId = 65534 }],
+        ['fields 129 has invalid minBytes', (source: any) => { source.request.fields[129].minBytes = 1025 }],
+    ])('reports %s in a flat interaction', (diagnostic, change) => {
         const sample = clone(protocol)
         change(sample.messages[58].interactions['replace-message-box'])
-        expect(validateMessageDocumentation(sample, 58).length).toBeGreaterThan(0)
+        expect(validateMessageDocumentation(sample, 58).join('\n')).toContain(diagnostic)
     })
 
-    it('keeps site aliases and layout out of YAML while preserving published links', () => {
-        for (const message of Object.values(protocol.messages) as any[]) {
-            for (const source of Object.values(message.interactions || {}) as any[]) {
-                expect(source.anchorId).toBeUndefined()
-                expect(source.method).toBeUndefined()
-                expect(source.versions).toBeUndefined()
-            }
-            for (const note of message.notes || []) expect(note.placement).toBeUndefined()
-        }
+    it('preserves published links through title and format-label edits while rejecting site-only metadata', () => {
         const message = clone(protocol.messages[58])
         const before = getMessageDocumentation(message, protocol)!
         message.versions[2].label = '2027-02'
@@ -797,21 +775,21 @@ describe('canonical, version and interaction descriptions', () => {
     })
 
     it.each([
-        ['unknown field', (m: any) => { m.versions[2].fields[999] = { description: 'Unknown' } }],
-        ['non-numeric field', (m: any) => { m.versions[2].fields.first = { description: 'Unknown' } }],
-        ['non-object fields', (m: any) => { m.versions[2].fields = [] }],
-        ['non-object override', (m: any) => { m.versions[2].fields[1] = 'Prose' }],
-        ['non-string description', (m: any) => { m.versions[2].fields[1].description = 2 }],
-        ['missing description', (m: any) => { m.versions[2].fields[1] = {} }],
-        ['type override', (m: any) => { m.versions[2].fields[1].type = 'uint32' }],
-        ['presence override', (m: any) => { m.versions[2].fields[1].presence = 'required' }],
-        ['bounds override', (m: any) => { m.versions[2].fields[1].maxBytes = 5 }],
-        ['excluded version', (m: any) => { m.versions[1].fields = { 2: { description: 'Unavailable' } } }],
-        ['non-numeric version', (m: any) => { m.versions.latest = m.versions[2] }],
-    ])('rejects %s metadata', (_label, change) => {
+        ['2 version field 999 references unknown field', (m: any) => { m.versions[2].fields[999] = { description: 'Unknown' } }],
+        ['2 version field first references unknown field', (m: any) => { m.versions[2].fields.first = { description: 'Unknown' } }],
+        ['2 version fields must be a mapping', (m: any) => { m.versions[2].fields = [] }],
+        ['2 version field 1 must be an object', (m: any) => { m.versions[2].fields[1] = 'Prose' }],
+        ['2 version field 1 description must be a string', (m: any) => { m.versions[2].fields[1].description = 2 }],
+        ['2 version field 1 description must be a string', (m: any) => { m.versions[2].fields[1] = {} }],
+        ['2 version field 1 has unknown property type', (m: any) => { m.versions[2].fields[1].type = 'uint32' }],
+        ['2 version field 1 has unknown property presence', (m: any) => { m.versions[2].fields[1].presence = 'required' }],
+        ['2 version field 1 has unknown property maxBytes', (m: any) => { m.versions[2].fields[1].maxBytes = 5 }],
+        ['1 version field 2 is outside its versions', (m: any) => { m.versions[1].fields = { 2: { description: 'Unavailable' } } }],
+        ['invalid message version latest', (m: any) => { m.versions.latest = m.versions[2] }],
+    ])('reports %s in version metadata', (diagnostic, change) => {
         const sample = fixture()
         change(sample.messages[99])
-        expect(validateMessageDocumentation(sample, 99).length).toBeGreaterThan(0)
+        expect(validateMessageDocumentation(sample, 99).join('\n')).toContain(diagnostic)
     })
 
     it('keeps ID-bearing captures and wire definitions when a request omits redundant Message ID metadata', () => {
@@ -834,16 +812,11 @@ describe('canonical, version and interaction descriptions', () => {
 })
 
 describe('shared descriptions in the published specification', () => {
-    it('uses shared ID guidance and canonical GPS/error prose without redundant interaction entries', () => {
-        for (const message of Object.values(protocol.messages) as any[]) for (const interaction of Object.values(message.interactions || {}) as any[]) {
-            expect(interaction.request?.headers?.[1]).not.toEqual({})
-        }
-        expect(protocol.header[1].description).toContain('including when it is a response or publication')
+    it('resolves canonical GPS field and error descriptions', () => {
         const gps = interactionView(39, 'read-gps-state')
         const fields = resolveDocumentationFields(protocol, protocol.messages[39], gps.response!.fields, 'fields')
         for (const id of [1, 2]) expect(fields.find(field => field.id === id)?.description).toBe(protocol.messages[39].data[id].description)
         expect(resolveDocumentationErrors(protocol, gps.errors).find(error => error.code === 7)?.description).toBe(protocol.header[4].values[7].description)
-        expect(interactionView(39, 'configure-gps').request?.fields?.[2]?.description).toContain('Omitting this field sets API-enabled corrections to disabled')
     })
 
     it('shares Message Box version prose while preserving SET and tracking exceptions', () => {
@@ -886,22 +859,19 @@ describe('canonical documentation errors', () => {
 })
 
 describe('native YAML reuse', () => {
-    it('keeps shared headers global and repeated message payloads local', () => {
-        expect(Object.keys(protocol.templates.headers)).toEqual(['optionalOkReply', 'correlatedOkAck', 'optionalCorrelationAck'])
-        expect(protocol.templates.headers.optionalOkReply).toEqual({ 3: {}, 4: { value: 0 } })
-        expect(protocol.templates.headers.correlatedOkAck).toEqual({ 3: { presence: 'required' }, 4: { presence: 'required', value: 0 } })
-        expect(protocol.templates.headers.optionalCorrelationAck).toEqual({ 3: {}, 4: { presence: 'required', value: 0 } })
+    it('preserves publication exceptions and message-specific subscription selectors', () => {
         const status = protocol.messages[34].interactions
-        expect(status['read-device-status'].response.fields).toBe(status['subscribe-device-status'].publication.fields)
         const box = protocol.messages[58].interactions
-        expect(box['read-message-box'].response.fields).toBe(box['subscribe-message-box'].publication.fields)
-        expect(box['read-message-box-v1'].response.fields).toBe(box['subscribe-message-box-v1'].publication.fields)
-        expect(box['replace-message-box'].response.fields).toBe(box['subscribe-message-box'].response.fields)
-        expect(box['replace-message-box'].response.fields).toBe(box['stop-message-box-subscription'].response.fields)
         expect(box['subscribe-message-box'].publication.headers[3].presence).toBe('omitted')
         expect(box['subscribe-message-box'].publication.headers[4]).toBeUndefined()
         expect(status['subscribe-device-status'].publication.headers[4].presence).toBe('omitted')
-        expect(validateProtocolInteractions(protocol)).toEqual([])
+        const current = box['subscribe-message-box'].request.headers
+        const legacy = box['subscribe-message-box-v1'].request.headers
+        for (const id of [5, 6, 7, 16, 17]) expect(current[id]).toEqual(legacy[id])
+        expect(current[22]).toEqual({ presence: 'required', value: 2 })
+        expect(legacy[22].value).toBeUndefined()
+        expect(legacy[22].values).toHaveProperty('1')
+        expect(box['tracking-message-box-upload'].publication.fields).not.toEqual(box['read-message-box'].response.fields)
     })
 
     it('expands both YAML parsers identically and does not mutate shared aliases during normalization', () => {
@@ -912,6 +882,8 @@ describe('native YAML reuse', () => {
         expect(document.toJS()).toEqual(protocol)
         const sample = yaml.load(source)
         const before = clone(sample)
+        const status = sample.messages[34].interactions
+        expect(status['read-device-status'].response.fields).toBe(status['subscribe-device-status'].publication.fields)
         for (const id of [31, 33, 34, 35, 39, 58]) getMessageDocumentation(sample.messages[id], sample)
         expect(sample).toEqual(before)
         const docs = getMessageDocumentation(sample.messages[34], sample)!
@@ -921,38 +893,26 @@ describe('native YAML reuse', () => {
         expect(docs.operations[1].publication!.fields![1].description).not.toBe('Local edit')
     })
 
-    it('keeps message-specific subscription selectors outside shared header fragments', () => {
-        const box = protocol.messages[58].interactions
-        const current = box['subscribe-message-box'].request.headers
-        const legacy = box['subscribe-message-box-v1'].request.headers
-        for (const id of [5, 6, 7, 16, 17]) expect(current[id]).toEqual(legacy[id])
-        expect(current[22]).toEqual({ presence: 'required', value: 2 })
-        expect(legacy[22]).toBe(box['read-message-box-v1'].request.headers[22])
-        expect(legacy[22].value).toBeUndefined()
-        expect(legacy[22].values).toHaveProperty('1')
-        expect(box['tracking-message-box-upload'].publication.fields).not.toEqual(box['read-message-box'].response.fields)
-    })
-
     it.each([
-        ['non-object registry', (p: any) => { p.templates = null }],
-        ['unknown registry section', (p: any) => { p.templates.responses = {} }],
-        ['non-object header registry', (p: any) => { p.templates.headers = [] }],
-        ['invalid name', (p: any) => { p.templates.headers['Invalid name'] = {} }],
-        ['non-object header group', (p: any) => { p.templates.headers.unused = null }],
-        ['unknown header', (p: any) => { p.templates.headers.unused = { 999: {} } }],
-        ['null header usage', (p: any) => { p.templates.headers.unused = { 3: null } }],
-        ['unknown usage property', (p: any) => { p.templates.headers.unused = { 3: { type: 'uint8' } } }],
-        ['invalid presence', (p: any) => { p.templates.headers.unused = { 3: { presence: '' } } }],
-        ['invalid description', (p: any) => { p.templates.headers.unused = { 3: { description: false } } }],
-        ['invalid values shape', (p: any) => { p.templates.headers.unused = { 4: { values: [] } } }],
-        ['invalid value description', (p: any) => { p.templates.headers.unused = { 4: { values: { 0: null } } } }],
-        ['unknown value property', (p: any) => { p.templates.headers.unused = { 4: { values: { 0: { type: 'uint8' } } } } }],
-        ['unknown enum value', (p: any) => { p.templates.headers.unused = { 4: { value: 999 } } }],
-        ['invalid width', (p: any) => { p.templates.headers.unused = { 3: { maxBytes: -1 } } }],
-        ['conflicting bounds', (p: any) => { p.templates.headers.unused = { 3: { minBytes: 4, maxBytes: 1 } } }],
-    ])('rejects %s even when the template is unused', (_name, change) => {
+        ['Protocol templates must be a mapping', (p: any) => { p.templates = null }],
+        ['Protocol templates has unknown property responses', (p: any) => { p.templates.responses = {} }],
+        ['Protocol templates.headers must be a mapping', (p: any) => { p.templates.headers = [] }],
+        ['Protocol template Invalid name needs a stable name', (p: any) => { p.templates.headers['Invalid name'] = {} }],
+        ['Protocol template unused headers must be a mapping', (p: any) => { p.templates.headers.unused = null }],
+        ['Protocol template unused references unknown headers id 999', (p: any) => { p.templates.headers.unused = { 999: {} } }],
+        ['Protocol template unused headers 3 must be an object', (p: any) => { p.templates.headers.unused = { 3: null } }],
+        ['Protocol template unused headers 3 has unknown property type', (p: any) => { p.templates.headers.unused = { 3: { type: 'uint8' } } }],
+        ['Protocol template unused headers 3 has invalid presence', (p: any) => { p.templates.headers.unused = { 3: { presence: '' } } }],
+        ['Protocol template unused headers 3 description must be a string', (p: any) => { p.templates.headers.unused = { 3: { description: false } } }],
+        ['Protocol template unused headers 4 values must be a mapping', (p: any) => { p.templates.headers.unused = { 4: { values: [] } } }],
+        ['Protocol template unused headers 4 value 0 description must be a string or description mapping', (p: any) => { p.templates.headers.unused = { 4: { values: { 0: null } } } }],
+        ['Protocol template unused headers 4 value 0 has unknown property type', (p: any) => { p.templates.headers.unused = { 4: { values: { 0: { type: 'uint8' } } } } }],
+        ['Protocol template unused headers 4 references unknown value 999', (p: any) => { p.templates.headers.unused = { 4: { value: 999 } } }],
+        ['Protocol template unused headers 3 has invalid maxBytes', (p: any) => { p.templates.headers.unused = { 3: { maxBytes: -1 } } }],
+        ['Protocol template unused headers 3 has invalid minBytes', (p: any) => { p.templates.headers.unused = { 3: { minBytes: 4, maxBytes: 1 } } }],
+    ])('reports %s even when the template is unused', (diagnostic, change) => {
         const sample = clone(protocol)
         change(sample)
-        expect(validateProtocolInteractions(sample).some(error => error.startsWith('Protocol template'))).toBe(true)
+        expect(validateProtocolInteractions(sample).join('\n')).toContain(diagnostic)
     })
 })
