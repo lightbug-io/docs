@@ -1,7 +1,6 @@
 import { describe, expect, it } from '@jest/globals'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { resolveProtocolInteraction, validateProtocolInteractions } from './ProtocolInteractions'
 import { calculateCRC16XMODEM, parseRawMessage, readTypedData } from '../src/protocol/base.gen'
 // The repository's YAML dependency is intentionally untyped.
 const yaml = require('js-yaml')
@@ -17,12 +16,14 @@ import {
     documentationTargetOverride,
     resolveDocumentationFields,
     validateMessageDocumentation,
+    validateProtocolInteractions,
     type DocumentationOperation,
 } from './MessageDocumentation'
 
 const protocol: any = yaml.load(readFileSync(resolve(__dirname, '../public/files/protocol-v3.yaml'), 'utf8'))
 const clone = (value: any) => JSON.parse(JSON.stringify(value))
-const authoredInteraction = (message: any, selector: string): any => Object.values(message.interactions).find((interaction: any) => interaction.method === selector || interaction.anchorId === selector)
+const authoredInteraction = (message: any, method: string): any => Object.values(message.interactions).find((interaction: any) => protocol.header[5].values[interaction.request?.headers?.[5]?.value]?.name === method)
+const interactionView = (messageId: number, id: string) => getMessageDocumentation(protocol.messages[messageId], protocol)!.operations.find(operation => operation.id === id)!
 
 describe('Cell Info signal strength terminology', () => {
     it('names raw CSQ as signal strength while preserving the field identity and type', () => {
@@ -61,13 +62,13 @@ describe('paired exchange stages', () => {
         for (const id of [39, 58]) {
             const message = protocol.messages[id]
             expect(message.examples).toBeUndefined()
-            const docs = getMessageDocumentation(message)!
+            const docs = getMessageDocumentation(message, protocol)!
             for (const operation of docs.operations) for (const variant of operation.variants || [operation]) {
                 expect(getOperationVariant(operation, variant.id).examples).toBeUndefined()
             }
             expect(validateMessageDocumentation(protocol, id)).toEqual([])
         }
-        expect(getMessageDocumentation(protocol.messages[5])).toBeUndefined()
+        expect(getMessageDocumentation(protocol.messages[5], protocol)).toBeUndefined()
         expect(protocol.messages[5].examples.some((example: any) => example.bytes && example.real)).toBe(true)
     })
 })
@@ -101,7 +102,7 @@ describe('shared response conventions', () => {
         expect(commonResponseHeaderIds({ headers: { '3': { presence: 'optional', description: 'A message-specific correlation rule.' }, '4': { presence: 'required', value: 0, maxBytes: 1 } } })).toEqual([])
     })
     it('keeps MT58 version/payload rules and explicit publication correlation distinct', () => {
-        const message = getMessageDocumentation(protocol.messages[58])!
+        const message = getMessageDocumentation(protocol.messages[58], protocol)!
         const get = getOperationVariant(message.operations.find(operation => operation.method === 'GET')!, '2')
         const subscribe = getOperationVariant(message.operations.find(operation => operation.method === 'SUBSCRIBE')!, '2')
         expect(commonResponseHeaderIds(get.response!)).toEqual(['3', '4'])
@@ -120,9 +121,9 @@ describe('shared response conventions', () => {
 describe('optional message documentation', () => {
     it('leaves legacy messages on their existing renderer', () => {
         const legacy = { description: 'Existing prose', methods: { GET: null }, data: {} }
-        expect(getMessageDocumentation(legacy)).toBeUndefined()
+        expect(getMessageDocumentation(legacy, protocol)).toBeUndefined()
         expect(validateMessageDocumentation({ messages: { 15: legacy } }, 15)).toEqual([])
-        expect(getMessageDocumentation(protocol.messages[15])).toBeUndefined()
+        expect(getMessageDocumentation(protocol.messages[15], protocol)).toBeUndefined()
     })
 
     it('inherits operation contexts and selects variants without mutating either', () => {
@@ -167,7 +168,7 @@ describe('optional message documentation', () => {
         const message = sample.messages[39]
         delete message.interactions
         message.methods.GET = { exchange: { request: { headers: { 5: { value: 2 } } } } }
-        message.notes = [{ id: 'detail', title: 'Detail', description: 'Text', placement: 'unknown' }]
+        message.notes = [{ id: 'detail', title: 'Detail', description: 'Text' }]
         message.methods.UNSUPPORTED = { exchange: {
             request: { headers: { 5: { value: 99 }, 250: {} }, fields: { 99: {} } },
             response: { messageId: 9999 },
@@ -180,7 +181,6 @@ describe('optional message documentation', () => {
         expect(errors).toContain('unknown headers id 250')
         expect(errors).toContain('unknown fields id 99')
         expect(errors).toContain('unknown message 9999')
-        expect(errors).toContain('invalid note placement')
     })
 
     it('puts required fields first while preserving order within each group', () => {
@@ -194,35 +194,27 @@ describe('optional message documentation', () => {
         const before = clone(usage)
         expect(resolveDocumentationFields(protocol, protocol.messages[58], usage, 'headers').map(field => field.id)).toEqual([4, 5, 1, 17, 22])
         expect(usage).toEqual(before)
-        const set = getMessageDocumentation(protocol.messages[58])!.operations.find((operation: DocumentationOperation) => operation.method === 'SET')
+        const set = getMessageDocumentation(protocol.messages[58], protocol)!.operations.find((operation: DocumentationOperation) => operation.method === 'SET')
         expect(resolveDocumentationFields(protocol, protocol.messages[58], set!.request!.headers, 'headers').map(field => field.id)).toEqual([5, 22, 1])
         expect(resolveDocumentationFields(protocol, protocol.messages[58], set!.request!.fields, 'fields')[0].id).toBe(129)
     })
 
-    it('accepts optional reference-note placement while retaining the overview default', () => {
-        const sample = clone(protocol)
-        sample.messages[39].notes = [
-            { id: 'purpose', title: 'Purpose', description: 'Overview text' },
-            { id: 'detail', title: 'Details', description: 'Reference text', placement: 'reference' },
-        ]
-        expect(validateMessageDocumentation(sample, 39)).toEqual([])
-    })
-
     it('groups dated formats by their wire selector without classifying shared controls as current', () => {
-        const docs = getMessageDocumentation(protocol.messages[58])!
+        const docs = getMessageDocumentation(protocol.messages[58], protocol)!
         expect(docs.formats?.map(format => [format.label, format.messageVersion, !!format.legacy])).toEqual([
             ['2026-10', 2, false], ['2025-10', 1, true],
         ])
-        for (const id of ['get', 'set', 'subscribe', 'tracking-session']) {
-            const operation = docs.operations.find(item => (item.anchorId || item.id) === id)!
+        for (const id of ['read-message-box', 'replace-message-box', 'subscribe-message-box', 'tracking-message-box-upload']) {
+            const operation = docs.operations.find(item => item.id === id)!
             expect(getDocumentationFormat(docs, getOperationVariant(operation))?.id).toBe('2')
         }
         for (const method of ['GET', 'SUBSCRIBE']) {
-            const operation = docs.operations.find(item => item.method === method)!
-            expect(getDocumentationFormat(docs, getOperationVariant(operation, 'v1'))?.id).toBe('1')
+            const operation = docs.operations.find(item => item.method === method && item.messageVersion === 1)!
+            expect(getDocumentationFormat(docs, operation)?.id).toBe('1')
+            expect(operation.legacy).toBe(true)
         }
         expect(getDocumentationFormat(docs, docs.operations.find(item => item.method === 'UNSUBSCRIBE')!)).toBeUndefined()
-        expect(getMessageDocumentation(protocol.messages[39])!.formats).toBeUndefined()
+        expect(getMessageDocumentation(protocol.messages[39], protocol)!.formats).toBeUndefined()
         const syncParagraphs = docs.notes!.find(note => note.id === 'sync-lifecycle')!.description.trim().split('\n\n')
         expect(syncParagraphs).toHaveLength(3)
         expect(syncParagraphs.every(paragraph => !paragraph.includes('\n'))).toBe(true)
@@ -242,7 +234,7 @@ describe('optional message documentation', () => {
     it('suppresses inherited targets but retains explicit overrides', () => {
         expect(documentationTargetOverride(undefined, 'Viper devices only')).toBeUndefined()
         expect(documentationTargetOverride(' Viper  devices ONLY ', 'Viper devices only')).toBeUndefined()
-        const docs = getMessageDocumentation(protocol.messages[58])!
+        const docs = getMessageDocumentation(protocol.messages[58], protocol)!
         const upload = docs.operations.find(item => (item.anchorId || item.id) === 'tracking-session')!
         expect(documentationTargetOverride(upload.target, docs.target)).toBe(upload.target)
         expect(documentationTargetOverride('Different target', upload.target)).toBe('Different target')
@@ -250,47 +242,36 @@ describe('optional message documentation', () => {
 
     it('accepts a response payload scoped to its actual ACK message', () => {
         const sample = clone(protocol)
-        authoredInteraction(sample.messages[39], 'SET').versions[1].response = { messageId: 5, fields: { 1: { value: 39 } } }
+        authoredInteraction(sample.messages[39], 'SET').response = { messageId: 5, fields: { 1: { value: 39 } } }
         expect(validateMessageDocumentation(sample, 39)).toEqual([])
     })
 
     it('validates references for each migrated message', () => {
-        expect(Object.entries(protocol.messages).filter(([, value]: [string, any]) => getMessageDocumentation(value)).map(([id]) => Number(id))).toEqual([31, 33, 34, 35, 39, 58])
+        expect(Object.entries(protocol.messages).filter(([, value]: [string, any]) => getMessageDocumentation(value, protocol)).map(([id]) => Number(id))).toEqual([31, 33, 34, 35, 39, 58])
         for (const id of [31, 33, 34, 35, 39, 58]) expect(validateMessageDocumentation(protocol, id)).toEqual([])
     })
 
     it('summarizes every message field within its applicable version', () => {
         for (const id of [31, 33, 34, 35, 39, 58]) {
-            const docs = getMessageDocumentation(protocol.messages[id])!
+            const docs = getMessageDocumentation(protocol.messages[id], protocol)!
             const groups = docs.formats?.map(format => format.fields || {}) || [docs.fields || {}]
             expect(groups.flatMap(fields => Object.keys(fields)).sort()).toEqual(Object.keys(protocol.messages[id].data).sort())
         }
-        const formats = getMessageDocumentation(protocol.messages[58])!.formats!
+        const formats = getMessageDocumentation(protocol.messages[58], protocol)!.formats!
         expect(Object.keys(formats.find(format => format.id === '2')!.fields!)).toEqual(['2', '129'])
         expect(Object.keys(formats.find(format => format.id === '1')!.fields!)).toEqual(['1', '10', '11', '12', '13', '14'])
     })
 
-    it('makes Message Box v2 primary while retaining explicit legacy v1 variants', () => {
-        const docs = getMessageDocumentation(protocol.messages[58])!
-        for (const method of ['GET', 'SUBSCRIBE']) {
-            const operation = docs.operations.find(item => item.method === method)!
-            expect(getOperationVariant(operation).messageVersion).toBe(2)
-            expect(getOperationVariant(operation).legacy).not.toBe(true)
-            const legacy = operation.variants!.filter(variant => variant.legacy)
-            expect(legacy).toHaveLength(1)
-            expect(legacy[0].messageVersion).toBe(1)
-        }
-    })
 })
 
-describe('inline numeric-version authoring', () => {
+describe('wire-version authoring', () => {
     it('normalizes numeric keys in newest-first order without changing the source', () => {
         const before = clone(protocol)
         const message = protocol.messages[58]
         expect(Object.keys(message.versions)).toEqual(['1', '2'])
         expect(message.data[129].versions).toEqual([2])
         expect(message.data[1].versions).toEqual([1])
-        const docs = getMessageDocumentation(message)!
+        const docs = getMessageDocumentation(message, protocol)!
         expect(docs.formats!.map(format => format.id)).toEqual(['2', '1'])
         expect(docs.formats!.map(format => format.label)).toEqual(['2026-10', '2025-10'])
         expect(docs.formats![1].anchorId).toBe('legacy')
@@ -320,8 +301,8 @@ describe('inline numeric-version authoring', () => {
         const sample = clone(protocol)
         const message = sample.messages[58]
         message.data[129].versions = [9]
-        authoredInteraction(message, 'SET').versions[9] = { ...authoredInteraction(message, 'SET').versions[1], messageVersion: 9 }
-        authoredInteraction(message, 'GET').versions[2].response.headers[22].value = 1
+        authoredInteraction(message, 'SET').messageVersion = 9
+        authoredInteraction(message, 'GET').response.headers[22].value = 1
         const errors = validateMessageDocumentation(sample, 58).join('\n')
         expect(errors).toContain('field 129 references unknown version 9')
         expect(errors).toContain('references unknown message version 9')
@@ -333,8 +314,8 @@ describe('inline numeric-version authoring', () => {
 
     it('rejects malformed inline contexts before normalization can conceal them', () => {
         for (const update of [
-            (message: any) => { authoredInteraction(message, 'SET').versions[1].request.fields[2] = null },
-            (message: any) => { authoredInteraction(message, 'SET').versions[1].request = 'broken' },
+            (message: any) => { authoredInteraction(message, 'SET').request.fields[2] = null },
+            (message: any) => { authoredInteraction(message, 'SET').request = 'broken' },
             (message: any) => { message.contexts = [] },
             (message: any) => { message.contexts = { tracking: null } },
         ]) {
@@ -343,47 +324,32 @@ describe('inline numeric-version authoring', () => {
             expect(validateMessageDocumentation(sample, 39).length).toBeGreaterThan(0)
         }
         const sample = clone(protocol)
-        authoredInteraction(sample.messages[58], 'GET').versions[2].response.fields[2] = null
+        authoredInteraction(sample.messages[58], 'GET').response.fields[2] = null
         expect(validateMessageDocumentation(sample, 58).join('\n')).toContain('fields 2 must be an object')
-    })
-
-    it('keeps version identity and deep links stable when a display label changes', () => {
-        const sample = clone(protocol)
-        const message = sample.messages[58]
-        message.versions[2].label = '2027-02'
-        const docs = getMessageDocumentation(message)!
-        const get = docs.operations.find(operation => (operation.anchorId || operation.id) === 'get')!
-        expect(get.variants!.map(variant => variant.id)).toEqual(['2', '1'])
-        expect(getOperationVariant(get).format).toBe('2')
-        expect(getOperationVariant(get, 'v2').format).toBe('2')
-        expect(getOperationVariant(get, 'v1').format).toBe('1')
-        expect(docs.formats![0]).toMatchObject({ id: '2', label: '2027-02', messageVersion: 2, anchorId: 'current' })
-        expect(validateMessageDocumentation(sample, 58)).toEqual([])
     })
 
     it('inherits existing method field descriptions before base descriptions', () => {
         const message = clone(protocol.messages[39])
-        delete authoredInteraction(message, 'SET').versions[1].request.fields[2].description
-        const docs = getMessageDocumentation(message)!
+        delete authoredInteraction(message, 'SET').request.fields[2].description
+        const docs = getMessageDocumentation(message, protocol)!
         const set = docs.operations.find(operation => operation.method === 'SET')!
         expect(set.request!.fields![2].description).toBe(message.methods.SET.request[2].description)
-        expect(authoredInteraction(message, 'SET').versions[1].request.fields[2].description).toBeUndefined()
+        expect(authoredInteraction(message, 'SET').request.fields[2].description).toBeUndefined()
     })
 
     it('keeps ignored checksums out of SET inputs without deleting the compatibility rule', () => {
-        const set = authoredInteraction(protocol.messages[58], 'SET').versions[1]
+        const set = authoredInteraction(protocol.messages[58], 'SET')
         expect(Object.keys(set!.request!.fields)).toEqual(['129'])
         expect(set.request.description).toContain('checksum fields 1 and 2 are ignored')
         expect(set!.request!.fields[129]).toMatchObject({ presence: 'required', maxBytes: 1024 })
-        const get = authoredInteraction(protocol.messages[58], 'GET').versions[2]
+        const get = authoredInteraction(protocol.messages[58], 'GET')
         expect(get.response.fields[2].presence).toBe('required')
     })
 })
 
-
 describe('Device Status reference', () => {
     const message = protocol.messages[34]
-    const docs = getMessageDocumentation(message)!
+    const docs = getMessageDocumentation(message, protocol)!
     it('documents optional fields 12–14 in GET responses and later publications', () => {
         const message = protocol.messages[34];
         expect(message.data[12]).toMatchObject({ id: 'batteryResistance', type: 'uint16', unit: 'mOhm' });
@@ -392,8 +358,8 @@ describe('Device Status reference', () => {
         const fields = resolveDocumentationFields(protocol, message, docs.fields, 'fields');
         expect(fields.find(field => field.id === 13)?.sentinels).toEqual(message.data[13].sentinels);
         expect(message.data[14]).toMatchObject({ id: 'batteryChargeAh', type: 'float32', unit: 'Ah' });
-        for (const context of [message.methods.GET.exchange.response, message.methods.SUBSCRIBE.exchange.publication]) {
-            for (const id of [12, 13, 14]) expect(context.fields[id]).toEqual({ presence: 'optional' });
+        for (const context of [docs.operations[0].response!, docs.operations[1].publication!]) {
+            for (const id of [12, 13, 14]) expect(context.fields![id]).toMatchObject({ presence: 'optional' });
         }
         expect(validateMessageDocumentation(protocol, 34)).toEqual([]);
     });
@@ -484,7 +450,7 @@ describe('Device Status reference', () => {
 
 describe('Device IDs reference', () => {
     const message = protocol.messages[35]
-    const docs = getMessageDocumentation(message)!
+    const docs = getMessageDocumentation(message, protocol)!
     const get = docs.operations[0]
 
     it('keeps GET unversioned and preserves every wire field, including uncaptured identifiers', () => {
@@ -544,16 +510,21 @@ describe('canonical inline interactions', () => {
         const before = clone(protocol)
         for (const id of [31, 33, 34, 35, 39, 58]) {
             const message = protocol.messages[id]
-            expect(getDocumentationMethods(message).slice().sort()).toEqual(Object.keys(message.methods).sort())
-            expect(getMessageDocumentation(message)!.methods).toEqual(getDocumentationMethods(message))
+            expect(getDocumentationMethods(message, protocol).slice().sort()).toEqual(Object.keys(message.methods).sort())
+            expect(getMessageDocumentation(message, protocol)!.methods).toEqual(getDocumentationMethods(message, protocol))
         }
-        expect(getDocumentationMethods(protocol.messages[31])).toEqual(['GET', 'SET'])
-        const publication = { interactions: { upload: { versions: { 1: { publication: {} } } } } }
-        expect(getDocumentationMethods(publication)).toEqual([])
-        expect(getDocumentationMethods({ methods: { GET: null, SET: null } })).toEqual(['GET', 'SET'])
+        expect(getDocumentationMethods(protocol.messages[31], protocol)).toEqual(['GET', 'SET'])
+        const publication = { interactions: { upload: { publication: {} } } }
+        expect(getDocumentationMethods(publication, protocol)).toEqual([])
+        expect(getDocumentationMethods({ methods: { GET: null, SET: null } }, protocol)).toEqual(['GET', 'SET'])
         const changed = clone(protocol.messages[31])
         changed.methods = { SUBSCRIBE: null }
-        expect(getDocumentationMethods(changed)).toEqual(['GET', 'SET'])
+        expect(getDocumentationMethods(changed, protocol)).toEqual(['GET', 'SET'])
+        const renamedEnum = clone(protocol)
+        renamedEnum.header[5].values[2].name = 'READ'
+        expect(getDocumentationMethods(changed, renamedEnum)).toEqual(['READ', 'SET'])
+        expect(interactionView(58, 'tracking-message-box-upload').method).toBeUndefined()
+        expect(interactionView(34, 'read-device-status').messageVersion).toBeUndefined()
         expect(protocol).toEqual(before)
     })
 
@@ -565,31 +536,16 @@ describe('canonical inline interactions', () => {
         extra.messages[33].methods.SUBSCRIBE = null
         expect(validateProtocolInteractions(extra).join('\n')).toContain('SDK method SUBSCRIBE has no interaction')
         const publication = { ...clone(protocol), messages: { 31: {
-            description: 'Publication only', data: {}, interactions: { upload: { versions: { 1: { publication: {} } } } },
+            description: 'Publication only', data: {}, interactions: { upload: { publication: {} } },
         } } }
         expect(validateProtocolInteractions(publication)).toEqual([])
         expect(validateProtocolInteractions(protocol)).toEqual([])
     })
 
-    it('keeps interaction keys and public anchors stable when display titles change', () => {
-        for (const id of [31, 33, 34, 35, 39, 58]) {
-            const original = getMessageDocumentation(protocol.messages[id])!
-            const sample = clone(protocol.messages[id])
-            for (const interaction of Object.values(sample.interactions) as any[]) interaction.title = 'Revised display title'
-            const changed = getMessageDocumentation(sample)!
-            const identities = (docs: typeof original) => docs.operations.map(operation => ({
-                id: operation.id, anchorId: operation.anchorId,
-                revisions: operation.variants?.map(variant => [variant.id, variant.anchorId]),
-            }))
-            expect(identities(changed)).toEqual(identities(original))
-            expect(changed.operations.every(operation => operation.title === 'Revised display title')).toBe(true)
-        }
-    })
-
     it('relies on uint8 for Message Version width while retaining variable payload limits and legacy selectors', () => {
         expect(protocol.header[22].type).toBe('uint8')
         for (const id of [31, 33, 34, 35, 39, 58]) {
-            const docs = getMessageDocumentation(protocol.messages[id])!
+            const docs = getMessageDocumentation(protocol.messages[id], protocol)!
             for (const operation of docs.operations) for (const variant of operation.variants || [operation]) {
                 const view = getOperationVariant(operation, variant.id)
                 for (const role of ['request', 'response', 'publication'] as const) {
@@ -597,12 +553,12 @@ describe('canonical inline interactions', () => {
                 }
             }
         }
-        const legacy = resolveProtocolInteraction(protocol, 58, 'read-message-box', 1)
+        const legacy = interactionView(58, 'read-message-box-v1')
         expect(legacy.request?.headers?.[22]?.description).toContain('Omitted, explicitly 0, or malformed-width')
         expect(legacy.response?.headers?.[22]?.presence).toBe('omitted')
         expect(legacy.response?.fields?.[10]?.maxBytes).toBe(255)
-        expect(resolveProtocolInteraction(protocol, 58, 'replace-message-box', 1).request?.fields?.[129]?.maxBytes).toBe(1024)
-        expect(resolveProtocolInteraction(protocol, 33, 'select-sim2', 1).request?.fields?.[2]?.minBytes).toBe(1)
+        expect(interactionView(58, 'replace-message-box').request?.fields?.[129]?.maxBytes).toBe(1024)
+        expect(interactionView(33, 'select-sim2').request?.fields?.[2]?.minBytes).toBe(1)
     })
 
     it('validates both published authoring examples against the existing wire definitions', () => {
@@ -611,12 +567,12 @@ describe('canonical inline interactions', () => {
         expect(examples).toHaveLength(2)
         for (const example of examples) {
             const sample = clone(protocol)
-            const methods = Object.fromEntries(getDocumentationMethods(example).map(method => [method, null]))
+            const methods = Object.fromEntries(getDocumentationMethods(example, protocol).map(method => [method, null]))
             sample.messages[58] = { ...sample.messages[58], ...example, methods }
             expect(validateMessageDocumentation(sample, 58)).toEqual([])
             for (const source of Object.values(example.interactions) as any[]) {
-                expect(Object.keys(source.versions)).toEqual(['1'])
-                expect(source.versions[1].messageVersion).toBe(2)
+                expect(source.versions).toBeUndefined()
+                expect(source.messageVersion).toBe(2)
             }
         }
     })
@@ -626,7 +582,7 @@ describe('canonical inline interactions', () => {
             [31, ['control-flight-mode', 'start-search']],
             [33, ['select-sim1', 'select-sim2']],
         ] as const) for (const name of names) {
-            const response = resolveProtocolInteraction(protocol, id, name, 1).response!
+            const response = interactionView(id, name).response!
             expect(response.messageId).toBe(5)
             expect(response.fields?.[1]?.value).toBe(id)
         }
@@ -645,18 +601,12 @@ describe('canonical inline interactions', () => {
         expect(validateProtocolInteractions(protocol)).toEqual([])
         for (const messageId of [31, 33, 34, 35, 39, 58]) {
             const message = protocol.messages[messageId]
-            const docs = getMessageDocumentation(message)!
+            const docs = getMessageDocumentation(message, protocol)!
             expect(docs.operations.map(operation => operation.id)).toEqual(Object.keys(message.interactions))
             expect(message.contexts).toBeUndefined()
             for (const method of Object.values(message.methods) as any[]) {
                 expect(method?.exchange).toBeUndefined()
                 expect(method?.versions).toBeUndefined()
-            }
-            for (const [id, source] of Object.entries(message.interactions) as [string, any][]) {
-                for (const revision of Object.keys(source.versions).map(Number)) {
-                    const interaction = resolveProtocolInteraction(protocol, messageId, id, revision)
-                    expect(interaction).toMatchObject({ interactionId: id, interactionVersion: revision, messageId, operationId: id })
-                }
             }
         }
         expect(protocol).toEqual(before)
@@ -665,36 +615,6 @@ describe('canonical inline interactions', () => {
         expect(validateMessageDocumentation(duplicate, 39).join('\n')).toContain('must not also be authored in methods or contexts')
     })
 
-    it('keeps interaction revisions independent from wire formats, including revisions above 255', () => {
-        const sample = clone(protocol)
-        const source = sample.messages[58].interactions['replace-message-box']
-        source.versions[700] = source.versions[1]
-        delete source.versions[1]
-        const resolved = resolveProtocolInteraction(sample, 58, 'replace-message-box', 700)
-        expect(resolved).toMatchObject({ id: 'replace-message-box', interactionVersion: 700, messageVersion: 2, format: '2', anchorId: 'set' })
-        expect(resolved.request?.headers?.[22].value).toBe(2)
-        expect(resolved.response?.messageId).toBe(5)
-        expect(resolved.response?.fields?.[1].value).toBe(58)
-        const upload = resolveProtocolInteraction(protocol, 58, 'tracking-message-box-upload', 1)
-        expect(upload.publication).toBeDefined()
-        expect(upload.request).toBeUndefined()
-        expect(upload.method).toBeUndefined()
-        expect(resolveProtocolInteraction(protocol, 58, 'stop-message-box-subscription', 1).messageVersion).toBeUndefined()
-    })
-
-    it('supports applicability revisions of one wire format with distinct revision anchors', () => {
-        const sample = clone(protocol)
-        const source = sample.messages[58].interactions['replace-message-box']
-        delete source.versions[1].anchorId
-        source.versions[2] = { ...clone(source.versions[1]), target: 'A different caller profile' }
-        expect(validateMessageDocumentation(sample, 58)).toEqual([])
-        const operation = getMessageDocumentation(sample.messages[58])!.operations.find(item => item.id === 'replace-message-box')!
-        expect(operation.variants!.map(variant => [variant.id, variant.anchorId, variant.messageVersion])).toEqual([
-            ['2', 'r2', 2], ['1', 'r1', 2],
-        ])
-        expect(resolveProtocolInteraction(sample, 58, 'replace-message-box', 2).target).toBe('A different caller profile')
-        expect(resolveProtocolInteraction(sample, 58, 'replace-message-box', 1).target).toBe(sample.messages[58].target)
-    })
 
     it('keeps old method and context documentation readable when no inline interactions exist', () => {
         const legacy = {
@@ -702,7 +622,7 @@ describe('canonical inline interactions', () => {
                 GET: { title: 'Read', exchange: { request: { headers: { 5: { value: 2 } } }, response: { fields: {} } } },
             }, contexts: { upload: { exchange: { publication: { fields: {} } } } },
         }
-        const docs = getMessageDocumentation(legacy)!
+        const docs = getMessageDocumentation(legacy, protocol)!
         expect(docs.operations.map(operation => operation.id)).toEqual(['get', 'upload'])
         expect(docs.operations[0].method).toBe('GET')
         expect(docs.operations[1].publication).toBeDefined()
@@ -714,13 +634,13 @@ describe('canonical inline interactions', () => {
         const sim = protocol.messages[33]
         expect(gsm.methods).toEqual({ GET: null, SET: null })
         expect(sim.methods).toEqual({ GET: null, SET: null })
-        const flight = resolveProtocolInteraction(protocol, 31, 'control-flight-mode', 1)
-        const search = resolveProtocolInteraction(protocol, 31, 'start-search', 1)
+        const flight = interactionView(31, 'control-flight-mode')
+        const search = interactionView(31, 'start-search')
         expect(Object.keys(flight.request!.fields!)).toEqual(['1', '2'])
         expect(flight.request?.description).toContain('Omit Start Search (field 5)')
         expect(search.request?.fields?.[5].presence).toBe('required')
-        const sim1 = resolveProtocolInteraction(protocol, 33, 'select-sim1', 1)
-        const sim2 = resolveProtocolInteraction(protocol, 33, 'select-sim2', 1)
+        const sim1 = interactionView(33, 'select-sim1')
+        const sim2 = interactionView(33, 'select-sim2')
         expect(sim1.request?.fields?.[1].value).toBe(0)
         expect(sim2.request?.fields?.[1].value).toBe(1)
         expect(sim2.request?.fields?.[2]).toMatchObject({ presence: 'required', minBytes: 1 })
@@ -730,15 +650,15 @@ describe('canonical inline interactions', () => {
     })
 
     it('lists expected GSM and SIM inputs while retaining ignored-input behavior in prose', () => {
-        const flight = resolveProtocolInteraction(protocol, 31, 'control-flight-mode', 1)
-        const search = resolveProtocolInteraction(protocol, 31, 'start-search', 1)
+        const flight = interactionView(31, 'control-flight-mode')
+        const search = interactionView(31, 'start-search')
         expect(flight.request?.description).toContain('fields 3 and 4) are ignored by SET')
         expect(Object.keys(search.request!.headers!)).toEqual(['1', '5'])
         expect(Object.keys(search.request!.fields!)).toEqual(['5'])
         expect(search.request?.description).toContain('even when its value is 0')
         expect(search.request?.description).toContain('Fields 1 to 4 and header Duration (7) are ignored')
-        const sim1 = resolveProtocolInteraction(protocol, 33, 'select-sim1', 1)
-        const sim2 = resolveProtocolInteraction(protocol, 33, 'select-sim2', 1)
+        const sim1 = interactionView(33, 'select-sim1')
+        const sim2 = interactionView(33, 'select-sim2')
         expect(Object.keys(sim1.request!.fields!)).toEqual(['1'])
         expect(sim1.request?.description).toContain('SIM2 APN and credentials are ignored')
         expect(Object.keys(sim2.request!.fields!)).toEqual(['1', '2', '3', '4'])
@@ -748,14 +668,14 @@ describe('canonical inline interactions', () => {
     })
 
     it('keeps GPS rejection and Message Box format exceptions without advertising them as inputs', () => {
-        const get = resolveProtocolInteraction(protocol, 39, 'read-gps-state', 1)
-        const set = resolveProtocolInteraction(protocol, 39, 'configure-gps', 1)
+        const get = interactionView(39, 'read-gps-state')
+        const set = interactionView(39, 'configure-gps')
         expect(get.request?.fields).toBeUndefined()
         expect(get.description).toContain('No payload fields are needed')
         expect(Object.keys(set.request!.fields!)).toEqual(['2', '3'])
         expect(set.request?.description).toContain('field 1) in SET is rejected with Invalid Parameter (4)')
         expect(set.request?.fields?.[2].description).toContain('sets API-enabled corrections to disabled')
-        const stop = resolveProtocolInteraction(protocol, 58, 'stop-message-box-subscription', 1)
+        const stop = interactionView(58, 'stop-message-box-subscription')
         expect(Object.keys(stop.request!.headers!)).toEqual(['1', '5', '17'])
         expect(stop.description).toContain('Message Version (header 22) is ignored')
         expect(stop.description).toContain('does not select or reset the publication format')
@@ -764,25 +684,47 @@ describe('canonical inline interactions', () => {
     })
 
     it.each([
-        ['unknown property', (source: any) => { source.context = 'old-alias' }],
-        ['empty method', (source: any) => { source.method = '' }],
+        ['authored method', (source: any) => { source.method = 'SET' }],
+        ['site anchor', (source: any) => { source.anchorId = 'set' }],
+        ['nested revisions', (source: any) => { source.versions = { 1: {} } }],
         ['invalid title', (source: any) => { source.title = 4 }],
-        ['empty revisions', (source: any) => { source.versions = {} }],
-        ['zero revision', (source: any) => { source.versions = { 0: source.versions[1] } }],
-        ['unsafe revision', (source: any) => { source.versions = { '9007199254740992': source.versions[1] } }],
-        ['missing wire selector', (source: any) => { delete source.versions[1].messageVersion }],
-        ['unknown wire selector', (source: any) => { source.versions[1].messageVersion = 99 }],
-        ['unknown revision property', (source: any) => { source.versions[1].wireVersion = 2 }],
-        ['empty exchange', (source: any) => { source.versions = { 1: { messageVersion: 2 } } }],
-        ['unknown field', (source: any) => { source.versions[1].request.fields[999] = {} }],
-        ['method disagreement', (source: any) => { source.versions[1].request.headers[5].value = 2 }],
-        ['unknown message', (source: any) => { source.versions[1].response.messageId = 65534 }],
-        ['invalid minBytes', (source: any) => { source.versions[1].request.fields[129].minBytes = -1 }],
-        ['conflicting byte bounds', (source: any) => { source.versions[1].request.fields[129].minBytes = 1025 }],
-    ])('rejects %s before resolving an interaction', (_label, change) => {
+        ['missing wire version', (source: any) => { delete source.messageVersion }],
+        ['unknown wire version', (source: any) => { source.messageVersion = 99 }],
+        ['missing method selector', (source: any) => { delete source.request.headers[5] }],
+        ['unknown method selector', (source: any) => { source.request.headers[5].value = 99 }],
+        ['empty exchange', (source: any) => { delete source.request; delete source.response }],
+        ['unknown field', (source: any) => { source.request.fields[999] = {} }],
+        ['unknown message', (source: any) => { source.response.messageId = 65534 }],
+        ['conflicting byte bounds', (source: any) => { source.request.fields[129].minBytes = 1025 }],
+    ])('rejects %s in a flat interaction', (_label, change) => {
         const sample = clone(protocol)
         change(sample.messages[58].interactions['replace-message-box'])
         expect(validateMessageDocumentation(sample, 58).length).toBeGreaterThan(0)
-        expect(() => resolveProtocolInteraction(sample, 58, 'replace-message-box', 1)).toThrow()
+    })
+
+    it('keeps site aliases and layout out of YAML while preserving published links', () => {
+        for (const message of Object.values(protocol.messages) as any[]) {
+            for (const source of Object.values(message.interactions || {}) as any[]) {
+                expect(source.anchorId).toBeUndefined()
+                expect(source.method).toBeUndefined()
+                expect(source.versions).toBeUndefined()
+            }
+            for (const note of message.notes || []) expect(note.placement).toBeUndefined()
+        }
+        const message = clone(protocol.messages[58])
+        const before = getMessageDocumentation(message, protocol)!
+        message.versions[2].label = '2027-02'
+        for (const source of Object.values(message.interactions) as any[]) source.title = 'New title'
+        const after = getMessageDocumentation(message, protocol)!
+        expect(after.operations.map(({ id, anchorId, anchorAliases }) => [id, anchorId, anchorAliases]))
+            .toEqual(before.operations.map(({ id, anchorId, anchorAliases }) => [id, anchorId, anchorAliases]))
+        expect(after.operations.filter(item => item.method === 'GET').map(({ id, messageVersion, anchorId, anchorAliases }) =>
+            [id, messageVersion, anchorId, anchorAliases])).toEqual([
+            ['read-message-box', 2, 'get-variant-v2', ['get']],
+            ['read-message-box-v1', 1, 'get-variant-v1', []],
+        ])
+        const sample = clone(protocol)
+        sample.messages[58].notes[0].placement = 'overview'
+        expect(validateMessageDocumentation(sample, 58).join('\n')).toContain('note has unknown property placement')
     })
 })

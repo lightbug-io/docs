@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import jsyaml from 'js-yaml'
-import { validateProtocolInteractions } from './utils/ProtocolInteractions'
+import { validateProtocolInteractions } from './utils/MessageDocumentation'
 
 export interface YamlDataInterface {
   [key: string]: any

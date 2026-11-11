@@ -33,7 +33,7 @@ const props = defineProps<{
 }>()
 
 const message = computed(() => props.yamlData.messages?.[props.messageId])
-const documentation = computed(() => getMessageDocumentation(message.value))
+const documentation = computed(() => getMessageDocumentation(message.value, props.yamlData))
 const copyStatus = ref('')
 const router = useRouter()
 let removeRouteCorrection: (() => void) | undefined
@@ -386,6 +386,7 @@ onBeforeUnmount(() => {
       </section>
 
     <section v-for="panel in group.panels" :id="panel.anchor" :key="panel.anchor" class="operation-section" :aria-labelledby="`${panel.anchor}-heading`">
+      <span v-for="alias in panel.operation.anchorAliases" :key="alias" :id="`message-${messageId}-operation-${alias}`" class="operation-anchor" aria-hidden="true"></span>
       <span v-if="panel.variantId && panel.defaultVariant" :id="operationAnchor(panel.operation)" class="operation-anchor" aria-hidden="true"></span>
       <div class="operation-toolbar">
         <div class="wire-context" aria-label="Protocol context">

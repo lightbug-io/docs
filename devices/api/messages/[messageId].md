@@ -15,7 +15,7 @@ const route = useRoute()
 // Extract numeric ID from "12-close" format
 const messageId = computed(() => parseInt((route.data.params?.messageId || '').split('-')[0]))
 const messageData = computed(() => protocolData?.messages?.[messageId.value])
-const structuredDocumentation = computed(() => getMessageDocumentation(messageData.value))
+const structuredDocumentation = computed(() => getMessageDocumentation(messageData.value, protocolData))
 
 // The legacy composable takes a numeric ID; re-create its view when the route changes.
 const sections = computed(() => useMessageSections(messageId.value, protocolData))

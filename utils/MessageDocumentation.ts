@@ -126,7 +126,6 @@ export function documentationTextParts(text: string, messages?: Record<string, a
 export interface DocumentationVariant {
     id: string
     title: string
-    interactionVersion?: number
     messageVersion?: number
     /** Canonical message-version key, normalized to a string for object references. */
     format?: string
@@ -145,6 +144,8 @@ export interface DocumentationVariant {
 
 export interface DocumentationOperation extends DocumentationVariant {
     method?: string
+    /** Additional published operation links retained by the site, never authored in YAML. */
+    anchorAliases?: string[]
     variants?: DocumentationVariant[]
 }
 
@@ -188,12 +189,36 @@ export function hasInlineMessageDocumentation(message: any): boolean {
         Object.values(message.methods || {}).some((method: any) => method?.exchange !== undefined || method?.versions !== undefined))
 }
 
+/** Read the method from the actual request selector, using the shared wire enum. */
+function interactionMethod(interaction: any, protocol: any): string | undefined {
+    const header = interaction?.request?.headers?.[5]
+    if (!header || ['ignored', 'omitted'].includes(header.presence)) return undefined
+    return protocol?.header?.[5]?.values?.[header.value]?.name
+}
+
 /** Distinct methods in authoring order; publications need no placeholder method. */
-export function getDocumentationMethods(message: any): string[] {
+export function getDocumentationMethods(message: any, protocol: any): string[] {
     if (message?.interactions === undefined) return Object.keys(message?.methods || {})
     return [...new Set(Object.values(message.interactions || {})
-        .map((interaction: any) => interaction?.method)
-        .filter((method): method is string => typeof method === 'string' && !!method.trim()))]
+        .map(interaction => interactionMethod(interaction, protocol))
+        .filter((method): method is string => typeof method === 'string'))]
+}
+
+// Published site fragments predate the stable interaction keys. Keep this
+// compatibility concern here, out of the protocol specification.
+const interactionAnchors: Record<string, Record<string, string[]>> = {
+    deviceStatus: {
+        'read-device-status': ['get'], 'subscribe-device-status': ['subscribe'],
+        'stop-device-status-subscription': ['unsubscribe'],
+    },
+    deviceIds: { 'read-device-ids': ['get'] },
+    gpsControl: { 'read-gps-state': ['get'], 'configure-gps': ['set'] },
+    _msgBox: {
+        'read-message-box': ['get-variant-v2', 'get'], 'read-message-box-v1': ['get-variant-v1'],
+        'replace-message-box': ['set'],
+        'subscribe-message-box': ['subscribe-variant-v2', 'subscribe'], 'subscribe-message-box-v1': ['subscribe-variant-v1'],
+        'stop-message-box-subscription': ['unsubscribe'], 'tracking-message-box-upload': ['tracking-session'],
+    },
 }
 
 function wireVersion(exchange: any): number | undefined {
@@ -207,7 +232,7 @@ function wireVersion(exchange: any): number | undefined {
     return undefined
 }
 
-export function getMessageDocumentation(message: any): MessageDocumentation | undefined {
+export function getMessageDocumentation(message: any, protocol: any): MessageDocumentation | undefined {
     if (!hasInlineMessageDocumentation(message)) return undefined
     const versions = message.versions || {}
     const operations: DocumentationOperation[] = []
@@ -236,9 +261,10 @@ export function getMessageDocumentation(message: any): MessageDocumentation | un
     }
     if (message.interactions !== undefined) {
         for (const [id, source] of Object.entries(message.interactions) as [string, any][]) {
+            const method = interactionMethod(source, protocol)
             const contexts = (value: any) => Object.fromEntries(['request', 'response', 'publication'].filter(role => value?.[role] !== undefined).map(role => {
                 const context = value[role]
-                const inherited = message.methods?.[source.method]?.[role]
+                const inherited = message.methods?.[method || '']?.[role]
                 return [role, { ...context, ...Object.fromEntries(['headers', 'fields'].filter(kind => context?.[kind] !== undefined).map(kind => [
                     kind, Object.fromEntries(Object.entries(context[kind]).map(([fieldId, usage]: [string, any]) => [
                         fieldId, {
@@ -248,22 +274,15 @@ export function getMessageDocumentation(message: any): MessageDocumentation | un
                     ])),
                 ])) }]
             }))
-            const base: DocumentationOperation = {
-                ...contexts(source), id, method: source.method, anchorId: source.anchorId || id,
+            const [anchorId, ...anchorAliases] = interactionAnchors[message.id]?.[id] || [id]
+            operations.push({
+                ...contexts(source), id, method, anchorId, anchorAliases,
                 title: source.title || id, description: source.description, target: source.target,
+                messageVersion: source.messageVersion,
+                format: source.messageVersion === undefined ? undefined : String(source.messageVersion),
+                legacy: !!versions[source.messageVersion]?.legacy,
                 errors: source.errors, examples: source.examples,
-            }
-            const variants: DocumentationVariant[] = Object.entries(source.versions || {}).sort(([a], [b]) => Number(b) - Number(a))
-                .map(([revision, value]: [string, any]) => ({
-                    ...value, ...contexts(value), id: revision, interactionVersion: Number(revision),
-                    title: value.title || versions[value.messageVersion]?.label || revision,
-                    anchorId: value.anchorId || `r${revision}`,
-                    format: value.messageVersion === undefined ? undefined : String(value.messageVersion),
-                    legacy: !!versions[value.messageVersion]?.legacy,
-                }))
-            operations.push(variants.length === 1
-                ? { ...base, ...variants[0], id, title: base.title, anchorId: base.anchorId }
-                : { ...base, variants })
+            })
         }
     } else {
         for (const [method, value] of Object.entries(message.methods || {})) addOperation(method.toLowerCase(), value, method)
@@ -287,7 +306,9 @@ export function getMessageDocumentation(message: any): MessageDocumentation | un
         }
     })
     return {
-        summary: message.description || '', methods: getDocumentationMethods(message), target: message.target, notes: message.notes,
+        summary: message.description || '', methods: getDocumentationMethods(message, protocol), target: message.target,
+        notes: message.notes?.map((note: any) => ({ ...note, placement: message.id === '_msgBox' &&
+            ['message-versions', 'checksum-scope'].includes(note.id) ? 'reference' : 'overview' })),
         fields: formats.length ? undefined : fieldsFor(),
         formats: formats.length ? formats : undefined, operations,
     }
@@ -376,7 +397,10 @@ function validateInlineDocumentation(message: any, messageId: number, protocol: 
     for (const [id, context] of Object.entries(object(message.contexts) ? message.contexts : {})) {
         if (!object(context) || (!(context as any).exchange && !(context as any).versions)) errors.push(`${id} context needs an exchange or versions`)
     }
-    if (message.notes !== undefined && (!Array.isArray(message.notes) || message.notes.some((note: any) => !object(note)))) errors.push('notes must be a list of objects')
+    if (message.notes !== undefined) {
+        if (!Array.isArray(message.notes) || message.notes.some((note: any) => !object(note))) errors.push('notes must be a list of objects')
+        else for (const note of message.notes) knownKeys(note, ['id', 'title', 'description'], 'note')
+    }
     const versions = object(message.versions) ? message.versions : {}
     if (message.versions !== undefined && !object(message.versions)) errors.push('versions must be a numeric-keyed mapping')
     for (const [id, version] of Object.entries(versions) as [string, any][]) {
@@ -398,37 +422,24 @@ function validateInlineDocumentation(message: any, messageId: number, protocol: 
         if (!object(message.interactions)) errors.push('interactions must be a mapping')
         else for (const [id, source] of Object.entries(message.interactions) as [string, any][]) {
             if (!object(source)) { errors.push(`${id} interaction must be an object`); continue }
-            knownKeys(source, ['method', 'title', 'description', 'target', 'anchorId', 'versions', 'errors', 'examples', 'request', 'response', 'publication'], id)
-            text(source, ['method', 'title', 'description', 'target', 'anchorId'], id)
-            if (!object(source.versions) || !Object.keys(source.versions).length) { errors.push(`${id} versions must be a nonempty mapping`); continue }
+            knownKeys(source, ['title', 'description', 'target', 'messageVersion', 'errors', 'examples', 'request', 'response', 'publication'], id)
+            text(source, ['title', 'description', 'target'], id)
             validateExchangeShape(source, id, true)
-            for (const [revision, exchange] of Object.entries(source.versions) as [string, any][]) {
-                const label = `${id}/${revision}`
-                if (!/^[1-9]\d*$/.test(revision) || !Number.isSafeInteger(Number(revision))) errors.push(`${label} interaction revision must be a positive safe integer`)
-                if (!object(exchange)) { errors.push(`${label} exchange must be an object`); continue }
-                knownKeys(exchange, ['messageVersion', 'anchorId', 'title', 'description', 'target', 'request', 'response', 'publication', 'errors', 'examples'], label)
-                text(exchange, ['title', 'description', 'target', 'anchorId'], label)
-                validateExchangeShape(exchange, label, true)
-                const selected = exchange.messageVersion
-                if (selected !== undefined && (!Number.isInteger(selected) || !Object.prototype.hasOwnProperty.call(versions, selected))) errors.push(`${label} references unknown message version ${selected}`)
-                const merged = { ...source, ...exchange }
-                if (!['request', 'response', 'publication'].some(role => object(merged[role]))) errors.push(`${label} needs at least one request, response or publication message`)
-                for (const role of ['request', 'response', 'publication']) {
-                    const context = merged[role]
-                    if (role === 'request' && source.method && context?.headers?.[5]?.value !== undefined) {
-                        const method = Object.entries(protocol.header?.[5]?.values || {}).find(([, value]: [string, any]) => value.name === source.method)
-                        if (method && context.headers[5].value !== Number(method[0])) errors.push(`${label} request header 5 disagrees with its method`)
-                    }
-                    if (!object(context) || context.messageId !== undefined && context.messageId !== messageId) continue
-                    const wire = ['ignored', 'omitted'].includes(context.headers?.[22]?.presence) ? undefined : wireVersion({ [role]: context })
-                    if (wire !== undefined && selected === undefined) errors.push(`${label} needs an explicit messageVersion`)
-                    else if (wire !== undefined && wire !== selected) errors.push(`${label} ${role} header 22 disagrees with its message version`)
-                    for (const [fieldId, usage] of Object.entries(context.fields || {}) as [string, any][]) {
-                        if (['omitted', 'ignored'].includes(usage?.presence)) continue
-                        const applicable = message.data?.[fieldId]?.versions
-                        if (Array.isArray(applicable) && selected === undefined) errors.push(`${label} needs an explicit messageVersion for field ${fieldId}`)
-                        else if (Array.isArray(applicable) && !applicable.includes(selected)) errors.push(`${label} ${role} uses field ${fieldId} outside its versions`)
-                    }
+            const selected = source.messageVersion
+            if (selected !== undefined && (!Number.isInteger(selected) || !Object.prototype.hasOwnProperty.call(versions, selected))) errors.push(`${id} references unknown message version ${selected}`)
+            if (!['request', 'response', 'publication'].some(role => object(source[role]))) errors.push(`${id} needs at least one request, response or publication message`)
+            if (source.request !== undefined && !interactionMethod(source, protocol)) errors.push(`${id} request needs a known Method value in header 5`)
+            for (const role of ['request', 'response', 'publication']) {
+                const context = source[role]
+                if (!object(context) || context.messageId !== undefined && context.messageId !== messageId) continue
+                const wire = ['ignored', 'omitted'].includes(context.headers?.[22]?.presence) ? undefined : wireVersion({ [role]: context })
+                if (wire !== undefined && selected === undefined) errors.push(`${id} needs an explicit messageVersion`)
+                else if (wire !== undefined && wire !== selected) errors.push(`${id} ${role} header 22 disagrees with its message version`)
+                for (const [fieldId, usage] of Object.entries(context.fields || {}) as [string, any][]) {
+                    if (['omitted', 'ignored'].includes(usage?.presence)) continue
+                    const applicable = message.data?.[fieldId]?.versions
+                    if (Array.isArray(applicable) && selected === undefined) errors.push(`${id} needs an explicit messageVersion for field ${fieldId}`)
+                    else if (Array.isArray(applicable) && !applicable.includes(selected)) errors.push(`${id} ${role} uses field ${fieldId} outside its versions`)
                 }
             }
         }
@@ -437,7 +448,7 @@ function validateInlineDocumentation(message: any, messageId: number, protocol: 
         }
         // SDK maps remain unchanged until their consumers migrate. Compare only
         // method membership: their request/response maps are not usage contexts.
-        const methods = getDocumentationMethods(message)
+        const methods = getDocumentationMethods(message, protocol)
         const sdkMethods = Object.keys(message.methods || {})
         for (const method of methods) if (!sdkMethods.includes(method)) errors.push(`interaction method ${method} is missing from the SDK methods map`)
         for (const method of sdkMethods) if (!methods.includes(method)) errors.push(`SDK method ${method} has no interaction`)
@@ -477,7 +488,7 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
     const prefix = `Message ${messageId} documentation`
     const authoringErrors = validateInlineDocumentation(message, messageId, protocol)
     if (authoringErrors.length) return authoringErrors.map(error => `${prefix}: ${error}`)
-    const docs = getMessageDocumentation(message)!
+    const docs = getMessageDocumentation(message, protocol)!
     const errors: string[] = []
     const fail = (text: string) => errors.push(`${prefix}: ${text}`)
     const identifier = /^[a-z][a-z0-9-]*$/
@@ -508,12 +519,6 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
     validateAnchors(docs.operations, 'operation')
     if (docs.notes) {
         validateIds(docs.notes, 'note')
-        for (const note of docs.notes) {
-            if (!note || typeof note !== 'object') continue
-            if (note.placement !== undefined && !['overview', 'reference'].includes(note.placement)) {
-                fail(`${note.id} has invalid note placement`)
-            }
-        }
     }
 
     const validateContext = (context: DocumentationContext | undefined, label: string) => {
@@ -587,4 +592,10 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
         }
     }
     return errors
+}
+
+/** Validate inline interactions before publishing the specification and its reference pages. */
+export function validateProtocolInteractions(protocol: any): string[] {
+    const errors = protocol.interactions === undefined ? [] : ['Interactions belong inside their message definitions']
+    return errors.concat(Object.keys(protocol.messages || {}).flatMap(id => validateMessageDocumentation(protocol, Number(id))))
 }
