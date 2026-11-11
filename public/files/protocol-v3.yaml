@@ -3360,7 +3360,6 @@ messages:
                   value: 2
                 22:
                   presence: required
-                  maxBytes: 1
                   value: 2
             response:
               title: Cached payload
@@ -3374,7 +3373,6 @@ messages:
                   value: 0
                 22:
                   presence: required
-                  maxBytes: 1
                   value: 2
               fields:
                 2:
@@ -3394,8 +3392,7 @@ messages:
                 5:
                   presence: required
                   value: 2
-                22:
-                  maxBytes: 1
+                22: {}
             response:
               title: Legacy cached payload
               description: >-
@@ -3439,7 +3436,6 @@ messages:
                   value: 1
                 22:
                   presence: required
-                  maxBytes: 1
                   value: 2
               fields:
                 129:
@@ -3523,7 +3519,6 @@ messages:
                 17: {}
                 22:
                   presence: required
-                  maxBytes: 1
                   value: 2
             publication:
               title: Cached payload update
@@ -3534,7 +3529,6 @@ messages:
                 17: {}
                 22:
                   presence: required
-                  maxBytes: 1
                   value: 2
               fields:
                 2:
@@ -3560,8 +3554,7 @@ messages:
                 7: {}
                 16: {}
                 17: {}
-                22:
-                  maxBytes: 1
+                22: {}
             publication:
               title: Legacy cached payload update
               description: >-
@@ -3642,7 +3635,6 @@ messages:
               headers:
                 22:
                   presence: required
-                  maxBytes: 1
                   value: 2
               fields:
                 2:
