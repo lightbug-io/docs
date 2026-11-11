@@ -6,6 +6,8 @@ outline: [2,3]
 
 A request and its reply are separate frames, with separate headers and data fields. The operation's message page defines the reply type, payload and errors. This page explains the shared conventions; it does not mean every request receives the same kind of reply.
 
+Use the operation's required request headers. An omitted [Method (header 5)](./headers#5-method) is not a universal GET default; GPS Control and Message Box require an explicit method.
+
 ## Correlating a reply
 
 Include a nonzero [Message ID (header 1)](./headers#1-message-id) when you need to match replies to requests. A correlated reply carries that ID in [Response to (header 3)](./headers#3-response-to), not as its own Message ID.
