@@ -492,6 +492,18 @@ header:
     id: encryptionTag
     description: Encryption tag
     type: uint32
+# Shared header usage only; message-specific anchors stay with their messages.
+templates:
+  headers:
+    optionalOkReply: &optionalOkReplyHeaders
+      3: {}
+      4: { value: 0 }
+    correlatedOkAck: &correlatedOkAckHeaders
+      3: { presence: required }
+      4: { presence: required, value: 0 }
+    optionalCorrelationAck: &optionalCorrelationAckHeaders
+      3: {}
+      4: { presence: required, value: 0 }
 messages:
   3:
     name: Event
@@ -1268,9 +1280,7 @@ messages:
             5: { presence: required, value: 2 }
         response:
           description: Successful GET returns GSM state directly.
-          headers:
-            3: {}
-            4: { value: 0 }
+          headers: *optionalOkReplyHeaders
           fields:
             1: { presence: required }
             2:
@@ -1296,9 +1306,7 @@ messages:
                 milliseconds divided by 60000 and rounded down. Disabling flight mode ignores the duration.
         response: &gsmControlAck
           messageId: 5
-          headers:
-            3: { presence: required }
-            4: { presence: required, value: 0 }
+          headers: *correlatedOkAckHeaders
           fields:
             1: { presence: required, value: 31 }
       start-search:
@@ -1387,9 +1395,7 @@ messages:
           description: >-
             Successful GET returns SIM settings directly. APN and credentials are returned only while SIM2 is
             active. A cached SIM2 ICCID may be returned with either active SIM.
-          headers:
-            3: {}
-            4: { value: 0 }
+          headers: *optionalOkReplyHeaders
           fields:
             1:
               presence: required
@@ -1408,9 +1414,7 @@ messages:
             1: { presence: required, value: 0 }
         response: &simSettingsAck
           messageId: 5
-          headers:
-            3: { presence: required }
-            4: { presence: required, value: 0 }
+          headers: *correlatedOkAckHeaders
           fields:
             1: { presence: required, value: 33 }
       select-sim2:
@@ -1581,10 +1585,8 @@ messages:
           title: Device status (MT34)
           description: A successful GET returns Device Status directly, without a separate success ACK. Returned
             fields vary by target and available readings.
-          headers:
-            3: {}
-            4: { value: 0 }
-          fields:
+          headers: *optionalOkReplyHeaders
+          fields: &deviceStatusFields
             1: {}
             2: {}
             3: {}
@@ -1642,9 +1644,7 @@ messages:
           messageId: 5
           description: A successful setup returns an MT5 acknowledgment with Status 0. This acknowledges the
             request, not delivery of a status update.
-          headers:
-            3: { presence: required }
-            4: { presence: required, value: 0 }
+          headers: *correlatedOkAckHeaders
         publication:
           title: Status update (MT34)
           description: Later status updates produce Device Status messages, filtered by the subscription interval
@@ -1657,18 +1657,7 @@ messages:
             4:
               presence: omitted
               description: Status updates carry status data, not a command-result envelope.
-          fields:
-            1: {}
-            2: {}
-            3: {}
-            4: {}
-            5: {}
-            6: {}
-            7: {}
-            10: {}
-            12: {}
-            13: {}
-            14: {}
+          fields: *deviceStatusFields
       stop-device-status-subscription:
         title: Stop the default status subscription
         description: Stop the default Device Status subscription (ID 0). This operation does not select a named
@@ -1681,9 +1670,7 @@ messages:
         response:
           messageId: 5
           description: A successful cancellation returns an MT5 acknowledgment with Status 0.
-          headers:
-            3: { presence: required }
-            4: { presence: required, value: 0 }
+          headers: *correlatedOkAckHeaders
   35:
     name: Device IDs
     id: deviceIds
@@ -1734,9 +1721,7 @@ messages:
           title: Device IDs (MT35)
           description: The GET response contains the available device identifiers. Not all fields are available on
             every device type. Cached SIM2 ICCID is a previously read value and may be stale.
-          headers:
-            3: {}
-            4: { value: 0 }
+          headers: *optionalOkReplyHeaders
           fields:
             1: {}
             2: {}
@@ -2059,9 +2044,7 @@ messages:
           title: GPS state (MT39)
           description: A successful GET returns GPS Control directly, with no separate success ACK. An
             unsuccessful request returns MT5 (ACK) with Status, not this payload.
-          headers:
-            3: {}
-            4: { value: 0 }
+          headers: *optionalOkReplyHeaders
           fields:
             1:
               presence: required
@@ -2095,9 +2078,7 @@ messages:
         response:
           messageId: 5
           description: Successful SET returns an ACK, not GPS state. Use GET to read the current state afterward.
-          headers:
-            3: {}
-            4: { presence: required, value: 0 }
+          headers: *optionalCorrelationAckHeaders
           fields:
             1:
               presence: required
@@ -3419,20 +3400,15 @@ messages:
         request:
           headers:
             5: { presence: required, value: 2 }
-            22:
-              presence: required
-              value: 2
+            22: { presence: required, value: 2 }
         response:
           title: Cached payload
           description: A successful GET returns this MT58 payload. An unsuccessful request returns MT5 (ACK) with
             Status instead.
           headers:
-            3: {}
-            4: { value: 0 }
-            22:
-              presence: required
-              value: 2
-          fields:
+            <<: *optionalOkReplyHeaders
+            22: { presence: required, value: 2 }
+          fields: &messageBoxV2Fields
             1:
               presence: omitted
             2:
@@ -3452,7 +3428,7 @@ messages:
         request:
           headers:
             5: { presence: required, value: 2 }
-            22:
+            22: &legacyMessageBoxSelector
               description: Omitted, explicitly 0, or malformed-width values resolve to 0 and select version 1; an
                 explicit 1 also selects version 1.
               values:
@@ -3463,12 +3439,11 @@ messages:
           description: A successful GET returns this MT58 payload. An unsuccessful request returns MT5 (ACK) with
             Status instead.
           headers:
-            3: {}
-            4: { value: 0 }
+            <<: *optionalOkReplyHeaders
             22:
               presence: omitted
               description: Legacy version 1 responses retain their original wire layout and omit Message Version.
-          fields:
+          fields: &messageBoxV1Fields
             1:
               presence: required
             2:
@@ -3497,9 +3472,7 @@ messages:
             are ignored.
           headers:
             5: { presence: required, value: 1 }
-            22:
-              presence: required
-              value: 2
+            22: { presence: required, value: 2 }
           fields:
             129:
               presence: required
@@ -3510,10 +3483,8 @@ messages:
           messageId: 5
           description: Successful SET returns an ACK, not the cached bytes. Subscriber publications are separate
             asynchronous messages and are not this reply.
-          headers:
-            3: {}
-            4: { presence: required, value: 0 }
-          fields:
+          headers: *optionalCorrelationAckHeaders
+          fields: &messageBoxAckFields
             1:
               presence: required
               value: 58
@@ -3544,12 +3515,7 @@ messages:
           headers:
             '3': { presence: optional }
             '4': { presence: required, value: 0 }
-          fields:
-            '1':
-              presence: required
-              value: 58
-              description: ACK Type identifies the original message type (58). No message-specific state is returned
-                in this ACK.
+          fields: *messageBoxAckFields
         errors: &messageBoxSubscribeErrors
           - code: 4
             description: 'A decoded Message Version value above 2; existing selection and
@@ -3558,39 +3524,31 @@ messages:
         messageVersion: 2
         request:
           headers:
-            5: { presence: required, value: 3 }
-            6:
-              description: Optional publication interval in milliseconds. If omitted, updates are sent when new data
-                is available.
-            7:
-              description: Subscription duration in milliseconds; 0 is indefinite until explicitly unsubscribed.
-            16:
-              description: Minimum publication level.
-            17:
-              description: Subscription ID; omit for the default subscription (0). Use the same ID when unsubscribing.
-            22:
-              presence: required
-              value: 2
+            <<: &messageBoxSubscriptionHeaders
+              5: { presence: required, value: 3 }
+              6:
+                description: Optional publication interval in milliseconds. If omitted, updates are sent when new data
+                  is available.
+              7:
+                description: Subscription duration in milliseconds; 0 is indefinite until explicitly unsubscribed.
+              16:
+                description: Minimum publication level.
+              17:
+                description: Subscription ID; omit for the default subscription (0). Use the same ID when unsubscribing.
+            22: { presence: required, value: 2 }
         publication:
           title: Cached payload update
           description: Version 2 updates include Message Version 2 and field 2. Field 129 carries the complete
             cached payload when nonempty; empty payload data is omitted.
           headers:
-            3:
-              presence: omitted
-              description: This is an asynchronous publication, not a direct reply to the SUBSCRIBE request.
-            17:
-              description: Identifies nonzero subscription IDs for this publication.
-            22:
-              presence: required
-              value: 2
-          fields:
-            1:
-              presence: omitted
-            2:
-              presence: required
-            129:
-              maxBytes: 1024
+            <<: &messageBoxPublicationHeaders
+              3:
+                presence: omitted
+                description: This is an asynchronous publication, not a direct reply to the SUBSCRIBE request.
+              17:
+                description: Identifies nonzero subscription IDs for this publication.
+            22: { presence: required, value: 2 }
+          fields: *messageBoxV2Fields
       subscribe-message-box-v1:
         title: Subscribe to cached-message updates (legacy v1)
         description: >-
@@ -3606,51 +3564,17 @@ messages:
         messageVersion: 1
         request:
           headers:
-            5: { presence: required, value: 3 }
-            6:
-              description: Optional publication interval in milliseconds. If omitted, updates are sent when new data
-                is available.
-            7:
-              description: Subscription duration in milliseconds; 0 is indefinite until explicitly unsubscribed.
-            16:
-              description: Minimum publication level.
-            17:
-              description: Subscription ID; omit for the default subscription (0). Use the same ID when unsubscribing.
-            22:
-              description: Omitted, explicitly 0, or malformed-width values resolve to 0 and select version 1; an
-                explicit 1 also selects version 1.
-              values:
-                0: Version 1 (also the omitted/malformed-width fallback)
-                1: Version 1
+            <<: *messageBoxSubscriptionHeaders
+            22: *legacyMessageBoxSelector
         publication:
           title: Legacy cached payload update
           description: Version 1 updates use the additive checksum and legacy chunks. Empty payload data is omitted.
           headers:
-            3:
-              presence: omitted
-              description: This is an asynchronous publication, not a direct reply to the SUBSCRIBE request.
-            17:
-              description: Identifies nonzero subscription IDs for this publication.
+            <<: *messageBoxPublicationHeaders
             22:
               presence: omitted
               description: Legacy version 1 responses retain their original wire layout and omit Message Version.
-          fields:
-            1:
-              presence: required
-            2:
-              presence: omitted
-            10:
-              maxBytes: 255
-            11:
-              maxBytes: 255
-            12:
-              maxBytes: 255
-            13:
-              maxBytes: 255
-            14:
-              maxBytes: 255
-            129:
-              presence: omitted
+          fields: *messageBoxV1Fields
       stop-message-box-subscription:
         title: Stop a subscription
         description: Remove the addressed subscription. Message Version (header 22) is ignored; UNSUBSCRIBE does
@@ -3666,15 +3590,8 @@ messages:
           messageId: 5
           description: Successful UNSUBSCRIBE returns a control ACK confirming the unsubscribe request, not a
             final cached-message publication.
-          headers:
-            3: {}
-            4: { presence: required, value: 0 }
-          fields:
-            1:
-              presence: required
-              value: 58
-              description: ACK Type identifies the original message type (58). No message-specific state is returned
-                in this ACK.
+          headers: *optionalCorrelationAckHeaders
+          fields: *messageBoxAckFields
       tracking-message-box-upload:
         title: Tracking-session uploads
         description: A separate device-to-server context, not a GET response or subscription update.
@@ -3690,9 +3607,7 @@ messages:
             for an empty cache. Independent upload bytes in field 129 do not form part of that cached-message
             CRC.
           headers:
-            22:
-              presence: required
-              value: 2
+            22: { presence: required, value: 2 }
           fields:
             2:
               description: 'Present when Message Box support is enabled: CRC-16/XMODEM of the cached down-synced
