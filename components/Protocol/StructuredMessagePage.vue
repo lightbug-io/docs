@@ -363,7 +363,7 @@ onBeforeUnmount(() => {
                 <th scope="row"><span class="summary-field-name">{{ field.name }}</span><span class="field-id">Field {{ field.id }}</span></th>
                 <td><code>{{ field.type }}</code></td>
                 <td>
-                  <p v-if="field.description" class="prose"><DocumentationText :text="field.description" /></p>
+                  <p v-if="field.description" class="prose"><DocumentationText :text="field.description" :messages="yamlData.messages" /></p>
                   <p v-if="field.minBytes !== undefined" class="field-limit">Minimum {{ field.minBytes }} bytes</p>
                   <p v-if="field.maxBytes !== undefined" class="field-limit">Maximum {{ field.maxBytes }} bytes</p>
                   <ul v-if="field.values.length" class="field-values">
@@ -434,7 +434,7 @@ onBeforeUnmount(() => {
                       <span v-if="field.maxBytes !== undefined" class="field-limit">Maximum {{ field.maxBytes }} bytes</span>
                     </div>
                     <p v-if="field.value !== undefined" class="fixed-value"><strong>Value</strong> <code>{{ field.value }}</code><span v-if="field.valueName"> · {{ field.valueName }}</span></p>
-                    <p v-if="field.description" class="prose"><DocumentationText :text="field.description" /></p>
+                    <p v-if="field.description" class="prose"><DocumentationText :text="field.description" :messages="yamlData.messages" /></p>
                     <ul v-if="field.values.length" class="field-values">
                       <li v-for="value in field.values" :key="value.value">
                         <code>{{ value.value }}</code><strong v-if="value.name"> · {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span>

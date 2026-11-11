@@ -85,18 +85,38 @@ export function capturedDocumentationValues(example: DocumentationExample, messa
     })
 }
 
-/** Link only explicit HTTP(S) URLs; surrounding prose remains escaped Vue text. */
-export function documentationTextParts(text: string) {
+/** Link explicit URLs and known message types; leave code and Markdown links untouched. */
+export function documentationTextParts(text: string, messages?: Record<string, any>, withBase: (path: string) => string = path => path) {
     const parts: { text: string; href?: string }[] = []
+    const protectedRanges: [number, number][] = []
+    for (const match of text.matchAll(/(`+)[\s\S]*?\1|\[[^\]]*\]\([^)]*\)/g)) {
+        protectedRanges.push([match.index!, match.index! + match[0].length])
+    }
     let end = 0
-    for (const match of text.matchAll(/https?:\/\/[^\s<>"']+/gi)) {
-        let link = match[0].replace(/[.,;:!?]+$/, '')
+    const tokens = [
+        ...Array.from(text.matchAll(/https?:\/\/[^\s<>"']+/gi), match => ({ index: match.index!, value: match[0], kind: 'url' as const })),
+        ...Array.from(text.matchAll(/\bMT(\d+)\b/g), match => ({ index: match.index!, value: match[0], kind: 'message' as const, id: match[1] })),
+    ].sort((a, b) => a.index - b.index)
+    for (const token of tokens) {
+        const { index, value } = token
+        const tokenEnd = index + value.length
+        if (index < end || protectedRanges.some(([start, stop]) => index >= start && tokenEnd <= stop)) continue
+        if (token.kind === 'message') {
+            const message = messages?.[token.id]
+            if (!message?.name) continue
+            const slug = message.name.toLowerCase().replace(/ /g, '-')
+            const href = withBase(`/devices/api/messages/${token.id}-${slug}`)
+            parts.push({ text: text.slice(end, index) }, { text: value, href })
+            end = tokenEnd
+            continue
+        }
+        let link = value.replace(/[.,;:!?]+$/, '')
         while (link.endsWith(')') && (link.match(/\)/g)?.length || 0) > (link.match(/\(/g)?.length || 0)) link = link.slice(0, -1)
         try {
             const url = new URL(link)
             if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) continue
-            parts.push({ text: text.slice(end, match.index) }, { text: link, href: url.href })
-            end = match.index! + link.length
+            parts.push({ text: text.slice(end, index) }, { text: link, href: url.href })
+            end = index + link.length
         } catch { /* Invalid URLs remain plain text. */ }
     }
     parts.push({ text: text.slice(end) })

@@ -79,6 +79,13 @@ describe('documentation links', () => {
         expect(parts.filter(part => part.href).map(part => part.href)).toEqual(['https://mcc-mnc.net/', 'https://example.test/code'])
         expect(documentationTextParts('https://user:secret@example.test/ https://').every(part => !part.href)).toBe(true)
     })
+
+    it('links known MT references but leaves code, existing links, and unknown message types alone', () => {
+        const text = 'MT58 and `MT5` [MT58](./existing) MT999'
+        const parts = documentationTextParts(text, { '58': { name: 'Message Box' }, '5': { name: 'ACK' } }, path => `/base${path}`)
+        expect(parts.map(part => part.text).join('')).toBe(text)
+        expect(parts.filter(part => part.href)).toEqual([{ text: 'MT58', href: '/base/devices/api/messages/58-message-box' }])
+    })
 })
 
 describe('shared response conventions', () => {
