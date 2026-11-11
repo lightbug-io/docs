@@ -144,6 +144,34 @@ GET, SET and SUBSCRIBE are values of Method header 5, not separate wire structur
 
 An interaction describes an exchange, not arbitrary ordered sequences of requests. Applicability can be narrowed with `target` without making fields required. Its stages remain subject to the correlation, suppression and target rules above; defining a response does not guarantee it is sent.
 
+### Reusing YAML fragments
+
+Use native YAML anchors for repeated usage maps. Keep message-specific fragments at their first use within that message, with descriptive names such as `messageBoxV1Fields`. Only genuinely cross-message header groups belong in the global `templates.headers` catalog, before `messages`. These are authoring helpers, not additional wire headers or rules that apply automatically.
+
+A complete map can be reused with an alias, for example `fields: *messageBoxV1Fields`. Merge a shared header group when the stage also needs local entries:
+
+```yaml
+templates:
+  headers:
+    optionalOkReply: &optionalOkReplyHeaders
+      3: {}
+      4: {value: 0}
+
+# Inside a Message Box v2 GET response:
+response:
+  headers:
+    <<: *optionalOkReplyHeaders
+    22: {presence: required, value: 2}
+```
+
+Multiple maps can be combined with one merge entry, `<<: [*specificHeaders, *baseHeaders]`. Earlier maps win conflicts, and explicitly written local keys override all merged maps. Merging is shallow: replacing `headers` replaces the whole header map, and replacing header `4` replaces that whole usage entry. Merge again at the level being changed, or restate the small entry. Arrays do not concatenate, and `null` does not delete a key.
+
+Define anchors before their aliases in the same document. For a message-local subset, the first use can define it directly under `<<: &messageBoxSubscriptionHeaders`; keep format-specific header 22 outside that subset. Do not reuse the cached-payload field map for independent uploads, or assume every publication omits the same headers. Keep short method selectors explicit rather than adding an anchor for every one-line value.
+
+To inspect the complete specification without following aliases, use the [expanded YAML download](./#yaml-specification).
+
+The site resolves native aliases and merges before validating the expanded interactions. It also validates unused global header templates, so a typo cannot remain hidden until a later use. Consumers using another YAML parser must enable merge-key support. Exporters should preserve the authored source or consume the expanded copy; writing typed data back to YAML may discard anchors and documentation metadata.
+
 ## Subscription replies and later updates
 
 A subscription's control reply and its later publications are different events. A control ACK reports the command status; it is not the subscribed data. Later publications can have their own headers, payload and status behavior.

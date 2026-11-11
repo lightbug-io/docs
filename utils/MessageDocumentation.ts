@@ -366,6 +366,55 @@ export function resolveDocumentationErrors(protocol: any, errors?: { code: numbe
     })
 }
 
+/** Validate expanded usage maps, including templates that have no current consumers. */
+function validateDocumentationUsage(
+    usage: any, definitions: any, label: string, kind: string, fail: (message: string) => void, strict = false,
+) {
+    const object = (value: any) => !!value && typeof value === 'object' && !Array.isArray(value)
+    if (usage !== undefined && !object(usage)) { fail(`${label} ${kind} must be a mapping`); return }
+    for (const [key, field] of Object.entries(usage || {}) as [string, any][]) {
+        const definition = definitions?.[key]
+        if (!/^\d+$/.test(key) || !definition) {
+            fail(`${label} references unknown ${kind} id ${key}`)
+            continue
+        }
+        if (!object(field)) {
+            fail(`${label} ${kind} ${key} must be an object`)
+            continue
+        }
+        if (strict) {
+            for (const property of Object.keys(field)) {
+                if (!['description', 'presence', 'value', 'values', 'minBytes', 'maxBytes'].includes(property)) fail(`${label} ${kind} ${key} has unknown property ${property}`)
+            }
+            if (field.description !== undefined && typeof field.description !== 'string') fail(`${label} ${kind} ${key} description must be a string`)
+            if (field.values !== undefined && !object(field.values)) fail(`${label} ${kind} ${key} values must be a mapping`)
+            if (object(field.values)) for (const [value, details] of Object.entries(field.values) as [string, any][]) {
+                if (typeof details === 'string') continue
+                if (!object(details) || details.description !== undefined && typeof details.description !== 'string') {
+                    fail(`${label} ${kind} ${key} value ${value} description must be a string or description mapping`)
+                } else for (const property of Object.keys(details)) {
+                    if (property !== 'description') fail(`${label} ${kind} ${key} value ${value} has unknown property ${property}`)
+                }
+            }
+        }
+        if ((strict ? field.presence !== undefined : field.presence) && !['required', 'optional', 'ignored', 'omitted'].includes(field.presence)) {
+            fail(`${label} ${kind} ${key} has invalid presence`)
+        }
+        if (field.maxBytes !== undefined && (!Number.isInteger(field.maxBytes) || field.maxBytes < 0)) {
+            fail(`${label} ${kind} ${key} has invalid maxBytes`)
+        }
+        if (field.minBytes !== undefined && (!Number.isInteger(field.minBytes) || field.minBytes < 0 || field.maxBytes !== undefined && field.minBytes > field.maxBytes)) {
+            fail(`${label} ${kind} ${key} has invalid minBytes`)
+        }
+        for (const value of [field.value, ...Object.keys(field.values || {}).map(Number)]) {
+            if (value === undefined) continue
+            if (!Number.isInteger(value) || (definition.values && !Object.prototype.hasOwnProperty.call(definition.values, value))) {
+                fail(`${label} ${kind} ${key} references unknown value ${value}`)
+            }
+        }
+    }
+}
+
 /** Validate the authoring shape before normalization can hide a typo or bad reference. */
 function validateInlineDocumentation(message: any, messageId: number, protocol: any): string[] {
     const errors: string[] = []
@@ -554,32 +603,7 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
         if (!contextMessage) fail(`${label} references unknown message ${context.messageId}`)
         for (const kind of ['headers', 'fields'] as const) {
             const definitions = kind === 'headers' ? protocol.header : contextMessage?.data
-            for (const [key, field] of Object.entries(context[kind] || {})) {
-                const definition = definitions?.[key]
-                if (!/^\d+$/.test(key) || !definition) {
-                    fail(`${label} references unknown ${kind} id ${key}`)
-                    continue
-                }
-                if (!field || typeof field !== 'object') {
-                    fail(`${label} ${kind} ${key} must be an object`)
-                    continue
-                }
-                if (field.presence && !['required', 'optional', 'ignored', 'omitted'].includes(field.presence)) {
-                    fail(`${label} ${kind} ${key} has invalid presence`)
-                }
-                if (field.maxBytes !== undefined && (!Number.isInteger(field.maxBytes) || field.maxBytes < 0)) {
-                    fail(`${label} ${kind} ${key} has invalid maxBytes`)
-                }
-                if (field.minBytes !== undefined && (!Number.isInteger(field.minBytes) || field.minBytes < 0 || field.maxBytes !== undefined && field.minBytes > field.maxBytes)) {
-                    fail(`${label} ${kind} ${key} has invalid minBytes`)
-                }
-                for (const value of [field.value, ...Object.keys(field.values || {}).map(Number)]) {
-                    if (value === undefined) continue
-                    if (!Number.isInteger(value) || (definition.values && !Object.prototype.hasOwnProperty.call(definition.values, value))) {
-                        fail(`${label} ${kind} ${key} references unknown value ${value}`)
-                    }
-                }
-            }
+            validateDocumentationUsage(context[kind], definitions, label, kind, fail)
         }
     }
 
@@ -624,5 +648,17 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
 /** Validate inline interactions before publishing the specification and its reference pages. */
 export function validateProtocolInteractions(protocol: any): string[] {
     const errors = protocol.interactions === undefined ? [] : ['Interactions belong inside their message definitions']
+    if (protocol.templates !== undefined) {
+        const object = (value: any) => !!value && typeof value === 'object' && !Array.isArray(value)
+        if (!object(protocol.templates)) errors.push('Protocol templates must be a mapping')
+        else {
+            for (const key of Object.keys(protocol.templates)) if (key !== 'headers') errors.push(`Protocol templates has unknown property ${key}`)
+            if (!object(protocol.templates.headers)) errors.push('Protocol templates.headers must be a mapping')
+            else for (const [name, usage] of Object.entries(protocol.templates.headers)) {
+                if (!/^[a-z][a-zA-Z0-9-]*$/.test(name)) errors.push(`Protocol template ${name} needs a stable name`)
+                validateDocumentationUsage(usage, protocol.header, `Protocol template ${name}`, 'headers', error => errors.push(error), true)
+            }
+        }
+    }
     return errors.concat(Object.keys(protocol.messages || {}).flatMap(id => validateMessageDocumentation(protocol, Number(id))))
 }

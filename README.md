@@ -40,6 +40,61 @@ Both scripts use `cross-env` so they work cross-platform.
 
 PR preview workflows and administrator setup: [.github/preview](https://github.com/lightbug-io/docs/blob/main/.github/preview/README.md).
 
+## Protocol YAML authoring and export
+
+`public/files/protocol-v3.yaml` is the canonical source. It uses native YAML
+anchors (`&name`), aliases (`*name`) and merge keys (`<<: *name`), parsed by the
+same `js-yaml` dependency used by the docs. There is no separate template engine.
+Consumers without merge-key support can use the expanded export below.
+
+- Definitions used only within one message are anchored at their first use in
+  that message. Use message-specific anchor names: anchors have document scope,
+  not message scope, and must appear before their aliases.
+- Only header maps shared across messages live in the top-level
+  `templates.headers` registry: `optionalOkReply`, `correlatedOkAck`, and
+  `optionalCorrelationAck`. An anchor has no effect unless explicitly aliased
+  or merged into an actual message definition.
+- A YAML merge is shallow. An explicit key replaces that entire merged value;
+  replacing a header entry does not inherit the entry's other properties.
+  Anchor smaller maps when individual nested values need to be reused.
+
+### Navigate shared definitions
+
+In VS Code with [Red Hat YAML](https://github.com/redhat-developer/vscode-yaml),
+put the caret on an alias (`*name`) and run **Go to Definition** from the context
+menu. The extension's language server
+[resolves aliases to their anchors](https://github.com/redhat-developer/yaml-language-server/blob/main/src/languageservice/services/yamlDefinition.ts).
+This follows the explicit alias, not an inherited field name or arbitrary string.
+
+[IntelliJ IDEA's YAML support](https://www.jetbrains.com/help/idea/yaml.html)
+documents alias-to-anchor navigation, anchor usages, and anchor/alias rename.
+Use **Go to Declaration or Usages**; the shortcut depends on your key bindings.
+These are editor features, not something the docs site adds. If your editor or
+extension version lacks them, search for `&name` in the canonical file. The
+expanded download below is useful for inspecting all values without jumping.
+
+### Export expanded YAML
+
+The protocol overview offers **Download expanded YAML** at
+`files/protocol-v3-expanded.yaml`, including on PR previews. The build creates it
+from the canonical source; the development server generates it on each request.
+Do not commit or edit a second generated specification.
+
+To inspect or save the same output locally after installing dependencies:
+
+```bash
+npm run --silent export:protocol
+npm run --silent export:protocol > /tmp/protocol-v3-expanded.yaml
+```
+
+The export resolves aliases and merge keys using the `yaml` library's typed
+maps, keeping numeric keys as integers and deliberately quoted keys as strings
+for SDK generator compatibility. It emits no anchors and removes only
+the top-level authoring-only `templates` registry. All other parsed data is
+preserved, including sentinels and version overrides. It does not invent runtime
+defaults or flatten message-version description inheritance. Comments and
+source formatting are not retained. Edit the canonical source and re-export.
+
 ## Protocol sentinel values
 
 Numeric field definitions in `public/files/protocol-v3.yaml` can declare raw

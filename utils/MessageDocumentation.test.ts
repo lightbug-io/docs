@@ -1,3 +1,4 @@
+/** @jest-environment-options {"customExportConditions":["node","node-addons"]} */
 import { describe, expect, it } from '@jest/globals'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -881,5 +882,77 @@ describe('canonical documentation errors', () => {
         expect(errors).toContain('unknown status 999')
         expect(errors).toContain('unknown status 4')
         expect(errors).toContain('description must be a string')
+    })
+})
+
+describe('native YAML reuse', () => {
+    it('keeps shared headers global and repeated message payloads local', () => {
+        expect(Object.keys(protocol.templates.headers)).toEqual(['optionalOkReply', 'correlatedOkAck', 'optionalCorrelationAck'])
+        expect(protocol.templates.headers.optionalOkReply).toEqual({ 3: {}, 4: { value: 0 } })
+        expect(protocol.templates.headers.correlatedOkAck).toEqual({ 3: { presence: 'required' }, 4: { presence: 'required', value: 0 } })
+        expect(protocol.templates.headers.optionalCorrelationAck).toEqual({ 3: {}, 4: { presence: 'required', value: 0 } })
+        const status = protocol.messages[34].interactions
+        expect(status['read-device-status'].response.fields).toBe(status['subscribe-device-status'].publication.fields)
+        const box = protocol.messages[58].interactions
+        expect(box['read-message-box'].response.fields).toBe(box['subscribe-message-box'].publication.fields)
+        expect(box['read-message-box-v1'].response.fields).toBe(box['subscribe-message-box-v1'].publication.fields)
+        expect(box['replace-message-box'].response.fields).toBe(box['subscribe-message-box'].response.fields)
+        expect(box['replace-message-box'].response.fields).toBe(box['stop-message-box-subscription'].response.fields)
+        expect(box['subscribe-message-box'].publication.headers[3].presence).toBe('omitted')
+        expect(box['subscribe-message-box'].publication.headers[4]).toBeUndefined()
+        expect(status['subscribe-device-status'].publication.headers[4].presence).toBe('omitted')
+        expect(validateProtocolInteractions(protocol)).toEqual([])
+    })
+
+    it('expands both YAML parsers identically and does not mutate shared aliases during normalization', () => {
+        const { parseDocument } = require('yaml')
+        const source = readFileSync(resolve(__dirname, '../public/files/protocol-v3.yaml'), 'utf8')
+        const document = parseDocument(source, { merge: true, uniqueKeys: true })
+        expect(document.errors).toEqual([])
+        expect(document.toJS()).toEqual(protocol)
+        const sample = yaml.load(source)
+        const before = clone(sample)
+        for (const id of [31, 33, 34, 35, 39, 58]) getMessageDocumentation(sample.messages[id], sample)
+        expect(sample).toEqual(before)
+        const docs = getMessageDocumentation(sample.messages[34], sample)!
+        docs.operations[0].response!.fields![1].description = 'Local edit'
+        docs.operations[0].response!.headers![3].description = 'Local header edit'
+        expect(sample).toEqual(before)
+        expect(docs.operations[1].publication!.fields![1].description).not.toBe('Local edit')
+    })
+
+    it('keeps message-specific subscription selectors outside shared header fragments', () => {
+        const box = protocol.messages[58].interactions
+        const current = box['subscribe-message-box'].request.headers
+        const legacy = box['subscribe-message-box-v1'].request.headers
+        for (const id of [5, 6, 7, 16, 17]) expect(current[id]).toEqual(legacy[id])
+        expect(current[22]).toEqual({ presence: 'required', value: 2 })
+        expect(legacy[22]).toBe(box['read-message-box-v1'].request.headers[22])
+        expect(legacy[22].value).toBeUndefined()
+        expect(legacy[22].values).toHaveProperty('1')
+        expect(box['tracking-message-box-upload'].publication.fields).not.toEqual(box['read-message-box'].response.fields)
+    })
+
+    it.each([
+        ['non-object registry', (p: any) => { p.templates = null }],
+        ['unknown registry section', (p: any) => { p.templates.responses = {} }],
+        ['non-object header registry', (p: any) => { p.templates.headers = [] }],
+        ['invalid name', (p: any) => { p.templates.headers['Invalid name'] = {} }],
+        ['non-object header group', (p: any) => { p.templates.headers.unused = null }],
+        ['unknown header', (p: any) => { p.templates.headers.unused = { 999: {} } }],
+        ['null header usage', (p: any) => { p.templates.headers.unused = { 3: null } }],
+        ['unknown usage property', (p: any) => { p.templates.headers.unused = { 3: { type: 'uint8' } } }],
+        ['invalid presence', (p: any) => { p.templates.headers.unused = { 3: { presence: '' } } }],
+        ['invalid description', (p: any) => { p.templates.headers.unused = { 3: { description: false } } }],
+        ['invalid values shape', (p: any) => { p.templates.headers.unused = { 4: { values: [] } } }],
+        ['invalid value description', (p: any) => { p.templates.headers.unused = { 4: { values: { 0: null } } } }],
+        ['unknown value property', (p: any) => { p.templates.headers.unused = { 4: { values: { 0: { type: 'uint8' } } } } }],
+        ['unknown enum value', (p: any) => { p.templates.headers.unused = { 4: { value: 999 } } }],
+        ['invalid width', (p: any) => { p.templates.headers.unused = { 3: { maxBytes: -1 } } }],
+        ['conflicting bounds', (p: any) => { p.templates.headers.unused = { 3: { minBytes: 4, maxBytes: 1 } } }],
+    ])('rejects %s even when the template is unused', (_name, change) => {
+        const sample = clone(protocol)
+        change(sample)
+        expect(validateProtocolInteractions(sample).some(error => error.startsWith('Protocol template'))).toBe(true)
     })
 })

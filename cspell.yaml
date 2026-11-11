@@ -42,6 +42,7 @@ words:
   - zcard
 
   # Lightbug terms
+  - gingin
   # Acronyms, initialisms, technical terms
   - retryable
   - nonpositive
