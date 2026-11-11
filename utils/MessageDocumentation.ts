@@ -5,7 +5,8 @@ import { formatSentinelValue } from './ProtocolSentinels'
 /** Structured message documentation. Wire definitions remain in header and message.data. */
 export interface DocumentationField {
     description?: string
-    presence?: 'required' | 'optional' | 'ignored' | 'omitted'
+    /** Omit for the normal optional case; use ignored only for accepted-but-ignored inputs. */
+    presence?: 'required' | 'optional' | 'ignored'
     value?: number
     values?: Record<string, string>
     maxBytes?: number
@@ -344,7 +345,7 @@ function validateInlineDocumentation(message: any): string[] {
                 if (context?.messageId !== undefined) continue
                 for (const [id, usage] of Object.entries(context?.fields || {}) as [string, any][]) {
                     const applicable = message.data?.[id]?.versions
-                    if (Array.isArray(applicable) && !applicable.includes(Number(version)) && !['omitted', 'ignored'].includes(usage?.presence)) {
+                    if (Array.isArray(applicable) && !applicable.includes(Number(version)) && usage?.presence !== 'ignored') {
                         errors.push(`${name}/${version} ${role} uses field ${id} outside its versions`)
                     }
                 }
@@ -406,7 +407,7 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
                     fail(`${label} ${kind} ${key} must be an object`)
                     continue
                 }
-                if (field.presence && !['required', 'optional', 'ignored', 'omitted'].includes(field.presence)) {
+                if (field.presence && !['required', 'optional', 'ignored'].includes(field.presence)) {
                     fail(`${label} ${kind} ${key} has invalid presence`)
                 }
                 if (field.maxBytes !== undefined && (!Number.isInteger(field.maxBytes) || field.maxBytes < 0)) {

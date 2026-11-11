@@ -6,6 +6,10 @@ outline: [2,3]
 
 A request and its reply are separate frames, with separate headers and data fields. The operation's message page defines the reply type, payload and errors. This page explains the shared conventions; it does not mean every request receives the same kind of reply.
 
+### Authoring exchange fields
+
+Exchange maps list the fields shown for that stage; listed fields are optional unless marked `required` or `ignored`. Do not add a field row to represent a field that is not sent or returned. Explain no-payload requests, unavailable fields, version-specific layouts, and rejected inputs in the exchange prose. Use `ignored` only when the field is accepted but has no effect in that operation.
+
 Use the operation's required request headers. An omitted [Method (header 5)](./headers#5-method) is not a universal GET default; GPS Control and Message Box require an explicit method.
 
 ## Correlating a reply
