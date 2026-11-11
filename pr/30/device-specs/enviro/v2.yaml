@@ -120,9 +120,12 @@ product:
         - "Software Reset"
         - "Hardware Reset"
     leds:
-      "Status":
-        - "Single Color LED x4"
-        - "Indicates device status (battery level, charging, connected, etc.)"
+      "Battery":
+        - "4 battery-level indicators"
+        - "Show approximate charge level and charging progress"
+      "GPS and mobile network":
+        - "2 diagnostic status indicators"
+        - "Diagnostic status; see the LED guide for restart and normal patterns"
   components:
     cellular:
       manufacturer: "SIMCom Wireless Solutions Limited"
