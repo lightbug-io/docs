@@ -1602,7 +1602,7 @@ messages:
           See <a href="https://mcc-mnc.net/" target="_blank">mcc-mnc.net</a>
         type: uint16
       20:
-        name: Carrier Squelch
+        name: Signal Strength (CSQ)
         id: csq
         type: uint8
       21:
