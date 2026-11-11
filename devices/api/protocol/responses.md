@@ -14,6 +14,8 @@ Include a nonzero [Message ID (header 1)](./headers#1-message-id) when you need 
 
 For GPS Control GET and Message Box GET, a successful typed reply includes Response to and Status `0` only when the request has a nonzero Message ID. With an omitted or zero ID, both reply headers are omitted; the typed payload can still be returned.
 
+Device Status GET also returns its typed payload directly; Response to and Status may be omitted when the request has no nonzero Message ID.
+
 Response to can also identify a subscription in some message types. Do not assume every unsolicited update carries it: for example, Message Box publications use their subscription context rather than replying to the SUBSCRIBE request.
 
 ## Typed responses and ACKs
@@ -30,6 +32,14 @@ An ACK can identify the original request through Response to and/or its **ACK Ty
 ### When an ACK is sent
 
 Whether an ACK is sent depends on the operation and target. A missing or zero Message ID does not guarantee silence: typed replies and error replies may still be sent. Follow the message page's documented behavior.
+
+The following operation-specific conditions belong to this shared response reference, linked from each operation's response section:
+
+- [GSM Control SET](../messages/31-gsm-control#message-31-operation-control-flight-mode) (including network search), [SIM settings SET](../messages/33-sim-settings#message-33-operation-select-sim1) (both SIM choices), and [Device Status SUBSCRIBE/UNSUBSCRIBE](../messages/34-device-status#message-34-operation-subscribe) send a success MT5 ACK only when the request includes a nonzero Message ID. They send no success ACK for an omitted or zero ID.
+- For a request with a nonzero Message ID, [GPS Control SET](../messages/39-gps-control#message-39-operation-set) and [Message Box SET](../messages/58-message-box#message-58-operation-set) return a success ACK rather than the message-specific payload.
+- [Message Box SUBSCRIBE/UNSUBSCRIBE](../messages/58-message-box#message-58-operation-subscribe) suppress success ACKs for an omitted or zero Message ID; error ACKs are not suppressed for this reason.
+
+These conditions do not establish a universal rule for every MT5 reply.
 
 ## Status and errors
 
@@ -54,7 +64,7 @@ For example, current-format Message Box GET responses and publications carry hea
 
 ## Interaction revisions
 
-Usage documentation lives inline at `messages[messageId].interactions`. Each named interaction defines one or more messages through `request`, direct successful `response` (including ACK where applicable), and/or later or unsolicited `publication` stages. These definitions drive the documentation and SDK-facing usage metadata; they are not an index of definitions elsewhere.
+Usage documentation lives inline at `messages[messageId].interactions`. Each named interaction defines one or more messages through `request`, direct successful `response` (including ACK where applicable), and/or later or unsolicited `publication` stages. These definitions drive the documentation and interaction helper. Existing SDK consumers still use the retained method maps.
 
 Interaction revisions and wire message formats are independent. For example, the first revision of this interaction uses Message Box's existing format 2:
 
@@ -65,24 +75,46 @@ messages:
     interactions:
       replace-message-box:
         method: SET
+        title: Replace the cached message
         versions:
           1:
             messageVersion: 2
             request:
               headers:
                 5: {presence: required, value: 1}
-                22: {presence: required, value: 2, maxBytes: 1}
+                22: {presence: required, value: 2}
               fields:
                 129: {presence: required, maxBytes: 1024}
             response:
               messageId: 5
 ```
 
-Stages inherit the containing message type unless they specify `messageId`, so the response above uses the existing MT5 definition. Field names, types, units, enums and descriptions come from that message's `data` and the shared `header` definitions.
+`replace-message-box` is the stable lookup key; `title` is the display text and can change without renaming the interaction. The key `1` under `versions` identifies interaction revision 1, not wire format 1. Keep that revision explicit even when it is the only revision. The `messageVersion: 2` reference selects the existing wire format, while header 22 describes its presence and value on the request. An optional `anchorId` preserves an existing documentation fragment independently of the key and title.
+
+Stages inherit the containing message type unless they specify `messageId`, so the response above uses the existing MT5 definition. Field names, types, units, enums and descriptions come from that message's `data` and the shared `header` definitions. The uint8 type already gives header 22 its one-byte width; variable-size payload bounds such as `maxBytes: 1024` remain meaningful.
+
+A publication-only interaction uses the same explicit revision shape without inventing a method or request. This shortened example shows the existing tracking upload, not a new wire format:
+
+```yaml
+messages:
+  58:
+    interactions:
+      tracking-message-box-upload:
+        title: Tracking-session uploads
+        versions:
+          1:
+            messageVersion: 2
+            publication:
+              headers:
+                22: {presence: required, value: 2}
+              fields:
+                129:
+                  description: Independent Transmit Now upload data.
+```
 
 Request mappings list expected inputs, optional by default; mark required inputs explicitly. Leave unrelated inputs out, and keep important ignored or rejected input behavior in concise descriptions. An unlisted input is not a statement that firmware ignores, rejects or accepts it. Response and publication mappings can still mark omitted fields where wire-format or correlation differences matter. Write field descriptions only where the meaning differs.
 
-Existing method-keyed SDK request/response maps remain available without duplicating the interaction documentation.
+Documentation method lists are derived from the distinct `method` values on interactions. Existing method-keyed SDK request/response maps remain unchanged, with validation requiring their method names to match the interactions for migrated messages. Multiple interactions may use one method, and publication-only interactions add no method. Removing or regenerating the SDK maps is a separate migration.
 
 `messageVersion` references the containing message's existing wire-version definition. It does not itself insert header 22; the stage's headers describe what is sent. Unversioned controls omit it, even if other interactions on that message use versioned payloads. A new interaction revision may reuse the same wire version. Publication-only interactions need no dummy request or method. Applicability can be narrowed with `target` without making fields required.
 

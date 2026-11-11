@@ -11,6 +11,7 @@ import {
     documentationTextParts,
     documentationExamplesForContext,
     getMessageDocumentation,
+    getDocumentationMethods,
     getOperationVariant,
     getDocumentationFormat,
     documentationTargetOverride,
@@ -539,6 +540,105 @@ describe('Device IDs reference', () => {
 })
 
 describe('canonical inline interactions', () => {
+    it('derives unique documentation methods from interactions without changing SDK maps', () => {
+        const before = clone(protocol)
+        for (const id of [31, 33, 34, 35, 39, 58]) {
+            const message = protocol.messages[id]
+            expect(getDocumentationMethods(message).slice().sort()).toEqual(Object.keys(message.methods).sort())
+            expect(getMessageDocumentation(message)!.methods).toEqual(getDocumentationMethods(message))
+        }
+        expect(getDocumentationMethods(protocol.messages[31])).toEqual(['GET', 'SET'])
+        const publication = { interactions: { upload: { versions: { 1: { publication: {} } } } } }
+        expect(getDocumentationMethods(publication)).toEqual([])
+        expect(getDocumentationMethods({ methods: { GET: null, SET: null } })).toEqual(['GET', 'SET'])
+        const changed = clone(protocol.messages[31])
+        changed.methods = { SUBSCRIBE: null }
+        expect(getDocumentationMethods(changed)).toEqual(['GET', 'SET'])
+        expect(protocol).toEqual(before)
+    })
+
+    it('rejects method drift in either direction while allowing repeated and methodless interactions', () => {
+        const missing = clone(protocol)
+        delete missing.messages[31].methods.SET
+        expect(validateProtocolInteractions(missing).join('\n')).toContain('interaction method SET is missing from the SDK methods map')
+        const extra = clone(protocol)
+        extra.messages[33].methods.SUBSCRIBE = null
+        expect(validateProtocolInteractions(extra).join('\n')).toContain('SDK method SUBSCRIBE has no interaction')
+        const publication = { ...clone(protocol), messages: { 31: {
+            description: 'Publication only', data: {}, interactions: { upload: { versions: { 1: { publication: {} } } } },
+        } } }
+        expect(validateProtocolInteractions(publication)).toEqual([])
+        expect(validateProtocolInteractions(protocol)).toEqual([])
+    })
+
+    it('keeps interaction keys and public anchors stable when display titles change', () => {
+        for (const id of [31, 33, 34, 35, 39, 58]) {
+            const original = getMessageDocumentation(protocol.messages[id])!
+            const sample = clone(protocol.messages[id])
+            for (const interaction of Object.values(sample.interactions) as any[]) interaction.title = 'Revised display title'
+            const changed = getMessageDocumentation(sample)!
+            const identities = (docs: typeof original) => docs.operations.map(operation => ({
+                id: operation.id, anchorId: operation.anchorId,
+                revisions: operation.variants?.map(variant => [variant.id, variant.anchorId]),
+            }))
+            expect(identities(changed)).toEqual(identities(original))
+            expect(changed.operations.every(operation => operation.title === 'Revised display title')).toBe(true)
+        }
+    })
+
+    it('relies on uint8 for Message Version width while retaining variable payload limits and legacy selectors', () => {
+        expect(protocol.header[22].type).toBe('uint8')
+        for (const id of [31, 33, 34, 35, 39, 58]) {
+            const docs = getMessageDocumentation(protocol.messages[id])!
+            for (const operation of docs.operations) for (const variant of operation.variants || [operation]) {
+                const view = getOperationVariant(operation, variant.id)
+                for (const role of ['request', 'response', 'publication'] as const) {
+                    expect(view[role]?.headers?.[22]?.maxBytes).toBeUndefined()
+                }
+            }
+        }
+        const legacy = resolveProtocolInteraction(protocol, 58, 'read-message-box', 1)
+        expect(legacy.request?.headers?.[22]?.description).toContain('Omitted, explicitly 0, or malformed-width')
+        expect(legacy.response?.headers?.[22]?.presence).toBe('omitted')
+        expect(legacy.response?.fields?.[10]?.maxBytes).toBe(255)
+        expect(resolveProtocolInteraction(protocol, 58, 'replace-message-box', 1).request?.fields?.[129]?.maxBytes).toBe(1024)
+        expect(resolveProtocolInteraction(protocol, 33, 'select-sim2', 1).request?.fields?.[2]?.minBytes).toBe(1)
+    })
+
+    it('validates both published authoring examples against the existing wire definitions', () => {
+        const guide = readFileSync(resolve(__dirname, '../devices/api/protocol/responses.md'), 'utf8')
+        const examples = [...guide.matchAll(/```yaml\n([\s\S]*?)```/g)].map(match => yaml.load(match[1]).messages[58])
+        expect(examples).toHaveLength(2)
+        for (const example of examples) {
+            const sample = clone(protocol)
+            const methods = Object.fromEntries(getDocumentationMethods(example).map(method => [method, null]))
+            sample.messages[58] = { ...sample.messages[58], ...example, methods }
+            expect(validateMessageDocumentation(sample, 58)).toEqual([])
+            for (const source of Object.values(example.interactions) as any[]) {
+                expect(Object.keys(source.versions)).toEqual(['1'])
+                expect(source.versions[1].messageVersion).toBe(2)
+            }
+        }
+    })
+
+    it('keeps ACK schemas local and operation-specific suppression in the linked response reference', () => {
+        for (const [id, names] of [
+            [31, ['control-flight-mode', 'start-search']],
+            [33, ['select-sim1', 'select-sim2']],
+        ] as const) for (const name of names) {
+            const response = resolveProtocolInteraction(protocol, id, name, 1).response!
+            expect(response.messageId).toBe(5)
+            expect(response.fields?.[1]?.value).toBe(id)
+        }
+        const guide = readFileSync(resolve(__dirname, '../devices/api/protocol/responses.md'), 'utf8')
+        expect(guide).toContain('GSM Control SET')
+        expect(guide).toContain('SIM settings SET')
+        expect(guide).toContain('Device Status SUBSCRIBE/UNSUBSCRIBE')
+        expect(guide).toContain('send no success ACK for an omitted or zero ID')
+        expect(guide).toContain('error ACKs are not suppressed for this reason')
+        expect(guide).toContain('do not establish a universal rule for every MT5 reply')
+    })
+
     it('uses inline interactions as the only documentation source without mutating wire definitions', () => {
         const before = clone(protocol)
         expect(protocol.interactions).toBeUndefined()
@@ -624,7 +724,8 @@ describe('canonical inline interactions', () => {
         expect(sim1.request?.fields?.[1].value).toBe(0)
         expect(sim2.request?.fields?.[1].value).toBe(1)
         expect(sim2.request?.fields?.[2]).toMatchObject({ presence: 'required', minBytes: 1 })
-        expect(sim.data[8].readonly).toBe(true)
+        // Retain the legacy SDK setter API until its separate migration.
+        expect(sim.data[8].readonly).toBeUndefined()
         expect(sim1.response?.messageId).toBe(5)
     })
 
@@ -664,6 +765,7 @@ describe('canonical inline interactions', () => {
 
     it.each([
         ['unknown property', (source: any) => { source.context = 'old-alias' }],
+        ['empty method', (source: any) => { source.method = '' }],
         ['invalid title', (source: any) => { source.title = 4 }],
         ['empty revisions', (source: any) => { source.versions = {} }],
         ['zero revision', (source: any) => { source.versions = { 0: source.versions[1] } }],

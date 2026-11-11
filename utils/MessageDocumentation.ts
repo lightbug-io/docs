@@ -162,6 +162,8 @@ export interface DocumentationFormat {
 
 export interface MessageDocumentation {
     summary: string
+    /** Derived from interactions for migrated messages, never a second authored list. */
+    methods: string[]
     target?: string
     /** Message-specific field summaries, referencing message.data definitions. */
     fields?: Record<string, DocumentationField>
@@ -184,6 +186,14 @@ export function documentationTargetOverride(target?: string, inherited?: string)
 export function hasInlineMessageDocumentation(message: any): boolean {
     return !!message && (message.interactions !== undefined || message.versions !== undefined || message.contexts !== undefined ||
         Object.values(message.methods || {}).some((method: any) => method?.exchange !== undefined || method?.versions !== undefined))
+}
+
+/** Distinct methods in authoring order; publications need no placeholder method. */
+export function getDocumentationMethods(message: any): string[] {
+    if (message?.interactions === undefined) return Object.keys(message?.methods || {})
+    return [...new Set(Object.values(message.interactions || {})
+        .map((interaction: any) => interaction?.method)
+        .filter((method): method is string => typeof method === 'string' && !!method.trim()))]
 }
 
 function wireVersion(exchange: any): number | undefined {
@@ -277,7 +287,7 @@ export function getMessageDocumentation(message: any): MessageDocumentation | un
         }
     })
     return {
-        summary: message.description || '', target: message.target, notes: message.notes,
+        summary: message.description || '', methods: getDocumentationMethods(message), target: message.target, notes: message.notes,
         fields: formats.length ? undefined : fieldsFor(),
         formats: formats.length ? formats : undefined, operations,
     }
@@ -389,7 +399,7 @@ function validateInlineDocumentation(message: any, messageId: number, protocol: 
         else for (const [id, source] of Object.entries(message.interactions) as [string, any][]) {
             if (!object(source)) { errors.push(`${id} interaction must be an object`); continue }
             knownKeys(source, ['method', 'title', 'description', 'target', 'anchorId', 'versions', 'errors', 'examples', 'request', 'response', 'publication'], id)
-            text(source, ['title', 'description', 'target', 'anchorId'], id)
+            text(source, ['method', 'title', 'description', 'target', 'anchorId'], id)
             if (!object(source.versions) || !Object.keys(source.versions).length) { errors.push(`${id} versions must be a nonempty mapping`); continue }
             validateExchangeShape(source, id, true)
             for (const [revision, exchange] of Object.entries(source.versions) as [string, any][]) {
@@ -425,6 +435,12 @@ function validateInlineDocumentation(message: any, messageId: number, protocol: 
         if (message.contexts !== undefined || Object.values(message.methods || {}).some((method: any) => method?.exchange !== undefined || method?.versions !== undefined)) {
             errors.push('interaction documentation must not also be authored in methods or contexts')
         }
+        // SDK maps remain unchanged until their consumers migrate. Compare only
+        // method membership: their request/response maps are not usage contexts.
+        const methods = getDocumentationMethods(message)
+        const sdkMethods = Object.keys(message.methods || {})
+        for (const method of methods) if (!sdkMethods.includes(method)) errors.push(`interaction method ${method} is missing from the SDK methods map`)
+        for (const method of sdkMethods) if (!methods.includes(method)) errors.push(`SDK method ${method} has no interaction`)
     }
     for (const [name, source] of [...Object.entries(message.methods || {}), ...Object.entries(message.contexts || {})] as [string, any][]) {
         if (!source) continue

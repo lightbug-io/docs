@@ -327,6 +327,7 @@ onBeforeUnmount(() => {
     </div>
     <div class="message-content">
     <p :id="`message-${messageId}-overview`" class="message-summary"><DocumentationText :text="documentation.summary" :messages="yamlData.messages" /></p>
+    <p v-if="documentation.methods.length" class="section-caption"><strong>Methods</strong> {{ documentation.methods.join(', ') }}</p>
     <p v-if="documentation.target" class="support-context"><strong>Applies to</strong> {{ documentation.target }}</p>
 
     <div v-if="overviewNotes.length" :id="`message-${messageId}-notes`" class="overview-notes">
