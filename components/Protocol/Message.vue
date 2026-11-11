@@ -311,6 +311,7 @@ import { readTypedData } from '../../src/protocol/base.gen';
 import { formatSentinelValue } from '../../utils/ProtocolSentinels';
 import crc16 from 'crc/crc16xmodem';
 import { Buffer } from 'buffer';
+import { parseByteString, type ByteStringEncoding } from '../../utils/ByteStringParser';
 import Bytes from './Bytes.vue';
 
 interface ByteSection {
@@ -339,6 +340,18 @@ export default defineComponent({
         byteString: {
             type: String,
             required: true
+        },
+        normalizedBytes: {
+            type: Array as PropType<number[]>,
+            default: undefined
+        },
+        encoding: {
+            type: String as PropType<ByteStringEncoding>,
+            default: 'auto'
+        },
+        displayType: {
+            type: String as PropType<'ints' | 'hex' | 'hex0x' | 'printf'>,
+            default: 'ints'
         },
         yamlData: {
             type: Object as PropType<any>,
@@ -390,7 +403,7 @@ export default defineComponent({
 
         const isCogModalVisible = ref(false);
         const isBytesCollapsed = ref(props.defaultCollapsed);
-        const byteDisplayType = ref<'ints' | 'hex' | 'hex0x' | 'printf'>('ints');
+        const byteDisplayType = ref<'ints' | 'hex' | 'hex0x' | 'printf'>(props.displayType);
         const byteCopySpaces = ref(true);
         const byteCopyCommas = ref(false);
         const byteUpperCase = ref(true);
@@ -413,6 +426,8 @@ export default defineComponent({
         const sectionParseOverrides = ref<Record<number, string>>({});
 
         const byteArray = computed(() => {
+            if (props.normalizedBytes) return props.normalizedBytes.map(byte => String(byte));
+            if (props.encoding !== 'auto') return parseByteString(props.byteString, props.encoding).bytes.map(byte => String(byte));
             const trimmed = props.byteString.trim();
             if (!trimmed) return [];
 
