@@ -376,7 +376,9 @@ describe('Device Status reference', () => {
         const message = protocol.messages[34];
         expect(message.data[12]).toMatchObject({ id: 'batteryResistance', type: 'uint16', unit: 'mOhm' });
         expect(message.data[13]).toMatchObject({ id: 'batteryResistanceTemperature', type: 'int16', conversion: 100, unit: 'C' });
-        expect(message.data[13].description).toContain('-32768 means unavailable');
+        expect(message.data[13].sentinels[-32768]).toMatchObject({ id: 'unavailable', name: 'Unavailable' });
+        const fields = resolveDocumentationFields(protocol, message, docs.fields, 'fields');
+        expect(fields.find(field => field.id === 13)?.sentinels).toEqual(message.data[13].sentinels);
         expect(message.data[14]).toMatchObject({ id: 'batteryChargeAh', type: 'float32', unit: 'Ah' });
         for (const context of [message.methods.GET.exchange.response, message.methods.SUBSCRIBE.exchange.publication]) {
             for (const id of [12, 13, 14]) expect(context.fields[id]).toEqual({ presence: 'optional' });

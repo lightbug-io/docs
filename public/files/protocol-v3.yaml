@@ -1434,13 +1434,18 @@ messages:
         name: Battery Resistance Temperature
         id: batteryResistanceTemperature
         type: int16
+        sentinels:
+          -32768:
+            id: unavailable
+            name: Unavailable
+            description: No temperature was available at the resistance measurement.
         raw-unit: cC
         conversion: 100
         unit: C
         description: >-
           Temperature at the latest battery resistance measurement, in centi-degrees Celsius
-          (divide by 100 for degrees Celsius). The raw value -32768 means unavailable,
-          not -327.68 C. On RH2 this is the fuel gauge's internal temperature; Viper6
+          (divide by 100 for degrees Celsius, except for declared sentinels).
+          On RH2 this is the fuel gauge's internal temperature; Viper6
           with an INA236 does not provide this temperature. Included with field 12 when
           battery diagnostics are available; otherwise the field may be omitted.
       14:

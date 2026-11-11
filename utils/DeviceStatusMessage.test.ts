@@ -4,6 +4,8 @@ import { parse } from '@vue/compiler-sfc'
 import ts from 'typescript'
 import { calculateCRC16XMODEM, messageToBytesHelper, parseRawMessage, writeTypedData } from '../src/protocol/base.gen'
 
+import { capturedDocumentationValues, type DocumentationExample } from './MessageDocumentation'
+
 const yaml = require('js-yaml')
 const protocol = yaml.load(readFileSync(resolve(__dirname, '../public/files/protocol-v3.yaml'), 'utf8'))
 // Exercise the real parser component's computed annotations without its presentation controls.
@@ -15,12 +17,13 @@ const componentExports: any = {}
 new Function('require', 'exports', javascript)((id: string) => {
     if (id === 'vitepress') return { withBase: (path: string) => path }
     if (id === './Bytes.vue') return {}
+    if (id === '../../utils/ProtocolSentinels') return require('./ProtocolSentinels')
     if (id === '../../src/protocol/base.gen') return require('../src/protocol/base.gen')
     return require(id)
 }, componentExports)
-function sections(bytes: number[]) {
+function sections(bytes: number[], yamlData = protocol) {
     return componentExports.default.setup({
-        byteString: bytes.join(' '), yamlData: protocol, readOnly: true, showValidation: true,
+        byteString: bytes.join(' '), yamlData, readOnly: true, showValidation: true,
     }).byteSections.value
 }
 
@@ -48,4 +51,63 @@ it.each([-525, 0, 2300])('converts a valid resistance temperature %i to Celsius'
     const annotation = sections(messageToBytesHelper(message)).find((section: any) => section.label === 'Battery Resistance Temperature')
     expect(Number(annotation.value)).toBe(temperature / 100)
     expect(annotation.unit).toBe('C')
+})
+
+it('uses declared sentinels on arbitrary message and field IDs, before enum labels or conversion', () => {
+    const message = parseRawMessage(capture)
+    message.messageType = 222
+    message.data = { 42: writeTypedData(-32768, 'int16') }
+    const yamlData = { messages: { 222: { data: { 42: {
+        ...protocol.messages[34].data[13],
+        values: { '-32768': { name: 'Must not appear' } },
+    } } } } }
+    expect(sections(messageToBytesHelper(message), yamlData).find((section: any) => section.label === 'Battery Resistance Temperature')).toMatchObject({
+        value: 'Unavailable (raw -32768)', unit: undefined, rawUnit: undefined, conversion: undefined,
+        rawBytes: [0, 128], validation: undefined,
+    })
+})
+
+it('keeps the ordinary int16 minimum when the field does not declare a sentinel', () => {
+    const yamlData = JSON.parse(JSON.stringify(protocol))
+    delete yamlData.messages[34].data[13].sentinels
+    expect(sections(capture, yamlData).find((section: any) => section.label === 'Battery Resistance Temperature')).toMatchObject({
+        value: '-327.68', unit: 'C', rawUnit: 'cC', conversion: 100, rawBytes: [0, 128],
+    })
+})
+
+it('does not invent an unavailable reading when the field is absent', () => {
+    const message = parseRawMessage(capture)
+    delete message.data[13]
+    expect(sections(messageToBytesHelper(message)).some((section: any) => section.label === 'Battery Resistance Temperature')).toBe(false)
+})
+
+it('applies declared header sentinels through the same lookup', () => {
+    const message = parseRawMessage(capture)
+    message.header[42] = writeTypedData(0, 'uint8')
+    const yamlData = { ...protocol, header: { ...protocol.header, 42: {
+        name: 'Test header', type: 'uint8', conversion: 100, unit: 'C',
+        sentinels: { 0: { id: 'unknown', name: 'Unknown' } },
+    } } }
+    expect(sections(messageToBytesHelper(message), yamlData).find((section: any) => section.label === 'Test header')).toMatchObject({
+        value: 'Unknown (raw 0)', unit: undefined, rawUnit: undefined, conversion: undefined,
+    })
+})
+
+function capturedValues(bytes: number[], definitions = protocol.messages[34].data) {
+    const example: DocumentationExample = {
+        title: 'Device Status capture', provenance: 'captured',
+        frames: [{ role: 'response', label: 'Status', bytes: bytes.join(' ') }],
+    }
+    return capturedDocumentationValues(example, 34, definitions)
+}
+
+it('shares sentinel presentation with captured documentation values', () => {
+    expect(capturedValues(capture).find(field => field.id === 13)?.value).toBe('Unavailable (raw -32768)')
+    const message = parseRawMessage(capture)
+    message.data[13] = writeTypedData(-525, 'int16')
+    expect(capturedValues(messageToBytesHelper(message)).find(field => field.id === 13)?.value).toBe('-525 cC (raw)')
+    delete message.data[13]
+    expect(capturedValues(messageToBytesHelper(message)).some(field => field.id === 13)).toBe(false)
+    const definitions = { ...protocol.messages[34].data, 13: { type: 'int16', conversion: 100, 'raw-unit': 'cC', unit: 'C' } }
+    expect(capturedValues(capture, definitions).find(field => field.id === 13)?.value).toBe('-32768 cC (raw)')
 })

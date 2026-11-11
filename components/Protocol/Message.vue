@@ -308,6 +308,7 @@
 import { withBase } from 'vitepress';
 import { defineComponent, ref, computed, PropType } from 'vue';
 import { readTypedData } from '../../src/protocol/base.gen';
+import { formatSentinelValue } from '../../utils/ProtocolSentinels';
 import crc16 from 'crc/crc16xmodem';
 import { Buffer } from 'buffer';
 import Bytes from './Bytes.vue';
@@ -666,29 +667,34 @@ export default defineComponent({
                         const headerValueType = headerFieldDef.type || 'uint8';
                         const headerValue = readTypedData(dataBytes, headerValueType);
 
-                        // Get unit information from field definition
-                        const parser = headerFieldDef.parsers?.[0]?.parser;
-                        const fieldUnit = headerFieldDef.unit;
-                        rawUnit = headerFieldDef['raw-unit'];
-                        conversion = headerFieldDef.conversion;
-
-                        // Format the value with conversion/parser if applicable
-                        // Pass the unit to formatValue so it can determine seconds vs milliseconds for timestamps
-                        const formattedValue = formatValue(headerValue, parser, conversion, fieldUnit);
-
-                        // Don't show unit label for timestamp parser (it's already human-readable)
-                        if (parser === 'timestamp') {
-                            unit = undefined;
+                        const sentinel = dataBytes.length ? formatSentinelValue(headerValue, headerFieldDef) : undefined;
+                        if (sentinel !== undefined) {
+                            displayValue = sentinel;
                         } else {
-                            unit = fieldUnit;
-                        }
+                            // Get unit information from field definition
+                            const parser = headerFieldDef.parsers?.[0]?.parser;
+                            const fieldUnit = headerFieldDef.unit;
+                            rawUnit = headerFieldDef['raw-unit'];
+                            conversion = headerFieldDef.conversion;
 
-                        // Check if there's a value mapping for this header field
-                        const headerValueMapping = headerFieldDef.values?.[headerValue];
-                        if (headerValueMapping?.name) {
-                            displayValue = `${formattedValue} (${headerValueMapping.name})`;
-                        } else {
-                            displayValue = formattedValue;
+                            // Format the value with conversion/parser if applicable
+                            // Pass the unit to formatValue so it can determine seconds vs milliseconds for timestamps
+                            const formattedValue = formatValue(headerValue, parser, conversion, fieldUnit);
+
+                            // Don't show unit label for timestamp parser (it's already human-readable)
+                            if (parser === 'timestamp') {
+                                unit = undefined;
+                            } else {
+                                unit = fieldUnit;
+                            }
+
+                            // Check if there's a value mapping for this header field
+                            const headerValueMapping = headerFieldDef.values?.[headerValue];
+                            if (headerValueMapping?.name) {
+                                displayValue = `${formattedValue} (${headerValueMapping.name})`;
+                            } else {
+                                displayValue = formattedValue;
+                            }
                         }
 
                         // Validate byte length against expected type size
@@ -836,37 +842,34 @@ export default defineComponent({
                         const payloadValueType = payloadFieldDef.type || 'uint8';
                         const payloadValue = readTypedData(dataBytes, payloadValueType);
 
-                        // Get unit information from field definition
-                        const parser = payloadFieldDef.parsers?.[0]?.parser;
-                        const fieldUnit = payloadFieldDef.unit;
-                        rawUnit = payloadFieldDef['raw-unit'];
-                        conversion = payloadFieldDef.conversion;
-
-                        // Format the value with conversion/parser if applicable
-                        // Pass the unit to formatValue so it can determine seconds vs milliseconds for timestamps
-                        const formattedValue = formatValue(payloadValue, parser, conversion, fieldUnit);
-
-                        // Don't show unit label for timestamp parser (it's already human-readable)
-                        if (parser === 'timestamp') {
-                            unit = undefined;
+                        const sentinel = dataBytes.length ? formatSentinelValue(payloadValue, payloadFieldDef) : undefined;
+                        if (sentinel !== undefined) {
+                            displayValue = sentinel;
                         } else {
-                            unit = fieldUnit;
-                        }
+                            // Get unit information from field definition
+                            const parser = payloadFieldDef.parsers?.[0]?.parser;
+                            const fieldUnit = payloadFieldDef.unit;
+                            rawUnit = payloadFieldDef['raw-unit'];
+                            conversion = payloadFieldDef.conversion;
 
-                        // Check if there's a value mapping for this payload field
-                        const payloadValueMapping = payloadFieldDef.values?.[payloadValue];
-                        if (payloadValueMapping?.name) {
-                            displayValue = `${formattedValue} (${payloadValueMapping.name})`;
-                        } else {
-                            displayValue = formattedValue;
-                        }
+                            // Format the value with conversion/parser if applicable
+                            // Pass the unit to formatValue so it can determine seconds vs milliseconds for timestamps
+                            const formattedValue = formatValue(payloadValue, parser, conversion, fieldUnit);
 
-                        // MT34 uses INT16_MIN for an unavailable reading, not a temperature.
-                        if (messageType === 34 && payloadType === 13 && payloadValue === -32768) {
-                            displayValue = 'Unavailable (raw -32768)';
-                            unit = undefined;
-                            rawUnit = undefined;
-                            conversion = undefined;
+                            // Don't show unit label for timestamp parser (it's already human-readable)
+                            if (parser === 'timestamp') {
+                                unit = undefined;
+                            } else {
+                                unit = fieldUnit;
+                            }
+
+                            // Check if there's a value mapping for this payload field
+                            const payloadValueMapping = payloadFieldDef.values?.[payloadValue];
+                            if (payloadValueMapping?.name) {
+                                displayValue = `${formattedValue} (${payloadValueMapping.name})`;
+                            } else {
+                                displayValue = formattedValue;
+                            }
                         }
 
                         // Validate byte length against expected type size
