@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter, withBase } from 'vitepress'
 import Message from './Message.vue'
+import ExamplesSection from './ExamplesSection.vue'
 import DocumentationText from './DocumentationText.vue'
 import SentinelValues from './SentinelValues.vue'
 import {
@@ -20,11 +21,11 @@ import {
   documentationExamplesForContext,
   documentationTargetOverride,
   getDocumentationFormat,
+  getMessageDocumentation,
   getOperationVariant,
   resolveDocumentationFields,
   type DocumentationOperation,
 } from '../../utils/MessageDocumentation'
-import { getInteractionDocumentation } from '../../utils/ProtocolInteractions'
 
 const props = defineProps<{
   messageId: number
@@ -32,7 +33,7 @@ const props = defineProps<{
 }>()
 
 const message = computed(() => props.yamlData.messages?.[props.messageId])
-const documentation = computed(() => getInteractionDocumentation(props.yamlData, props.messageId))
+const documentation = computed(() => getMessageDocumentation(message.value))
 const copyStatus = ref('')
 const router = useRouter()
 let removeRouteCorrection: (() => void) | undefined
@@ -43,7 +44,7 @@ let activeFrame = 0
 const exampleColumns = ref<HTMLElement[]>([])
 const jumpBarHeight = ref(64)
 let jumpBarObserver: ResizeObserver | undefined
-const operationAnchor = (item: DocumentationOperation) => `message-${props.messageId}-operation-${item.id}`
+const operationAnchor = (item: DocumentationOperation) => `message-${props.messageId}-operation-${item.anchorId || item.id}`
 const acknowledgmentUrl = withBase('/devices/api/messages/5-ack#header')
 const responseReferenceUrl = withBase('/devices/api/protocol/responses')
 const panels = computed(() => (documentation.value?.operations || []).flatMap(item => {
@@ -104,11 +105,6 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
       errors: (view.errors || []).map(error => ({ ...error, name: props.yamlData.header?.[4]?.values?.[error.code]?.name })),
     }
   })
-}))
-
-const interactionLinks = computed(() => (documentation.value?.interactions || []).flatMap(interaction => {
-  const panel = panels.value.find(item => item.operation.id === interaction.operationId && item.variant.messageVersion === interaction.messageVersion)
-  return panel ? [{ ...interaction, anchor: panel.anchor }] : []
 }))
 
 function fieldsWithExamples(fields: ReturnType<typeof resolveDocumentationFields>, selectedPanels: typeof panels.value) {
@@ -188,6 +184,7 @@ const outlineEntries = computed<MessageOutlineEntry[]>(() => {
       entries.push({ id: panel.anchor, title: panel.operation.method || 'Upload', depth })
     }
   }
+  if (message.value.examples?.length) entries.push({ id: `message-${props.messageId}-wire-examples`, title: 'Wire examples', depth: 0 })
   entries.push({ id: `message-${props.messageId}-constants`, title: 'Constants', depth: 0 })
   return entries
 })
@@ -328,15 +325,6 @@ onBeforeUnmount(() => {
     <div class="message-content">
     <p :id="`message-${messageId}-overview`" class="message-summary">{{ documentation.summary }}</p>
     <p v-if="documentation.target" class="support-context"><strong>Applies to</strong> {{ documentation.target }}</p>
-    <details v-if="interactionLinks.length" class="interaction-index">
-      <summary>Named interactions</summary>
-      <ul>
-        <li v-for="interaction in interactionLinks" :key="`${interaction.interactionId}/${interaction.interactionVersion}`">
-          <a :href="`#${interaction.anchor}`"><code>{{ interaction.interactionId }}</code> · revision {{ interaction.interactionVersion }}</a>
-          <span v-if="interaction.messageVersion !== undefined"> · wire version {{ interaction.messageVersion }}</span>
-        </li>
-      </ul>
-    </details>
 
     <div v-if="overviewNotes.length" :id="`message-${messageId}-notes`" class="overview-notes">
       <section v-for="note in overviewNotes" :key="note.id" class="overview-note" :aria-labelledby="`message-${messageId}-note-${note.id}`">
@@ -373,6 +361,7 @@ onBeforeUnmount(() => {
                 <td><code>{{ field.type }}</code></td>
                 <td>
                   <p v-if="field.description" class="prose"><DocumentationText :text="field.description" /></p>
+                  <p v-if="field.minBytes !== undefined" class="field-limit">Minimum {{ field.minBytes }} bytes</p>
                   <p v-if="field.maxBytes !== undefined" class="field-limit">Maximum {{ field.maxBytes }} bytes</p>
                   <ul v-if="field.values.length" class="field-values">
                     <li v-for="value in field.values" :key="value.value"><code>{{ value.value }}</code><strong v-if="value.name"> · {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span></li>
@@ -438,6 +427,7 @@ onBeforeUnmount(() => {
                     <div class="field-metadata">
                       <code v-if="field.type">{{ field.type }}</code>
                       <span v-if="field.presence" class="presence" :class="`presence-${field.presence}`">{{ field.presence }}</span>
+                      <span v-if="field.minBytes !== undefined" class="field-limit">Minimum {{ field.minBytes }} bytes</span>
                       <span v-if="field.maxBytes !== undefined" class="field-limit">Maximum {{ field.maxBytes }} bytes</span>
                     </div>
                     <p v-if="field.value !== undefined" class="fixed-value"><strong>Value</strong> <code>{{ field.value }}</code><span v-if="field.valueName"> · {{ field.valueName }}</span></p>
@@ -465,7 +455,7 @@ onBeforeUnmount(() => {
         </section>
 
         <aside class="reference-examples" :aria-label="context.examplesTitle">
-          <span v-if="panel === groups[0]?.panels[0] && context === panel.contexts[0]" id="examples" class="operation-anchor" aria-hidden="true"></span>
+          <span v-if="!message.examples?.length && panel === groups[0]?.panels[0] && context === panel.contexts[0]" id="examples" class="operation-anchor" aria-hidden="true"></span>
           <div ref="exampleColumns" class="context-examples">
           <span :id="context.examplesAnchor" class="operation-anchor" aria-hidden="true"></span>
           <p v-if="!context.examples.length" class="example-placeholder">No captured example available yet.</p>
@@ -523,6 +513,11 @@ onBeforeUnmount(() => {
         <p class="prose">{{ note.description }}</p>
       </section>
     </div>
+    <section v-if="message.examples?.length" :id="`message-${messageId}-wire-examples`" class="message-constants">
+      <span id="examples" class="operation-anchor" aria-hidden="true"></span>
+      <h2>Wire examples</h2>
+      <ExamplesSection :message-id="messageId" :yaml-data="yamlData" />
+    </section>
     <section :id="`message-${messageId}-constants`" class="message-constants" :aria-labelledby="`message-${messageId}-constants-heading`">
       <span id="code" class="operation-anchor" aria-hidden="true"></span>
       <h2 :id="`message-${messageId}-constants-heading`">Message and field constants</h2>
@@ -548,9 +543,6 @@ onBeforeUnmount(() => {
 .structured-message p { color: var(--reference-muted); }
 .structured-message [id] { scroll-margin-top: calc(var(--message-sticky-top) + var(--message-jump-height, 64px) + 24px); }
 .structured-message .message-summary { margin: 16px 0 10px; font-size: 16px; line-height: 1.8; white-space: pre-line; }
-.interaction-index { margin: 12px 0; }
-.interaction-index summary { cursor: pointer; font-weight: 600; }
-.structured-message .interaction-index ul { margin: 8px 0; padding-left: 20px; }
 .support-context { font-size: 12px; }
 .support-context strong, .target-context strong { margin-right: 8px; font-weight: 600; }
 .message-navigation { position: sticky; top: var(--message-sticky-top); z-index: 10; min-width: 0; margin: 22px 0; align-self: start; }

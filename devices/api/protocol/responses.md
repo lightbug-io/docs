@@ -54,20 +54,35 @@ For example, current-format Message Box GET responses and publications carry hea
 
 ## Interaction revisions
 
-The protocol YAML's `interactions` catalog names documented exchanges that reuse an existing message's method or named context. Resolving an interaction supplies its `request`, direct successful `response` (including ACK where applicable), and/or later or unsolicited `publication` messages from that exchange. It does not guarantee that every stage is sent; the existing correlation, suppression and target rules still apply. This initial catalog describes exchanges, not arbitrary ordered sequences of requests.
+Usage documentation lives inline at `messages[messageId].interactions`. Each named interaction defines one or more messages through `request`, direct successful `response` (including ACK where applicable), and/or later or unsolicited `publication` stages. These definitions drive the documentation and SDK-facing usage metadata; they are not an index of definitions elsewhere.
 
 Interaction revisions and wire message formats are independent. For example, the first revision of this interaction uses Message Box's existing format 2:
 
 ```yaml
-replace-message-box:
-  messageId: 58
-  method: SET
-  versions: {1: {messageVersion: 2}}
+messages:
+  58:
+    # Existing data fields and wire-version definitions remain here.
+    interactions:
+      replace-message-box:
+        method: SET
+        versions:
+          1:
+            messageVersion: 2
+            request:
+              headers:
+                5: {presence: required, value: 1}
+                22: {presence: required, value: 2, maxBytes: 1}
+              fields:
+                129: {presence: required, maxBytes: 1024}
+            response:
+              messageId: 5
 ```
 
-`messageVersion` selects an existing method/context variant. It does not itself insert header 22; the referenced exchange defines the actual headers. Unversioned methods or contexts omit `messageVersion`, even when their containing message has versioned payloads. A publication-only interaction references `context` instead of `method`, without inventing a request or wire method.
+Stages inherit the containing message type unless they specify `messageId`, so the response above uses the existing MT5 definition. Field names, types, units, enums and descriptions come from that message's `data` and the shared `header` definitions. Usage mappings list applicable fields, optional by default; mark required, omitted or ignored fields explicitly and write descriptions only where the meaning differs. Existing method-keyed SDK request/response maps remain available without duplicating the interaction documentation.
 
-Keep field definitions, descriptions, examples and applicability at their existing source. Interactions inherit them; an optional `target` can supply a more specific applicability description without making fields required. References share source semantics, so changes to an exchange require reviewing its interactions; a revision is not a frozen copy of that exchange. Existing `header`, `messages`, `data`, `methods` and message-version definitions remain usable without the catalog.
+`messageVersion` references the containing message's existing wire-version definition. It does not itself insert header 22; the stage's headers describe what is sent. Unversioned controls omit it, even if other interactions on that message use versioned payloads. A new interaction revision may reuse the same wire version. Publication-only interactions need no dummy request or method. Applicability can be narrowed with `target` without making fields required.
+
+An interaction describes an exchange, not arbitrary ordered sequences of requests. Its stages remain subject to the correlation, suppression and target rules above; defining a response does not guarantee it is sent.
 
 ## Subscription replies and later updates
 

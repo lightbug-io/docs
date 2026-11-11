@@ -1,6 +1,5 @@
 import fs from 'node:fs'
 import jsyaml from 'js-yaml'
-import { validateMessageDocumentation } from './utils/MessageDocumentation'
 import { validateProtocolInteractions } from './utils/ProtocolInteractions'
 
 export interface YamlDataInterface {
@@ -18,10 +17,7 @@ export default {
     const yamlContent = fs.readFileSync(yamlFile, 'utf-8')
     const parsedYaml = jsyaml.load(yamlContent) as YamlDataInterface
 
-    const documentationErrors = [
-      ...Object.keys(parsedYaml.messages || {}).flatMap(id => validateMessageDocumentation(parsedYaml, Number(id))),
-      ...validateProtocolInteractions(parsedYaml),
-    ]
+    const documentationErrors = validateProtocolInteractions(parsedYaml)
     if (documentationErrors.length) throw new Error(documentationErrors.join('\n'))
 
     return parsedYaml
