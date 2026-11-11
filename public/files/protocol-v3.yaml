@@ -1348,8 +1348,7 @@ messages:
     id: simSettings
     description: >-
       For devices that have dual-sim functionality, control which SIM is active and set APN parameters
-      for SIM2. GET returns settings directly. Successful SET operations return an ACK only when the
-      request includes a nonzero Message ID.
+      for SIM2.
     group: gsm
     header:
       - 5
@@ -1605,14 +1604,12 @@ messages:
               description: No payload fields are required. Method must be included; this message does not default
                 to GET.
               headers:
-                1:
-                  description: Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5: {presence: required, value: 2}
             response:
               title: Device status (MT34)
               description: A successful GET returns Device Status directly, without a separate success ACK.
-                Returned fields vary by target and available readings. Response To and Status may be omitted
-                when the request has no nonzero Message ID.
+                Returned fields vary by target and available readings.
               headers:
                 3: {}
                 4: {value: 0}
@@ -1657,8 +1654,7 @@ messages:
                 default subscription documented here. Updates are subject to the selected interval and message
                 level.
               headers:
-                1:
-                  description: Include a nonzero Message ID if you need a setup acknowledgment.
+                1: {}
                 5: {presence: required, value: 3}
                 6:
                   description: Publication interval in milliseconds. Omitted or 0 allows updates as new status
@@ -1679,9 +1675,8 @@ messages:
                   description: Default subscription. Omit this header or use 0 so UNSUBSCRIBE can cancel it.
             response:
               messageId: 5
-              description: A successful setup returns an MT5 acknowledgment with Status 0 when the request includes
-                a nonzero Message ID. This acknowledges the request, not delivery of a status update. No acknowledgment
-                is sent for an omitted or zero Message ID.
+              description: A successful setup returns an MT5 acknowledgment with Status 0. This acknowledges the
+                request, not delivery of a status update.
               headers:
                 3: {presence: required}
                 4: {presence: required, value: 0}
@@ -1721,13 +1716,11 @@ messages:
               description: No payload fields are required. Omit Subscription ID; this operation removes the
                 default subscription only.
               headers:
-                1:
-                  description: Include a nonzero Message ID if you need an acknowledgment.
+                1: {}
                 5: {presence: required, value: 5}
             response:
               messageId: 5
-              description: A successful cancellation returns an MT5 acknowledgment with Status 0 when the request
-                includes a nonzero Message ID. No acknowledgment is sent for an omitted or zero Message ID.
+              description: A successful cancellation returns an MT5 acknowledgment with Status 0.
               headers:
                 3: {presence: required}
                 4: {presence: required, value: 0}
@@ -1780,8 +1773,7 @@ messages:
             request:
               description: No payload fields are required. Include Method GET to request the device identifiers.
               headers:
-                1:
-                  description: Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5: {presence: required, value: 2}
             response:
               title: Device IDs (MT35)
@@ -2112,8 +2104,7 @@ messages:
           1:
             request:
               headers:
-                1:
-                  description: Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5: {presence: required, value: 2}
             response:
               title: GPS state (MT39)
@@ -2149,8 +2140,7 @@ messages:
             request:
               description: Sending the read-only GPS status (field 1) in SET is rejected with Invalid Parameter (4).
               headers:
-                1:
-                  description: Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5: {presence: required, value: 1}
               fields:
                 2:
@@ -2163,8 +2153,7 @@ messages:
                     the requested state.
             response:
               messageId: 5
-              description: For a request with a nonzero Message ID, successful SET returns an ACK, not GPS state.
-                Use GET to read the current state afterward.
+              description: Successful SET returns an ACK, not GPS state. Use GET to read the current state afterward.
               headers:
                 3: {}
                 4: {presence: required, value: 0}
@@ -3487,8 +3476,7 @@ messages:
             description: Use the unchanged legacy wire layout and additive checksum.
             request:
               headers:
-                1:
-                  description: Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5: {presence: required, value: 2}
                 22:
                   maxBytes: 1
@@ -3546,8 +3534,7 @@ messages:
             description: Select the complete extended payload and its CRC-16/XMODEM.
             request:
               headers:
-                1:
-                  description: Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5: {presence: required, value: 2}
                 22:
                   presence: required
@@ -3591,8 +3578,7 @@ messages:
                 the outer message-frame CRC protects the SET request itself. Optional supplied checksum fields
                 1 and 2 are ignored.
               headers:
-                1:
-                  description: Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5: {presence: required, value: 1}
                 22:
                   presence: required
@@ -3606,9 +3592,8 @@ messages:
                     the field is an error. Extended-length encoding uses a uint16 little-endian length prefix.
             response:
               messageId: 5
-              description: For a request with a nonzero Message ID, successful SET returns an ACK. It does not
-                return the cached bytes; subscriber publications are separate asynchronous messages and are
-                not this reply.
+              description: Successful SET returns an ACK, not the cached bytes. Subscriber publications are
+                separate asynchronous messages and are not this reply.
               headers:
                 3: {}
                 4: {presence: required, value: 0}
@@ -3636,10 +3621,8 @@ messages:
         response:
           messageId: 5
           title: Response (MT5 - ACK)
-          description: For a request with a nonzero Message ID, successful SUBSCRIBE returns a control ACK confirming
-            the subscription request only. It does not contain the cache. Success ACKs are suppressed for an
-            omitted or zero Message ID; error ACKs are not suppressed for this reason. Updates arrive as asynchronous
-            MT58 publications, not as direct replies to SUBSCRIBE.
+          description: Successful SUBSCRIBE returns a control ACK confirming the subscription request only. It does
+            not contain the cache. Updates arrive as asynchronous MT58 publications, not as direct replies to SUBSCRIBE.
           headers:
             '3': {presence: optional}
             '4': {presence: required, value: 0}
@@ -3664,8 +3647,7 @@ messages:
               publication format.
             request:
               headers:
-                1:
-                  description: Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5: {presence: required, value: 3}
                 6:
                   description: Optional publication interval in milliseconds. If omitted, updates are sent when
@@ -3736,8 +3718,7 @@ messages:
             description: Explicit version 2 selects the shared extended-payload and CRC publication format.
             request:
               headers:
-                1:
-                  description: Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5: {presence: required, value: 3}
                 6:
                   description: Optional publication interval in milliseconds. If omitted, updates are sent when
@@ -3792,16 +3773,14 @@ messages:
           1:
             request:
               headers:
-                1:
-                  description: Include a nonzero Message ID to correlate the reply.
+                1: {}
                 5: {presence: required, value: 5}
                 17:
                   description: Use the Subscription ID to remove, or omit it for the default subscription (0).
             response:
               messageId: 5
-              description: For a request with a nonzero Message ID, successful UNSUBSCRIBE returns a control
-                ACK confirming the unsubscribe request, not a final cached-message publication. Success ACKs
-                are suppressed for an omitted or zero Message ID; error ACKs are not suppressed for this reason.
+              description: Successful UNSUBSCRIBE returns a control ACK confirming the unsubscribe request, not a
+                final cached-message publication.
               headers:
                 3: {}
                 4: {presence: required, value: 0}
