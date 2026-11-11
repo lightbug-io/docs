@@ -1,0 +1,7 @@
+{
+  "name": "lightbug-docs-visual-diff",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "dependencies": { "@playwright/test": "1.65.0", "pixelmatch": "8.0.0", "pngjs": "7.0.0" }
+}

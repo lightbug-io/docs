@@ -39,3 +39,5 @@ The site build uses an environment variable `DEPLOYMENT_NAME` to alter some conf
 Both scripts use `cross-env` so they work cross-platform.
 
 PR preview workflows and administrator setup: [.github/preview](https://github.com/lightbug-io/docs/blob/main/.github/preview/README.md).
+
+Local visual page comparisons and manual review reports: [.github/visual](https://github.com/lightbug-io/docs/blob/main/.github/visual/README.md).

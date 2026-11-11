@@ -1,0 +1,32 @@
+name: Visual tooling tests
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/visual/**'
+      - '.github/workflows/visual-*.yml'
+      - 'package.json'
+permissions:
+  contents: read
+concurrency:
+  group: visual-tooling-tests-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      # PR code runs only on a fresh, read-only runner without shared caches.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22.23.4'
+      - run: npm ci --prefix .github/visual
+      - name: Run visual tooling unit tests
+        run: node --test .github/visual/*.test.mjs
+      - run: npm exec --prefix .github/visual -- playwright install --with-deps chromium
+      - name: Compare synthetic local fixture pages
+        run: node .github/visual/smoke.mjs
