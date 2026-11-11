@@ -417,7 +417,8 @@ export default defineComponent({
                 const prefixedConstants: Record<string, any> = {};
                 for (const key in parsedData) {
                     prefixedConstants[`${key}`] = {
-                        name: `${props.prefix}${parsedData[key].name}`,
+                        // Parentheses belong in display labels, not code identifiers.
+                        name: `${props.prefix}${parsedData[key].name}`.replace(/[()]/g, ''),
                         description: parsedData[key].description
                     };
                 }

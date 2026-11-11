@@ -21,6 +21,16 @@ import {
 const protocol: any = yaml.load(readFileSync(resolve(__dirname, '../public/files/protocol-v3.yaml'), 'utf8'))
 const clone = (value: any) => JSON.parse(JSON.stringify(value))
 
+describe('Cell Info signal strength terminology', () => {
+    it('names raw CSQ as signal strength while preserving the field identity and type', () => {
+        expect(protocol.messages[37].data[20]).toEqual({
+            name: 'Signal Strength (CSQ)',
+            id: 'csq',
+            type: 'uint8',
+        })
+    })
+})
+
 describe('paired exchange stages', () => {
     it('groups frame metadata by stage without mutating order or anchor indices', () => {
         // Metadata-only fixture; this test does not assert protocol packet bytes.
