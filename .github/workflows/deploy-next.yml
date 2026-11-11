@@ -48,6 +48,15 @@ jobs:
           PUBLIC_GOOGLE_ANALYTICS: ${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS }}
           DEPLOYMENT_NAME: 'Next'
 
+      - name: Upload all build files
+        if: success()
+        run: aws s3 cp .vitepress/dist/ "s3://${AWS_S3_BUCKET}/" --recursive
+        env:
+          AWS_S3_BUCKET: ${{ vars.NEXT_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.NEXT_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.NEXT_SECRET }}
+          AWS_REGION: ${{ vars.NEXT_REGION }}
+
       - name: Deploy
         if: success()
         uses: jakejarvis/s3-sync-action@v0.5.1
