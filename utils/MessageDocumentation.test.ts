@@ -103,11 +103,14 @@ describe('shared response conventions', () => {
         expect(commonResponseHeaderIds({ headers: { '3': { presence: 'omitted' }, '4': { presence: 'required', value: 4 } } })).toEqual([])
         expect(commonResponseHeaderIds({ headers: { '3': { presence: 'optional', description: 'A message-specific correlation rule.' }, '4': { presence: 'required', value: 0, maxBytes: 1 } } })).toEqual([])
     })
-    it('keeps MT58 version/payload rules and explicit publication correlation distinct', () => {
+    it('preserves response header requirements and MT58 version/payload rules', () => {
         const message = getMessageDocumentation(protocol.messages[58], protocol)!
         const get = getOperationVariant(message.operations.find(operation => operation.method === 'GET')!, '2')
         const subscribe = getOperationVariant(message.operations.find(operation => operation.method === 'SUBSCRIBE')!, '2')
         expect(commonResponseHeaderIds(get.response!)).toEqual(['3', '4'])
+        expect(get.response?.headers).toMatchObject({ 3: { presence: 'optional' }, 4: { presence: 'optional', value: 0 } })
+        expect(interactionView(31, 'control-flight-mode').response?.headers).toMatchObject({ 3: { presence: 'required' }, 4: { presence: 'required', value: 0 } })
+        expect(interactionView(58, 'replace-message-box').response?.headers).toMatchObject({ 3: { presence: 'optional' }, 4: { presence: 'required', value: 0 } })
         expect(get.response?.headers?.['22']).toMatchObject({ presence: 'required', value: 2 })
         expect(get.response?.fields?.['129']).toMatchObject({ presence: 'optional', maxBytes: 1024 })
         expect(subscribe.publication?.headers?.['3'].presence).toBe('omitted')
