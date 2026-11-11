@@ -138,7 +138,7 @@ export interface DocumentationVariant {
     request?: DocumentationContext
     response?: DocumentationContext
     publication?: DocumentationContext
-    errors?: { code: number; description: string }[]
+    errors?: { code: number; description?: string }[]
     examples?: DocumentationExample[]
 }
 
@@ -264,11 +264,15 @@ export function getMessageDocumentation(message: any, protocol: any): MessageDoc
             const method = interactionMethod(source, protocol)
             const contexts = (value: any) => Object.fromEntries(['request', 'response', 'publication'].filter(role => value?.[role] !== undefined).map(role => {
                 const context = value[role]
-                const inherited = message.methods?.[method || '']?.[role]
+                const contextMessage = protocol.messages?.[context.messageId]
+                const sameMessage = context.messageId === undefined || contextMessage === message ||
+                    message.id !== undefined && contextMessage?.id === message.id
+                const versionFields = sameMessage && source.messageVersion !== undefined
+                    ? versions[source.messageVersion]?.fields : undefined
                 return [role, { ...context, ...Object.fromEntries(['headers', 'fields'].filter(kind => context?.[kind] !== undefined).map(kind => [
                     kind, Object.fromEntries(Object.entries(context[kind]).map(([fieldId, usage]: [string, any]) => [
                         fieldId, {
-                            ...(kind === 'fields' && context.messageId === undefined ? { description: inherited?.[fieldId]?.description } : {}),
+                            ...(kind === 'fields' ? versionFields?.[fieldId] : {}),
                             presence: 'optional', ...usage,
                         },
                     ])),
@@ -291,7 +295,7 @@ export function getMessageDocumentation(message: any, protocol: any): MessageDoc
 
     const fieldsFor = (version?: string) => Object.fromEntries(Object.entries(message.data || {})
         .filter(([, field]: [string, any]) => version === undefined || !field.versions || Array.isArray(field.versions) && field.versions.includes(Number(version)))
-        .map(([id]) => [id, {}]))
+        .map(([id]) => [id, version === undefined ? {} : { ...versions[version]?.fields?.[id] }]))
     let currentAnchorUsed = false
     let legacyAnchorUsed = false
     const formats: DocumentationFormat[] = Object.entries(versions).sort(([a], [b]) => Number(b) - Number(a)).map(([id, version]: [string, any]) => {
@@ -354,6 +358,14 @@ export function resolveDocumentationFields(
         .sort((a, b) => Number(b.presence === 'required') - Number(a.presence === 'required'))
 }
 
+/** Resolve canonical status meaning, retaining only explicitly authored context overrides. */
+export function resolveDocumentationErrors(protocol: any, errors?: { code: number; description?: string }[]) {
+    return (errors || []).map(error => {
+        const definition = protocol.header?.[4]?.values?.[error.code]
+        return { code: error.code, name: definition?.name, description: error.description ?? definition?.description ?? '' }
+    })
+}
+
 /** Validate the authoring shape before normalization can hide a typo or bad reference. */
 function validateInlineDocumentation(message: any, messageId: number, protocol: any): string[] {
     const errors: string[] = []
@@ -409,6 +421,20 @@ function validateInlineDocumentation(message: any, messageId: number, protocol: 
         else {
             if (typeof version.label !== 'string' || !version.label.trim()) errors.push(`${id} version needs a label`)
             if (version.legacy !== undefined && typeof version.legacy !== 'boolean') errors.push(`${id} has invalid legacy flag`)
+            if (version.fields !== undefined) {
+                if (!object(version.fields)) errors.push(`${id} version fields must be a mapping`)
+                else for (const [fieldId, usage] of Object.entries(version.fields) as [string, any][]) {
+                    const label = `${id} version field ${fieldId}`
+                    const field = message.data?.[fieldId]
+                    if (!/^(0|[1-9]\d*)$/.test(fieldId) || !field) errors.push(`${label} references unknown field`)
+                    if (Array.isArray(field?.versions) && !field.versions.includes(Number(id))) errors.push(`${label} is outside its versions`)
+                    if (!object(usage)) errors.push(`${label} must be an object`)
+                    else {
+                        knownKeys(usage, ['description'], label)
+                        if (typeof usage.description !== 'string') errors.push(`${label} description must be a string`)
+                    }
+                }
+            }
         }
     }
     for (const [id, field] of Object.entries(message.data || {}) as [string, any][]) {
@@ -575,7 +601,8 @@ export function validateMessageDocumentation(protocol: any, messageId: number): 
             const label = `${operation.id}/${variant.id}`
             for (const role of ['request', 'response', 'publication'] as const) validateContext(view[role], `${label} ${role}`)
             for (const error of view.errors || []) {
-                if (!protocol.header?.[4]?.values?.[error.code]) fail(`${label} references unknown status ${error.code}`)
+                if (!Number.isInteger(error.code) || !protocol.header?.[4]?.values?.[error.code]) fail(`${label} references unknown status ${error.code}`)
+                if (error.description !== undefined && typeof error.description !== 'string') fail(`${label} status ${error.code} description must be a string`)
             }
             for (const example of view.examples || []) {
                 if (!example.title || !['generated', 'captured'].includes(example.provenance)) fail(`${label} example needs title and provenance`)

@@ -8,6 +8,16 @@ A request and its reply are separate frames, with separate headers and data fiel
 
 Use the operation's required request headers. An omitted [Method (header 5)](./headers#5-method) is not a universal GET default; GPS Control and Message Box require an explicit method.
 
+## Message IDs
+
+[Message ID (header 1)](./headers#1-message-id) is a shared optional header for requests, responses and publications. Individual implementations, transports or client services can impose additional requirements. Send helpers may add an ID automatically; that is not a requirement to serialize one in every frame.
+
+- On a request, use a nonzero ID when acknowledgment or reply correlation is needed. The operation's reply rules still determine what is sent.
+- On a response, an optional Message ID identifies the response itself. It is independent of [Response to (header 3)](./headers#3-response-to), which identifies the original request. Correlate using Response to, not the response's own ID. A response can contain both, either, or neither as permitted by its send path.
+- Publications can also have their own IDs. An ID does not by itself make a publication a reply to a request.
+
+The interaction YAML need not repeat an empty `1: {}` in every header list. It inherits this shared optional-ID convention; a local header-1 entry describes an actual requirement or exception. Omitting that entry is not an assertion that the wire frame lacks an ID. Separate ID-less interactions are unnecessary when only the shared acknowledgment or correlation rules differ.
+
 ## Correlating a reply
 
 Include a nonzero [Message ID (header 1)](./headers#1-message-id) when you need to match replies to requests. A correlated reply carries that ID in [Response to (header 3)](./headers#3-response-to), not as its own Message ID.
@@ -32,6 +42,8 @@ An ACK can identify the original request through Response to and/or its **ACK Ty
 ### When an ACK is sent
 
 Whether an ACK is sent depends on the operation and target. A missing or zero Message ID does not guarantee silence: typed replies and error replies may still be sent. Follow the message page's documented behavior.
+
+Do not turn success-ACK suppression into a universal no-ID rule. OPEN/CLOSE handling and transport-specific send paths can have different acknowledgment behavior.
 
 The following operation-specific conditions belong to this shared response reference, linked from each operation's response section:
 
@@ -92,6 +104,19 @@ messages:
 
 Stages inherit the containing message type unless they specify `messageId`, so the response above uses MT5. Field names, types, units, enums and descriptions come from that message's `data` and the shared `header` definitions. The uint8 type already gives header 22 its one-byte width; variable-size payload bounds such as `maxBytes: 1024` remain meaningful. Keep explicit selector behavior: legacy Message Box GET/SUBSCRIBE accepts omitted, zero or malformed-width selectors as version 1, and legacy responses omit header 22.
 
+Payload descriptions inherit in this order: the canonical `data[fieldId].description`, an optional `versions[messageVersion].fields[fieldId].description`, then an explicit interaction-stage description. For example, a wire version can describe its cached-payload meaning once:
+
+```yaml
+versions:
+  2:
+    label: "2026-10"
+    fields:
+      129:
+        description: Complete cached payload. Empty payload data is omitted when returned or published.
+```
+
+Both the version's field reference and its interactions inherit this text. An interaction can still override it when SET clears the cache or an upload carries independent bytes. Version overrides change descriptions only: they do not change field types, presence, limits, or participation. They apply only to that message's fields, never to a different response type such as MT5. Unversioned interactions use the canonical description. Migrated interactions do not inherit descriptions from the legacy SDK method maps.
+
 A publication-only interaction needs no method or request. This shortened example describes the existing tracking upload:
 
 ```yaml
@@ -109,9 +134,13 @@ messages:
               description: Independent Transmit Now upload data.
 ```
 
-Request mappings list expected inputs, optional by default; mark required inputs explicitly. Leave unrelated inputs out, and keep important ignored or rejected input behavior in concise descriptions. An unlisted input is not a statement that firmware ignores, rejects or accepts it. Response and publication mappings can still mark omitted fields where wire-format or correlation differences matter. Write field descriptions only where the meaning differs.
+Request mappings list expected inputs, optional by default; mark required inputs explicitly. Message ID follows the shared rule above and does not need a repeated empty entry. Leave unrelated inputs out, and keep important ignored or rejected input behavior in concise descriptions. An unlisted input is not a statement that firmware ignores, rejects or accepts it. Response and publication mappings can still mark omitted fields where wire-format or correlation differences matter. Write field descriptions only where the meaning differs.
+
+An error entry needs only its status `code` to inherit the name and general description from header 4. Add `description` only for an operation-specific cause, without repeating the status name. For example, `{code: 7}` inherits Not Supported; `{code: 4, description: "A decoded Message Version value above 2."}` explains a particular Invalid Parameter case. These entries describe applicable errors, not a list of every status a transport might report.
 
 Documentation method lists are derived from request header 5, with validation requiring a known selector for each request. An absent selector is not inferred as GET. Existing method-keyed SDK request/response maps remain unchanged, with validation requiring their method names to match the interactions for migrated messages. Multiple interactions may use one method, and publication-only interactions add none. Removing or regenerating the SDK maps is a separate migration.
+
+GET, SET and SUBSCRIBE are values of Method header 5, not separate wire structures. An explicit selector in a documented interaction does not establish that every message requires it: LED controls, for example, can default to SET when Method is omitted. A message- or operation-specific header limit belongs with that use, rather than changing the shared header definition for all messages.
 
 An interaction describes an exchange, not arbitrary ordered sequences of requests. Applicability can be narrowed with `target` without making fields required. Its stages remain subject to the correlation, suppression and target rules above; defining a response does not guarantee it is sent.
 

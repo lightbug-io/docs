@@ -23,6 +23,7 @@ import {
   getDocumentationFormat,
   getMessageDocumentation,
   getOperationVariant,
+  resolveDocumentationErrors,
   resolveDocumentationFields,
   type DocumentationOperation,
 } from '../../utils/MessageDocumentation'
@@ -105,7 +106,7 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
         ...context,
         examplesAnchor: `${anchor}${context.role === (contexts.find(item => item.examples.length)?.role || contexts[0]?.role) ? '' : `-${context.role}`}-examples`,
       })),
-      errors: (view.errors || []).map(error => ({ ...error, name: props.yamlData.header?.[4]?.values?.[error.code]?.name })),
+      errors: resolveDocumentationErrors(props.yamlData, view.errors),
     }
   })
 }))
@@ -327,8 +328,14 @@ onBeforeUnmount(() => {
     </div>
     <div class="message-content">
     <p :id="`message-${messageId}-overview`" class="message-summary"><DocumentationText :text="documentation.summary" :messages="yamlData.messages" /></p>
-    <p v-if="documentation.methods.length" class="section-caption"><strong>Methods</strong> {{ documentation.methods.join(', ') }}</p>
+    <p v-if="documentation.methods.length" class="section-caption"><strong>Documented <a :href="withBase('/devices/api/protocol/headers#5-method')">Method (5)</a> values</strong> {{ documentation.methods.join(', ') }}</p>
     <p v-if="documentation.target" class="support-context"><strong>Applies to</strong> {{ documentation.target }}</p>
+    <p class="response-reference shared-message-id">
+      <strong>Shared optional header</strong> · <a :href="withBase('/devices/api/protocol/headers#1-message-id')">Message ID (1)</a>
+      can identify a request, response or publication. A response's own ID is separate from
+      <a :href="withBase('/devices/api/protocol/headers#3-response-to')">Response To (3)</a>.
+      <a :href="`${responseReferenceUrl}#message-ids`">Message ID and reply rules</a> apply unless an interaction states an exception.
+    </p>
 
     <div v-if="overviewNotes.length" :id="`message-${messageId}-notes`" class="overview-notes">
       <section v-for="note in overviewNotes" :key="note.id" class="overview-note" :aria-labelledby="`message-${messageId}-note-${note.id}`">
@@ -414,6 +421,7 @@ onBeforeUnmount(() => {
             <component :is="hasFormats ? 'h4' : 'h3'" :id="`${panel.anchor}-${context.role}`" class="context-heading">{{ context.title }}</component>
             <p v-if="context.subtitle" class="context-subtitle">{{ context.subtitle }}</p>
             <p v-if="context.description" class="prose"><DocumentationText :text="context.description" :messages="yamlData.messages" /></p>
+            <p v-if="context.role === 'request'" class="response-reference"><a :href="`${responseReferenceUrl}#message-ids`">Shared optional Message ID and reply rules</a></p>
             <p v-if="context.role === 'response'" class="response-reference"><a :href="responseReferenceUrl">Correlation, status and acknowledgment rules</a><template v-if="context.acknowledgment"> · <a :href="acknowledgmentUrl">MT5 packet format</a></template></p>
             <div v-for="group in context.groups" :key="group.kind" class="field-group" :class="{ 'header-group': group.kind === 'headers' }">
               <component :is="hasFormats ? 'h5' : 'h4'" class="field-group-heading">{{ group.title }}</component>
@@ -449,7 +457,7 @@ onBeforeUnmount(() => {
             </div>
             <section v-if="context.role === 'response' && panel.errors.length" class="reply-errors" :aria-labelledby="`${panel.anchor}-errors`">
               <component :is="hasFormats ? 'h5' : 'h4'" :id="`${panel.anchor}-errors`" class="field-group-heading">Unsuccessful replies</component>
-              <p class="section-caption">Operation-specific causes. Codes are values of <a :href="`${responseReferenceUrl}#status-and-errors`">Status header 4</a>, not payload fields.</p>
+              <p class="section-caption">Applicable errors and operation-specific causes. Codes are values of <a :href="`${responseReferenceUrl}#status-and-errors`">Status header 4</a>, not payload fields.</p>
               <dl class="error-list">
                 <div v-for="error in panel.errors" :key="error.code">
                   <dt><code>{{ error.code }}</code> {{ error.name }}</dt>

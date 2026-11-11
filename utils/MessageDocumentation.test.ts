@@ -15,6 +15,7 @@ import {
     getDocumentationFormat,
     documentationTargetOverride,
     resolveDocumentationFields,
+    resolveDocumentationErrors,
     validateMessageDocumentation,
     validateProtocolInteractions,
     type DocumentationOperation,
@@ -195,7 +196,7 @@ describe('optional message documentation', () => {
         expect(resolveDocumentationFields(protocol, protocol.messages[58], usage, 'headers').map(field => field.id)).toEqual([4, 5, 1, 17, 22])
         expect(usage).toEqual(before)
         const set = getMessageDocumentation(protocol.messages[58], protocol)!.operations.find((operation: DocumentationOperation) => operation.method === 'SET')
-        expect(resolveDocumentationFields(protocol, protocol.messages[58], set!.request!.headers, 'headers').map(field => field.id)).toEqual([5, 22, 1])
+        expect(resolveDocumentationFields(protocol, protocol.messages[58], set!.request!.headers, 'headers').map(field => field.id).filter(id => id !== 1)).toEqual([5, 22])
         expect(resolveDocumentationFields(protocol, protocol.messages[58], set!.request!.fields, 'fields')[0].id).toBe(129)
     })
 
@@ -276,7 +277,7 @@ describe('wire-version authoring', () => {
         expect(docs.formats!.map(format => format.label)).toEqual(['2026-10', '2025-10'])
         expect(docs.formats![1].anchorId).toBe('legacy')
         expect(docs.formats![0].anchorId).toBe('current')
-        expect(docs.formats![0].fields).toEqual({ 2: {}, 129: {} })
+        expect(docs.formats![0].fields).toEqual({ 2: {}, 129: message.versions[2].fields[129] })
         for (const version of Object.values(message.versions) as any[]) {
             expect(version.id).toBeUndefined()
             expect(version.messageVersion).toBeUndefined()
@@ -328,12 +329,13 @@ describe('wire-version authoring', () => {
         expect(validateMessageDocumentation(sample, 58).join('\n')).toContain('fields 2 must be an object')
     })
 
-    it('inherits existing method field descriptions before base descriptions', () => {
+    it('does not inherit hidden SDK method descriptions in migrated interactions', () => {
         const message = clone(protocol.messages[39])
         delete authoredInteraction(message, 'SET').request.fields[2].description
         const docs = getMessageDocumentation(message, protocol)!
         const set = docs.operations.find(operation => operation.method === 'SET')!
-        expect(set.request!.fields![2].description).toBe(message.methods.SET.request[2].description)
+        expect(set.request!.fields![2].description).toBeUndefined()
+        expect(resolveDocumentationFields(protocol, message, set.request!.fields, 'fields').find(field => field.id === 2)?.description).toBe(message.data[2].description || '')
         expect(authoredInteraction(message, 'SET').request.fields[2].description).toBeUndefined()
     })
 
@@ -563,7 +565,13 @@ describe('canonical inline interactions', () => {
 
     it('validates both published authoring examples against the existing wire definitions', () => {
         const guide = readFileSync(resolve(__dirname, '../devices/api/protocol/responses.md'), 'utf8')
-        const examples = [...guide.matchAll(/```yaml\n([\s\S]*?)```/g)].map(match => yaml.load(match[1]).messages[58])
+        const snippets = [...guide.matchAll(/```yaml\n([\s\S]*?)```/g)].map(match => yaml.load(match[1]))
+        const examples = snippets.filter(snippet => snippet.messages).map(snippet => snippet.messages[58])
+        const versionExample = snippets.find(snippet => snippet.versions)
+        expect(versionExample).toBeDefined()
+        const versionSample = clone(protocol)
+        versionSample.messages[58].versions[2] = versionExample.versions[2]
+        expect(validateMessageDocumentation(versionSample, 58)).toEqual([])
         expect(examples).toHaveLength(2)
         for (const example of examples) {
             const sample = clone(protocol)
@@ -653,7 +661,7 @@ describe('canonical inline interactions', () => {
         const flight = interactionView(31, 'control-flight-mode')
         const search = interactionView(31, 'start-search')
         expect(flight.request?.description).toContain('fields 3 and 4) are ignored by SET')
-        expect(Object.keys(search.request!.headers!)).toEqual(['1', '5'])
+        expect(Object.keys(search.request!.headers!).filter(id => id !== '1')).toEqual(['5'])
         expect(Object.keys(search.request!.fields!)).toEqual(['5'])
         expect(search.request?.description).toContain('even when its value is 0')
         expect(search.request?.description).toContain('Fields 1 to 4 and header Duration (7) are ignored')
@@ -676,7 +684,7 @@ describe('canonical inline interactions', () => {
         expect(set.request?.description).toContain('field 1) in SET is rejected with Invalid Parameter (4)')
         expect(set.request?.fields?.[2].description).toContain('sets API-enabled corrections to disabled')
         const stop = interactionView(58, 'stop-message-box-subscription')
-        expect(Object.keys(stop.request!.headers!)).toEqual(['1', '5', '17'])
+        expect(Object.keys(stop.request!.headers!).filter(id => id !== '1')).toEqual(['5', '17'])
         expect(stop.description).toContain('Message Version (header 22) is ignored')
         expect(stop.description).toContain('does not select or reset the publication format')
         expect(stop.response?.messageId).toBe(5)
@@ -726,5 +734,152 @@ describe('canonical inline interactions', () => {
         const sample = clone(protocol)
         sample.messages[58].notes[0].placement = 'overview'
         expect(validateMessageDocumentation(sample, 58).join('\n')).toContain('note has unknown property placement')
+    })
+})
+
+describe('canonical, version and interaction descriptions', () => {
+    const fixture = () => {
+        const message = {
+            id: 'sample', description: 'Sample', methods: { GET: { response: { 1: { description: 'Hidden SDK prose' } } } },
+            data: {
+                1: { name: 'First', type: 'uint8', description: 'Canonical' },
+                2: { name: 'Second', type: 'uint8', description: 'Second canonical', versions: [2] },
+            },
+            versions: { 1: { label: 'Older' }, 2: { label: 'Current', fields: { 1: { description: 'Version two' }, 2: { description: 'Second version two' } } } },
+            interactions: { read: { messageVersion: 2, request: { headers: { 5: { value: 2 } } }, response: { fields: { 1: {} } } } },
+        }
+        return { ...clone(protocol), messages: { ...clone(protocol.messages), 99: message } } as any
+    }
+    const description = (sample: any, role = 'response') => {
+        const message = sample.messages[99]
+        const view = getMessageDocumentation(message, sample)!.operations[0]
+        const context = (view as any)[role]
+        return resolveDocumentationFields(sample, context.messageId === undefined ? message : sample.messages[context.messageId], context.fields, 'fields')[0].description
+    }
+
+    it('applies descriptions in order without adding participating fields or mutating source objects', () => {
+        const sample = fixture()
+        const before = clone(sample)
+        const message = sample.messages[99]
+        expect(validateMessageDocumentation(sample, 99)).toEqual([])
+        expect(description(sample)).toBe('Version two')
+        const docs = getMessageDocumentation(message, sample)!
+        expect(Object.keys(docs.operations[0].response!.fields!)).toEqual(['1'])
+        expect(resolveDocumentationFields(sample, message, docs.formats![0].fields, 'fields').map(field => field.description)).toEqual(['Version two', 'Second version two'])
+        expect(sample).toEqual(before)
+        message.interactions.read.response.fields[1].description = 'Context'
+        expect(description(sample)).toBe('Context')
+        message.interactions.read.response.fields[1].description = ''
+        expect(description(sample)).toBe('')
+        delete message.interactions.read.response.fields[1].description
+        delete message.interactions.read.messageVersion
+        expect(description(sample)).toBe('Canonical')
+        expect(getMessageDocumentation(message, sample)!.operations[0].messageVersion).toBeUndefined()
+    })
+
+    it('uses version prose for explicitly same-message stages but not cross-message responses', () => {
+        const sample = fixture()
+        sample.messages[99].interactions.read.response.messageId = 99
+        expect(description(sample)).toBe('Version two')
+        sample.messages[99].interactions.read.response.messageId = 5
+        expect(description(sample)).toBe(sample.messages[5].data[1].description || '')
+        sample.messages[99].interactions.read.response.messageId = 39
+        expect(description(sample)).toBe(sample.messages[39].data[1].description || '')
+    })
+
+    it('retains legacy method prose only when interactions have not migrated', () => {
+        const sample = fixture()
+        const message = sample.messages[99]
+        delete message.interactions
+        message.methods.GET.exchange = { response: { fields: { 1: {} } } }
+        expect(description(sample)).toBe('Hidden SDK prose')
+    })
+
+    it.each([
+        ['unknown field', (m: any) => { m.versions[2].fields[999] = { description: 'Unknown' } }],
+        ['non-numeric field', (m: any) => { m.versions[2].fields.first = { description: 'Unknown' } }],
+        ['non-object fields', (m: any) => { m.versions[2].fields = [] }],
+        ['non-object override', (m: any) => { m.versions[2].fields[1] = 'Prose' }],
+        ['non-string description', (m: any) => { m.versions[2].fields[1].description = 2 }],
+        ['missing description', (m: any) => { m.versions[2].fields[1] = {} }],
+        ['type override', (m: any) => { m.versions[2].fields[1].type = 'uint32' }],
+        ['presence override', (m: any) => { m.versions[2].fields[1].presence = 'required' }],
+        ['bounds override', (m: any) => { m.versions[2].fields[1].maxBytes = 5 }],
+        ['excluded version', (m: any) => { m.versions[1].fields = { 2: { description: 'Unavailable' } } }],
+        ['non-numeric version', (m: any) => { m.versions.latest = m.versions[2] }],
+    ])('rejects %s metadata', (_label, change) => {
+        const sample = fixture()
+        change(sample.messages[99])
+        expect(validateMessageDocumentation(sample, 99).length).toBeGreaterThan(0)
+    })
+
+    it('keeps ID-bearing captures and wire definitions when a request omits redundant Message ID metadata', () => {
+        const sample = clone(protocol)
+        const message = sample.messages[35]
+        const before = clone(message)
+        delete message.interactions['read-device-ids'].request.headers[1]
+        const docs = getMessageDocumentation(message, sample)!
+        expect(docs.operations).toHaveLength(1)
+        expect(docs.operations[0].request!.headers![1]).toBeUndefined()
+        expect(docs.operations[0].examples).toEqual(before.interactions['read-device-ids'].examples)
+        const frames = docs.operations[0].examples![0].frames.map(frame => parseRawMessage(frame.bytes.split(' ').map(Number)))
+        expect(frames[0].header[1]?.length).toBeGreaterThan(0)
+        expect(frames[1].header[3]).toEqual(frames[0].header[1])
+        expect(message.data).toEqual(before.data)
+        expect(message.header).toEqual(before.header)
+        expect(message.methods).toEqual(before.methods)
+        expect(validateMessageDocumentation(sample, 35)).toEqual([])
+    })
+})
+
+describe('shared descriptions in the published specification', () => {
+    it('uses shared ID guidance and canonical GPS/error prose without redundant interaction entries', () => {
+        for (const message of Object.values(protocol.messages) as any[]) for (const interaction of Object.values(message.interactions || {}) as any[]) {
+            expect(interaction.request?.headers?.[1]).not.toEqual({})
+        }
+        expect(protocol.header[1].description).toContain('including when it is a response or publication')
+        const gps = interactionView(39, 'read-gps-state')
+        const fields = resolveDocumentationFields(protocol, protocol.messages[39], gps.response!.fields, 'fields')
+        for (const id of [1, 2]) expect(fields.find(field => field.id === id)?.description).toBe(protocol.messages[39].data[id].description)
+        expect(resolveDocumentationErrors(protocol, gps.errors).find(error => error.code === 7)?.description).toBe(protocol.header[4].values[7].description)
+        expect(interactionView(39, 'configure-gps').request?.fields?.[2]?.description).toContain('Omitting this field sets API-enabled corrections to disabled')
+    })
+
+    it('shares Message Box version prose while preserving SET and tracking exceptions', () => {
+        const message = protocol.messages[58]
+        const get = interactionView(58, 'read-message-box')
+        const subscribe = interactionView(58, 'subscribe-message-box')
+        expect(get.response!.fields![129].description).toBe(message.versions[2].fields[129].description)
+        expect(subscribe.publication!.fields![129].description).toBe(message.versions[2].fields[129].description)
+        expect(interactionView(58, 'read-message-box-v1').response!.fields![1].description).toBe(message.versions[1].fields[1].description)
+        expect(interactionView(58, 'subscribe-message-box-v1').publication!.fields![1].description).toBe(message.versions[1].fields[1].description)
+        expect(interactionView(58, 'replace-message-box').request!.fields![129].description).toContain('zero-length')
+        expect(interactionView(58, 'tracking-message-box-upload').publication!.fields![129].description).toContain('Independent')
+    })
+})
+
+describe('canonical documentation errors', () => {
+    it('inherits names and meanings while preserving contextual and intentionally empty prose', () => {
+        const canonical = { header: { 4: { values: { 4: { name: 'Invalid Parameter', description: 'Canonical meaning' } } } } }
+        const errors = [{ code: 4 }, { code: 4, description: 'Actual cause' }, { code: 4, description: '' }]
+        const before = clone(errors)
+        expect(resolveDocumentationErrors(canonical, errors)).toEqual([
+            { code: 4, name: 'Invalid Parameter', description: 'Canonical meaning' },
+            { code: 4, name: 'Invalid Parameter', description: 'Actual cause' },
+            { code: 4, name: 'Invalid Parameter', description: '' },
+        ])
+        expect(errors).toEqual(before)
+        expect(resolveDocumentationErrors(canonical)).toEqual([])
+    })
+    it('validates optional descriptions, unknown statuses and non-string prose', () => {
+        const sample = clone(protocol)
+        const operation = sample.messages[39].interactions['configure-gps']
+        operation.errors = [{ code: 4 }]
+        expect(validateMessageDocumentation(sample, 39)).toEqual([])
+        operation.errors = [{ code: 999 }, { code: 4, description: 123 }, { code: '4' }]
+        const errors = validateMessageDocumentation(sample, 39).join('\n')
+        expect(errors).toContain('unknown status 999')
+        expect(errors).toContain('unknown status 4')
+        expect(errors).toContain('description must be a string')
     })
 })

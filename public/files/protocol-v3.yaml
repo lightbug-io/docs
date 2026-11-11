@@ -32,8 +32,10 @@ header:
     name: Message ID
     id: id
     description: |
-      ID identifying the message.
+      Optional ID identifying this message, including when it is a response or publication.
       Can be used by a receiver to ACK, respond to, deduplicate, resend or otherwise track messages.
+      A response's own Message ID is independent of Response to (header 3), which identifies the original request.
+      A nonzero request ID enables correlation and may be needed for a success acknowledgment; omission does not guarantee no reply.
       Some clients and services may require or desire an incrementing message ID for each message sent, acting as a sequence number.
     type: uint32
   2:
@@ -1263,7 +1265,6 @@ messages:
         title: Read GSM state
         request:
           headers:
-            1: {}
             5: { presence: required, value: 2 }
         response:
           description: Successful GET returns GSM state directly.
@@ -1284,7 +1285,6 @@ messages:
             Omit Start Search (field 5), which takes priority over flight-mode controls when present. GSM
             Active and Request Control (fields 3 and 4) are ignored by SET.
           headers:
-            1: {}
             5: { presence: required, value: 1 }
             7: {}
           fields:
@@ -1309,7 +1309,6 @@ messages:
             Start Search takes priority even when its value is 0. Fields 1 to 4 and header Duration (7) are
             ignored when Start Search is present.
           headers:
-            1: {}
             5: { presence: required, value: 1 }
           fields:
             5: { presence: required }
@@ -1383,7 +1382,6 @@ messages:
         title: Read SIM settings
         request:
           headers:
-            1: {}
             5: { presence: required, value: 2 }
         response:
           description: >-
@@ -1405,7 +1403,6 @@ messages:
         request:
           description: SIM2 APN and credentials are ignored when selecting SIM1.
           headers:
-            1: {}
             5: { presence: required, value: 1 }
           fields:
             1: { presence: required, value: 0 }
@@ -1420,7 +1417,6 @@ messages:
         title: Select SIM2 and configure its network credentials
         request:
           headers:
-            1: {}
             5: { presence: required, value: 1 }
           fields:
             1: { presence: required, value: 1 }
@@ -1580,7 +1576,6 @@ messages:
         request:
           description: No payload fields are required. Method must be included; this message does not default to GET.
           headers:
-            1: {}
             5: { presence: required, value: 2 }
         response:
           title: Device status (MT34)
@@ -1625,7 +1620,6 @@ messages:
           description: No payload fields are required. Omit Subscription ID (header 17), or use 0, for the default
             subscription documented here. Updates are subject to the selected interval and message level.
           headers:
-            1: {}
             5: { presence: required, value: 3 }
             6:
               description: Publication interval in milliseconds. Omitted or 0 allows updates as new status data
@@ -1683,7 +1677,6 @@ messages:
           description: No payload fields are required. Omit Subscription ID; this operation removes the default
             subscription only.
           headers:
-            1: {}
             5: { presence: required, value: 5 }
         response:
           messageId: 5
@@ -1736,7 +1729,6 @@ messages:
         request:
           description: No payload fields are required. Include Method GET to request the device identifiers.
           headers:
-            1: {}
             5: { presence: required, value: 2 }
         response:
           title: Device IDs (MT35)
@@ -2007,13 +1999,13 @@ messages:
       1:
         name: GPS is on
         id: gpsOn
-        description: Status of the GPS, is it on?
+        description: Whether the GPS service is on.
         type: bool
         readonly: true
       2:
         name: Corrections Enabled
         id: correctionsOn
-        description: Request and apply correction data to the GPS, such as RTK.
+        description: Whether GPS correction data is enabled.
         type: uint8
         values:
           0:
@@ -2060,10 +2052,8 @@ messages:
           are needed.
         errors:
           - code: 7
-            description: 'Not Supported: the product or firmware does not support this operation.'
         request:
           headers:
-            1: {}
             5: { presence: required, value: 2 }
         response:
           title: GPS state (MT39)
@@ -2075,10 +2065,8 @@ messages:
           fields:
             1:
               presence: required
-              description: Whether the GPS service is on.
             2:
               presence: required
-              description: Whether correction data is enabled.
             3:
               presence: omitted
               description: Start mode is a SET input, not returned state.
@@ -2087,15 +2075,13 @@ messages:
         description: Enable correction data and/or restart the GPS in the requested boot mode.
         errors:
           - code: 4
-            description: 'Invalid Parameter: a read-only GPS status field or an unsupported start mode was supplied.'
+            description: 'A read-only GPS status field or an unsupported start mode was supplied.'
           - code: 5
-            description: 'Invalid State: the correction service cannot be enabled in the current device state.'
+            description: 'The correction service cannot be enabled in the current device state.'
           - code: 7
-            description: 'Not Supported: the product or firmware does not support this operation.'
         request:
           description: Sending the read-only GPS status (field 1) in SET is rejected with Invalid Parameter (4).
           headers:
-            1: {}
             5: { presence: required, value: 1 }
           fields:
             2:
@@ -3345,12 +3331,22 @@ messages:
         description: >-
           Complete payload and CRC-16 format. GET and SUBSCRIBE explicitly select wire Message
           Version 2 with header 22; omitting it selects the legacy format. SET requires 2.
+        fields:
+          129:
+            description: >-
+              Complete cached payload in an extended-length field with a uint16 little-endian length
+              prefix. Empty payload data is omitted when returned or published.
       1:
         label: "2025-10"
         description: >-
           Earlier chunked payload and additive-checksum format, retained for existing integrations.
           GET and SUBSCRIBE use this format when header 22 is omitted or set to 1. No legacy SET is supported.
+          Concatenate present payload chunks (fields 10-14) in field-ID order; each holds up to
+          255 bytes. Empty payload data is omitted.
         legacy: true
+        fields:
+          1:
+            description: Additive checksum of the cached payload, calculated as the sum of its bytes modulo 65536.
     group: info
     header:
       - 5
@@ -3359,51 +3355,46 @@ messages:
       1:
         name: Legacy Checksum
         id: legacyChecksum
-        description: Legacy additive checksum (sum of payload bytes modulo 65536), used in version 1 responses with the legacy chunk fields. Absent from version 2 responses. Optional and ignored in SET.
+        description: Checksum of the cached payload.
         type: uint16
         readonly: true
         versions: [1]
       2:
         name: CRC
         id: crc
-        description: CRC-16/XMODEM of the cached payload (polynomial 0x1021, initial value 0x0000, no input or output reflection, final XOR 0x0000), separate from the outer message-frame CRC. Returned in version 2 responses and tracking-session messages, including an empty cache as zero (0x0000). Optional and ignored in SET; the device calculates it from field 129. One- or two-byte little-endian encoding may omit a high zero byte. Implemented only on Viper devices.
+        description: CRC-16/XMODEM of the cached payload (polynomial 0x1021, initial value 0x0000, no input or output reflection, final XOR 0x0000), separate from the outer message-frame CRC. An empty cache has CRC zero (0x0000). One- or two-byte little-endian encoding may omit a high zero byte.
         type: uint16
         readonly: true
         versions: [2]
       10:
         name: Legacy Payload Chunk 1
         id: legacyChunk1
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
         versions: [1]
       11:
         name: Legacy Payload Chunk 2
         id: legacyChunk2
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
         versions: [1]
       12:
         name: Legacy Payload Chunk 3
         id: legacyChunk3
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
         versions: [1]
       13:
         name: Legacy Payload Chunk 4
         id: legacyChunk4
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
         versions: [1]
       14:
         name: Legacy Payload Chunk 5
         id: legacyChunk5
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
         versions: [1]
       129:
         name: Full Payload
         id: fullPayload
-        description: Complete message-box bytes in SET requests, GET responses, and subscription updates (up to 1024 bytes). SET must include this field; an explicit zero-length value clears the cache. Uses an extended-length field with a uint16 little-endian length prefix. Tracking-session uploads may use this field for independent Transmit Now data instead.
+        description: Payload bytes carried in an extended-length field with a uint16 little-endian length prefix.
         type: bytes
         versions: [2]
     methods:
@@ -3422,13 +3413,11 @@ messages:
           Select the complete extended payload and its CRC-16/XMODEM.
         errors: &messageBoxReadErrors
           - code: 4
-            description: 'Invalid Parameter: a decoded Message Version value above 2.'
+            description: 'A decoded Message Version value above 2.'
           - code: 7
-            description: 'Not Supported: the product or firmware does not support this operation.'
         messageVersion: 2
         request:
           headers:
-            1: {}
             5: { presence: required, value: 2 }
             22:
               presence: required
@@ -3446,15 +3435,10 @@ messages:
           fields:
             1:
               presence: omitted
-              description: The legacy additive checksum is absent from version 2 responses.
             2:
               presence: required
-              description: Device-calculated CRC-16/XMODEM of the cached payload, including 0 for an empty cache. One-
-                or two-byte little-endian encoding may omit a high zero byte.
             129:
               maxBytes: 1024
-              description: Complete cached payload in an extended-length field with a uint16 little-endian length
-                prefix. Empty payload data is omitted.
       read-message-box-v1:
         title: Read the cached message (legacy v1)
         description: >-
@@ -3467,7 +3451,6 @@ messages:
         messageVersion: 1
         request:
           headers:
-            1: {}
             5: { presence: required, value: 2 }
             22:
               description: Omitted, explicitly 0, or malformed-width values resolve to 0 and select version 1; an
@@ -3488,33 +3471,20 @@ messages:
           fields:
             1:
               presence: required
-              description: 'Additive checksum: sum of all cached payload bytes modulo 65536.'
             2:
               presence: omitted
-              description: The CRC field belongs to version 2.
             10:
               maxBytes: 255
-              description: Legacy payload chunk 1; concatenate present chunks in field-ID order. Empty payload data is
-                omitted.
             11:
               maxBytes: 255
-              description: Legacy payload chunk 2; concatenate present chunks in field-ID order. Empty payload data is
-                omitted.
             12:
               maxBytes: 255
-              description: Legacy payload chunk 3; concatenate present chunks in field-ID order. Empty payload data is
-                omitted.
             13:
               maxBytes: 255
-              description: Legacy payload chunk 4; concatenate present chunks in field-ID order. Empty payload data is
-                omitted.
             14:
               maxBytes: 255
-              description: Legacy payload chunk 5; concatenate present chunks in field-ID order. Empty payload data is
-                omitted.
             129:
               presence: omitted
-              description: Version 1 retains the legacy wire layout; it does not include the extended full-payload field.
       replace-message-box:
         title: Replace or clear the cached message
         description: Every accepted SET updates the cache, writes it to persistent storage when enabled, and
@@ -3526,7 +3496,6 @@ messages:
             outer message-frame CRC protects the SET request itself. Optional supplied checksum fields 1 and 2
             are ignored.
           headers:
-            1: {}
             5: { presence: required, value: 1 }
             22:
               presence: required
@@ -3552,12 +3521,11 @@ messages:
                 in this ACK.
         errors:
           - code: 2
-            description: 'Missing Parameter: field 129 is absent.'
+            description: 'Field 129 is absent.'
           - code: 4
-            description: 'Invalid Parameter: Message Version is missing, malformed-width, or any value other than 2;
+            description: 'Message Version is missing, malformed-width, or any value other than 2;
               or field 129 exceeds 1024 bytes.'
           - code: 7
-            description: 'Not Supported: the product or firmware does not support this operation.'
       subscribe-message-box:
         title: Subscribe to cached-message updates
         description: >-
@@ -3584,14 +3552,12 @@ messages:
                 in this ACK.
         errors: &messageBoxSubscribeErrors
           - code: 4
-            description: 'Invalid Parameter: a decoded Message Version value above 2; existing selection and
+            description: 'A decoded Message Version value above 2; existing selection and
               subscription are unchanged.'
           - code: 7
-            description: 'Not Supported: the product or firmware does not support this operation.'
         messageVersion: 2
         request:
           headers:
-            1: {}
             5: { presence: required, value: 3 }
             6:
               description: Optional publication interval in milliseconds. If omitted, updates are sent when new data
@@ -3621,15 +3587,10 @@ messages:
           fields:
             1:
               presence: omitted
-              description: The legacy additive checksum is absent from version 2 responses.
             2:
               presence: required
-              description: Device-calculated CRC-16/XMODEM of the cached payload, including 0 for an empty cache. One-
-                or two-byte little-endian encoding may omit a high zero byte.
             129:
               maxBytes: 1024
-              description: Complete cached payload in an extended-length field with a uint16 little-endian length
-                prefix. Empty payload data is omitted.
       subscribe-message-box-v1:
         title: Subscribe to cached-message updates (legacy v1)
         description: >-
@@ -3645,7 +3606,6 @@ messages:
         messageVersion: 1
         request:
           headers:
-            1: {}
             5: { presence: required, value: 3 }
             6:
               description: Optional publication interval in milliseconds. If omitted, updates are sent when new data
@@ -3677,43 +3637,28 @@ messages:
           fields:
             1:
               presence: required
-              description: 'Additive checksum: sum of all cached payload bytes modulo 65536.'
             2:
               presence: omitted
-              description: The CRC field belongs to version 2.
             10:
               maxBytes: 255
-              description: Legacy payload chunk 1; concatenate present chunks in field-ID order. Empty payload data is
-                omitted.
             11:
               maxBytes: 255
-              description: Legacy payload chunk 2; concatenate present chunks in field-ID order. Empty payload data is
-                omitted.
             12:
               maxBytes: 255
-              description: Legacy payload chunk 3; concatenate present chunks in field-ID order. Empty payload data is
-                omitted.
             13:
               maxBytes: 255
-              description: Legacy payload chunk 4; concatenate present chunks in field-ID order. Empty payload data is
-                omitted.
             14:
               maxBytes: 255
-              description: Legacy payload chunk 5; concatenate present chunks in field-ID order. Empty payload data is
-                omitted.
             129:
               presence: omitted
-              description: Version 1 retains the legacy wire layout; it does not include the extended full-payload field.
       stop-message-box-subscription:
         title: Stop a subscription
         description: Remove the addressed subscription. Message Version (header 22) is ignored; UNSUBSCRIBE does
           not select or reset the publication format, and neither does subscription expiry.
         errors:
           - code: 7
-            description: 'Not Supported: the product or firmware does not support this operation.'
         request:
           headers:
-            1: {}
             5: { presence: required, value: 5 }
             17:
               description: Use the Subscription ID to remove, or omit it for the default subscription (0).
@@ -3780,9 +3725,8 @@ messages:
       - id: checksum-scope
         title: Payload CRC and frame CRC are different
         description: >-
-          The device calculates and stores CRC-16/XMODEM of the cached payload: polynomial 0x1021,
-          initial value 0x0000, no input or output reflection, final XOR 0x0000. The outer
-          message-frame CRC protects the complete frame. The 16-bit payload CRC can collide for
+          Field 2 describes the cached payload; the outer message-frame CRC protects the complete
+          frame. The 16-bit payload CRC can collide for
           different payloads; an accepted SET still applies changed bytes even when their CRC matches
           the previous CRC.
   61:
