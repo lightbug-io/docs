@@ -1287,6 +1287,9 @@ messages:
         versions:
           1:
             request:
+              description: >-
+                Omit Start Search (field 5), which takes priority over flight-mode controls when present.
+                GSM Active and Request Control (fields 3 and 4) are ignored by SET.
               headers:
                 1: {}
                 5: {presence: required, value: 1}
@@ -1299,9 +1302,6 @@ messages:
                     When enabling flight mode, provide 1 to 259200 minutes. If omitted, use header
                     Duration in milliseconds divided by 60000 and rounded down. Disabling flight mode
                     ignores the duration.
-                3: {presence: ignored}
-                4: {presence: ignored}
-                5: {presence: omitted}
             response: &gsmControlAck
               messageId: 5
               headers:
@@ -1316,15 +1316,13 @@ messages:
         versions:
           1:
             request:
+              description: >-
+                Start Search takes priority even when its value is 0. Fields 1 to 4 and header Duration
+                (7) are ignored when Start Search is present.
               headers:
                 1: {}
                 5: {presence: required, value: 1}
-                7: {presence: ignored}
               fields:
-                1: {presence: ignored}
-                2: {presence: ignored}
-                3: {presence: ignored}
-                4: {presence: ignored}
                 5: {presence: required}
             response: *gsmControlAck
   32:
@@ -1387,7 +1385,7 @@ messages:
       8:
         name: SIM2 ICCID
         id: sim2Iccid
-        description: SIM2 ICCID if known, read-only. This value may be cached from a previous read and stale.
+        description: SIM2 ICCID if known, read-only and ignored by SET. This value may be cached from a previous read and stale.
         type: ascii
         readonly: true
     methods:
@@ -1424,15 +1422,12 @@ messages:
         versions:
           1:
             request:
+              description: SIM2 APN and credentials are ignored when selecting SIM1.
               headers:
                 1: {}
                 5: {presence: required, value: 1}
               fields:
                 1: {presence: required, value: 0}
-                2: {presence: ignored}
-                3: {presence: ignored}
-                4: {presence: ignored}
-                8: {presence: ignored}
             response: &simSettingsAck
               messageId: 5
               headers:
@@ -1456,7 +1451,6 @@ messages:
                   description: Omission clears the configured SIM2 username.
                 4:
                   description: Omission clears the configured SIM2 password.
-                8: {presence: ignored}
             response: *simSettingsAck
     examples:
       - name: Enable SIM2 with APN settings
@@ -2112,7 +2106,7 @@ messages:
         method: GET
         anchorId: get
         title: Read GPS state
-        description: Return the current GPS and correction-service state, not a position fix.
+        description: Return the current GPS and correction-service state, not a position fix. No payload fields are needed.
         errors:
         - code: 7
           description: 'Not Supported: the product or firmware does not support this operation.'
@@ -2123,10 +2117,6 @@ messages:
                 1:
                   description: Include a nonzero Message ID to correlate the reply.
                 5: {presence: required, value: 2}
-              fields:
-                1: {presence: omitted}
-                2: {presence: omitted}
-                3: {presence: omitted}
             response:
               title: GPS state (MT39)
               description: A successful GET returns GPS Control directly, with no separate success ACK. An unsuccessful
@@ -2159,16 +2149,12 @@ messages:
         versions:
           1:
             request:
-              description: Use writable control fields, not the read-only GPS status field.
+              description: Sending the read-only GPS status (field 1) in SET is rejected with Invalid Parameter (4).
               headers:
                 1:
                   description: Include a nonzero Message ID to correlate the reply.
                 5: {presence: required, value: 1}
               fields:
-                1:
-                  presence: omitted
-                  description: Read-only status. Sending this field in SET is rejected with Invalid Parameter
-                    (4).
                 2:
                   description: Request and apply correction data to the GPS, such as RTK; this automatically
                     controls the GPS module. Omitting this field sets API-enabled corrections to disabled, so
@@ -3799,8 +3785,8 @@ messages:
         method: UNSUBSCRIBE
         anchorId: unsubscribe
         title: Stop a subscription
-        description: Remove the addressed subscription. Neither UNSUBSCRIBE nor subscription expiry resets the
-          shared publication-format selection.
+        description: Remove the addressed subscription. Message Version (header 22) is ignored; UNSUBSCRIBE
+          does not select or reset the publication format, and neither does subscription expiry.
         errors:
         - code: 7
           description: 'Not Supported: the product or firmware does not support this operation.'
@@ -3813,9 +3799,6 @@ messages:
                 5: {presence: required, value: 5}
                 17:
                   description: Use the Subscription ID to remove, or omit it for the default subscription (0).
-                22:
-                  presence: ignored
-                  description: UNSUBSCRIBE does not select or reset the publication format.
             response:
               messageId: 5
               description: For a request with a nonzero Message ID, successful UNSUBSCRIBE returns a control

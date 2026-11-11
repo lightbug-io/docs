@@ -78,7 +78,11 @@ messages:
               messageId: 5
 ```
 
-Stages inherit the containing message type unless they specify `messageId`, so the response above uses the existing MT5 definition. Field names, types, units, enums and descriptions come from that message's `data` and the shared `header` definitions. Usage mappings list applicable fields, optional by default; mark required, omitted or ignored fields explicitly and write descriptions only where the meaning differs. Existing method-keyed SDK request/response maps remain available without duplicating the interaction documentation.
+Stages inherit the containing message type unless they specify `messageId`, so the response above uses the existing MT5 definition. Field names, types, units, enums and descriptions come from that message's `data` and the shared `header` definitions.
+
+Request mappings list expected inputs, optional by default; mark required inputs explicitly. Leave unrelated inputs out, and keep important ignored or rejected input behavior in concise descriptions. An unlisted input is not a statement that firmware ignores, rejects or accepts it. Response and publication mappings can still mark omitted fields where wire-format or correlation differences matter. Write field descriptions only where the meaning differs.
+
+Existing method-keyed SDK request/response maps remain available without duplicating the interaction documentation.
 
 `messageVersion` references the containing message's existing wire-version definition. It does not itself insert header 22; the stage's headers describe what is sent. Unversioned controls omit it, even if other interactions on that message use versioned payloads. A new interaction revision may reuse the same wire version. Publication-only interactions need no dummy request or method. Applicability can be narrowed with `target` without making fields required.
 
