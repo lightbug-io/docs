@@ -1,6 +1,7 @@
 name: Deploy to Next
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -49,15 +50,14 @@ jobs:
 
       - name: Deploy
         if: success()
-        uses: jakejarvis/s3-sync-action@v0.5.1
-        with:
-          args: --delete
+        run: |
+          aws s3 cp .vitepress/dist/ "s3://${AWS_S3_BUCKET}/" --recursive
+          aws s3 sync .vitepress/dist/ "s3://${AWS_S3_BUCKET}/" --delete --no-progress
         env:
           AWS_S3_BUCKET: ${{ vars.NEXT_BUCKET_NAME }}
           AWS_ACCESS_KEY_ID: ${{ secrets.NEXT_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.NEXT_SECRET }}
           AWS_REGION: ${{ vars.NEXT_REGION }}
-          SOURCE_DIR: .vitepress/dist
 
       - name: Set success deployment status
         if: success()
