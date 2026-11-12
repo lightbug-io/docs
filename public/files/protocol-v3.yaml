@@ -3448,16 +3448,11 @@ messages:
               presence: required
             2:
               presence: omitted
-            10:
-              maxBytes: 255
-            11:
-              maxBytes: 255
-            12:
-              maxBytes: 255
-            13:
-              maxBytes: 255
-            14:
-              maxBytes: 255
+            10: {}
+            11: {}
+            12: {}
+            13: {}
+            14: {}
             129:
               presence: omitted
       replace-message-box:

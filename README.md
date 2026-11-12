@@ -40,6 +40,10 @@ Both scripts use `cross-env` so they work cross-platform.
 
 PR preview workflows and administrator setup: [.github/preview](https://github.com/lightbug-io/docs/blob/main/.github/preview/README.md).
 
+## Protocol
+
+This is currently documented in the docs repo, however this will be moving soon.
+
 ## Protocol YAML authoring and export
 
 `public/files/protocol-v3.yaml` is the canonical source. It uses native YAML
@@ -95,7 +99,7 @@ preserved, including sentinels and version overrides. It does not invent runtime
 defaults or flatten message-version description inheritance. Comments and
 source formatting are not retained. Edit the canonical source and re-export.
 
-## Protocol sentinel values
+### Protocol sentinel values
 
 Numeric field definitions in `public/files/protocol-v3.yaml` can declare raw
 sentinel values separately from ordinary enum `values`. For example:
@@ -128,3 +132,7 @@ Its typed `MessageData` schema needs a corresponding `sentinels` property and
 round-trip coverage before regeneration can preserve this metadata. Until that
 follow-up is made, do not overwrite the docs spec with an upstream export without
 retaining these declarations. The docs site itself reads the YAML directly.
+
+### Other protocol notes
+
+For low value fields that have a max length of `255`, one should not define `maxBytes: 255`.
