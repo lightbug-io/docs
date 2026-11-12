@@ -14,13 +14,6 @@ The protocol is designed to be:
  - Lightweight to store and transmit
  - Usable in a variety of settings, without complex or bloated dependencies
 
-## YAML specification
-
-[Canonical YAML source](/files/protocol-v3.yaml) uses native YAML anchors and merge keys for repeated definitions.
-
-<a :href="withBase('/files/protocol-v3-expanded.yaml')" download="protocol-v3-expanded.yaml">Download expanded YAML</a> for the complete specification with aliases and merge keys resolved and the authoring-only `templates` registry removed. This export preserves the authored message versions and metadata; it does not apply runtime defaults or copy inherited descriptions into version overrides. Comments and source formatting are not retained.
-
-
 ## Byte Breakdown
 
 In a byte stream, you may receive a series of messages.
