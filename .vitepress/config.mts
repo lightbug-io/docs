@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import yaml from 'js-yaml';
+import { createRequire } from 'node:module';
 import { defineConfig } from 'vitepress';
 import { useSidebar } from 'vitepress-openapi';
 import { loadSpec } from '../swagger/load';
@@ -20,6 +21,10 @@ import { capabilitySidebar } from '../utils/DeviceCapabilities';
 
 
 const base = process.env.PREVIEW_BASE || "/"
+// Keep the shared Node CLI helpers outside Vite's ESM config bundle.
+const requireFromConfig = createRequire(import.meta.url);
+const expandedProtocolPlugin = requireFromConfig(path.resolve(__dirname, './plugins/expanded-protocol.cjs'));
+const expandedProtocol = requireFromConfig(path.resolve(__dirname, '../utils/expanded-protocol.cjs'));
 
 // Load protocol messages from YAML file
 const protocolYamlPath = path.resolve(__dirname, '../public/files/protocol-v3.yaml');
@@ -203,6 +208,9 @@ export default withMermaid(defineConfig({
   description: "home for everything Lightbug",
   lang: 'en-GB',
   cleanUrls: true,
+  buildEnd(siteConfig) {
+    expandedProtocol.writeExpandedProtocol(siteConfig.outDir, protocolYamlPath);
+  },
   sitemap: {
     hostname: process.env.DEPLOYMENT_NAME === 'Production' ? 'https://docs.lightbug.io' : 'https://docs-next.lightbug.io'
   },
@@ -223,6 +231,7 @@ export default withMermaid(defineConfig({
       noExternal: ["vuetify", "vitepress-openapi"]
     },
     plugins: [
+      expandedProtocolPlugin(protocolYamlPath, base),
       // Keep the native samples export available on versions that omit it.
       {
         name: 'prototype-native-code-samples-export',

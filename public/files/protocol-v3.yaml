@@ -32,8 +32,10 @@ header:
     name: Message ID
     id: id
     description: |
-      ID identifying the message.
+      Optional ID identifying this message, including when it is a response or publication.
       Can be used by a receiver to ACK, respond to, deduplicate, resend or otherwise track messages.
+      A response's own Message ID is independent of Response to (header 3), which identifies the original request.
+      A nonzero request ID enables correlation and may be needed for a success acknowledgment; omission does not guarantee no reply.
       Some clients and services may require or desire an incrementing message ID for each message sent, acting as a sequence number.
     type: uint32
   2:
@@ -490,6 +492,18 @@ header:
     id: encryptionTag
     description: Encryption tag
     type: uint32
+# Shared header usage only; message-specific anchors stay with their messages.
+templates:
+  headers:
+    optionalOkReply: &optionalOkReplyHeaders
+      3: {}
+      4: { value: 0 }
+    correlatedOkAck: &correlatedOkAckHeaders
+      3: { presence: required }
+      4: { presence: required, value: 0 }
+    optionalCorrelationAck: &optionalCorrelationAckHeaders
+      3: {}
+      4: { presence: required, value: 0 }
 messages:
   3:
     name: Event
@@ -1216,6 +1230,7 @@ messages:
   31:
     name: GSM Control
     id: gsmControl
+    description: Controls the GSM modem, including flight mode and network search.
     group: gsm
     header:
       - 5
@@ -1257,6 +1272,55 @@ messages:
     methods:
       GET: null
       SET: null
+    interactions:
+      read-state:
+        title: Read GSM state
+        request:
+          headers:
+            5: { presence: required, value: 2 }
+        response:
+          description: Successful GET returns GSM state directly.
+          headers: *optionalOkReplyHeaders
+          fields:
+            1: { presence: required }
+            2:
+              description: Remaining external modem reservation time in minutes, returned with field 4.
+            3: { presence: required }
+            4:
+              description: Present with value true when the modem is reserved for external use.
+      control-flight-mode:
+        title: Control flight mode
+        request:
+          description: >-
+            Omit Start Search (field 5), which takes priority over flight-mode controls when present. GSM
+            Active and Request Control (fields 3 and 4) are ignored by SET.
+          headers:
+            5: { presence: required, value: 1 }
+            7: {}
+          fields:
+            1:
+              description: Enable or disable flight mode. Omission disables it.
+            2:
+              description: >-
+                When enabling flight mode, provide 1 to 259200 minutes. If omitted, use header Duration in
+                milliseconds divided by 60000 and rounded down. Disabling flight mode ignores the duration.
+        response: &gsmControlAck
+          messageId: 5
+          headers: *correlatedOkAckHeaders
+          fields:
+            1: { presence: required, value: 31 }
+      start-search:
+        title: Start a network search
+        description: Leave flight mode and trigger the selected network search.
+        request:
+          description: >-
+            Start Search takes priority even when its value is 0. Fields 1 to 4 and header Duration (7) are
+            ignored when Start Search is present.
+          headers:
+            5: { presence: required, value: 1 }
+          fields:
+            5: { presence: required }
+        response: *gsmControlAck
   32:
     name: GSM Ownership
     id: gsmOwnership
@@ -1280,7 +1344,9 @@ messages:
   33:
     name: SIM settings
     id: simSettings
-    description: For devices that have dual-sim functionality, control which SIM is active and set APN parameters for SIM2
+    description: >-
+      For devices that have dual-sim functionality, control which SIM is active and set APN parameters
+      for SIM2.
     group: gsm
     header:
       - 5
@@ -1314,11 +1380,56 @@ messages:
       8:
         name: SIM2 ICCID
         id: sim2Iccid
-        description: SIM2 ICCID if known, read-only. This value may be cached from a previous read and stale.
+        description: SIM2 ICCID if known, read-only and ignored by SET. This value may be cached from a previous read and stale.
         type: ascii
     methods:
       GET: null
       SET: null
+    interactions:
+      read-settings:
+        title: Read SIM settings
+        request:
+          headers:
+            5: { presence: required, value: 2 }
+        response:
+          description: >-
+            Successful GET returns SIM settings directly. APN and credentials are returned only while SIM2 is
+            active. A cached SIM2 ICCID may be returned with either active SIM.
+          headers: *optionalOkReplyHeaders
+          fields:
+            1:
+              presence: required
+              description: Currently active SIM.
+            2: {}
+            3: {}
+            4: {}
+            8: {}
+      select-sim1:
+        title: Select SIM1
+        request:
+          description: SIM2 APN and credentials are ignored when selecting SIM1.
+          headers:
+            5: { presence: required, value: 1 }
+          fields:
+            1: { presence: required, value: 0 }
+        response: &simSettingsAck
+          messageId: 5
+          headers: *correlatedOkAckHeaders
+          fields:
+            1: { presence: required, value: 33 }
+      select-sim2:
+        title: Select SIM2 and configure its network credentials
+        request:
+          headers:
+            5: { presence: required, value: 1 }
+          fields:
+            1: { presence: required, value: 1 }
+            2: { presence: required, minBytes: 1 }
+            3:
+              description: Omission clears the configured SIM2 username.
+            4:
+              description: Omission clears the configured SIM2 password.
+        response: *simSettingsAck
     examples:
       - name: Enable SIM2 with APN settings
         bytes: 3 42 0 33 0 2 0 1 5 4 22 0 0 0 1 1 2 0 1 2 4 1 0 0 0 14 115 111 109 101 46 97 112 110 46 112 108 97 99 101 85 240
@@ -1459,165 +1570,107 @@ messages:
           battery capacity. Divide by rated capacity in Ah for equivalent full charges.
           Included with field 12 when battery diagnostics are available. Omitted when unavailable.
     methods:
-      GET:
+      GET: null
+      SUBSCRIBE: null
+      UNSUBSCRIBE: null
+    interactions:
+      read-device-status:
         title: Read device status
         description: Request the currently available status fields.
-        exchange:
-          request:
-            title: GET request
-            description: No payload fields are required. Method must be included; this message does not default to GET.
-            headers:
-              "1":
-                presence: optional
-                description: Include a nonzero Message ID to correlate the reply.
-              "5":
-                presence: required
-                value: 2
-          response:
-            title: Device status (MT34)
-            description: >-
-              A successful GET returns Device Status directly, without a separate success ACK.
-              Returned fields vary by target and available readings. Response To and Status may
-              be omitted when the request has no nonzero Message ID.
-            headers:
-              "3":
-                presence: optional
-              "4":
-                presence: optional
-                value: 0
-            fields:
-              "1": {presence: optional}
-              "2": {presence: optional}
-              "3": {presence: optional}
-              "4": {presence: optional}
-              "5": {presence: optional}
-              "6": {presence: optional}
-              "7": {presence: optional}
-              "10": {presence: optional}
-              "12": {presence: optional}
-              "13": {presence: optional}
-              "14": {presence: optional}
-          examples:
-            - title: GET exchange
-              provenance: captured
-              target: RH2 over I2C
-              description: >-
-                Captured on 2025-10-10 during normal device communications. The request and
-                response share Message ID / Response To 1048863264; the response reports
-                firmware 2287. These are the original captured bytes.
-              frames:
-                - role: request
-                  label: GET request for device status
-                  bytes: 3 20 0 34 0 2 0 5 1 1 2 4 32 98 132 62 0 0 194 229
-                - role: response
-                  label: Device status response
-                  bytes: 3 49 0 34 0 2 0 3 4 4 32 98 132 62 1 0 8 0 1 3 7 10 2 4 5 6 1 88 1 0 4 239 8 0 0 1 48 1 64 1 0 2 0 0 2 0 0 108 94
-      SUBSCRIBE:
+        request:
+          description: No payload fields are required. Method must be included; this message does not default to GET.
+          headers:
+            5: { presence: required, value: 2 }
+        response:
+          title: Device status (MT34)
+          description: A successful GET returns Device Status directly, without a separate success ACK. Returned
+            fields vary by target and available readings.
+          headers: *optionalOkReplyHeaders
+          fields: &deviceStatusFields
+            1: {}
+            2: {}
+            3: {}
+            4: {}
+            5: {}
+            6: {}
+            7: {}
+            10: {}
+            12: {}
+            13: {}
+            14: {}
+        examples:
+          - title: GET exchange
+            provenance: captured
+            target: RH2 over I2C
+            description: Captured on 2025-10-10 during normal device communications. The request and response share
+              Message ID / Response To 1048863264; the response reports firmware 2287. These are the original
+              captured bytes.
+            frames:
+              - role: request
+                label: GET request for device status
+                bytes: 3 20 0 34 0 2 0 5 1 1 2 4 32 98 132 62 0 0 194 229
+              - role: response
+                label: Device status response
+                bytes: 3 49 0 34 0 2 0 3 4 4 32 98 132 62 1 0 8 0 1 3 7 10 2 4 5 6 1 88 1 0 4 239 8 0 0 1 48 1 64 1 0 2
+                  0 0 2 0 0 108 94
+      subscribe-device-status:
         title: Subscribe to status updates
-        description: >-
-          Create or update the default Device Status subscription. Setup acknowledgment and
-          later status publications are separate; subscribing does not itself request an
-          immediate status snapshot. Use GET when you need the current status.
-        exchange:
-          request:
-            title: SUBSCRIBE request
-            description: >-
-              No payload fields are required. Omit Subscription ID (header 17), or use 0, for
-              the default subscription documented here. Updates are subject to the selected
-              interval and message level.
-            headers:
-              "1":
-                presence: optional
-                description: Include a nonzero Message ID if you need a setup acknowledgment.
-              "5":
-                presence: required
-                value: 3
-              "6":
-                presence: optional
-                description: Publication interval in milliseconds. Omitted or 0 allows updates as new status data becomes available.
-              "7":
-                presence: optional
-                description: Subscription duration in milliseconds. Omitted or 0 keeps the subscription active until unsubscribed.
-              "8":
-                presence: optional
-                description: Time in milliseconds to wait for the first matching status update. Omitted or 0 does not set a timeout.
-              "15":
-                presence: optional
-                description: Storage/retry policy for publications. Defaults to None (0).
-              "16":
-                presence: optional
-                description: Minimum publication level. The default Info-Auto (2) receives normal status updates; no explicit level is required.
-              "17":
-                presence: optional
-                value: 0
-                description: Default subscription. Omit this header or use 0 so UNSUBSCRIBE can cancel it.
-          response:
-            messageId: 5
-            title: Response (MT5 - ACK)
-            description: >-
-              A successful setup returns an MT5 acknowledgment with Status 0 when the request
-              includes a nonzero Message ID. This acknowledges the request, not delivery of
-              a status update. No acknowledgment is sent for an omitted or zero Message ID.
-            headers:
-              "3":
-                presence: required
-              "4":
-                presence: required
-                value: 0
-          publication:
-            title: Status update (MT34)
-            description: >-
-              Later status updates produce Device Status messages, filtered by the subscription
-              interval and level. They are not replies to the original SUBSCRIBE request and
-              do not carry its Response To. Available payload fields vary by target and readings.
-            headers:
-              "3":
-                presence: omitted
-                description: A later publication is not correlated to the subscription request.
-              "4":
-                presence: omitted
-                description: Status updates carry status data, not a command-result envelope.
-            fields:
-              "1": {presence: optional}
-              "2": {presence: optional}
-              "3": {presence: optional}
-              "4": {presence: optional}
-              "5": {presence: optional}
-              "6": {presence: optional}
-              "7": {presence: optional}
-              "10": {presence: optional}
-              "12": {presence: optional}
-              "13": {presence: optional}
-              "14": {presence: optional}
-      UNSUBSCRIBE:
+        description: Create or update the default Device Status subscription. Setup acknowledgment and later
+          status publications are separate; subscribing does not itself request an immediate status snapshot.
+          Use GET when you need the current status.
+        request:
+          description: No payload fields are required. Omit Subscription ID (header 17), or use 0, for the default
+            subscription documented here. Updates are subject to the selected interval and message level.
+          headers:
+            5: { presence: required, value: 3 }
+            6:
+              description: Publication interval in milliseconds. Omitted or 0 allows updates as new status data
+                becomes available.
+            7:
+              description: Subscription duration in milliseconds. Omitted or 0 keeps the subscription active until
+                unsubscribed.
+            8:
+              description: Time in milliseconds to wait for the first matching status update. Omitted or 0 does not
+                set a timeout.
+            15:
+              description: Storage/retry policy for publications. Defaults to None (0).
+            16:
+              description: Minimum publication level. The default Info-Auto (2) receives normal status updates; no
+                explicit level is required.
+            17:
+              value: 0
+              description: Default subscription. Omit this header or use 0 so UNSUBSCRIBE can cancel it.
+        response:
+          messageId: 5
+          description: A successful setup returns an MT5 acknowledgment with Status 0. This acknowledges the
+            request, not delivery of a status update.
+          headers: *correlatedOkAckHeaders
+        publication:
+          title: Status update (MT34)
+          description: Later status updates produce Device Status messages, filtered by the subscription interval
+            and level. They are not replies to the original SUBSCRIBE request and do not carry its Response
+            To. Available payload fields vary by target and readings.
+          headers:
+            3:
+              presence: omitted
+              description: A later publication is not correlated to the subscription request.
+            4:
+              presence: omitted
+              description: Status updates carry status data, not a command-result envelope.
+          fields: *deviceStatusFields
+      stop-device-status-subscription:
         title: Stop the default status subscription
-        description: >-
-          Stop the default Device Status subscription (ID 0). This operation does not select
-          a named subscription; supplying another Subscription ID does not cancel that named subscription.
-        exchange:
-          request:
-            title: UNSUBSCRIBE request
-            description: No payload fields are required. Omit Subscription ID; this operation removes the default subscription only.
-            headers:
-              "1":
-                presence: optional
-                description: Include a nonzero Message ID if you need an acknowledgment.
-              "5":
-                presence: required
-                value: 5
-          response:
-            messageId: 5
-            title: Response (MT5 - ACK)
-            description: >-
-              A successful cancellation returns an MT5 acknowledgment with Status 0 when the
-              request includes a nonzero Message ID. No acknowledgment is sent for an omitted
-              or zero Message ID.
-            headers:
-              "3":
-                presence: required
-              "4":
-                presence: required
-                value: 0
+        description: Stop the default Device Status subscription (ID 0). This operation does not select a named
+          subscription; supplying another Subscription ID does not cancel that named subscription.
+        request:
+          description: No payload fields are required. Omit Subscription ID; this operation removes the default
+            subscription only.
+          headers:
+            5: { presence: required, value: 5 }
+        response:
+          messageId: 5
+          description: A successful cancellation returns an MT5 acknowledgment with Status 0.
+          headers: *correlatedOkAckHeaders
   35:
     name: Device IDs
     id: deviceIds
@@ -1655,53 +1708,41 @@ messages:
         description: SIM2 ICCID cached from a previous read. This value may be stale.
         type: ascii
     methods:
-      GET:
+      GET: null
+    interactions:
+      read-device-ids:
         title: Read device IDs
         description: Request the available device and SIM identifiers.
-        exchange:
-          request:
-            title: GET request
-            description: No payload fields are required. Include Method GET to request the device identifiers.
-            headers:
-              "1":
-                presence: optional
-                description: Include a nonzero Message ID to correlate the reply.
-              "5":
-                presence: required
-                value: 2
-          response:
-            title: Device IDs (MT35)
-            description: >-
-              The GET response contains the available device identifiers. Not all fields are
-              available on every device type. Cached SIM2 ICCID is a previously read value
-              and may be stale.
-            headers:
-              "3":
-                presence: optional
-              "4":
-                presence: optional
-                value: 0
-            fields:
-              "1": {presence: optional}
-              "2": {presence: optional}
-              "3": {presence: optional}
-              "4": {presence: optional}
-              "8": {presence: optional}
-          examples:
-            - title: GET exchange
-              provenance: captured
-              target: RH2 over I2C
-              description: >-
-                Captured on 2025-10-10 during normal communications over I2C with the ESP32
-                co-processor. Toit on the ESP32 sends the request; RH2 P1 v2287 responds.
-                These are the original captured bytes.
-              frames:
-                - role: request
-                  label: GET request for device ids
-                  bytes: 3 20 0 35 0 2 0 5 1 1 2 4 31 187 53 226 0 0 191 169
-                - role: response
-                  label: Device IDs response
-                  bytes: 3 65 0 35 0 2 0 3 4 4 31 187 53 226 1 0 3 0 1 2 3 4 3 109 161 0 15 56 54 52 57 53 48 48 54 48 50 49 50 53 56 55 20 56 57 52 53 55 51 48 48 48 48 48 48 50 50 50 49 52 56 48 54 6 251
+        request:
+          description: No payload fields are required. Include Method GET to request the device identifiers.
+          headers:
+            5: { presence: required, value: 2 }
+        response:
+          title: Device IDs (MT35)
+          description: The GET response contains the available device identifiers. Not all fields are available on
+            every device type. Cached SIM2 ICCID is a previously read value and may be stale.
+          headers: *optionalOkReplyHeaders
+          fields:
+            1: {}
+            2: {}
+            3: {}
+            4: {}
+            8: {}
+        examples:
+          - title: GET exchange
+            provenance: captured
+            target: RH2 over I2C
+            description: Captured on 2025-10-10 during normal communications over I2C with the ESP32 co-processor.
+              Toit on the ESP32 sends the request; RH2 P1 v2287 responds. These are the original captured
+              bytes.
+            frames:
+              - role: request
+                label: GET request for device ids
+                bytes: 3 20 0 35 0 2 0 5 1 1 2 4 31 187 53 226 0 0 191 169
+              - role: response
+                label: Device IDs response
+                bytes: 3 65 0 35 0 2 0 3 4 4 31 187 53 226 1 0 3 0 1 2 3 4 3 109 161 0 15 56 54 52 57 53 48 48 54 48 50
+                  49 50 53 56 55 20 56 57 52 53 55 51 48 48 48 48 48 48 50 50 50 49 52 56 48 54 6 251
   36:
     name: Device Time
     id: deviceTime
@@ -1943,13 +1984,13 @@ messages:
       1:
         name: GPS is on
         id: gpsOn
-        description: Status of the GPS, is it on?
+        description: Whether the GPS service is on.
         type: bool
         readonly: true
       2:
         name: Corrections Enabled
         id: correctionsOn
-        description: Request and apply correction data to the GPS, such as RTK.
+        description: Whether GPS correction data is enabled.
         type: uint8
         values:
           0:
@@ -1978,131 +2019,72 @@ messages:
             id: hot
     methods:
       GET:
-        title: Read GPS state
-        description: Return the current GPS and correction-service state, not a position fix.
         request: null
         response:
           1: null
           2: null
-        exchange:
-          request:
-            title: GET request
-            description: No payload fields are needed.
-            headers:
-              "1":
-                presence: optional
-                description: >-
-                  Include a nonzero Message ID to correlate the reply.
-              "5":
-                presence: required
-                value: 2
-            fields:
-              "1":
-                presence: omitted
-              "2":
-                presence: omitted
-              "3":
-                presence: omitted
-          response:
-            title: GPS state (MT39)
-            description: >-
-              A successful GET returns GPS Control directly, with no separate success ACK.
-              An unsuccessful request returns MT5 (ACK) with Status, not this payload.
-            headers:
-              "3":
-                presence: optional
-              "4":
-                presence: optional
-                value: 0
-            fields:
-              "1":
-                presence: required
-                description: Whether the GPS service is on.
-              "2":
-                presence: required
-                description: Whether correction data is enabled.
-                values:
-                  "0": Disabled
-                  "1": Full RTCM stream
-              "3":
-                presence: omitted
-                description: Start mode is a SET input, not returned state.
-          errors:
-            - code: 7
-              description: "Not Supported: the product or firmware does not support this operation."
       SET:
-        title: Configure corrections and start mode
-        description: Enable correction data and/or restart the GPS in the requested boot mode.
         request:
           2:
             description: Automatically controls the GPS module.
           3:
             description: If the GPS is currently enabled, this will cause the GPS to be rebooted into the requested state. If the GPS is currently disabled, this will cause the GPS to be enabled and the requested state to be set.
         response: null
-        exchange:
-          request:
-            title: SET request
-            description: Use writable control fields, not the read-only GPS status field.
-            headers:
-              "1":
-                presence: optional
-                description: >-
-                  Include a nonzero Message ID to correlate the reply.
-              "5":
-                presence: required
-                value: 1
-            fields:
-              "1":
-                presence: omitted
-                description: Read-only status. Sending this field in SET is rejected with Invalid Parameter (4).
-              "2":
-                presence: optional
-                description: >-
-                  Request and apply correction data to the GPS, such as RTK; this automatically controls
-                  the GPS module. Omitting this field sets API-enabled corrections to disabled, so a
-                  start-mode-only SET does not preserve the previous correction setting. Include 1 to
-                  keep API-enabled corrections on.
-                values:
-                  "0": Disabled
-                  "1": Full RTCM stream
-              "3":
-                presence: optional
-                description: >-
-                  If GPS is enabled, reboot it in this mode. If it is disabled, enable it with the
-                  requested state.
-                values:
-                  "1": Normal
-                  "2": Cold
-                  "3": Warm
-                  "4": Hot
-          response:
-            messageId: 5
-            title: Response (MT5 - ACK)
-            description: >-
-              For a request with a nonzero Message ID, successful SET returns an ACK, not GPS state. Use
-              GET to read the current state afterward.
-            headers:
-              "3":
-                presence: optional
-              "4":
-                presence: required
-                value: 0
-            fields:
-              "1":
-                presence: required
-                value: 39
-                description: >-
-                  ACK Type identifies the original message type (39). No message-specific state is
-                  returned in this ACK.
-          errors:
-            - code: 4
-              description: >-
-                Invalid Parameter: a read-only GPS status field or an unsupported start mode was
-                supplied.
-            - code: 5
-              description: "Invalid State: the correction service cannot be enabled in the current device state."
-            - code: 7
-              description: "Not Supported: the product or firmware does not support this operation."
+    interactions:
+      read-gps-state:
+        title: Read GPS state
+        description: Return the current GPS and correction-service state, not a position fix. No payload fields
+          are needed.
+        errors:
+          - code: 7
+        request:
+          headers:
+            5: { presence: required, value: 2 }
+        response:
+          title: GPS state (MT39)
+          description: A successful GET returns GPS Control directly, with no separate success ACK. An
+            unsuccessful request returns MT5 (ACK) with Status, not this payload.
+          headers: *optionalOkReplyHeaders
+          fields:
+            1:
+              presence: required
+            2:
+              presence: required
+            3:
+              presence: omitted
+              description: Start mode is a SET input, not returned state.
+      configure-gps:
+        title: Configure corrections and start mode
+        description: Enable correction data and/or restart the GPS in the requested boot mode.
+        errors:
+          - code: 4
+            description: 'A read-only GPS status field or an unsupported start mode was supplied.'
+          - code: 5
+            description: 'The correction service cannot be enabled in the current device state.'
+          - code: 7
+        request:
+          description: Sending the read-only GPS status (field 1) in SET is rejected with Invalid Parameter (4).
+          headers:
+            5: { presence: required, value: 1 }
+          fields:
+            2:
+              description: Request and apply correction data to the GPS, such as RTK; this automatically controls the
+                GPS module. Omitting this field sets API-enabled corrections to disabled, so a start-mode-only
+                SET does not preserve the previous correction setting. Include 1 to keep API-enabled
+                corrections on.
+            3:
+              description: If GPS is enabled, reboot it in this mode. If it is disabled, enable it with the requested
+                state.
+        response:
+          messageId: 5
+          description: Successful SET returns an ACK, not GPS state. Use GET to read the current state afterward.
+          headers: *optionalCorrelationAckHeaders
+          fields:
+            1:
+              presence: required
+              value: 39
+              description: ACK Type identifies the original message type (39). No message-specific state is returned
+                in this ACK.
   40:
     name: Haptics Control
     id: hapticsControl
@@ -3330,12 +3312,22 @@ messages:
         description: >-
           Complete payload and CRC-16 format. GET and SUBSCRIBE explicitly select wire Message
           Version 2 with header 22; omitting it selects the legacy format. SET requires 2.
+        fields:
+          129:
+            description: >-
+              Complete cached payload in an extended-length field with a uint16 little-endian length
+              prefix. Empty payload data is omitted when returned or published.
       1:
         label: "2025-10"
         description: >-
           Earlier chunked payload and additive-checksum format, retained for existing integrations.
           GET and SUBSCRIBE use this format when header 22 is omitted or set to 1. No legacy SET is supported.
+          Concatenate present payload chunks (fields 10-14) in field-ID order; each holds up to
+          255 bytes. Empty payload data is omitted.
         legacy: true
+        fields:
+          1:
+            description: Additive checksum of the cached payload, calculated as the sum of its bytes modulo 65536.
     group: info
     header:
       - 5
@@ -3344,560 +3336,294 @@ messages:
       1:
         name: Legacy Checksum
         id: legacyChecksum
-        description: Legacy additive checksum (sum of payload bytes modulo 65536), used in version 1 responses with the legacy chunk fields. Absent from version 2 responses. Optional and ignored in SET.
+        description: Checksum of the cached payload.
         type: uint16
         readonly: true
         versions: [1]
       2:
         name: CRC
         id: crc
-        description: CRC-16/XMODEM of the cached payload (polynomial 0x1021, initial value 0x0000, no input or output reflection, final XOR 0x0000), separate from the outer message-frame CRC. Returned in version 2 responses and tracking-session messages, including an empty cache as zero (0x0000). Optional and ignored in SET; the device calculates it from field 129. One- or two-byte little-endian encoding may omit a high zero byte. Implemented only on Viper devices.
+        description: CRC-16/XMODEM of the cached payload (polynomial 0x1021, initial value 0x0000, no input or output reflection, final XOR 0x0000), separate from the outer message-frame CRC. An empty cache has CRC zero (0x0000). One- or two-byte little-endian encoding may omit a high zero byte.
         type: uint16
         readonly: true
         versions: [2]
       10:
         name: Legacy Payload Chunk 1
         id: legacyChunk1
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
         versions: [1]
       11:
         name: Legacy Payload Chunk 2
         id: legacyChunk2
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
         versions: [1]
       12:
         name: Legacy Payload Chunk 3
         id: legacyChunk3
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
         versions: [1]
       13:
         name: Legacy Payload Chunk 4
         id: legacyChunk4
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
         versions: [1]
       14:
         name: Legacy Payload Chunk 5
         id: legacyChunk5
-        description: Message Version 1 GET response payload chunk; contains up to 255 bytes.
         type: bytes
         versions: [1]
       129:
         name: Full Payload
         id: fullPayload
-        description: Complete message-box bytes in SET requests, GET responses, and subscription updates (up to 1024 bytes). SET must include this field; an explicit zero-length value clears the cache. Uses an extended-length field with a uint16 little-endian length prefix. Tracking-session uploads may use this field for independent Transmit Now data instead.
+        description: Payload bytes carried in an extended-length field with a uint16 little-endian length prefix.
         type: bytes
         versions: [2]
     methods:
-      GET:
+      GET: null
+      SET: null
+      SUBSCRIBE: null
+      UNSUBSCRIBE: null
+    interactions:
+      read-message-box:
         title: Read the cached message
         description: >-
-          GET chooses its own response format, regardless of the selected subscription format. A
-          successful GET returns MT58 directly, rather than a separate success ACK.
-        exchange:
-          errors:
-            - code: 4
-              description: "Invalid Parameter: a decoded Message Version value above 2."
-            - code: 7
-              description: "Not Supported: the product or firmware does not support this operation."
-        versions:
-          2:
-            title: 2026-10 · complete payload
-            description: Select the complete extended payload and its CRC-16/XMODEM.
-            request:
-              title: GET request
-              description: No payload fields are needed.
-              headers:
-                "1":
-                  presence: optional
-                  description: >-
-                    Include a nonzero Message ID to correlate the reply.
-                "5":
-                  presence: required
-                  value: 2
-                "22":
-                  presence: required
-                  maxBytes: 1
-                  value: 2
-                  description: A one-byte value of 2 selects version 2.
-            response:
-              title: Cached payload
-              description: >-
-                A successful GET returns this MT58 payload. An unsuccessful request returns
-                MT5 (ACK) with Status instead.
-              headers:
-                "3":
-                  presence: optional
-                "4":
-                  presence: optional
-                  value: 0
-                "22":
-                  presence: required
-                  maxBytes: 1
-                  value: 2
-                  description: Identifies the format of this response payload.
-              fields:
-                "1":
-                  presence: omitted
-                  description: The legacy additive checksum is absent from version 2 responses.
-                "2":
-                  presence: required
-                  description: >-
-                    Device-calculated CRC-16/XMODEM of the cached payload, including 0 for an empty
-                    cache. One- or two-byte little-endian encoding may omit a high zero byte.
-                "129":
-                  presence: optional
-                  maxBytes: 1024
-                  description: >-
-                    Complete cached payload in an extended-length field with a uint16 little-endian
-                    length prefix. Empty payload data is omitted.
-          1:
-            title: 2025-10 · legacy chunks
-            description: Use the unchanged legacy wire layout and additive checksum.
-            request:
-              title: GET request
-              description: No payload fields are needed.
-              headers:
-                "1":
-                  presence: optional
-                  description: >-
-                    Include a nonzero Message ID to correlate the reply.
-                "5":
-                  presence: required
-                  value: 2
-                "22":
-                  presence: optional
-                  maxBytes: 1
-                  description: >-
-                    Omitted, explicitly 0, or malformed-width values resolve to 0 and select version
-                    1; an explicit 1 also selects version 1.
-                  values:
-                    "0": Version 1 (also the omitted/malformed-width fallback)
-                    "1": Version 1
-            response:
-              title: Legacy cached payload
-              description: >-
-                A successful GET returns this MT58 payload. An unsuccessful request returns
-                MT5 (ACK) with Status instead.
-              headers:
-                "3":
-                  presence: optional
-                "4":
-                  presence: optional
-                  value: 0
-                "22":
-                  presence: omitted
-                  description: >-
-                    Legacy version 1 responses retain their original wire layout and omit Message
-                    Version.
-              fields:
-                "1":
-                  presence: required
-                  description: "Additive checksum: sum of all cached payload bytes modulo 65536."
-                "2":
-                  presence: omitted
-                  description: The CRC field belongs to version 2.
-                "10":
-                  presence: optional
-                  maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 1; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
-                "11":
-                  presence: optional
-                  maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 2; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
-                "12":
-                  presence: optional
-                  maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 3; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
-                "13":
-                  presence: optional
-                  maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 4; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
-                "14":
-                  presence: optional
-                  maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 5; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
-                "129":
-                  presence: omitted
-                  description: >-
-                    Version 1 retains the legacy wire layout; it does not include the extended
-                    full-payload field.
-      SET:
-        title: Replace or clear the cached message
+          GET chooses its own response format, regardless of the selected subscription format. A successful
+          GET returns MT58 directly, rather than a separate success ACK.
+
+
+          Select the complete extended payload and its CRC-16/XMODEM.
+        errors: &messageBoxReadErrors
+          - code: 4
+            description: 'A decoded Message Version value above 2.'
+          - code: 7
+        messageVersion: 2
+        request:
+          headers:
+            5: { presence: required, value: 2 }
+            22: { presence: required, value: 2 }
+        response:
+          title: Cached payload
+          description: A successful GET returns this MT58 payload. An unsuccessful request returns MT5 (ACK) with
+            Status instead.
+          headers:
+            <<: *optionalOkReplyHeaders
+            22: { presence: required, value: 2 }
+          fields: &messageBoxV2Fields
+            1:
+              presence: omitted
+            2:
+              presence: required
+            129:
+              maxBytes: 1024
+      read-message-box-v1:
+        title: Read the cached message (legacy v1)
         description: >-
-          Every accepted SET updates the cache, writes it to persistent storage when enabled, and
+          GET chooses its own response format, regardless of the selected subscription format. A successful
+          GET returns MT58 directly, rather than a separate success ACK.
+
+
+          Use the unchanged legacy wire layout and additive checksum.
+        errors: *messageBoxReadErrors
+        messageVersion: 1
+        request:
+          headers:
+            5: { presence: required, value: 2 }
+            22: &legacyMessageBoxSelector
+              description: Omitted, explicitly 0, or malformed-width values resolve to 0 and select version 1; an
+                explicit 1 also selects version 1.
+              values:
+                0: Version 1 (also the omitted/malformed-width fallback)
+                1: Version 1
+        response:
+          title: Legacy cached payload
+          description: A successful GET returns this MT58 payload. An unsuccessful request returns MT5 (ACK) with
+            Status instead.
+          headers:
+            <<: *optionalOkReplyHeaders
+            22:
+              presence: omitted
+              description: Legacy version 1 responses retain their original wire layout and omit Message Version.
+          fields: &messageBoxV1Fields
+            1:
+              presence: required
+            2:
+              presence: omitted
+            10:
+              maxBytes: 255
+            11:
+              maxBytes: 255
+            12:
+              maxBytes: 255
+            13:
+              maxBytes: 255
+            14:
+              maxBytes: 255
+            129:
+              presence: omitted
+      replace-message-box:
+        title: Replace or clear the cached message
+        description: Every accepted SET updates the cache, writes it to persistent storage when enabled, and
           publishes to current subscribers, even for identical bytes. SET does not change the selected
           subscription format.
-        versions:
-          2:
-            request:
-              title: SET request
-              description: >-
-                Message Version 2 and field 129 are required. The device calculates the payload CRC; the
-                outer message-frame CRC protects the SET request itself.
-                Optional supplied checksum fields 1 and 2 are ignored.
-              headers:
-                "1":
-                  presence: optional
-                  description: >-
-                    Include a nonzero Message ID to correlate the reply.
-                "5":
-                  presence: required
-                  value: 1
-                "22":
-                  presence: required
-                  maxBytes: 1
-                  value: 2
-                  description: A one-byte value of 2 selects version 2.
-              fields:
-                "129":
-                  presence: required
-                  maxBytes: 1024
-                  description: >-
-                    Complete new cache bytes. An explicit zero-length field clears the cache; omitting the
-                    field is an error. Extended-length encoding uses a uint16 little-endian length prefix.
-            response:
-              messageId: 5
-              title: Response (MT5 - ACK)
-              description: >-
-                For a request with a nonzero Message ID, successful SET returns an ACK. It does not return
-                the cached bytes; subscriber publications are separate asynchronous messages and are not
-                this reply.
-              headers:
-                "3":
-                  presence: optional
-                "4":
-                  presence: required
-                  value: 0
-              fields:
-                "1":
-                  presence: required
-                  value: 58
-                  description: >-
-                    ACK Type identifies the original message type (58). No message-specific state is
-                    returned in this ACK.
-            errors:
-              - code: 2
-                description: "Missing Parameter: field 129 is absent."
-              - code: 4
-                description: >-
-                  Invalid Parameter: Message Version is missing, malformed-width, or any value other than
-                  2; or field 129 exceeds 1024 bytes.
-              - code: 7
-                description: "Not Supported: the product or firmware does not support this operation."
-      SUBSCRIBE:
+        messageVersion: 2
+        request:
+          description: Message Version 2 and field 129 are required. The device calculates the payload CRC; the
+            outer message-frame CRC protects the SET request itself. Optional supplied checksum fields 1 and 2
+            are ignored.
+          headers:
+            5: { presence: required, value: 1 }
+            22: { presence: required, value: 2 }
+          fields:
+            129:
+              presence: required
+              maxBytes: 1024
+              description: Complete new cache bytes. An explicit zero-length field clears the cache; omitting the
+                field is an error. Extended-length encoding uses a uint16 little-endian length prefix.
+        response:
+          messageId: 5
+          description: Successful SET returns an ACK, not the cached bytes. Subscriber publications are separate
+            asynchronous messages and are not this reply.
+          headers: *optionalCorrelationAckHeaders
+          fields: &messageBoxAckFields
+            1:
+              presence: required
+              value: 58
+              description: ACK Type identifies the original message type (58). No message-specific state is returned
+                in this ACK.
+        errors:
+          - code: 2
+            description: 'Field 129 is absent.'
+          - code: 4
+            description: 'Message Version is missing, malformed-width, or any value other than 2;
+              or field 129 exceeds 1024 bytes.'
+          - code: 7
+      subscribe-message-box:
         title: Subscribe to cached-message updates
         description: >-
-          The latest valid SUBSCRIBE selects one shared format for all Message Box publications, not a
-          format per subscriber. A decoded version above 2 leaves both the existing format selection
-          and subscription unchanged. Control acknowledgment and later publications are distinct
-          messages.
-        exchange:
-          response:
-            messageId: 5
-            title: Response (MT5 - ACK)
-            description: >-
-              For a request with a nonzero Message ID, successful SUBSCRIBE returns a control ACK
-              confirming the subscription request only. It does not contain the cache. Success ACKs
-              are suppressed for an omitted or zero Message ID; error ACKs are not suppressed for this
-              reason. Updates arrive as asynchronous MT58 publications, not as direct replies to
-              SUBSCRIBE.
-            headers:
-              "3":
-                presence: optional
-              "4":
-                presence: required
-                value: 0
-            fields:
-              "1":
-                presence: required
-                value: 58
-                description: >-
-                  ACK Type identifies the original message type (58). No message-specific state is
-                  returned in this ACK.
-          errors:
-            - code: 4
-              description: >-
-                Invalid Parameter: a decoded Message Version value above 2; existing selection and
-                subscription are unchanged.
-            - code: 7
-              description: "Not Supported: the product or firmware does not support this operation."
-        versions:
-          2:
-            title: Version 2 · complete-payload publications
-            description: Explicit version 2 selects the shared extended-payload and CRC publication format.
-            request:
-              title: SUBSCRIBE request
-              headers:
-                "1":
-                  presence: optional
-                  description: >-
-                    Include a nonzero Message ID to correlate the reply.
-                "5":
-                  presence: required
-                  value: 3
-                "6":
-                  presence: optional
-                  description: >-
-                    Optional publication interval in milliseconds. If omitted, updates are sent when
-                    new data is available.
-                "7":
-                  presence: optional
-                  description: >-
-                    Subscription duration in milliseconds; 0 is indefinite until explicitly
-                    unsubscribed.
-                "16":
-                  presence: optional
-                  description: Minimum publication level.
-                "17":
-                  presence: optional
-                  description: >-
-                    Subscription ID; omit for the default subscription (0). Use the same ID when
-                    unsubscribing.
-                "22":
-                  presence: required
-                  maxBytes: 1
-                  value: 2
-                  description: A one-byte value of 2 selects version 2.
-            publication:
-              title: Cached payload update
-              description: >-
-                Version 2 updates include Message Version 2 and field 2. Field 129 carries the
-                complete cached payload when nonempty; empty payload data is omitted.
-              headers:
-                "3":
-                  presence: omitted
-                  description: This is an asynchronous publication, not a direct reply to the SUBSCRIBE request.
-                "17":
-                  presence: optional
-                  description: Identifies nonzero subscription IDs for this publication.
-                "22":
-                  presence: required
-                  maxBytes: 1
-                  value: 2
-                  description: A one-byte value of 2 selects version 2.
-              fields:
-                "1":
-                  presence: omitted
-                  description: The legacy additive checksum is absent from version 2 responses.
-                "2":
-                  presence: required
-                  description: >-
-                    Device-calculated CRC-16/XMODEM of the cached payload, including 0 for an empty
-                    cache. One- or two-byte little-endian encoding may omit a high zero byte.
-                "129":
-                  presence: optional
-                  maxBytes: 1024
-                  description: >-
-                    Complete cached payload in an extended-length field with a uint16 little-endian
-                    length prefix. Empty payload data is omitted.
-          1:
-            title: Version 1 · legacy publications
-            description: >-
-              Omitted, explicitly 0, malformed-width, or explicit version 1 selects the shared legacy
-              publication format.
-            request:
-              title: SUBSCRIBE request
-              headers:
-                "1":
-                  presence: optional
-                  description: >-
-                    Include a nonzero Message ID to correlate the reply.
-                "5":
-                  presence: required
-                  value: 3
-                "6":
-                  presence: optional
-                  description: >-
-                    Optional publication interval in milliseconds. If omitted, updates are sent when
-                    new data is available.
-                "7":
-                  presence: optional
-                  description: >-
-                    Subscription duration in milliseconds; 0 is indefinite until explicitly
-                    unsubscribed.
-                "16":
-                  presence: optional
-                  description: Minimum publication level.
-                "17":
-                  presence: optional
-                  description: >-
-                    Subscription ID; omit for the default subscription (0). Use the same ID when
-                    unsubscribing.
-                "22":
-                  presence: optional
-                  maxBytes: 1
-                  description: >-
-                    Omitted, explicitly 0, or malformed-width values resolve to 0 and select version
-                    1; an explicit 1 also selects version 1.
-                  values:
-                    "0": Version 1 (also the omitted/malformed-width fallback)
-                    "1": Version 1
-            publication:
-              title: Legacy cached payload update
-              description: >-
-                Version 1 updates use the additive checksum and legacy chunks. Empty payload data is
-                omitted.
-              headers:
-                "3":
-                  presence: omitted
-                  description: This is an asynchronous publication, not a direct reply to the SUBSCRIBE request.
-                "17":
-                  presence: optional
-                  description: Identifies nonzero subscription IDs for this publication.
-                "22":
-                  presence: omitted
-                  description: >-
-                    Legacy version 1 responses retain their original wire layout and omit Message
-                    Version.
-              fields:
-                "1":
-                  presence: required
-                  description: "Additive checksum: sum of all cached payload bytes modulo 65536."
-                "2":
-                  presence: omitted
-                  description: The CRC field belongs to version 2.
-                "10":
-                  presence: optional
-                  maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 1; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
-                "11":
-                  presence: optional
-                  maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 2; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
-                "12":
-                  presence: optional
-                  maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 3; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
-                "13":
-                  presence: optional
-                  maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 4; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
-                "14":
-                  presence: optional
-                  maxBytes: 255
-                  description: >-
-                    Legacy payload chunk 5; concatenate present chunks in field-ID order. Empty
-                    payload data is omitted.
-                "129":
-                  presence: omitted
-                  description: >-
-                    Version 1 retains the legacy wire layout; it does not include the extended
-                    full-payload field.
-      UNSUBSCRIBE:
+          The latest valid SUBSCRIBE selects one shared format for all Message Box publications, not a format
+          per subscriber. A decoded version above 2 leaves both the existing format selection and subscription
+          unchanged. Control acknowledgment and later publications are distinct messages.
+
+
+          Explicit version 2 selects the shared extended-payload and CRC publication format.
+        response: &messageBoxSubscribeAck
+          messageId: 5
+          title: Response (MT5 - ACK)
+          description: Successful SUBSCRIBE returns a control ACK confirming the subscription request only. It
+            does not contain the cache. Updates arrive as asynchronous MT58 publications, not as direct
+            replies to SUBSCRIBE.
+          headers:
+            '3': { presence: optional }
+            '4': { presence: required, value: 0 }
+          fields: *messageBoxAckFields
+        errors: &messageBoxSubscribeErrors
+          - code: 4
+            description: 'A decoded Message Version value above 2; existing selection and
+              subscription are unchanged.'
+          - code: 7
+        messageVersion: 2
+        request:
+          headers:
+            <<: &messageBoxSubscriptionHeaders
+              5: { presence: required, value: 3 }
+              6:
+                description: Optional publication interval in milliseconds. If omitted, updates are sent when new data
+                  is available.
+              7:
+                description: Subscription duration in milliseconds; 0 is indefinite until explicitly unsubscribed.
+              16:
+                description: Minimum publication level.
+              17:
+                description: Subscription ID; omit for the default subscription (0). Use the same ID when unsubscribing.
+            22: { presence: required, value: 2 }
+        publication:
+          title: Cached payload update
+          description: Version 2 updates include Message Version 2 and field 2. Field 129 carries the complete
+            cached payload when nonempty; empty payload data is omitted.
+          headers:
+            <<: &messageBoxPublicationHeaders
+              3:
+                presence: omitted
+                description: This is an asynchronous publication, not a direct reply to the SUBSCRIBE request.
+              17:
+                description: Identifies nonzero subscription IDs for this publication.
+            22: { presence: required, value: 2 }
+          fields: *messageBoxV2Fields
+      subscribe-message-box-v1:
+        title: Subscribe to cached-message updates (legacy v1)
+        description: >-
+          The latest valid SUBSCRIBE selects one shared format for all Message Box publications, not a format
+          per subscriber. A decoded version above 2 leaves both the existing format selection and subscription
+          unchanged. Control acknowledgment and later publications are distinct messages.
+
+
+          Omitted, explicitly 0, malformed-width, or explicit version 1 selects the shared legacy publication
+          format.
+        response: *messageBoxSubscribeAck
+        errors: *messageBoxSubscribeErrors
+        messageVersion: 1
+        request:
+          headers:
+            <<: *messageBoxSubscriptionHeaders
+            22: *legacyMessageBoxSelector
+        publication:
+          title: Legacy cached payload update
+          description: Version 1 updates use the additive checksum and legacy chunks. Empty payload data is omitted.
+          headers:
+            <<: *messageBoxPublicationHeaders
+            22:
+              presence: omitted
+              description: Legacy version 1 responses retain their original wire layout and omit Message Version.
+          fields: *messageBoxV1Fields
+      stop-message-box-subscription:
         title: Stop a subscription
-        description: >-
-          Remove the addressed subscription. Neither UNSUBSCRIBE nor subscription expiry resets the
-          shared publication-format selection.
-        exchange:
-          request:
-            title: UNSUBSCRIBE request
-            description: No payload fields are needed.
-            headers:
-              "1":
-                presence: optional
-                description: >-
-                  Include a nonzero Message ID to correlate the reply.
-              "5":
-                presence: required
-                value: 5
-              "17":
-                presence: optional
-                description: Use the Subscription ID to remove, or omit it for the default subscription (0).
-              "22":
-                presence: ignored
-                description: UNSUBSCRIBE does not select or reset the publication format.
-          response:
-            messageId: 5
-            title: Response (MT5 - ACK)
-            description: >-
-              For a request with a nonzero Message ID, successful UNSUBSCRIBE returns a control ACK
-              confirming the unsubscribe request, not a final cached-message publication. Success ACKs
-              are suppressed for an omitted or zero Message ID; error ACKs are not suppressed for this
-              reason.
-            headers:
-              "3":
-                presence: optional
-              "4":
-                presence: required
-                value: 0
-            fields:
-              "1":
-                presence: required
-                value: 58
-                description: >-
-                  ACK Type identifies the original message type (58). No message-specific state is
-                  returned in this ACK.
-          errors:
-            - code: 7
-              description: "Not Supported: the product or firmware does not support this operation."
-    contexts:
-      tracking-session:
+        description: Remove the addressed subscription. Message Version (header 22) is ignored; UNSUBSCRIBE does
+          not select or reset the publication format, and neither does subscription expiry.
+        errors:
+          - code: 7
+        request:
+          headers:
+            5: { presence: required, value: 5 }
+            17:
+              description: Use the Subscription ID to remove, or omit it for the default subscription (0).
+        response:
+          messageId: 5
+          description: Successful UNSUBSCRIBE returns a control ACK confirming the unsubscribe request, not a
+            final cached-message publication.
+          headers: *optionalCorrelationAckHeaders
+          fields: *messageBoxAckFields
+      tracking-message-box-upload:
         title: Tracking-session uploads
-        description: >-
-          A separate device-to-server context, not a GET response or subscription update.
-          Tracking-session messages always use Message Version 2. Field 129 may carry independent
-          Transmit Now upload data, not the cached down-synced payload. Cached-message CRC reporting
-          is Viper-only. Independent Transmit Now uploads can use MT58 without cached Message Box
-          support; those upload-only messages omit field 2.
+        description: A separate device-to-server context, not a GET response or subscription update.
+          Tracking-session messages always use Message Version 2. Field 129 may carry independent Transmit Now
+          upload data, not the cached down-synced payload. Cached-message CRC reporting is Viper-only.
+          Independent Transmit Now uploads can use MT58 without cached Message Box support; those upload-only
+          messages omit field 2.
         target: Viper or Transmit Now upload-enabled firmware
-        versions:
-          2:
-            publication:
-              title: Device upload (MT58)
-              description: >-
-                When Message Box support is enabled, field 2 reports the cached-message CRC, including 0
-                for an empty cache. Independent upload bytes in field 129 do not form part of that
-                cached-message CRC.
-              headers:
-                "22":
-                  presence: required
-                  maxBytes: 1
-                  value: 2
-                  description: A one-byte value of 2 selects version 2.
-              fields:
-                "2":
-                  presence: optional
-                  description: >-
-                    Present when Message Box support is enabled: CRC-16/XMODEM of the cached down-synced
-                    message, not a checksum of the upload in field 129. Zero for an empty cache.
-                "129":
-                  presence: optional
-                  description: >-
-                    Independent Transmit Now upload data; do not compare its CRC with field 2 to validate
-                    the upload.
+        messageVersion: 2
+        publication:
+          title: Device upload (MT58)
+          description: When Message Box support is enabled, field 2 reports the cached-message CRC, including 0
+            for an empty cache. Independent upload bytes in field 129 do not form part of that cached-message
+            CRC.
+          headers:
+            22: { presence: required, value: 2 }
+          fields:
+            2:
+              description: 'Present when Message Box support is enabled: CRC-16/XMODEM of the cached down-synced
+                message, not a checksum of the upload in field 129. Zero for an empty cache.'
+            129:
+              description: Independent Transmit Now upload data; do not compare its CRC with field 2 to validate the
+                upload.
     notes:
       - id: support
         title: Unsupported products
-        placement: overview
         description: >-
           The cached feature requires supporting firmware. Unsupported products return Not
           Supported (Status header 4, code 7). Independent Transmit Now uploads are documented
           separately below and do not imply support for the cached feature.
       - id: sync-lifecycle
         title: How syncing works
-        placement: overview
         description: |
           The device reports its cached-message checksum during a tracking session. If a completed session contains a valid report and the server's configured data has a different checksum, the server can send a version 2 SET with the desired bytes. Unconfigured or invalid server data leaves the cache unchanged; an explicitly configured empty payload requests a clear.
 
@@ -3906,7 +3632,6 @@ messages:
           Later tracking-session reports let the server check the reported cache checksum and offer the update again if it still differs. Sending an update or receiving an ACK alone does not confirm that the cache is synchronized.
       - id: message-versions
         title: Format dates and wire selectors
-        placement: reference
         description: >-
           The date labels identify when each documented format was introduced in source, not a
           firmware release date. The 2026-10 format uses Message Version 2; the earlier 2025-10
@@ -3914,11 +3639,9 @@ messages:
           The numeric values remain visible in the request and response header documentation.
       - id: checksum-scope
         title: Payload CRC and frame CRC are different
-        placement: reference
         description: >-
-          The device calculates and stores CRC-16/XMODEM of the cached payload: polynomial 0x1021,
-          initial value 0x0000, no input or output reflection, final XOR 0x0000. The outer
-          message-frame CRC protects the complete frame. The 16-bit payload CRC can collide for
+          Field 2 describes the cached payload; the outer message-frame CRC protects the complete
+          frame. The 16-bit payload CRC can collide for
           different payloads; an accepted SET still applies changed bytes even when their CRC matches
           the previous CRC.
   61:

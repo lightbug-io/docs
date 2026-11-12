@@ -42,7 +42,11 @@ words:
   - zcard
 
   # Lightbug terms
+  - gingin
   # Acronyms, initialisms, technical terms
+  - retryable
+  - nonpositive
+  - messagedata
   - RTCM
   - UART
   - OBDII

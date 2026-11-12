@@ -2,6 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter, withBase } from 'vitepress'
 import Message from './Message.vue'
+import ExamplesSection from './ExamplesSection.vue'
 import DocumentationText from './DocumentationText.vue'
 import SentinelValues from './SentinelValues.vue'
 import {
@@ -22,6 +23,7 @@ import {
   getDocumentationFormat,
   getMessageDocumentation,
   getOperationVariant,
+  resolveDocumentationErrors,
   resolveDocumentationFields,
   type DocumentationOperation,
 } from '../../utils/MessageDocumentation'
@@ -32,7 +34,7 @@ const props = defineProps<{
 }>()
 
 const message = computed(() => props.yamlData.messages?.[props.messageId])
-const documentation = computed(() => getMessageDocumentation(message.value))
+const documentation = computed(() => getMessageDocumentation(message.value, props.yamlData))
 const copyStatus = ref('')
 const router = useRouter()
 let removeRouteCorrection: (() => void) | undefined
@@ -43,7 +45,7 @@ let activeFrame = 0
 const exampleColumns = ref<HTMLElement[]>([])
 const jumpBarHeight = ref(64)
 let jumpBarObserver: ResizeObserver | undefined
-const operationAnchor = (item: DocumentationOperation) => `message-${props.messageId}-operation-${item.id}`
+const operationAnchor = (item: DocumentationOperation) => `message-${props.messageId}-operation-${item.anchorId || item.id}`
 const acknowledgmentUrl = withBase('/devices/api/messages/5-ack#header')
 const responseReferenceUrl = withBase('/devices/api/protocol/responses')
 const panels = computed(() => (documentation.value?.operations || []).flatMap(item => {
@@ -70,14 +72,17 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
         examplesTitle: `${label} examples`,
         title: role === 'request' ? 'Request' : role === 'response'
           ? `Expected response${view[role] ? ` (MT${contextId}${contextId === 5 ? ' - ACK' : ''})` : ''}`
-          : `${item.method ? 'Later publication' : 'Device upload'}${view[role] ? ` (MT${contextId})` : ''}`, 
+          : `${item.method ? 'Later publication' : 'Device upload'}${view[role] ? ` (MT${contextId})` : ''}`,
         subtitle: role !== 'request' && contextId !== 5 && !!item.method ? usage.title?.replace(/\s*\(MT\d+\)$/, '') : undefined,
         description: usage.description,
         acknowledgment: usage.messageId === 5,
         referenceAnchors: usage.messageId === 5
           ? (['headers', 'fields'] as const).flatMap(kind => Object.keys(usage[kind] || {}).map(id => `${anchor}-${role}-${kind}-${id}`))
-          // Preserve field deep links when a shortened input list omits them.
-          : [...sharedHeaders.map(id => `${anchor}-${role}-headers-${id}`), ...Object.keys((usage.messageId === undefined ? message.value : props.yamlData.messages?.[usage.messageId])?.data || {})
+          // Preserve header and field deep links when a shortened input list omits them.
+          : [...sharedHeaders.map(id => `${anchor}-${role}-headers-${id}`),
+            ...Object.keys(props.yamlData.header || {}).filter(id => !Object.prototype.hasOwnProperty.call(usage.headers || {}, id))
+              .map(id => `${anchor}-${role}-headers-${id}`),
+            ...Object.keys((usage.messageId === undefined ? message.value : props.yamlData.messages?.[usage.messageId])?.data || {})
             .filter(id => !Object.prototype.hasOwnProperty.call(usage.fields || {}, id))
             .map(id => `${anchor}-${role}-fields-${id}`)],
         groups: usage.messageId === 5 ? [] : (['headers', 'fields'] as const).map(kind => ({
@@ -101,7 +106,7 @@ const panels = computed(() => (documentation.value?.operations || []).flatMap(it
         ...context,
         examplesAnchor: `${anchor}${context.role === (contexts.find(item => item.examples.length)?.role || contexts[0]?.role) ? '' : `-${context.role}`}-examples`,
       })),
-      errors: (view.errors || []).map(error => ({ ...error, name: props.yamlData.header?.[4]?.values?.[error.code]?.name })),
+      errors: resolveDocumentationErrors(props.yamlData, view.errors),
     }
   })
 }))
@@ -183,6 +188,7 @@ const outlineEntries = computed<MessageOutlineEntry[]>(() => {
       entries.push({ id: panel.anchor, title: panel.operation.method || 'Upload', depth })
     }
   }
+  if (message.value.examples?.length) entries.push({ id: `message-${props.messageId}-wire-examples`, title: 'Wire examples', depth: 0 })
   entries.push({ id: `message-${props.messageId}-constants`, title: 'Constants', depth: 0 })
   return entries
 })
@@ -321,13 +327,20 @@ onBeforeUnmount(() => {
       <MessageOutline :entries="outlineEntries" :active-id="activeSection" :message-id="messageId" :message-name="message.name" />
     </div>
     <div class="message-content">
-    <p :id="`message-${messageId}-overview`" class="message-summary">{{ documentation.summary }}</p>
+    <p :id="`message-${messageId}-overview`" class="message-summary"><DocumentationText :text="documentation.summary" :messages="yamlData.messages" /></p>
+    <p v-if="documentation.methods.length" class="section-caption"><strong>Documented <a :href="withBase('/devices/api/protocol/headers#5-method')">Method (5)</a> values</strong> {{ documentation.methods.join(', ') }}</p>
     <p v-if="documentation.target" class="support-context"><strong>Applies to</strong> {{ documentation.target }}</p>
+    <p class="response-reference shared-message-id">
+      <strong>Shared optional header</strong> · <a :href="withBase('/devices/api/protocol/headers#1-message-id')">Message ID (1)</a>
+      can identify a request, response or publication. A response's own ID is separate from
+      <a :href="withBase('/devices/api/protocol/headers#3-response-to')">Response To (3)</a>.
+      <a :href="`${responseReferenceUrl}#message-ids`">Message ID and reply rules</a> apply unless an interaction states an exception.
+    </p>
 
     <div v-if="overviewNotes.length" :id="`message-${messageId}-notes`" class="overview-notes">
       <section v-for="note in overviewNotes" :key="note.id" class="overview-note" :aria-labelledby="`message-${messageId}-note-${note.id}`">
         <h2 :id="`message-${messageId}-note-${note.id}`">{{ note.title }}</h2>
-        <p class="prose">{{ note.description }}</p>
+        <p class="prose"><DocumentationText :text="note.description" :messages="yamlData.messages" /></p>
       </section>
     </div>
 
@@ -358,7 +371,8 @@ onBeforeUnmount(() => {
                 <th scope="row"><span class="summary-field-name">{{ field.name }}</span><span class="field-id">Field {{ field.id }}</span></th>
                 <td><code>{{ field.type }}</code></td>
                 <td>
-                  <p v-if="field.description" class="prose"><DocumentationText :text="field.description" /></p>
+                  <p v-if="field.description" class="prose"><DocumentationText :text="field.description" :messages="yamlData.messages" /></p>
+                  <p v-if="field.minBytes !== undefined" class="field-limit">Minimum {{ field.minBytes }} bytes</p>
                   <p v-if="field.maxBytes !== undefined" class="field-limit">Maximum {{ field.maxBytes }} bytes</p>
                   <ul v-if="field.values.length" class="field-values">
                     <li v-for="value in field.values" :key="value.value"><code>{{ value.value }}</code><strong v-if="value.name"> · {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span></li>
@@ -379,6 +393,7 @@ onBeforeUnmount(() => {
       </section>
 
     <section v-for="panel in group.panels" :id="panel.anchor" :key="panel.anchor" class="operation-section" :aria-labelledby="`${panel.anchor}-heading`">
+      <span v-for="alias in panel.operation.anchorAliases" :key="alias" :id="`message-${messageId}-operation-${alias}`" class="operation-anchor" aria-hidden="true"></span>
       <span v-if="panel.variantId && panel.defaultVariant" :id="operationAnchor(panel.operation)" class="operation-anchor" aria-hidden="true"></span>
       <div class="operation-toolbar">
         <div class="wire-context" aria-label="Protocol context">
@@ -393,8 +408,8 @@ onBeforeUnmount(() => {
           <component :is="hasFormats ? 'h3' : 'h2'" :id="`${panel.anchor}-heading`" class="operation-heading">
             <a class="operation-heading-link" :href="`#${panel.anchor}`">{{ panel.operation.title }}</a>
           </component>
-          <p v-if="panel.operation.description" class="prose">{{ panel.operation.description }}</p>
-          <p v-if="panel.variantId && panel.variant.description && panel.variant.description !== panel.operation.description" class="prose">{{ panel.variant.description }}</p>
+          <p v-if="panel.operation.description" class="prose"><DocumentationText :text="panel.operation.description" :messages="yamlData.messages" /></p>
+          <p v-if="panel.variantId && panel.variant.description && panel.variant.description !== panel.operation.description" class="prose"><DocumentationText :text="panel.variant.description" :messages="yamlData.messages" /></p>
           <p v-if="panel.target" class="target-context"><strong>Target</strong> {{ panel.target }}</p>
 
       </div>
@@ -405,7 +420,8 @@ onBeforeUnmount(() => {
             <span v-for="anchor in context.referenceAnchors" :id="anchor" :key="anchor" class="operation-anchor" aria-hidden="true"></span>
             <component :is="hasFormats ? 'h4' : 'h3'" :id="`${panel.anchor}-${context.role}`" class="context-heading">{{ context.title }}</component>
             <p v-if="context.subtitle" class="context-subtitle">{{ context.subtitle }}</p>
-            <p v-if="context.description" class="prose">{{ context.description }}</p>
+            <p v-if="context.description" class="prose"><DocumentationText :text="context.description" :messages="yamlData.messages" /></p>
+            <p v-if="context.role === 'request'" class="response-reference"><a :href="`${responseReferenceUrl}#message-ids`">Shared optional Message ID and reply rules</a></p>
             <p v-if="context.role === 'response'" class="response-reference"><a :href="responseReferenceUrl">Correlation, status and acknowledgment rules</a><template v-if="context.acknowledgment"> · <a :href="acknowledgmentUrl">MT5 packet format</a></template></p>
             <div v-for="group in context.groups" :key="group.kind" class="field-group" :class="{ 'header-group': group.kind === 'headers' }">
               <component :is="hasFormats ? 'h5' : 'h4'" class="field-group-heading">{{ group.title }}</component>
@@ -424,10 +440,11 @@ onBeforeUnmount(() => {
                     <div class="field-metadata">
                       <code v-if="field.type">{{ field.type }}</code>
                       <span v-if="field.presence" class="presence" :class="`presence-${field.presence}`">{{ field.presence }}</span>
+                      <span v-if="field.minBytes !== undefined" class="field-limit">Minimum {{ field.minBytes }} bytes</span>
                       <span v-if="field.maxBytes !== undefined" class="field-limit">Maximum {{ field.maxBytes }} bytes</span>
                     </div>
                     <p v-if="field.value !== undefined" class="fixed-value"><strong>Value</strong> <code>{{ field.value }}</code><span v-if="field.valueName"> · {{ field.valueName }}</span></p>
-                    <p v-if="field.description" class="prose"><DocumentationText :text="field.description" /></p>
+                    <p v-if="field.description" class="prose"><DocumentationText :text="field.description" :messages="yamlData.messages" /></p>
                     <ul v-if="field.values.length" class="field-values">
                       <li v-for="value in field.values" :key="value.value">
                         <code>{{ value.value }}</code><strong v-if="value.name"> · {{ value.name }}</strong><span v-if="value.description">: {{ value.description }}</span>
@@ -440,18 +457,18 @@ onBeforeUnmount(() => {
             </div>
             <section v-if="context.role === 'response' && panel.errors.length" class="reply-errors" :aria-labelledby="`${panel.anchor}-errors`">
               <component :is="hasFormats ? 'h5' : 'h4'" :id="`${panel.anchor}-errors`" class="field-group-heading">Unsuccessful replies</component>
-              <p class="section-caption">Operation-specific causes. Codes are values of <a :href="`${responseReferenceUrl}#status-and-errors`">Status header 4</a>, not payload fields.</p>
+              <p class="section-caption">Applicable errors and operation-specific causes. Codes are values of <a :href="`${responseReferenceUrl}#status-and-errors`">Status header 4</a>, not payload fields.</p>
               <dl class="error-list">
                 <div v-for="error in panel.errors" :key="error.code">
                   <dt><code>{{ error.code }}</code> {{ error.name }}</dt>
-                  <dd class="prose">{{ error.description }}</dd>
+                  <dd class="prose"><DocumentationText :text="error.description" :messages="yamlData.messages" /></dd>
                 </div>
               </dl>
             </section>
         </section>
 
         <aside class="reference-examples" :aria-label="context.examplesTitle">
-          <span v-if="panel === groups[0]?.panels[0] && context === panel.contexts[0]" id="examples" class="operation-anchor" aria-hidden="true"></span>
+          <span v-if="!message.examples?.length && panel === groups[0]?.panels[0] && context === panel.contexts[0]" id="examples" class="operation-anchor" aria-hidden="true"></span>
           <div ref="exampleColumns" class="context-examples">
           <span :id="context.examplesAnchor" class="operation-anchor" aria-hidden="true"></span>
           <p v-if="!context.examples.length" class="example-placeholder">No captured example available yet.</p>
@@ -466,7 +483,7 @@ onBeforeUnmount(() => {
               <component :is="hasFormats ? 'h4' : 'h3'" :id="`${panel.anchor}-example-${example.exampleIndex + 1}${example.startsExchange ? '' : `-${context.role}`}-title`" class="example-title"><span v-if="example.showNumber" class="example-number">Example {{ example.exampleIndex + 1 }}</span>{{ example.stageTitle }}</component>
               <details v-if="example.startsExchange && example.description" class="example-details">
                 <summary><span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured' }}</span><template v-if="example.target"> · {{ example.target }}</template> · <span class="details-label">Details</span></summary>
-                <p class="prose">{{ example.description }}</p>
+                <p class="prose"><DocumentationText :text="example.description" :messages="yamlData.messages" /></p>
               </details>
               <p v-else class="example-context"><span class="example-provenance">{{ example.provenance === 'generated' ? 'Synthetic example' : 'Captured' }}</span><template v-if="example.target"> · {{ example.target }}</template></p>
               <p v-if="example.provenance === 'generated'" class="provenance-note">Generated for illustration; not a device capture.</p>
@@ -496,7 +513,7 @@ onBeforeUnmount(() => {
             <dl class="error-list">
               <div v-for="error in panel.errors" :key="error.code">
                 <dt><code>{{ error.code }}</code> {{ error.name }}</dt>
-                <dd class="prose">{{ error.description }}</dd>
+                <dd class="prose"><DocumentationText :text="error.description" :messages="yamlData.messages" /></dd>
               </div>
             </dl>
           </section>
@@ -506,9 +523,14 @@ onBeforeUnmount(() => {
     <div v-if="referenceNotes.length" :id="overviewNotes.length ? undefined : `message-${messageId}-notes`" class="reference-notes">
       <section v-for="note in referenceNotes" :key="note.id" class="reference-note" :aria-labelledby="`message-${messageId}-note-${note.id}`">
         <h2 :id="`message-${messageId}-note-${note.id}`">{{ note.title }}</h2>
-        <p class="prose">{{ note.description }}</p>
+        <p class="prose"><DocumentationText :text="note.description" :messages="yamlData.messages" /></p>
       </section>
     </div>
+    <section v-if="message.examples?.length" :id="`message-${messageId}-wire-examples`" class="message-constants">
+      <span id="examples" class="operation-anchor" aria-hidden="true"></span>
+      <h2>Wire examples</h2>
+      <ExamplesSection :message-id="messageId" :yaml-data="yamlData" />
+    </section>
     <section :id="`message-${messageId}-constants`" class="message-constants" :aria-labelledby="`message-${messageId}-constants-heading`">
       <span id="code" class="operation-anchor" aria-hidden="true"></span>
       <h2 :id="`message-${messageId}-constants-heading`">Message and field constants</h2>

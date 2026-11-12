@@ -3,6 +3,7 @@ outline: [1,3]
 ---
 
 <script setup>
+import { withBase } from 'vitepress'
 </script>
 
 # Protocol
@@ -12,7 +13,6 @@ The protocol is designed to be:
  - Efficient to read and build
  - Lightweight to store and transmit
  - Usable in a variety of settings, without complex or bloated dependencies
-
 
 ## Byte Breakdown
 

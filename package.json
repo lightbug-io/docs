@@ -25,7 +25,8 @@
     "build:production": "cross-env DEPLOYMENT_NAME=Production PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress build",
     "build:next": "cross-env DEPLOYMENT_NAME=Next PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress build",
     "preview": "cross-env PUBLIC_GOOGLE_ANALYTICS=${PUBLIC_GOOGLE_ANALYTICS} vitepress preview",
-    "test": "jest"
+    "test": "jest",
+    "export:protocol": "node utils/expanded-protocol.cjs"
   },
   "dependencies": {
     "@highlightjs/vue-plugin": "^2.1.0",
