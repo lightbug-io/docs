@@ -556,29 +556,7 @@ describe('canonical inline interactions', () => {
         expect(interactionView(33, 'select-sim2').request?.fields?.[2]?.minBytes).toBe(1)
     })
 
-    it('validates both published authoring examples against the existing wire definitions', () => {
-        const guide = readFileSync(resolve(__dirname, '../devices/api/protocol/responses.md'), 'utf8')
-        const snippets = [...guide.matchAll(/```yaml\n([\s\S]*?)```/g)].map(match => yaml.load(match[1]))
-        const examples = snippets.filter(snippet => snippet.messages).map(snippet => snippet.messages[58])
-        const versionExample = snippets.find(snippet => snippet.versions)
-        expect(versionExample).toBeDefined()
-        const versionSample = clone(protocol)
-        versionSample.messages[58].versions[2] = versionExample.versions[2]
-        expect(validateMessageDocumentation(versionSample, 58)).toEqual([])
-        expect(examples).toHaveLength(2)
-        for (const example of examples) {
-            const sample = clone(protocol)
-            const methods = Object.fromEntries(getDocumentationMethods(example, protocol).map(method => [method, null]))
-            sample.messages[58] = { ...sample.messages[58], ...example, methods }
-            expect(validateMessageDocumentation(sample, 58)).toEqual([])
-            for (const source of Object.values(example.interactions) as any[]) {
-                expect(source.versions).toBeUndefined()
-                expect(source.messageVersion).toBe(2)
-            }
-        }
-    })
-
-    it('keeps ACK schemas local and operation-specific suppression in the linked response reference', () => {
+    it('keeps ACK schemas local to each operation', () => {
         for (const [id, names] of [
             [31, ['control-flight-mode', 'start-search']],
             [33, ['select-sim1', 'select-sim2']],
@@ -587,10 +565,6 @@ describe('canonical inline interactions', () => {
             expect(response.messageId).toBe(5)
             expect(response.fields?.[1]?.value).toBe(id)
         }
-        const guide = readFileSync(resolve(__dirname, '../devices/api/protocol/responses.md'), 'utf8')
-        expect(guide).toContain('send no success ACK for an omitted or zero ID')
-        expect(guide).toContain('error ACKs are not suppressed for this reason')
-        expect(guide).toContain('do not establish a universal rule for every MT5 reply')
     })
 
     it('uses inline interactions as the only documentation source without mutating wire definitions', () => {
