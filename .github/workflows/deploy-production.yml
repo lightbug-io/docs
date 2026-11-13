@@ -49,16 +49,15 @@ jobs:
 
       - name: Deploy
         if: success()
-        uses: jakejarvis/s3-sync-action@v0.5.1
-        with:
-          # delete files not present in SOURCE_DIR, but exclude the static directory
-          args: --delete --exclude "static/*" --exclude "static"
+        run: |
+          # Overwrite rebuilt files before cleanup, preserving the static directory.
+          aws s3 cp .vitepress/dist/ "s3://${AWS_S3_BUCKET}/" --recursive --exclude "static/*" --exclude "static"
+          aws s3 sync .vitepress/dist/ "s3://${AWS_S3_BUCKET}/" --delete --no-progress --exclude "static/*" --exclude "static"
         env:
           AWS_S3_BUCKET: ${{ vars.PRODUCTION_BUCKET_NAME }}
           AWS_ACCESS_KEY_ID: ${{ secrets.PRODUCTION_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.PRODUCTION_SECRET }}
           AWS_REGION: ${{ vars.PRODUCTION_REGION }}
-          SOURCE_DIR: .vitepress/dist
 
       - name: Set success deployment status
         if: success()
