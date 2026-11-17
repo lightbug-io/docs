@@ -1212,7 +1212,7 @@ messages:
       SET: null
     examples:
       - name: Send the arbitrary data 'foo' as ascii bytes to the cloud
-        bytes: 3 22 0 30 0 2 0 5 1 1 4 1 131 1 0 2 3 102 111 111 180 28
+        bytes: 3 22 0 30 0 2 0 5 1 1 1 1 131 1 0 2 3 102 111 111 196 222
       - name: Response from device showing status of transmission
         bytes: 3 20 0 30 0 3 0 3 4 1 1 131 1 1 1 92 0 0 84 149
   31:
