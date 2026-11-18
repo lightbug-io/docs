@@ -1624,6 +1624,130 @@
           }
         },
         "type": "object"
+      },
+      "lightbug_io_gingin_internal_modules_rtk.NtripCredentials": {
+        "properties": {
+          "deviceId": {
+            "type": "integer"
+          },
+          "hostname": {
+            "type": "string"
+          },
+          "mountpoint": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "portNum": {
+            "type": "integer"
+          },
+          "priority": {
+            "type": "integer"
+          },
+          "username": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "lightbug_io_gingin_internal_modules_rtk.NtripCredentialsList": {
+        "properties": {
+          "credentials": {
+            "items": {
+              "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.NtripCredentials"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "deviceId": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "lightbug_io_gingin_internal_modules_rtk.TestNtripRequest": {
+        "properties": {
+          "alt": {
+            "type": "number"
+          },
+          "host": {
+            "maxLength": 255,
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "mountpoint": {
+            "maxLength": 45,
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 45,
+            "type": "string"
+          },
+          "port": {
+            "maximum": 65535,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "username": {
+            "maxLength": 45,
+            "type": "string"
+          }
+        },
+        "required": [
+          "host",
+          "mountpoint",
+          "password",
+          "port",
+          "username"
+        ],
+        "type": "object"
+      },
+      "lightbug_io_gingin_internal_modules_rtk.UpsertNtripRequest": {
+        "properties": {
+          "host": {
+            "maxLength": 255,
+            "type": "string"
+          },
+          "insert": {
+            "description": "If true and priority specified, insert and shift existing credentials",
+            "type": "boolean"
+          },
+          "mountpoint": {
+            "maxLength": 45,
+            "type": "string"
+          },
+          "password": {
+            "maxLength": 45,
+            "type": "string"
+          },
+          "port": {
+            "maximum": 65535,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "priority": {
+            "description": "If nil, append to end",
+            "type": "integer"
+          },
+          "username": {
+            "maxLength": 45,
+            "type": "string"
+          }
+        },
+        "required": [
+          "host",
+          "mountpoint",
+          "password",
+          "port",
+          "username"
+        ],
+        "type": "object"
       }
     },
     "securitySchemes": {
@@ -6090,6 +6214,694 @@
         "summary": "Summary of plans",
         "tags": [
           "plans"
+        ]
+      }
+    },
+    "/devices/{id}/rtk/ntrip": {
+      "delete": {
+        "description": "Deletes all configured NTRIP credentials for the device.",
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Credentials deleted"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid device ID"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Device not found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Failed to delete credentials"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Delete all NTRIP credentials for a device",
+        "tags": [
+          "rtk"
+        ]
+      },
+      "get": {
+        "description": "Returns the configured NTRIP credentials for the device.",
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.NtripCredentialsList"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid device ID"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Device not found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Failed to retrieve credentials"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Get a device's NTRIP credentials",
+        "tags": [
+          "rtk"
+        ]
+      },
+      "put": {
+        "description": "Creates manual credentials at the next available priority when priority is omitted. At an existing priority, credentials are updated unless insert is true, which inserts and shifts later priorities.",
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.UpsertNtripRequest"
+              }
+            }
+          },
+          "description": "NTRIP credentials",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.NtripCredentials"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid device ID or request body"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Device not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A trial credential cannot become secondary"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Failed to update credentials"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Create or update NTRIP credentials",
+        "tags": [
+          "rtk"
+        ]
+      }
+    },
+    "/devices/{id}/rtk/ntrip/test": {
+      "post": {
+        "description": "Test credentials by opening a live connection to the caster without storing them. Verifies authentication and optionally checks for RTCM data coverage.",
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.TestNtripRequest"
+              }
+            }
+          },
+          "description": "NTRIP credentials to test. Optional lat, lng, and alt can be provided to check for RTCM data coverage.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {},
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Status OK with receivedData indicator"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid device ID or request body"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Device not found"
+          },
+          "502": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "NTRIP connection failed (auth rejected, host unreachable, etc.)"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Test NTRIP caster credentials",
+        "tags": [
+          "rtk"
+        ]
+      }
+    },
+    "/devices/{id}/rtk/ntrip/{priority}": {
+      "delete": {
+        "description": "Deletes the NTRIP credentials configured for the device at the requested priority.",
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Credential priority",
+            "in": "path",
+            "name": "priority",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Credentials deleted"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid device ID or priority"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Device or credentials not found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Failed to delete credentials"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Delete NTRIP credentials at a priority",
+        "tags": [
+          "rtk"
+        ]
+      },
+      "get": {
+        "description": "Returns the NTRIP credentials configured at the requested priority.",
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Credential priority",
+            "in": "path",
+            "name": "priority",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.NtripCredentials"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid device ID or priority"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Device or credentials not found"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Failed to retrieve credentials"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Get a device's NTRIP credentials at a priority",
+        "tags": [
+          "rtk"
+        ]
+      },
+      "put": {
+        "description": "Creates or updates manual credentials at the requested priority. The priority in the URL overrides any priority in the request body. Set insert to true to insert and shift later priorities.",
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Credential priority",
+            "in": "path",
+            "name": "priority",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.UpsertNtripRequest"
+              }
+            }
+          },
+          "description": "NTRIP credentials",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.NtripCredentials"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Invalid device ID, priority, or request body"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Device not found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "A trial credential cannot become secondary"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Failed to update credentials"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Create or update NTRIP credentials at a priority",
+        "tags": [
+          "rtk"
         ]
       }
     }
