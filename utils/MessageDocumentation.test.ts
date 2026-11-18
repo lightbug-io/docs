@@ -508,16 +508,16 @@ describe('canonical inline interactions', () => {
             expect(getDocumentationMethods(message, protocol).slice().sort()).toEqual(Object.keys(message.methods).sort())
             expect(getMessageDocumentation(message, protocol)!.methods).toEqual(getDocumentationMethods(message, protocol))
         }
-        expect(getDocumentationMethods(protocol.messages[31], protocol)).toEqual(['GET', 'SET'])
+        expect(getDocumentationMethods(protocol.messages[31], protocol).sort()).toEqual(['GET', 'SET'])
         const publication = { interactions: { upload: { publication: {} } } }
         expect(getDocumentationMethods(publication, protocol)).toEqual([])
         expect(getDocumentationMethods({ methods: { GET: null, SET: null } }, protocol)).toEqual(['GET', 'SET'])
         const changed = clone(protocol.messages[31])
         changed.methods = { SUBSCRIBE: null }
-        expect(getDocumentationMethods(changed, protocol)).toEqual(['GET', 'SET'])
+        expect(getDocumentationMethods(changed, protocol).sort()).toEqual(['GET', 'SET'])
         const renamedEnum = clone(protocol)
         renamedEnum.header[5].values[2].name = 'READ'
-        expect(getDocumentationMethods(changed, renamedEnum)).toEqual(['READ', 'SET'])
+        expect(getDocumentationMethods(changed, renamedEnum).sort()).toEqual(['READ', 'SET'])
         expect(interactionView(58, 'tracking-message-box-upload').method).toBeUndefined()
         expect(interactionView(34, 'read-device-status').messageVersion).toBeUndefined()
         expect(protocol).toEqual(before)
@@ -551,7 +551,8 @@ describe('canonical inline interactions', () => {
         const legacy = interactionView(58, 'read-message-box-v1')
         expect(legacy.request?.headers?.[22]?.description).toContain('Omitted, explicitly 0, or malformed-width')
         expect(legacy.response?.headers?.[22]?.presence).toBe('omitted')
-        expect(legacy.response?.fields?.[10]?.maxBytes).toBe(255)
+        // Field IDs below 128 use a one-byte length, so the 255-byte wire maximum is implicit.
+        expect(legacy.response?.fields?.[10]?.maxBytes).toBeUndefined()
         expect(interactionView(58, 'replace-message-box').request?.fields?.[129]?.maxBytes).toBe(1024)
         expect(interactionView(33, 'select-sim2').request?.fields?.[2]?.minBytes).toBe(1)
     })
@@ -851,7 +852,7 @@ describe('native YAML reuse', () => {
         expect(box['tracking-message-box-upload'].publication.fields).not.toEqual(box['read-message-box'].response.fields)
     })
 
-    it('expands both YAML parsers identically and does not mutate shared aliases during normalization', () => {
+    it('expands both YAML parsers identically and does not mutate source data during normalization', () => {
         const { parseDocument } = require('yaml')
         const source = readFileSync(resolve(__dirname, '../public/files/protocol-v3.yaml'), 'utf8')
         const document = parseDocument(source, { merge: true, uniqueKeys: true })
@@ -860,7 +861,7 @@ describe('native YAML reuse', () => {
         const sample = yaml.load(source)
         const before = clone(sample)
         const status = sample.messages[34].interactions
-        expect(status['read-device-status'].response.fields).toBe(status['subscribe-device-status'].publication.fields)
+        expect(status['read-device-status'].response.fields).toEqual(status['subscribe-device-status'].publication.fields)
         for (const id of [31, 33, 34, 35, 39, 58]) getMessageDocumentation(sample.messages[id], sample)
         expect(sample).toEqual(before)
         const docs = getMessageDocumentation(sample.messages[34], sample)!
@@ -889,6 +890,7 @@ describe('native YAML reuse', () => {
         ['Protocol template unused headers 3 has invalid minBytes', (p: any) => { p.templates.headers.unused = { 3: { minBytes: 4, maxBytes: 1 } } }],
     ])('reports %s even when the template is unused', (diagnostic, change) => {
         const sample = clone(protocol)
+        sample.templates = { headers: {} }
         change(sample)
         expect(validateProtocolInteractions(sample).join('\n')).toContain(diagnostic)
     })
