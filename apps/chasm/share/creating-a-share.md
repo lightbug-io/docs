@@ -10,6 +10,10 @@ The dialog defaults to **Last 1 hour** in your local timezone. Use **Quick time 
 
 Click **Share**, then use **Copy** or **Open share**. Anyone with the link can view the shared data without signing in.
 
+If the selected end time is in the future, the share link is created now, but its snapshot data is available only after that time. Opening the link early shows a waiting countdown; when the countdown ends, the page retries preparation. It does not show a live stream. A future start time is not supported.
+
+![Share viewer showing a countdown until the snapshot becomes available](https://upload.r2.lb.chasm.cloud/2026/11/share-future/ccd25577-f46c-48da-9a8f-e7c593420bd5.png)
+
 ## Message headers
 
 It is also possible to open up V3 messages to the share system by adding a custom header to the message when sending it to the chasm.

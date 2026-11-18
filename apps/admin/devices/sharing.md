@@ -24,6 +24,10 @@ The selection screen allows you to choose the time period to share, and the type
 - **End time**: The end time of the data to share, based on the time received by the server.
 - **Name (optional)**: A name of up to 255 characters to help identify the share and show on the share page.
 
+If the selected end time is in the future, the dialog explains when the snapshot will become available to viewers. Future start times are not supported.
+
+![Admin sharing dialog notice explaining the snapshot availability time and that future start times are unsupported](https://upload.r2.lb.chasm.cloud/2026/11/share-future/d85e541f-927f-46e8-b010-c6f2fcd55264.png)
+
 ### Time selection
 
 The dialog starts with **Last 1 hour** in your local timezone. Use **Quick time range** to choose **Today** or a recent period, such as **Last 6 hours** or **Last 24 hours**. Today starts at midnight in the selected time format, up to a maximum of 24 elapsed hours.
