@@ -356,9 +356,7 @@ header:
   20:
     name: Session ID
     id: sessionId
-    description: |
-      Identifies the tracking session. Devices set this to the Message ID of Session Start
-      and include it on messages belonging to that session.
+    description: Identifies the tracking session.
     type: uint32
   22:
     name: Message Version
@@ -1174,7 +1172,7 @@ messages:
   21:
     name: Session Start
     id: sessionStart
-    description: Opens a tracking upload session. The Message ID identifies the session.
+    description: Opens a tracking upload session.
     group: general
     data:
       10:
@@ -1219,11 +1217,12 @@ messages:
         name: Last Send Reason
         id: sendReason
         description: |
-          Bits 0-3 represent device state when Session Start is serialized; bits 4-6
-          represent movement events since the previous send (position with a send reason
-          or completed session with a send reason). Repeated event types collapse into
-          one bit; the field does not encode event time or order. Firmware preserves
-          pending movement events if session construction fails.
+          Bits 0-3 represent device state when the session start is serialized; bits
+          4-6 represent movement events since the previous send (position with a send
+          reason or completed session with a send reason). Repeated events of the
+          same type collapse into one bit; the bits do not encode event time or order.
+          Use this reason for server-generated Wi-Fi or GSM positions, not for GPS
+          positions. A session that fails construction does not consume events.
         type: uint8
         bitfield:
           1:
