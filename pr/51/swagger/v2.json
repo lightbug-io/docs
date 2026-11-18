@@ -1,0 +1,6106 @@
+{
+  "components": {
+    "schemas": {
+      "BulkPlanResponse": {
+        "properties": {
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/DeviceResult"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "summary": {
+            "$ref": "#/components/schemas/BulkSummary"
+          }
+        },
+        "type": "object"
+      },
+      "BulkSummary": {
+        "properties": {
+          "errorCount": {
+            "type": "integer"
+          },
+          "successCount": {
+            "type": "integer"
+          },
+          "totalRequested": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "BuyPlansRequest": {
+        "properties": {
+          "currency": {
+            "description": "Currency to charge in (gbp, usd, eur)",
+            "enum": [
+              "usd",
+              "eur",
+              "gbp"
+            ],
+            "type": "string"
+          },
+          "products": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "description": "Map of SKUs to quantity to add to the checkout",
+            "example": {
+              "SKU-1": 1,
+              "SKU-2": 7
+            },
+            "type": "object"
+          }
+        },
+        "required": [
+          "currency",
+          "products"
+        ],
+        "type": "object"
+      },
+      "CreatePersonalAccessTokenRequest": {
+        "properties": {
+          "description": {
+            "description": "Description of the token",
+            "type": "string"
+          },
+          "ttl": {
+            "description": "TTL of the token in seconds\nDefault to 1 months\nMax 1 year",
+            "maximum": 31536000,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "description"
+        ],
+        "type": "object"
+      },
+      "CreatePersonalAccessTokenResponse": {
+        "properties": {
+          "created": {
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of the token",
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "token": {
+            "description": "The token itself",
+            "type": "string"
+          },
+          "ttl": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "created",
+          "description",
+          "token",
+          "ttl"
+        ],
+        "type": "object"
+      },
+      "DeletePersonalAccessTokenResponse": {
+        "type": "object"
+      },
+      "Device": {
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "batteryPct": {
+            "type": "integer"
+          },
+          "batteryType": {
+            "type": "string"
+          },
+          "batteryVoltage": {
+            "type": "number"
+          },
+          "btMacAddress": {
+            "description": "Bluetooth MAC Address",
+            "type": "string"
+          },
+          "btPasskey": {
+            "type": "integer"
+          },
+          "color": {
+            "type": "string"
+          },
+          "config": {
+            "$ref": "#/components/schemas/DeviceConfig"
+          },
+          "currentMode": {
+            "description": "Indicates last known device state. 0 = awake, 1 = sleep, 6 = flight mode",
+            "type": "integer"
+          },
+          "expires": {
+            "type": "string"
+          },
+          "firstSeen": {
+            "type": "string"
+          },
+          "iccid": {
+            "description": "Integrated Circuit Card Identification Number",
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "imei": {
+            "type": "string"
+          },
+          "imsi": {
+            "description": "International Mobile Subscriber Identity (A unique number associated with every GSM mobile phone subscriber, which is maintained on a SIM)"
+          },
+          "knownDevices": {
+            "description": "(optional) Bluetooth MAC addresses of other devices known to this device",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "lastConnection": {
+            "type": "string"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/DeviceMeta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "onoWhitelistId": {
+            "type": "integer"
+          },
+          "ownerId": {
+            "description": "ID of the user which owns this device",
+            "type": "integer"
+          },
+          "qcEvents": {
+            "$ref": "#/components/schemas/QCEventMap"
+          },
+          "reseller": {
+            "$ref": "#/components/schemas/Reseller"
+          },
+          "resellerId": {
+            "type": "integer"
+          },
+          "resellerPlan": {
+            "$ref": "#/components/schemas/ResellerPlan"
+          },
+          "resellerPlanId": {
+            "type": "integer"
+          },
+          "serial": {
+            "type": "string"
+          },
+          "siloId": {},
+          "stripeSubscription": {},
+          "subscription": {
+            "$ref": "#/components/schemas/Subscription"
+          },
+          "subscriptionType": {},
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "type": {
+            "type": "string"
+          },
+          "users": {
+            "description": "(optional) User IDs associated with this device",
+            "items": {
+              "$ref": "#/components/schemas/UserStub"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "uwbId": {
+            "description": "UWB Address as 32bit number (ID based on the silicon inside the device)"
+          }
+        },
+        "type": "object"
+      },
+      "DeviceConfig": {
+        "description": "(optional) Configuration",
+        "properties": {
+          "alertAction": {
+            "description": "What to do when the button is pressed or the unit is dropped. Options are:\n'available' (stay registered on the mobile network),\n'nothing' (one transmission) and\n'lockOn' (keep transmitting at 'interval' until instructed otherwise",
+            "type": "string"
+          },
+          "behavior": {
+            "description": "Char Bitfield with various flags. Advanced use only.",
+            "type": "integer"
+          },
+          "command": {
+            "description": "Internal use. Sends command to device on next connection",
+            "type": "integer"
+          },
+          "currentFW": {
+            "description": "Current firmware version",
+            "type": "integer"
+          },
+          "debounce": {
+            "description": "Movement sensitivity on a scale of 1 to 10, with 1 being the most sensitive.\nIt is correlated to the number of consecutive milliseconds the acceleration needs to exceed the movementSensitivity threshold",
+            "type": "integer"
+          },
+          "flashTryCount": {
+            "description": "Internal use. Set to 0 when changing otaFW",
+            "type": "integer"
+          },
+          "forceFw": {
+            "description": "Internal use only\nUsed with otaFW. Set to true to force the unit to upgrade on next connection (rather than waiting for a sleep connection)",
+            "type": "boolean"
+          },
+          "fwChannel": {
+            "description": "The firmware channel to use for OTA updates. If null, the unit will use the default channel.",
+            "type": "string"
+          },
+          "gpsCheckInterval": {
+            "description": "If a safe-zone is used, how often to check the wifi & gps to see if its still inside it (only applies when motion is detected)",
+            "type": "integer"
+          },
+          "gpsStabilize": {
+            "description": "How long to let the GPS stabilise in seconds once a lock is achieved before sending the position.\nHigher values may increase accuracy.",
+            "type": "integer"
+          },
+          "gpsTimeout": {
+            "description": "How long to let the GPS searches for a lock in seconds before giving up. Max 255s.",
+            "type": "integer"
+          },
+          "homeWifiNetwork": {
+            "description": "WiFi network name to use as a Safe-zone. When this network is visible, stay asleep",
+            "type": "string"
+          },
+          "interval": {
+            "description": "The wake mode interval in seconds. The unit will connect to the server this often when awake.",
+            "type": "integer"
+          },
+          "modeControl": {
+            "description": "Char Bitfield with various flags. Advanced use only.",
+            "type": "integer"
+          },
+          "modeControl2": {
+            "description": "Char Bitfield with various flags. Advanced use only. FW >= 69.",
+            "type": "integer"
+          },
+          "modified": {
+            "description": "Non null dates indicate the configuration will be pushed to the device when it next connects"
+          },
+          "movementSensitivity": {
+            "description": "A secondary debounce value. Typically this value is lower or equal to debounce, representing increased\nsensitivity to movement once the device is already moving.",
+            "type": "integer"
+          },
+          "movementSensitivityOld": {
+            "description": "Deprecated. See debounce.\nmovementSensitivity threshold in terms of units of gravity. We used to adjust it, but a better way of doing it was the amount of times over that threshold (that what debounce is)\nShould always be 1, which means... debounce when already moving",
+            "type": "integer"
+          },
+          "otaFW": {
+            "description": "Pending Firmware version. If non null, the unit will be told to upgrade to this version when it next transmits in sleep mode.",
+            "type": "integer"
+          },
+          "packing": {
+            "description": "The number of GPS points to send with each transmission.\nA packing setting of 3 with an 'interval' of 60s will result in points recorded approximately every 20s, but they will only be sent together.",
+            "type": "integer"
+          },
+          "reasonsToWake": {
+            "$ref": "#/components/schemas/DeviceConfigReasonsToWake"
+          },
+          "receivedAt": {
+            "description": "The last time the settings were sent to the device",
+            "type": "string"
+          },
+          "reset": {
+            "description": "Non NULL values cause unit to restart on next connection\n0 = Normal reboot\n1 = Clear settings cache and restart\n2 = Clear cache and bluetooth connection data, then restart",
+            "type": "integer"
+          },
+          "sleepInterval": {
+            "description": "Sleep mode interval in seconds. The unit will try to connect this often to the server when asleep",
+            "type": "integer"
+          },
+          "stopTimeout": {
+            "description": "The total amount of time in seconds the unit has to be stationary for before deeming the journey over and switching to sleep mode",
+            "type": "integer"
+          },
+          "timed": {
+            "description": "Timed update settings. Must be array of objects matching [{hh: number, mm: number, day: number, action: number}, ...] format",
+            "type": "string"
+          },
+          "tolerancePercentage": {
+            "description": "Power budget in mAh per location update. Default 10, do not set lower than 5.",
+            "type": "integer"
+          },
+          "transmitTimeout": {
+            "description": "When the unit first wakes up from sleep, how long to wait before trying to transmit in multiples of 30 seconds.\n0 = instant, 1 = 30s, 2 = 60s...\nUseful to avoid detection or draining battery inside shielded buildings.",
+            "type": "integer"
+          },
+          "updateAvailability": {
+            "description": "The update availability.",
+            "type": "integer"
+          },
+          "wakeAction": {
+            "description": "Internal Use Only.\nWhat to do when the unit wakes up (ie is moved and not in a safe-zone).\nOptions are 'available' (lost and found), and 'normal' (tracking)",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "DeviceConfigReasonsToWake": {
+        "properties": {
+          "bluetooth": {
+            "type": "boolean"
+          },
+          "drop": {
+            "type": "boolean"
+          },
+          "geofence": {
+            "type": "boolean"
+          },
+          "move": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "DeviceMeta": {
+        "additionalProperties": {},
+        "type": "object"
+      },
+      "DeviceResult": {
+        "properties": {
+          "identifier": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "status": {
+            "description": "\"SUCCESS\" or \"ERROR\"",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FirmwareChannelAndBuild": {
+        "properties": {
+          "build": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FirmwareUpdateRequest": {
+        "properties": {
+          "availability": {
+            "description": "The availability of the update\n0 - No update available, or no priority given to the update\n2 - Update available (minor or un-important), Device may check-in to download if it wants to\n4 - Update available (major), Device may check-in to download, could be useful, but not critical\n6 - Update available (critical), Device will check-in to download, this is critical and should be done ASAP\n9 - Force check-in (maybe an update, maybe not...)",
+            "type": "integer"
+          },
+          "build": {
+            "description": "A build to update to now.\nCan be specific, such as 123, or a special value such as \"latest\"\nIf passed with a channel, the build must be available in that channel",
+            "type": "string"
+          },
+          "channel": {
+            "description": "Channel to to use for future updates for the device",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "FirmwareUpdateState": {
+        "properties": {
+          "_forceFW": {
+            "description": "Legacy field, will be removed in the future",
+            "type": "boolean"
+          },
+          "pending": {
+            "description": "Pending firmware, as decided by the firmware update system\nIf a specific firmware has been requested, this is likely to be the same as the requested firmware\nOtherwise it is the firmware that the device has been told to update to, perhaps due to new channel releases or other defaults",
+            "type": "integer"
+          },
+          "pendingReason": {
+            "description": "Reason for the pending firmware",
+            "type": "string"
+          },
+          "request": {
+            "description": "Requested firmware version",
+            "type": "integer"
+          },
+          "updateAvailability": {
+            "description": "Value indicating the importance of checking the bootserver for possible FW updates (for the device)",
+            "type": "integer"
+          },
+          "updateRedirects": {
+            "description": "Number of times the device has been told to check the bootserver for possible FW updates, since the last successful update, or FW request",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "Geofence": {
+        "properties": {
+          "center": {
+            "$ref": "#/components/schemas/GeofencePoint"
+          },
+          "deviceId": {
+            "type": "integer"
+          },
+          "foreignId": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "list": {
+            "$ref": "#/components/schemas/GeofenceList"
+          },
+          "listId": {
+            "type": "integer"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/GeofenceMeta"
+          },
+          "modified": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "outline": {
+            "description": "List of {lat:x,lng:y} objects representing the vertices of the polygon.\nNot to be used with center and radius.",
+            "items": {
+              "$ref": "#/components/schemas/GeofencePoint"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "ownerId": {
+            "type": "integer"
+          },
+          "radius": {
+            "description": "For circular geofences, the radius of the circle in meters. Property is ignored if outline != null.",
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "GeofenceList": {
+        "properties": {
+          "color": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "ownerId": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "color",
+          "name"
+        ],
+        "type": "object"
+      },
+      "GeofenceListWrite": {
+        "properties": {
+          "color": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "color",
+          "name"
+        ],
+        "type": "object"
+      },
+      "GeofenceMeta": {
+        "additionalProperties": {},
+        "type": "object"
+      },
+      "GeofencePoint": {
+        "description": "For circular geofences, the center {lat:x,lng:y}. Property is ignored if outline != null.",
+        "properties": {
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "GeofenceWrite": {
+        "properties": {
+          "center": {
+            "$ref": "#/components/schemas/GeofencePoint"
+          },
+          "foreignId": {
+            "type": "string"
+          },
+          "listId": {
+            "type": "integer"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/GeofenceMeta"
+          },
+          "name": {
+            "type": "string"
+          },
+          "outline": {
+            "description": "List of {lat:x,lng:y} objects representing the vertices of the polygon.\nNot to be used with center and radius.",
+            "items": {
+              "$ref": "#/components/schemas/GeofencePoint"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "radius": {
+            "description": "For circular geofences, the radius of the circle in meters. Property is ignored if outline != null.",
+            "type": "integer"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ListPersonalAccessTokenResponse": {
+        "properties": {
+          "limit": {
+            "type": "integer"
+          },
+          "page": {
+            "type": "integer"
+          },
+          "tokens": {
+            "items": {
+              "$ref": "#/components/schemas/PersonalAccessTokenResponse"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "total": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "LoginRequest": {
+        "properties": {
+          "password": {
+            "description": "Password of the user",
+            "type": "string"
+          },
+          "refreshable": {
+            "description": "Generate a refresh token, which expires this many seconds after the access token expiry. Max 31 days",
+            "maximum": 2678400,
+            "type": "integer"
+          },
+          "username": {
+            "description": "TODO convert to email instead of username before publishing auth routes...",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ],
+        "type": "object"
+      },
+      "LoginResponse": {
+        "properties": {
+          "expiry": {
+            "description": "Expiry of the access token",
+            "type": "string"
+          },
+          "refreshToken": {
+            "description": "Optional: Single use refresh token, if refreshable is set",
+            "type": "string"
+          },
+          "refreshTokenExpiry": {
+            "description": "Optional: Expiry of the refresh token, if refreshable is set",
+            "type": "string"
+          },
+          "token": {
+            "description": "JWT access token",
+            "type": "string"
+          },
+          "userId": {
+            "description": "User ID of the logged in user",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expiry",
+          "token",
+          "userId"
+        ],
+        "type": "object"
+      },
+      "LogoutResponse": {
+        "type": "object"
+      },
+      "OrderPlan": {
+        "properties": {
+          "consumedByDeviceId": {
+            "description": "DEPRECATED, i favour of deviceId\nWill continue being returned until at least Mid 2025",
+            "type": "integer"
+          },
+          "consumedOn": {
+            "description": "Date the plan has been consumed, if null then it has not been consumed",
+            "type": "string"
+          },
+          "creditRemainingDays": {
+            "description": "If the plan is removed, should the remaining days be credited back to the user account?\nOften the case when plan upgrades have happened",
+            "type": "boolean"
+          },
+          "deviceId": {
+            "description": "The device that has consumed the plan, if it has been consumed",
+            "type": "integer"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "needsPayment": {
+            "description": "Flag recording if payment may still be needed for this ordered plan\nIt may have been assigned before payment, such as for resellers",
+            "type": "boolean"
+          },
+          "orderId": {
+            "description": "Order that the plan is associated with, if already paid via a regular order",
+            "type": "integer"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          },
+          "planId": {
+            "description": "Plan that has been ordered",
+            "type": "integer"
+          },
+          "removedOn": {
+            "description": "Date the plan has been removed from a device, can be used to detect partially consumed plans\nThis might also just be the end of the month",
+            "type": "string"
+          },
+          "userId": {
+            "description": "User that has ordered the plan",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PaginatedResult-Device": {
+        "properties": {
+          "data": {
+            "description": "Paginated data",
+            "items": {
+              "$ref": "#/components/schemas/Device"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "limit": {
+            "description": "Requested elements per page",
+            "type": "integer"
+          },
+          "page": {
+            "description": "Requested page number",
+            "type": "integer"
+          },
+          "totalElements": {
+            "description": "Total elements in the database for given filters",
+            "type": "integer"
+          },
+          "totalPages": {
+            "description": "Total pages of elements given limit and filters",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PaginatedResult-Geofence": {
+        "properties": {
+          "data": {
+            "description": "Paginated data",
+            "items": {
+              "$ref": "#/components/schemas/Geofence"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "limit": {
+            "description": "Requested elements per page",
+            "type": "integer"
+          },
+          "page": {
+            "description": "Requested page number",
+            "type": "integer"
+          },
+          "totalElements": {
+            "description": "Total elements in the database for given filters",
+            "type": "integer"
+          },
+          "totalPages": {
+            "description": "Total pages of elements given limit and filters",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PaginatedResult-GeofenceList": {
+        "properties": {
+          "data": {
+            "description": "Paginated data",
+            "items": {
+              "$ref": "#/components/schemas/GeofenceList"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "limit": {
+            "description": "Requested elements per page",
+            "type": "integer"
+          },
+          "page": {
+            "description": "Requested page number",
+            "type": "integer"
+          },
+          "totalElements": {
+            "description": "Total elements in the database for given filters",
+            "type": "integer"
+          },
+          "totalPages": {
+            "description": "Total pages of elements given limit and filters",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PaginatedResult-OrderPlan": {
+        "properties": {
+          "data": {
+            "description": "Paginated data",
+            "items": {
+              "$ref": "#/components/schemas/OrderPlan"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "limit": {
+            "description": "Requested elements per page",
+            "type": "integer"
+          },
+          "page": {
+            "description": "Requested page number",
+            "type": "integer"
+          },
+          "totalElements": {
+            "description": "Total elements in the database for given filters",
+            "type": "integer"
+          },
+          "totalPages": {
+            "description": "Total pages of elements given limit and filters",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PaginatedResult-Plan": {
+        "properties": {
+          "data": {
+            "description": "Paginated data",
+            "items": {
+              "$ref": "#/components/schemas/Plan"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "limit": {
+            "description": "Requested elements per page",
+            "type": "integer"
+          },
+          "page": {
+            "description": "Requested page number",
+            "type": "integer"
+          },
+          "totalElements": {
+            "description": "Total elements in the database for given filters",
+            "type": "integer"
+          },
+          "totalPages": {
+            "description": "Total pages of elements given limit and filters",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PersonalAccessTokenResponse": {
+        "properties": {
+          "created": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "expiresAt": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "ttl": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "Plan": {
+        "description": "Details of the plan.",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "features": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "onoWhitelistId": {
+            "description": "Connectivity *string `json:\"connectivity\"`\nGroup        string  `json:\"group\"`\nResellerID *int32 `json:\"resellerId\"`\nResellerPlanID *int32  `json:\"resellerPlanId\"`\nArchived *int32 `json:\"archived\"`\nPlanType       string  `json:\"planType\"`",
+            "type": "integer"
+          },
+          "prices": {
+            "$ref": "#/components/schemas/ProductPricing"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "sleepLimit": {
+            "type": "integer"
+          },
+          "wakeLimit": {
+            "description": "Term           string  `json:\"term\"`\nPrice          float64 `json:\"price\"`\nCurrency       string  `json:\"currency\"`\nOwnerID        int32   `json:\"ownerId\"`",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PostGeofenceListShareRequest": {
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ProductPricing": {
+        "properties": {
+          "eur": {
+            "description": "breaks:  example:\"[0,1.99],[10,1.89]\"` // Array of quantity to price in EUR",
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "gbp": {
+            "description": "breaks:   example:\"[1,2.34],[10,2.22]\"` // Array of quantity to price in GBP",
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "tax": {
+            "$ref": "#/components/schemas/ProductPricing"
+          },
+          "usd": {
+            "description": "breaks:   example:\"[1,4.35],[10,4.26]\"` // Array of quantity to price in USD",
+            "items": {
+              "items": {
+                "type": "number"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "uniqueItems": false
+          }
+        },
+        "type": "object"
+      },
+      "PutPlanBulkInput": {
+        "properties": {
+          "deviceIdentifiers": {
+            "description": "Device identifiers - currently only numerical IDs are supported",
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "ignoreSubscriptionSetup": {
+            "description": "Optional ignoring of subscription setup for non reseller users.",
+            "type": "boolean"
+          },
+          "planId": {
+            "description": "Plan ID to be assigned to the devices if available",
+            "type": "integer"
+          },
+          "renewUntil": {
+            "description": "Optional date, at which the devices will deactivate and plans will not be renewed",
+            "type": "string"
+          }
+        },
+        "required": [
+          "deviceIdentifiers",
+          "planId"
+        ],
+        "type": "object"
+      },
+      "PutPlanInput": {
+        "properties": {
+          "ignoreSubscriptionSetup": {
+            "description": "Optional ignoring of subscription setup for non reseller users.\nIf the user has the plan already purchased, then don't setup a card or subscription if it does'nt exist...\nSubscriptions are already ignored for reseller users, so this option would not be needed for them.",
+            "type": "boolean"
+          },
+          "planId": {
+            "description": "Plan ID to be assigned to the device if available",
+            "type": "integer"
+          },
+          "renewUntil": {
+            "description": "Optional date, at which the device will deactivate and plans will not be renewed",
+            "type": "string"
+          }
+        },
+        "required": [
+          "planId"
+        ],
+        "type": "object"
+      },
+      "QCEventInfo": {
+        "properties": {
+          "count": {
+            "type": "integer"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "QCEventMap": {
+        "additionalProperties": {
+          "$ref": "#/components/schemas/QCEventInfo"
+        },
+        "description": "(optional) QC Events keyed by QC code",
+        "type": "object"
+      },
+      "RefreshTokenRequest": {
+        "properties": {
+          "accessToken": {
+            "description": "Current access token (may be expired)",
+            "type": "string"
+          },
+          "refreshToken": {
+            "description": "Current refresh token",
+            "type": "string"
+          },
+          "refreshable": {
+            "description": "A new refresh token will be generated, with an expiry this many seconds after the access token expiry. Max 31 days",
+            "maximum": 2678400,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "refreshable"
+        ],
+        "type": "object"
+      },
+      "RefreshTokenResponse": {
+        "properties": {
+          "expiry": {
+            "description": "Expiry of the access token",
+            "type": "string"
+          },
+          "refreshToken": {
+            "description": "Single use refresh token",
+            "type": "string"
+          },
+          "refreshTokenExpiry": {
+            "description": "Expiry of the refresh token",
+            "type": "string"
+          },
+          "token": {
+            "description": "JWT access token",
+            "type": "string"
+          },
+          "userId": {
+            "description": "User ID of the logged in user",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "expiry",
+          "refreshToken",
+          "refreshTokenExpiry",
+          "token",
+          "userId"
+        ],
+        "type": "object"
+      },
+      "Reseller": {
+        "description": "(optional) Reseller",
+        "properties": {
+          "created": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "plans": {
+            "description": "BillingTerm     int32           `json:\"billingTerm\"`",
+            "items": {
+              "$ref": "#/components/schemas/ResellerPlan"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "stripeAccountId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "integer"
+          },
+          "xeroContactId": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ResellerPlan": {
+        "description": "(optional) Reseller Plan",
+        "properties": {
+          "archived": {
+            "type": "integer"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "features": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "onoWhitelistId": {
+            "type": "integer"
+          },
+          "resellerId": {
+            "type": "integer"
+          },
+          "sleepLimit": {
+            "type": "integer"
+          },
+          "term": {
+            "type": "integer"
+          },
+          "wakeLimit": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "Subscription": {
+        "description": "(optional) Current subscription",
+        "properties": {
+          "_stripeSubscriptionId": {
+            "description": "(legacy) Stripe Subscription ID for per device subscriptions",
+            "type": "string"
+          },
+          "created": {
+            "type": "string"
+          },
+          "deviceId": {
+            "type": "integer"
+          },
+          "expires": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          },
+          "planId": {
+            "type": "integer"
+          },
+          "userId": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "TimelineData": {
+        "properties": {
+          "description": {
+            "description": "A text description of the event",
+            "type": "string"
+          },
+          "meta": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Optional, A series of additional meta data for the event",
+            "type": "object"
+          },
+          "timestamp": {
+            "description": "The time of the event",
+            "type": "string"
+          },
+          "type": {
+            "description": "The type of event. Can be split with /",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "TimelineResponse": {
+        "properties": {
+          "data": {
+            "description": "The timeline data",
+            "items": {
+              "$ref": "#/components/schemas/TimelineData"
+            },
+            "type": "array",
+            "uniqueItems": false
+          },
+          "since": {
+            "description": "The time after which events are included",
+            "type": "string"
+          },
+          "until": {
+            "description": "The time up until which the timeline was created for (can be used for polling as the next since)\nIn case systems have lag, it might be wise to use a time before this time to poll for more data, deduplicating what you don't want",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "UserPlanSummaryEntry": {
+        "properties": {
+          "count": {
+            "description": "Number of these plans that have either been consumed, or are available for use by devices.",
+            "type": "integer"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          },
+          "subscriptions": {
+            "description": "Number of devices that have an active subscription to this plan.",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "UserStub": {
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "hasBillingInfo": {
+            "description": "Does the user have billing info stored (a card) for potential use in automatic billing?\nThis does not mean that there is actually an active subscription",
+            "type": "boolean"
+          },
+          "id": {
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "UsersClaimDeviceRequest": {
+        "properties": {
+          "serial": {
+            "description": "Serial number of the device",
+            "type": "string"
+          }
+        },
+        "required": [
+          "serial"
+        ],
+        "type": "object"
+      },
+      "WsMultiDeviceRequestOut": {
+        "properties": {
+          "data": {
+            "description": "Message data in specified encoding",
+            "example": "ff 00 01",
+            "type": "string"
+          },
+          "device": {
+            "description": "Target device identifier or ID (required)",
+            "example": "device1",
+            "type": "string"
+          },
+          "encoding": {
+            "description": "Encoding format: hex, decimal, base64, json",
+            "example": "hex",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "Client-provided message ID for tracking",
+            "example": "msg-789",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"out\" to send message to device",
+            "example": "out",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceRequestSubscribe": {
+        "properties": {
+          "data": {
+            "description": "Comma-separated device identifiers or IDs",
+            "example": "device1,device2",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "Client-provided message ID for tracking",
+            "example": "sub-456",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"subscribe\" to add device subscriptions",
+            "example": "subscribe",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceRequestUnsubscribe": {
+        "properties": {
+          "data": {
+            "description": "Comma-separated device identifiers or IDs",
+            "example": "device2",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "Client-provided message ID for tracking",
+            "example": "unsub-101",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"unsubscribe\" to remove device subscriptions",
+            "example": "unsubscribe",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceResponseAck": {
+        "properties": {
+          "messageId": {
+            "description": "Echoes the messageId from out request",
+            "example": "msg-789",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:46.250Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"ack\" - acknowledgment",
+            "example": "ack",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceResponseError": {
+        "properties": {
+          "error": {
+            "description": "Error description",
+            "example": "device not found: invalid-device",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "MessageId from request if available",
+            "example": "sub-456",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:48.456Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"error\" - error response",
+            "example": "error",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceResponseIn": {
+        "properties": {
+          "data": {
+            "description": "Message data in requested encoding",
+            "example": "7b 22 74 65 6d 70 22 3a 32 35 7d"
+          },
+          "device": {
+            "description": "Device ID that sent the message",
+            "example": "1",
+            "type": "string"
+          },
+          "encoding": {
+            "description": "Encoding format",
+            "example": "hex",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:46.234Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"in\" - message from device",
+            "example": "in",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceResponseSrv": {
+        "properties": {
+          "data": {
+            "description": "Server event data"
+          },
+          "device": {
+            "description": "Device ID that generated the event",
+            "example": "2",
+            "type": "string"
+          },
+          "encoding": {
+            "description": "Encoding format",
+            "example": "hex",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:47.345Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"srv\" - server event",
+            "example": "srv",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceResponseSubscribed": {
+        "properties": {
+          "device": {
+            "description": "Device identifier that was subscribed to",
+            "example": "device1",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "Echoes the messageId from subscribe request",
+            "example": "sub-456",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:45.123Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"subscribed\" - subscription confirmed",
+            "example": "subscribed",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsMultiDeviceResponseUnsubscribed": {
+        "properties": {
+          "device": {
+            "description": "Device ID that was unsubscribed from",
+            "example": "2",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "Echoes the messageId from unsubscribe request",
+            "example": "unsub-101",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:47.345Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"unsubscribed\" - unsubscription confirmed",
+            "example": "unsubscribed",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsSingleDeviceRequestOut": {
+        "properties": {
+          "data": {
+            "description": "Message data in specified encoding",
+            "example": "03 18 00 05 00 02",
+            "type": "string"
+          },
+          "encoding": {
+            "description": "Encoding format: hex, decimal, base64, json",
+            "example": "hex",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "Client-provided message ID for tracking",
+            "example": "msg-123",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"out\" to send message to device",
+            "example": "out",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsSingleDeviceResponseAck": {
+        "properties": {
+          "messageId": {
+            "description": "Echoes the messageId from request",
+            "example": "msg-123",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:45.200Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"ack\" - acknowledgment",
+            "example": "ack",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsSingleDeviceResponseError": {
+        "properties": {
+          "error": {
+            "description": "Error description",
+            "example": "failed to parse message: invalid hex data",
+            "type": "string"
+          },
+          "messageId": {
+            "description": "MessageId from request if available",
+            "example": "msg-123",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:45.150Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"error\" - error response",
+            "example": "error",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsSingleDeviceResponseIn": {
+        "properties": {
+          "data": {
+            "description": "Message data in requested encoding",
+            "example": "a5 b2 c3 d4"
+          },
+          "encoding": {
+            "description": "Encoding format",
+            "example": "hex",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:45.123Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"in\" - message from device",
+            "example": "in",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "WsSingleDeviceResponseSrv": {
+        "properties": {
+          "data": {
+            "description": "Server event data"
+          },
+          "encoding": {
+            "description": "Encoding format",
+            "example": "hex",
+            "type": "string"
+          },
+          "timestamp": {
+            "description": "Server timestamp",
+            "example": "2024-01-10T15:30:46.234Z",
+            "type": "string"
+          },
+          "type": {
+            "description": "\"srv\" - server event",
+            "example": "srv",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "httputil.HTTPError": {
+        "properties": {
+          "code": {
+            "example": 400,
+            "type": "integer"
+          },
+          "message": {
+            "example": "status bad request",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "in": "header",
+        "name": "Authorization",
+        "type": "apiKey"
+      },
+      "ApiKeyWebsocketAuth": {
+        "in": "query",
+        "name": "authorization",
+        "type": "apiKey"
+      }
+    }
+  },
+  "info": {
+    "title": "Lightbug API",
+    "version": "2"
+  },
+  "externalDocs": {
+    "description": "",
+    "url": ""
+  },
+  "paths": {
+    "/chasm/ws": {
+      "get": {
+        "description": "Establishes a WebSocket connection to manage multiple device subscriptions dynamically\n\n<div class=\"custom-block alpha\">\n<p class=\"custom-block-title\">🧪 Alpha</p>\nThis endpoint is alpha, and may change while being tested.\n\nThis documentation page also does not lend itself to a websocket endpoint, this is not a GET. Please see schema descriptions and various response codes for detailed examples of messages.\n</div>\n\nSupports subscribe/unsubscribe/out message types",
+        "parameters": [
+          {
+            "description": "Initial devices to subscribe to (comma-separated)",
+            "in": "query",
+            "name": "devices",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Message encoding format (json|hex|decimal|base64)",
+            "in": "query",
+            "name": "encoding",
+            "schema": {
+              "default": "json",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WsMultiDeviceRequestOut"
+              }
+            }
+          },
+          "description": "Send message to device",
+          "required": true
+        },
+        "responses": {
+          "101": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsMultiDeviceResponseSubscribed"
+                }
+              }
+            },
+            "description": "Subscription confirmed"
+          },
+          "102": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsMultiDeviceResponseUnsubscribed"
+                }
+              }
+            },
+            "description": "Unsubscription confirmed"
+          },
+          "103": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsMultiDeviceResponseIn"
+                }
+              }
+            },
+            "description": "Incoming message from subscribed device"
+          },
+          "104": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsMultiDeviceResponseSrv"
+                }
+              }
+            },
+            "description": "Server event from subscribed device"
+          },
+          "105": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsMultiDeviceResponseAck"
+                }
+              }
+            },
+            "description": "Acknowledgment of sent message"
+          },
+          "106": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsMultiDeviceResponseError"
+                }
+              }
+            },
+            "description": "Error response"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "WebSocket",
+        "tags": [
+          "chasm"
+        ]
+      }
+    },
+    "/chasm/ws/{device}": {
+      "get": {
+        "description": "Establishes a WebSocket connection to send and receive messages from a single device\n\n<div class=\"custom-block alpha\">\n<p class=\"custom-block-title\">🧪 Alpha</p>\nThis endpoint is alpha, and may change while being tested.\n\nThis documentation page also does not lend itself to a websocket endpoint, this is not a GET. Please see schema descriptions and various response codes for detailed examples of messages.\n</div>\n\nSupports multiple encoding formats: json, hex, decimal, base64",
+        "parameters": [
+          {
+            "description": "Device ID or identifier",
+            "in": "path",
+            "name": "device",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Message encoding format (json|hex|decimal|base64)",
+            "in": "query",
+            "name": "encoding",
+            "schema": {
+              "default": "json",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WsSingleDeviceRequestOut"
+              }
+            }
+          },
+          "description": "Message to send to device",
+          "required": true
+        },
+        "responses": {
+          "101": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsSingleDeviceResponseIn"
+                }
+              }
+            },
+            "description": "Incoming message from device"
+          },
+          "102": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsSingleDeviceResponseSrv"
+                }
+              }
+            },
+            "description": "Server event"
+          },
+          "103": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsSingleDeviceResponseAck"
+                }
+              }
+            },
+            "description": "Acknowledgment of sent message"
+          },
+          "104": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WsSingleDeviceResponseError"
+                }
+              }
+            },
+            "description": "Error response"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Device WebSocket",
+        "tags": [
+          "chasm"
+        ]
+      }
+    },
+    "/devices": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Limit for pagination, default 10, max 10000",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sort by this field",
+            "in": "query",
+            "name": "_sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort in this direction (asc, desc)",
+            "in": "query",
+            "name": "_direction",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
+            "in": "query",
+            "name": "name",
+            "schema": {
+              "description": "Filter by name (prefix search enabled by appending * to the end of the string)",
+              "example": "Hello *",
+              "form": "name",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
+            "in": "query",
+            "name": "tag",
+            "schema": {
+              "description": "Tag to search for in fully qualified key:value format. Example device_type:truck. Partial searches with wildcards may be used, eg. device_type:* or device_type:veh_*",
+              "example": "device_type:truck",
+              "form": "tag",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by current firmware version",
+            "in": "query",
+            "name": "config.currentFW",
+            "schema": {
+              "description": "Filter by current firmware version",
+              "form": "config.currentFW",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan,qcEvents",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "description": "Include additional data. Enums: config,users,knownDevices,subscription,subscription.plan,reseller,resellerPlan,qcEvents",
+              "form": "_include",
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "uniqueItems": false
+            }
+          },
+          {
+            "description": "Filter by active status",
+            "in": "query",
+            "name": "active",
+            "schema": {
+              "description": "Filter by active status",
+              "example": true,
+              "form": "active",
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+            "in": "query",
+            "name": "serial",
+            "schema": {
+              "description": "Filter by serial (prefix search enabled by appending * to the end of the string) (comma separated for multiple values)",
+              "example": "12001234",
+              "form": "serial",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
+            "in": "query",
+            "name": "imei",
+            "schema": {
+              "description": "Filter by IMEI (exact match) (comma separated for multiple values)",
+              "form": "imei",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by iccid (exact match) (comma separated for multiple values)",
+            "in": "query",
+            "name": "iccid",
+            "schema": {
+              "description": "Filter by iccid (exact match) (comma separated for multiple values)",
+              "form": "iccid",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+            "in": "query",
+            "name": "user",
+            "schema": {
+              "description": "Filter by user username (search enabled by surrounding with *, comma separated for multiple values)",
+              "example": "*user1*,*user2*",
+              "form": "user",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by reseller name (exact match)",
+            "in": "query",
+            "name": "reseller",
+            "schema": {
+              "description": "Filter by reseller name (exact match)",
+              "example": "Name*",
+              "form": "reseller",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only show devices connected since this date (currently an alpha filter)",
+            "in": "query",
+            "name": "_connectedSince",
+            "schema": {
+              "description": "Only show devices connected since this date (currently an alpha filter)",
+              "form": "_connectedSince",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by ID (comma separated for multiple values)",
+            "in": "query",
+            "name": "id",
+            "schema": {
+              "description": "Filter by ID (comma separated for multiple values)",
+              "form": "id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by type (comma separated for multiple values)",
+            "in": "query",
+            "name": "type",
+            "schema": {
+              "description": "Filter by type (comma separated for multiple values)",
+              "example": "ZeroN",
+              "form": "type",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Optionally provide parameters as a JSON object in this header. X-Query values take precedence over query parameters for any overlapping fields.",
+            "example": "{\"id\":\"1,2,3\"}",
+            "in": "header",
+            "name": "X-Query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResult-Device"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets devices",
+        "tags": [
+          "devices"
+        ]
+      }
+    },
+    "/devices/plan": {
+      "put": {
+        "description": "Sets the plan for multiple devices simultaneously. This is more efficient than individual requests and helps avoid deadlocks when setting plans for reseller devices.\nFor user devices, the user must have already purchased or been allocated the target plan for each device.\nFor reseller devices, \"unpaid\" plans will be created and billed on the next cycle.\nCurrently only supports device identifiers as numerical IDs.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutPlanBulkInput"
+              }
+            }
+          },
+          "description": "Bulk plan request",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkPlanResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Sets plans for multiple devices in bulk",
+        "tags": [
+          "plans"
+        ]
+      }
+    },
+    "/devices/plans": {
+      "get": {
+        "description": "Gets plans that are available for the provided devices.\nIf multiple devices are provided, only plans that are available to all devices will be returned.",
+        "parameters": [
+          {
+            "description": "Comma separated device identifiers (serial, imei, id, etc.)",
+            "in": "query",
+            "name": "deviceIdentifiers",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Limit for pagination, default 10, max 10000",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Include additional data",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "items": {
+                "enum": [
+                  "prices"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          {
+            "description": "Optionally provide parameters as a JSON object in this header. X-Query values take precedence over query parameters for any overlapping fields.",
+            "example": "{\"deviceIdentifiers\":\"ABC123,35987654321\"}",
+            "in": "header",
+            "name": "X-Query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResult-Plan"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets plans that are available for devices",
+        "tags": [
+          "plans"
+        ]
+      }
+    },
+    "/devices/{id}/firmware/current": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FirmwareChannelAndBuild"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets the current firmware of a device",
+        "tags": [
+          "devices"
+        ]
+      }
+    },
+    "/devices/{id}/firmware/update": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Removes a request for a firmware update on a device",
+        "tags": [
+          "devices"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FirmwareUpdateState"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets the current update that is queued for a device",
+        "tags": [
+          "devices"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FirmwareUpdateRequest"
+              }
+            }
+          },
+          "description": "Request",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FirmwareUpdateRequest"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Requests that a device be updated to the given firmware channel and or version",
+        "tags": [
+          "devices"
+        ]
+      }
+    },
+    "/devices/{id}/plan": {
+      "delete": {
+        "description": "Removes the active plan from the device, recording the date it was removed, so that partial plan usage can be deducted during billing.\nA removed plan can not be re added to a device, and a new plan has to be used.\nThis action will cause the device to be deactivated.",
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes a device plan",
+        "tags": [
+          "plans"
+        ]
+      },
+      "get": {
+        "description": "Gets the current plan of a device, if it has one.",
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Device"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets a device plan",
+        "tags": [
+          "plans"
+        ]
+      },
+      "put": {
+        "description": "Sets the plan that the device is currently using, and optionally the plan that it should renew onto.\nFor user devices, the user must have already purchased or been allocated the target plan, and it should be available in their plan pool, see <a href=\"https://docs.lightbug.io/apis/v2/get-users-plans\">GET /users/plans</a>\nFor reseller devices, an \"unpaid\" plan will be used, and billed on the next cycle.\nIf the device was previously deactivated, this action will also activate the device.",
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PutPlanInput"
+              }
+            }
+          },
+          "description": "Request",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Subscription"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Subscription"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Sets a device plan",
+        "tags": [
+          "plans"
+        ]
+      }
+    },
+    "/devices/{id}/tags": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets tags of a device",
+        "tags": [
+          "devices"
+        ]
+      }
+    },
+    "/devices/{id}/tags/{name}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Tag name",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes a tag of a device",
+        "tags": [
+          "devices"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Tag name",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "value"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets tag of a device",
+        "tags": [
+          "devices"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "Device ID",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Tag name",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Tag value",
+            "in": "query",
+            "name": "value",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Updates or creates a device tag",
+        "tags": [
+          "devices"
+        ]
+      }
+    },
+    "/devices/{id}/timeline/{type}": {
+      "get": {
+        "description": "Gets timeline data of a specific type for a device\n\nYou may also be interested in the \"Chasm\" endpoints for live modern messaging observability.\n\nVarious types will take differing times to respond, some will fail depending on the device data and patterns of data available.\nSome types require elevated permissions to access, in which case you would receive an error.",
+        "parameters": [
+          {
+            "description": "Only return events after this time (RFC3339). Defaults to 14 days ago.",
+            "in": "query",
+            "name": "since",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Only return events before this time (RFC3339). Defaults to now.",
+            "in": "query",
+            "name": "until",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier of the device. Can be ID, IMEI, or Serial number. Use format 'id:1234', 'imei:139872149701', or 'serial:43000001'",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Timeline type (bootloader, activation, plans, devicemessage, datapoint, backendnote, pairing, sim)",
+            "in": "path",
+            "name": "type",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimelineResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Timeline of specific type for device",
+        "tags": [
+          "devices"
+        ]
+      }
+    },
+    "/users/buyPlans": {
+      "post": {
+        "description": "Purchases plans for the user, adding them to the users plan pool",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BuyPlansRequest"
+              }
+            }
+          },
+          "description": "Request",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Purchases plans",
+        "tags": [
+          "plans"
+        ]
+      }
+    },
+    "/users/claimDevice": {
+      "post": {
+        "description": "Claims a device for the user, adding it to your account",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UsersClaimDeviceRequest"
+              }
+            }
+          },
+          "description": "Claim device request",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Claims a device",
+        "tags": [
+          "plans"
+        ]
+      }
+    },
+    "/users/login": {
+      "post": {
+        "description": "Login and receive an access token for future requests.\nOptionally receive a refresh token for future access token generation.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "description": "Login",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Login",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/users/logout": {
+      "post": {
+        "description": "Logout and invalidate the current access token.",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LogoutResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Logout",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/users/personalAccessTokens": {
+      "get": {
+        "description": "List personal access tokens of the user",
+        "parameters": [
+          {
+            "description": "Limit for pagination, default 10, max 100",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListPersonalAccessTokenResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "List personal access tokens",
+        "tags": [
+          "personalAccessTokens"
+        ]
+      },
+      "post": {
+        "description": "Mint a new personal access token for the user",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePersonalAccessTokenRequest"
+              }
+            }
+          },
+          "description": "Create Token",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePersonalAccessTokenResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Create a new personal access token",
+        "tags": [
+          "personalAccessTokens"
+        ]
+      }
+    },
+    "/users/personalAccessTokens/{id}": {
+      "delete": {
+        "description": "Delete a personal access token by ID",
+        "parameters": [
+          {
+            "description": "Token ID (Unix timestamp)",
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeletePersonalAccessTokenResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Delete a personal access token",
+        "tags": [
+          "personalAccessTokens"
+        ]
+      }
+    },
+    "/users/plans": {
+      "get": {
+        "description": "Gets plans that are available for a user (already purchased or allocated)",
+        "parameters": [
+          {
+            "description": "Filter by plans that have already been consumed by devices or not",
+            "in": "query",
+            "name": "consumed",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Filter by device ID, multiple device IDs can be passed as a comma separated list",
+            "in": "query",
+            "name": "deviceId",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by consumedOn start date",
+            "in": "query",
+            "name": "consumedSince",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by consumedOn end date",
+            "in": "query",
+            "name": "consumedUntil",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Filter by plan id, multiple plan IDs can be passed as a comma separated list",
+            "in": "query",
+            "name": "planId",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Limit for pagination, default 10, max 10000",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sort by this field",
+            "in": "query",
+            "name": "_sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort in this direction (asc, desc)",
+            "in": "query",
+            "name": "_direction",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Include additional data",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "items": {
+                "enum": [
+                  "plan"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResult-OrderPlan"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Purchased plans",
+        "tags": [
+          "plans"
+        ]
+      }
+    },
+    "/users/plans/summary": {
+      "get": {
+        "description": "Gets a summary of plans for a user (already purchased or allocated)\nThis can list unused, and used plans with the `consumed` query parameter",
+        "parameters": [
+          {
+            "description": "Filter by plans that have already been consumed by devices or not",
+            "in": "query",
+            "name": "consumed",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserPlanSummaryEntry"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Summary of plans",
+        "tags": [
+          "plans"
+        ]
+      }
+    },
+    "/users/refreshToken": {
+      "post": {
+        "description": "Refresh the access token and refresh token that was retrieved during login.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "description": "RefreshToken",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokenResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "summary": "Refresh token",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/users/{userid}/geofenceLists": {
+      "get": {
+        "parameters": [
+          {
+            "description": "User ID. 0 can be used for the current user",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Limit for pagination, default 10, max 10000",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sort by this field",
+            "in": "query",
+            "name": "_sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort in this direction (asc, desc)",
+            "in": "query",
+            "name": "_direction",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResult-GeofenceList"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets geofence lists",
+        "tags": [
+          "geofencelists"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "User ID. 0 can be used for the current user",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeofenceListWrite"
+              }
+            }
+          },
+          "description": "Geofence list to create",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeofenceList"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Creates a geofence list",
+        "tags": [
+          "geofencelists"
+        ]
+      }
+    },
+    "/users/{userid}/geofenceLists/{listid}": {
+      "delete": {
+        "description": "Deletes a geofence list\nThis can be a list that you have created, or a list that has been shared with you.",
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence list ID",
+            "in": "path",
+            "name": "listid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes a geofence list",
+        "tags": [
+          "geofencelists"
+        ]
+      },
+      "get": {
+        "description": "Gets a geofence list\nThis can be a list that you have created, or a list that has been shared with you.",
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence list ID",
+            "in": "path",
+            "name": "listid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeofenceList"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets a geofence list",
+        "tags": [
+          "geofencelists"
+        ]
+      }
+    },
+    "/users/{userid}/geofenceLists/{listid}/share": {
+      "post": {
+        "description": "Shares a geofence list with a user\nThis can be a list that you have created, or a list that has been shared with you.",
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence list ID",
+            "in": "path",
+            "name": "listid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PostGeofenceListShareRequest"
+              }
+            }
+          },
+          "description": "Email",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Shares a geofence list",
+        "tags": [
+          "geofencelists"
+        ]
+      }
+    },
+    "/users/{userid}/geofenceLists/{listid}/user/{targetid}": {
+      "delete": {
+        "description": "Deletes a user from a geofence list\nAnyone that has access to the list (via sharing) can alter the users that have access to it",
+        "parameters": [
+          {
+            "description": "User ID. 0 can be used for the current user",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence list ID",
+            "in": "path",
+            "name": "listid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "User ID to add to the list",
+            "in": "path",
+            "name": "targetid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Removes a user from a geofence list",
+        "tags": [
+          "geofencelists"
+        ]
+      },
+      "put": {
+        "description": "Adds a user to a geofence list\nAnyone that has access to the list (via sharing) can alter the users that have access to it",
+        "parameters": [
+          {
+            "description": "User ID. 0 can be used for the current user",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence list ID",
+            "in": "path",
+            "name": "listid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "User ID to add to the list",
+            "in": "path",
+            "name": "targetid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Adds a user to a geofence list",
+        "tags": [
+          "geofencelists"
+        ]
+      }
+    },
+    "/users/{userid}/geofences": {
+      "get": {
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Limit for pagination, default 10, max 10000",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sort by this field",
+            "in": "query",
+            "name": "_sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort in this direction (asc, desc)",
+            "in": "query",
+            "name": "_direction",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Include related models",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "enum": [
+                "list"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResult-Geofence"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets a list of geofences",
+        "tags": [
+          "geofences"
+        ]
+      },
+      "put": {
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeofenceWrite"
+              }
+            }
+          },
+          "description": "Geofence to create",
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Geofence"
+                }
+              }
+            },
+            "description": "Created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Creates a new geofence",
+        "tags": [
+          "geofences"
+        ]
+      }
+    },
+    "/users/{userid}/geofences/{fenceid}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence ID",
+            "in": "path",
+            "name": "fenceid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes a single geofence",
+        "tags": [
+          "geofences"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence ID",
+            "in": "path",
+            "name": "fenceid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Include related models",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "enum": [
+                "list"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Geofence"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Gets a single geofence",
+        "tags": [
+          "geofences"
+        ]
+      }
+    },
+    "/users/{userid}/geofences/{fenceid}/list": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence ID",
+            "in": "path",
+            "name": "fenceid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "410": {
+            "description": "Gone"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Deletes a geofence from a list",
+        "tags": [
+          "geofencelists"
+        ]
+      }
+    },
+    "/users/{userid}/geofences/{fenceid}/list/{listid}": {
+      "put": {
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Geofence ID",
+            "in": "path",
+            "name": "fenceid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "List ID",
+            "in": "path",
+            "name": "listid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Puts a geofence on a list",
+        "tags": [
+          "geofencelists"
+        ]
+      }
+    },
+    "/users/{userid}/plans": {
+      "get": {
+        "description": "Gets plans that are available for a user (already purchased or allocated)",
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Filter by plans that have already been consumed by devices or not",
+            "in": "query",
+            "name": "consumed",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "description": "Filter by plan id",
+            "in": "query",
+            "name": "planId",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Limit for pagination, default 10, max 10000",
+            "in": "query",
+            "name": "_limit",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Page for pagination",
+            "in": "query",
+            "name": "_page",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Sort by this field",
+            "in": "query",
+            "name": "_sort",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Sort in this direction (asc, desc)",
+            "in": "query",
+            "name": "_direction",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "Include additional data",
+            "in": "query",
+            "name": "_include",
+            "schema": {
+              "items": {
+                "enum": [
+                  "plan"
+                ],
+                "type": "string"
+              },
+              "type": "array"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResult-OrderPlan"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "User's plans",
+        "tags": [
+          "plans"
+        ]
+      }
+    },
+    "/users/{userid}/plans/summary": {
+      "get": {
+        "description": "Gets a summary of plans for a user (already purchased or allocated)\nThis can list unused, and used plans with the `consumed` query parameter",
+        "parameters": [
+          {
+            "description": "User ID",
+            "in": "path",
+            "name": "userid",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Filter by plans that have already been consumed by devices or not",
+            "in": "query",
+            "name": "consumed",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserPlanSummaryEntry"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/httputil.HTTPError"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Limit exceeded",
+            "headers": {
+              "X-Ratelimit-Limit": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Remaining": {
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "X-Ratelimit-Reset": {
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "summary": "Summary of plans",
+        "tags": [
+          "plans"
+        ]
+      }
+    }
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://api.lightbug.cloud/v2"
+    },
+    {
+      "url": "http://localhost:8080/v2"
+    }
+  ]
+}
