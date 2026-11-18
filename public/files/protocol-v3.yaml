@@ -356,9 +356,10 @@ header:
   20:
     name: Session ID
     id: sessionId
-    description: The message ID of the session, associated with a session start message
+    description: |
+      Identifies the tracking session. Devices set this to the Message ID of Session Start
+      and include it on messages belonging to that session.
     type: uint32
-    alpha: New feature, subject to alterations, possibly for internal only usage
   22:
     name: Message Version
     id: msgVersion
@@ -1170,6 +1171,234 @@ messages:
     methods:
       GET: null
       SET: null
+  21:
+    name: Session Start
+    id: sessionStart
+    description: Opens a tracking upload session. The Message ID identifies the session.
+    group: general
+    data:
+      10:
+        name: Reset Code
+        id: resetCode
+        description: Type of reset that was performed just prior to this session start.
+        type: uint8
+        values:
+          0:
+            name: Unknown
+            id: unknown
+          1:
+            name: Low power reset
+            id: lowPowerReset
+          2:
+            name: Window watchdog reset
+            id: windowWatchdogReset
+          3:
+            name: Independent watchdog reset
+            id: independentWatchdogReset
+          4:
+            name: Software reset
+            id: softwareReset
+          5:
+            name: Power on power down reset
+            id: powerOnPowerDownReset
+          6:
+            name: External reset pin reset
+            id: externalResetPinReset
+          7:
+            name: Brownout reset
+            id: brownoutReset
+        parsers:
+          - id: resetCodeName
+            parser: values
+      11:
+        name: Alert Sensor Value
+        id: alert
+        description: Value of the sensor that triggered an alert, if applicable.
+        type: uint8
+      12:
+        name: Last Send Reason
+        id: sendReason
+        description: |
+          Bits 0-3 represent device state when Session Start is serialized; bits 4-6
+          represent movement events since the previous send (position with a send reason
+          or completed session with a send reason). Repeated event types collapse into
+          one bit; the field does not encode event time or order. Firmware preserves
+          pending movement events if session construction fails.
+        type: uint8
+        bitfield:
+          1:
+            name: wake
+            id: wake
+          2:
+            name: sleep
+            id: sleep
+          4:
+            name: disconnected
+            id: disconnected
+          8:
+            name: outside
+            id: outside
+          16:
+            name: detected
+            id: detected
+          32:
+            name: start
+            id: start
+          64:
+            name: stop
+            id: stop
+          128:
+            name: stale
+            id: stale
+        parsers:
+          - id: sendReasonNames
+            parser: bitfield
+      13:
+        name: Last Error
+        id: lastError
+        description: Last error code observed just prior to this session start, if applicable.
+        type: uint8
+        values:
+          0:
+            name: No error
+            id: noError
+          1:
+            name: Server
+            id: server
+          2:
+            name: Bluetooth
+            id: bt
+          3:
+            name: Encryption not initialized
+            id: encryptionNotInit
+          4:
+            name: Corrupt pointers
+            id: corruptPointers
+          5:
+            name: GPS init failed
+            id: gpsInitFail
+          6:
+            name: Failed to exit EPO
+            id: failedToExitEpo
+          7:
+            name: Server error exceed
+            id: serverErrorExceed
+          8:
+            name: No SIM
+            id: noSim
+          9:
+            name: Generic init failed
+            id: genericInitFail
+          10:
+            name: Out of memory
+            id: outOfMemory
+          11:
+            name: Own watchdog
+            id: ownWatchdog
+          12:
+            name: RTC died
+            id: rtcDied
+          13:
+            name: TX too long ago
+            id: txTooLongAgo
+          14:
+            name: GSM locked up
+            id: gsmLockedUp
+          15:
+            name: Jumped to zero
+            id: jumpedToZero
+          16:
+            name: Pins bad
+            id: pinsBad
+          17:
+            name: MPU init failed
+            id: mpuInitFail
+          18:
+            name: Encryption failed
+            id: encryptionFail
+          19:
+            name: Sensor too large
+            id: sensorTooLarge
+          20:
+            name: System
+            id: system
+          21:
+            name: EEPROM
+            id: eeprom
+          22:
+            name: I2C
+            id: i2c
+          23:
+            name: RF
+            id: rf
+          30:
+            name: System severe
+            id: sysSevere
+          31:
+            name: Hard fault
+            id: hardFault
+          32:
+            name: GSM no network
+            id: gsmNoNetwork
+          33:
+            name: GSM denied
+            id: gsmDenied
+          34:
+            name: GPS lock failed
+            id: gpsLockFail
+          35:
+            name: GPS lock skipped
+            id: gpsLockSkipped
+          36:
+            name: RTCM watchdog
+            id: rtcmWatchdog
+          37:
+            name: LL watchdog
+            id: llWatchdog
+          38:
+            name: Server no response
+            id: serverNoResponse
+          250:
+            name: CPU2 request
+            id: cpu2Request
+          251:
+            name: Too much power
+            id: tooMuchPower
+          252:
+            name: Button reset
+            id: buttonReset
+          253:
+            name: Health reset
+            id: healthReset
+          254:
+            name: Wake from deep sleep
+            id: wakeFromDeepSleep
+          255:
+            name: Deliberate reset
+            id: deliberateReset
+        parsers:
+          - id: lastErrorName
+            parser: values
+      30:
+        name: Encryption Public Key
+        id: encPub
+        description: |
+          33 bytes sent from device to complete ECDH handshake.
+          Only present if the device is initiating the handshake.
+        type: bytes
+  22:
+    name: Session End
+    id: sessionEnd
+    description: Closes a tracking upload session.
+    group: general
+    data:
+      20:
+        name: Message Count
+        id: messageCount
+        description: |
+          Number of messages already added to this session, including Session Start
+          and preceding session messages. Excludes Session End itself.
+        type: uint8
   30:
     name: Transmit Now
     id: transmitNow
