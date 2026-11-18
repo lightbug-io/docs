@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 45869)
-Total output lines: 5146
-
 version: 3
 groups:
   general:
@@ -2305,7 +2302,652 @@ messages:
         request:
           description: Sending the read-only GPS status (field 1) in SET is rejected with Invalid Parameter (4).
           headers:
-            5:…5869 tokens truncated…d accompaniment is omitted.
+            5:
+              presence: required
+              value: 1
+          fields:
+            2:
+              description: Request and apply correction data to the GPS, such as RTK; this automatically controls the GPS module. Omitting this field sets API-enabled corrections to disabled, so a start-mode-only SET does not preserve the previous correction setting. Include 1 to keep API-enabled corrections on.
+            3:
+              description: If GPS is enabled, reboot it in this mode. If it is disabled, enable it with the requested state.
+        response:
+          description: Successful SET returns an ACK, not GPS state. Use GET to read the current state afterward.
+          messageId: 5
+          headers:
+            3: {}
+            4:
+              presence: required
+              value: 0
+          fields:
+            1:
+              description: ACK Type identifies the original message type (39). No message-specific state is returned in this ACK.
+              presence: required
+              value: 39
+        errors:
+          - code: 4
+            description: A read-only GPS status field or an unsupported start mode was supplied.
+          - code: 5
+            description: The correction service cannot be enabled in the current device state.
+          - code: 7
+      read-gps-state:
+        title: Read GPS state
+        description: Return the current GPS and correction-service state, not a position fix. No payload fields are needed.
+        request:
+          headers:
+            5:
+              presence: required
+              value: 2
+        response:
+          title: GPS state (MT39)
+          description: A successful GET returns GPS Control directly, with no separate success ACK. An unsuccessful request returns MT5 (ACK) with Status, not this payload.
+          headers:
+            3: {}
+            4:
+              value: 0
+          fields:
+            1:
+              presence: required
+            2:
+              presence: required
+            3:
+              description: Start mode is a SET input, not returned state.
+              presence: omitted
+        errors:
+          - code: 7
+  40:
+    name: Haptics Control
+    id: hapticsControl
+    description: |
+      Control the haptics
+      The first haptics action after power-on will also result in the haptics driver being initialized, leading to a calibration.
+      If Header Duration is provided, haptics are run in DRV2605 RTP (Real Time Playback) continuous mode and automatically stopped after the specified timeout.
+      Parameter combinations are strict:
+      - Pattern + Intensity (optional Duration) is valid.
+      - Driver Pattern by itself is valid. (duration is defined by the pattern and cannot be overridden)
+      - Driver Pattern cannot be combined with Pattern, Intensity, or Duration.
+    group: interface
+    header:
+      - 5
+      - 7
+    data:
+      1:
+        name: Pattern
+        id: pattern
+        description: Pattern of haptics [1-3]
+        type: uint8
+        values:
+          1:
+            name: Fade
+            id: fade
+            description: Default
+          2:
+            name: Pulse
+            id: pulse
+          3:
+            name: Drop
+            id: drop
+      2:
+        name: Intensity
+        id: intensity
+        description: Intensity of haptics [0-2]
+        type: uint8
+        values:
+          0:
+            name: Low
+            id: low
+          1:
+            name: Medium
+            id: medium
+          2:
+            name: High
+            id: high
+      3:
+        name: Driver Pattern
+        id: driverPattern
+        description: |
+          Direct DRV2605 ROM effect index [1-123].
+          Must be sent on its own (without Pattern, Intensity, or Header Duration).
+        type: uint8
+        values:
+          1:
+            name: Strong Click - 100%
+          2:
+            name: Strong Click - 60%
+          3:
+            name: Strong Click - 30%
+          4:
+            name: Sharp Click - 100%
+          5:
+            name: Sharp Click - 60%
+          6:
+            name: Sharp Click - 30%
+          7:
+            name: Soft Bump - 100%
+          8:
+            name: Soft Bump - 60%
+          9:
+            name: Soft Bump - 30%
+          10:
+            name: Double Click - 100%
+          11:
+            name: Double Click - 60%
+          12:
+            name: Triple Click - 100%
+          13:
+            name: Soft Fuzz - 60%
+          14:
+            name: Strong Buzz - 100%
+          15:
+            name: 750ms Alert - 100%
+          16:
+            name: 1000ms Alert - 100%
+          17:
+            name: Strong Click 1 - 100%
+          18:
+            name: Strong Click 2 - 80%
+          19:
+            name: Strong Click 3 - 60%
+          20:
+            name: Strong Click 4 - 30%
+          21:
+            name: Medium Click 1 - 100%
+          22:
+            name: Medium Click 2 - 80%
+          23:
+            name: Medium Click 3 - 60%
+          24:
+            name: Sharp Tick 1 - 100%
+          25:
+            name: Sharp Tick 2 - 80%
+          26:
+            name: Sharp Tick 3 - 60%
+          27:
+            name: Short Double Click Strong 1 - 100%
+          28:
+            name: Short Double Click Strong 2 - 80%
+          29:
+            name: Short Double Click Strong 3 - 60%
+          30:
+            name: Short Double Click Strong 4 - 30%
+          31:
+            name: Short Double Click Medium 1 - 100%
+          32:
+            name: Short Double Click Medium 2 - 80%
+          33:
+            name: Short Double Click Medium 3 - 60%
+          34:
+            name: Short Double Sharp Tick 1 - 100%
+          35:
+            name: Short Double Sharp Tick 2 - 80%
+          36:
+            name: Short Double Sharp Tick 3 - 60%
+          37:
+            name: Long Double Sharp Click Strong 1 - 100%
+          38:
+            name: Long Double Sharp Click Strong 2 - 80%
+          39:
+            name: Long Double Sharp Click Strong 3 - 60%
+          40:
+            name: Long Double Sharp Click Strong 4 - 30%
+          41:
+            name: Long Double Sharp Click Medium 1 - 100%
+          42:
+            name: Long Double Sharp Click Medium 2 - 80%
+          43:
+            name: Long Double Sharp Click Medium 3 - 60%
+          44:
+            name: Long Double Sharp Tick 1 - 100%
+          45:
+            name: Long Double Sharp Tick 2 - 80%
+          46:
+            name: Long Double Sharp Tick 3 - 60%
+          47:
+            name: Buzz 1 - 100%
+          48:
+            name: Buzz 2 - 80%
+          49:
+            name: Buzz 3 - 60%
+          50:
+            name: Buzz 4 - 40%
+          51:
+            name: Buzz 5 - 20%
+          52:
+            name: Pulsing Strong 1 - 100%
+          53:
+            name: Pulsing Strong 2 - 60%
+          54:
+            name: Pulsing Medium 1 - 100%
+          55:
+            name: Pulsing Medium 2 - 60%
+          56:
+            name: Pulsing Sharp 1 - 100%
+          57:
+            name: Pulsing Sharp 2 - 60%
+          58:
+            name: Transition Click 1 - 100%
+          59:
+            name: Transition Click 2 - 80%
+          60:
+            name: Transition Click 3 - 60%
+          61:
+            name: Transition Click 4 - 40%
+          62:
+            name: Transition Click 5 - 20%
+          63:
+            name: Transition Click 6 - 10%
+          64:
+            name: Transition Hum 1 - 100%
+          65:
+            name: Transition Hum 2 - 80%
+          66:
+            name: Transition Hum 3 - 60%
+          67:
+            name: Transition Hum 4 - 40%
+          68:
+            name: Transition Hum 5 - 20%
+          69:
+            name: Transition Hum 6 - 10%
+          70:
+            name: Transition Ramp Down Long Smooth 1 - 100 to 0%
+          71:
+            name: Transition Ramp Down Long Smooth 2 - 100 to 0%
+          72:
+            name: Transition Ramp Down Medium Smooth 1 - 100 to 0%
+          73:
+            name: Transition Ramp Down Medium Smooth 2 - 100 to 0%
+          74:
+            name: Transition Ramp Down Short Smooth 1 - 100 to 0%
+          75:
+            name: Transition Ramp Down Short Smooth 2 - 100 to 0%
+          76:
+            name: Transition Ramp Down Long Sharp 1 - 100 to 0%
+          77:
+            name: Transition Ramp Down Long Sharp 2 - 100 to 0%
+          78:
+            name: Transition Ramp Down Medium Sharp 1 - 100 to 0%
+          79:
+            name: Transition Ramp Down Medium Sharp 2 - 100 to 0%
+          80:
+            name: Transition Ramp Down Short Sharp 1 - 100 to 0%
+          81:
+            name: Transition Ramp Down Short Sharp 2 - 100 to 0%
+          82:
+            name: Transition Ramp Up Long Smooth 1 - 0 to 100%
+          83:
+            name: Transition Ramp Up Long Smooth 2 - 0 to 100%
+          84:
+            name: Transition Ramp Up Medium Smooth 1 - 0 to 100%
+          85:
+            name: Transition Ramp Up Medium Smooth 2 - 0 to 100%
+          86:
+            name: Transition Ramp Up Short Smooth 1 - 0 to 100%
+          87:
+            name: Transition Ramp Up Short Smooth 2 - 0 to 100%
+          88:
+            name: Transition Ramp Up Long Sharp 1 - 0 to 100%
+          89:
+            name: Transition Ramp Up Long Sharp 2 - 0 to 100%
+          90:
+            name: Transition Ramp Up Medium Sharp 1 - 0 to 100%
+          91:
+            name: Transition Ramp Up Medium Sharp 2 - 0 to 100%
+          92:
+            name: Transition Ramp Up Short Sharp 1 - 0 to 100%
+          93:
+            name: Transition Ramp Up Short Sharp 2 - 0 to 100%
+          94:
+            name: Transition Ramp Down Long Smooth 1 - 50 to 0%
+          95:
+            name: Transition Ramp Down Long Smooth 2 - 50 to 0%
+          96:
+            name: Transition Ramp Down Medium Smooth 1 - 50 to 0%
+          97:
+            name: Transition Ramp Down Medium Smooth 2 - 50 to 0%
+          98:
+            name: Transition Ramp Down Short Smooth 1 - 50 to 0%
+          99:
+            name: Transition Ramp Down Short Smooth 2 - 50 to 0%
+          100:
+            name: Transition Ramp Down Long Sharp 1 - 50 to 0%
+          101:
+            name: Transition Ramp Down Long Sharp 2 - 50 to 0%
+          102:
+            name: Transition Ramp Down Medium Sharp 1 - 50 to 0%
+          103:
+            name: Transition Ramp Down Medium Sharp 2 - 50 to 0%
+          104:
+            name: Transition Ramp Down Short Sharp 1 - 50 to 0%
+          105:
+            name: Transition Ramp Down Short Sharp 2 - 50 to 0%
+          106:
+            name: Transition Ramp Up Long Smooth 1 - 0 to 50%
+          107:
+            name: Transition Ramp Up Long Smooth 2 - 0 to 50%
+          108:
+            name: Transition Ramp Up Medium Smooth 1 - 0 to 50%
+          109:
+            name: Transition Ramp Up Medium Smooth 2 - 0 to 50%
+          110:
+            name: Transition Ramp Up Short Smooth 1 - 0 to 50%
+          111:
+            name: Transition Ramp Up Short Smooth 2 - 0 to 50%
+          112:
+            name: Transition Ramp Up Long Sharp 1 - 0 to 50%
+          113:
+            name: Transition Ramp Up Long Sharp 2 - 0 to 50%
+          114:
+            name: Transition Ramp Up Medium Sharp 1 - 0 to 50%
+          115:
+            name: Transition Ramp Up Medium Sharp 2 - 0 to 50%
+          116:
+            name: Transition Ramp Up Short Sharp 1 - 0 to 50%
+          117:
+            name: Transition Ramp Up Short Sharp 2 - 0 to 50%
+          118:
+            name: Long buzz for programmatic stopping - 100%
+          119:
+            name: Smooth Hum 1 (No kick or brake pulse) - 50%
+          120:
+            name: Smooth Hum 2 (No kick or brake pulse) - 40%
+          121:
+            name: Smooth Hum 3 (No kick or brake pulse) - 30%
+          122:
+            name: Smooth Hum 4 (No kick or brake pulse) - 20%
+          123:
+            name: Smooth Hum 5 (No kick or brake pulse) - 10%
+    methods:
+      SET: null
+    examples:
+      - name: Medium intensity fade
+        bytes: 03 23 00 40 00 01 00 01 04 57 00 00 00 02 00 01 02 01 01 01 01 21 242
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
+      - name: Medium intensity pulse
+        bytes: 03 23 00 40 00 01 00 01 04 61 00 00 00 02 00 01 02 01 02 01 01 145 166
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
+      - name: Mediaum intensity drop
+        bytes: 03 23 00 40 00 01 00 01 04 65 00 00 00 02 00 01 02 01 03 01 01 109 03
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
+  41:
+    name: Temperature
+    id: temperature
+    description: Temperature information
+    group: info
+    header:
+      - 5
+    data:
+      1:
+        name: Temperature
+        id: temperature
+        description: Temperature in Celsius
+        type: float32
+        unit: C
+    methods:
+      GET: null
+    examples:
+      - name: GET request for device temperature
+        bytes: 03 20 00 41 00 02 00 05 01 01 02 04 47 152 218 214 00 00 168 67
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit
+      - name: Device temperature response
+        bytes: 3 26 0 41 0 2 0 3 4 4 47 152 218 214 1 0 1 0 1 4 102 102 210 65 133 40
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where P1 responses to a request from Toit on the ESP32.
+          date: "2025-10-10"
+          generator: RH2 P1 v2287
+  42:
+    name: Buzzer Control
+    id: buzzerControl
+    description: Control the buzzer. Either pass duration and frequency, Or all fields without frequency.
+    group: interface
+    data:
+      1:
+        name: Duration
+        id: duration
+        description: Duration of buzzer in milliseconds
+        type: uint16
+      2:
+        name: Sound Type
+        id: soundType
+        description: A predefined sound type
+        type: uint8
+        values:
+          0:
+            name: Solid
+            id: solid
+          1:
+            name: Siren
+            id: siren
+          2:
+            name: Beep Beep
+            id: beepBeep
+          3:
+            name: Ambulance
+            id: ambulance
+          4:
+            name: FireTruck
+            id: firetruck
+          5:
+            name: Positive1
+            id: positive1
+          6:
+            name: SlowBeep
+            id: slowbeep
+          7:
+            name: Alarm
+            id: alarm
+      3:
+        name: Intensity
+        id: intensity
+        description: Intensity of buzzer. [0-2]. Work as frequency control for buzzer types (moving towards and away from resonance).
+        type: uint8
+      4:
+        name: Run Count
+        id: runCount
+        description: Number of times to run the buzzer
+        type: uint8
+      5:
+        name: Frequency
+        id: frequency
+        description: Frequency of buzzer of KHz.(if frequency is sent, only duration and frequency parameters will be inside the message)
+        type: float32
+    methods:
+      SET: null
+    examples:
+      - name: 0.5KHz for 20ms
+        bytes: 03 27 00 42 00 01 00 01 04 14 00 00 00 02 00 01 05 02 20 00 04 00 00 00 63 251 238
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
+      - name: Siren sound for 2 seconds
+        bytes: 03 27 00 42 00 01 00 01 04 49 00 00 00 03 00 01 02 03 02 208 07 01 01 01 01 226 126
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
+  43:
+    name: Battery Status
+    id: batteryStatus
+    description: |
+      Get the battery status of a device
+    group: info
+    header:
+      - 5
+    data:
+      1:
+        name: Voltage
+        id: voltage
+        description: Current battery voltage
+        type: float32
+        unit: V
+      2:
+        name: Percent
+        id: percent
+        description: Current battery percent
+        type: uint8
+        unit: '%'
+    methods:
+      GET: null
+    examples:
+      - name: Request battery status
+        bytes: 03 20 00 43 00 02 00 05 01 01 02 04 127 63 240 189 00 00 42 07
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit
+      - name: Receive a battery status, at 86% and 4.2v
+        bytes: 3 29 0 43 0 2 0 3 4 4 127 63 240 189 1 0 2 0 2 1 1 86 4 33 176 134 64 229 139
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where P1 responses to a request from Toit on the ESP32.
+          date: "2025-10-10"
+          generator: RH2 P1 v2287
+  44:
+    name: Pressure
+    id: pressure
+    description: Pressure information
+    group: info
+    header:
+      - 5
+    data:
+      1:
+        name: Pressure
+        id: pressure
+        description: Pressure in millibar / hectopascals
+        type: float32
+        unit: hPa
+    methods:
+      GET: null
+    examples:
+      - name: GET request for device pressure
+        bytes: 03 20 00 44 00 02 00 05 01 01 02 04 79 138 208 210 00 00 76 221
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 make the request.
+          date: "2025-10-10"
+          generator: RH2 ESP32 Toit
+  45:
+    name: Alarm
+    id: alarm
+    description: |-
+      Trigger an alarm, using buzzer, haptics, strobe and optional prompt.
+      Duration header field will control the time the alert is played for, unless legacy alarm action is used.
+    group: interface
+    data:
+      1:
+        name: Legacy alarm action
+        id: legacyAlarmAction
+        description: 4 bytes of encoded data relating to legacy alarm formats. Can not be used with other options. Note using this field will override Duration header field setting
+        type: uint32
+      2:
+        name: Duration
+        id: duration
+        description: Duration of alarm in seconds. Max 127s
+        type: uint8
+      3:
+        name: Buzzer Pattern
+        id: buzzerPattern
+        type: uint8
+      4:
+        name: Buzzer Intensity
+        id: buzzerIntensity
+        type: uint8
+      5:
+        name: Haptics Pattern
+        id: hapticsPattern
+        type: uint8
+      6:
+        name: Haptics Intensity
+        id: hapticsIntensity
+        type: uint8
+      7:
+        name: Strobe Pattern
+        id: strobePattern
+        type: uint8
+      8:
+        name: Strobe Intensity
+        id: strobeIntensity
+        type: uint8
+      9:
+        name: Prompt message
+        id: promptMessage
+        description: |-
+          Message to show on the device prompt If not set, no prompt will be shown
+          Prompts can be dismissed by button presses, or automatically after the prompt timeout has expired
+        type: ascii
+      10:
+        name: Prompt timeout
+        id: promptTimeout
+        description: |
+          Timeout for the prompt in seconds
+          If not set, prompt will stay until dismissed with a button press
+        type: uint8
+      11:
+        name: Prompt button 1
+        id: promptButton1
+        type: ascii
+      12:
+        name: Prompt button 2
+        id: promptButton2
+        type: ascii
+    methods:
+      GET: null
+      SET: null
+    examples:
+      - name: Show an LB prompt on the screen for 1 second
+        bytes: 3 18 0 45 0 0 0 2 0 9 10 2 76 66 1 1 187 211
+        real:
+          description: This example is generated using the generate tool, and was tested against an RH2 device, sent from Toit.
+          date: "2025-10-16"
+          generator: Generate tool
+  46:
+    name: Buzzer Sequence
+    id: buzzerSequence
+    description: Play a sequence of buzzer sounds
+    group: interface
+    data:
+      6:
+        name: Frequencies
+        id: frequencies
+        description: Array of requested frequencies in kHz as floats; zero is a rest
+        type: float32[]
+      7:
+        name: Timings
+        id: timings
+        description: Array of timings in ms as uint16
+        type: uint16[]
+    methods:
+      SET: null
+    examples:
+      - name: Play a complex sequence of sounds
+        bytes: 03 231 00 46 00 01 00 01 04 68 00 00 00 02 00 06 07 140 174 71 225 62 00 00 00 00 174 71 225 62 00 00 00 00 174 71 225 62 00 00 00 00 33 176 178 62 00 00 00 00 84 227 05 63 00 00 00 00 174 71 225 62 00 00 00 00 33 176 178 62 00 00 00 00 84 227 05 63 00 00 00 00 174 71 225 62 00 00 00 00 57 180 40 63 00 00 00 00 57 180 40 63 00 00 00 00 57 180 40 63 00 00 00 00 33 176 50 63 00 00 00 00 84 227 05 63 00 00 00 00 225 122 212 62 00 00 00 00 33 176 178 62 00 00 00 00 84 227 05 63 00 00 00 00 174 71 225 62 70 144 01 50 00 144 01 50 00 144 01 50 00 44 01 50 00 100 00 50 00 144 01 50 00 44 01 50 00 100 00 50 00 32 03 50 00 144 01 50 00 144 01 50 00 144 01 50 00 44 01 50 00 100 00 50 00 144 01 50 00 44 01 50 00 100 00 50 00 32 03 219 48
+        real:
+          description: This example is captured from an RH2 device as part of normal communications over I2C with the ESP32 co-processor, where Toit on the ESP32 made the request.
+          date: "2025-10-14"
+          generator: RH2 ESP32 Toit
+      - name: Play the classic Nokia tune
+        description: |
+          Original monophonic arrangement of the Gran vals phrase by Francisco Tárrega (1902),
+          widely known as the classic Nokia tune.
+          Underlying composition: public domain in the UK; no recording included.
+          Nokia branding/trademark rights are separate.
+          METHOD_SET, message ID 72; 25 segments, 3300 ms encoded duration.
+          Frequencies use requested kHz; zero is a rest. Hardware playback may differ.
+        bytes: 03AE002E0002000105044800000001010200060764F1C4A83F000000003A5B963F00000000E96F3D3F00000000D1A2543F00000000E2EA8D3F0000000046DE7C3F000000003A5B163F00000000F1C4283F0000000046DE7C3F00000000AE47613F00000000E2EA0D3F00000000F1C4283F00000000AE47613F328C000A008C000A0022010A0022010A008C000A008C000A0022010A0022010A008C000A008C000A0022010A0022010A0058027819
+      - name: Play Fur Elise
+        description: |
+          Original monophonic arrangement of the opening of Für Elise by Ludwig van Beethoven.
+          Underlying composition: public domain in the UK; no recording included.
+          Left-hand accompaniment is omitted.
           Score: https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=931
           METHOD_SET, message ID 75; 40 segments, 9600 ms encoded duration.
           Frequencies use requested kHz; zero is a rest. Hardware playback may differ.
