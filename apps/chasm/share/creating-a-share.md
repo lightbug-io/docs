@@ -10,7 +10,7 @@ The dialog defaults to **Last 1 hour** in your local timezone. Use **Quick time 
 
 Click **Share**, then use **Copy** or **Open share**. Anyone with the link can view the shared data without signing in.
 
-If the selected end time is in the future, the share link is created now, but its snapshot data is available only after that time. Opening the link early shows a waiting countdown while the page retries preparation; it does not show a live stream. A future start time is not supported.
+If the selected end time is in the future, the share link is created now, but its snapshot data is available only after that time. Opening the link early shows a waiting countdown; when the countdown ends, the page retries preparation. It does not show a live stream. A future start time is not supported.
 
 ## Message headers
 
