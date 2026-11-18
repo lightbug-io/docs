@@ -1639,9 +1639,6 @@
           "password": {
             "type": "string"
           },
-          "platformManaged": {
-            "type": "string"
-          },
           "portNum": {
             "type": "integer"
           },
@@ -1667,42 +1664,6 @@
             "type": "integer"
           }
         },
-        "type": "object"
-      },
-      "lightbug_io_gingin_internal_modules_rtk.ProvisionNtripRequest": {
-        "properties": {
-          "force": {
-            "description": "If true, overwrite existing manual credentials at same priority",
-            "type": "boolean"
-          },
-          "insert": {
-            "description": "If true and priority specified, insert and shift existing credentials",
-            "type": "boolean"
-          },
-          "namePrefix": {
-            "description": "Optional device name prefix (for UI)",
-            "type": "string"
-          },
-          "platform": {
-            "description": "e.g. \"skylark\"",
-            "type": "string"
-          },
-          "priority": {
-            "description": "If nil, append to end",
-            "type": "integer"
-          },
-          "subscriberId": {
-            "description": "Optional SwiftNav subscriber override",
-            "type": "string"
-          },
-          "type": {
-            "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.SkylarkDeviceType"
-          }
-        },
-        "required": [
-          "platform",
-          "type"
-        ],
         "type": "object"
       },
       "lightbug_io_gingin_internal_modules_rtk.TestNtripRequest": {
@@ -1787,20 +1748,6 @@
           "username"
         ],
         "type": "object"
-      },
-      "lightbug_io_gingin_internal_modules_rtk.SkylarkDeviceType": {
-        "description": "one of: \"cx\",\"dx\",\"nx\"",
-        "enum": [
-          "cx",
-          "dx",
-          "nx"
-        ],
-        "type": "string",
-        "x-enum-varnames": [
-          "SkylarkDeviceTypeCx",
-          "SkylarkDeviceTypeDx",
-          "SkylarkDeviceTypeNxRTK"
-        ]
       }
     },
     "securitySchemes": {
@@ -6272,7 +6219,7 @@
     },
     "/devices/{id}/rtk/ntrip": {
       "delete": {
-        "description": "Deletes all NTRIP credentials for the device, including platform-managed credentials.",
+        "description": "Deletes all configured NTRIP credentials for the device.",
         "parameters": [
           {
             "description": "Device ID",
@@ -6352,7 +6299,7 @@
         ]
       },
       "get": {
-        "description": "Returns the configured NTRIP credentials for the device. Passwords are omitted for platform-managed credentials.",
+        "description": "Returns the configured NTRIP credentials for the device.",
         "parameters": [
           {
             "description": "Device ID",
@@ -6439,7 +6386,7 @@
         ]
       },
       "put": {
-        "description": "Creates credentials at the next available priority when priority is omitted. At an existing priority, credentials are updated unless insert is true, which inserts and shifts later priorities. Platform-managed credentials cannot be updated.",
+        "description": "Creates manual credentials at the next available priority when priority is omitted. At an existing priority, credentials are updated unless insert is true, which inserts and shifts later priorities.",
         "parameters": [
           {
             "description": "Device ID",
@@ -6499,19 +6446,6 @@
             },
             "description": "Unauthorized"
           },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Cannot update platform-managed credentials"
-          },
           "404": {
             "content": {
               "application/json": {
@@ -6558,119 +6492,6 @@
           }
         ],
         "summary": "Create or update NTRIP credentials",
-        "tags": [
-          "rtk"
-        ]
-      }
-    },
-    "/devices/{id}/rtk/ntrip/provision": {
-      "post": {
-        "description": "Provisions credentials for a device through the configured platform provider. Root role required. If priority is omitted, credentials are appended. Use force to replace manual credentials at the selected priority.",
-        "parameters": [
-          {
-            "description": "Device ID",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.ProvisionNtripRequest"
-              }
-            }
-          },
-          "description": "Provisioning options",
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.NtripCredentials"
-                }
-              }
-            },
-            "description": "Created"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Invalid device ID or request body"
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Unauthorized"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Credentials already exist at this priority"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Failed to provision credentials"
-          },
-          "501": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Provisioning is not implemented"
-          }
-        },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ],
-        "summary": "Provision platform-managed NTRIP credentials",
         "tags": [
           "rtk"
         ]
@@ -6868,7 +6689,7 @@
         ]
       },
       "get": {
-        "description": "Returns the NTRIP credentials configured at the requested priority. Passwords are omitted for platform-managed credentials.",
+        "description": "Returns the NTRIP credentials configured at the requested priority.",
         "parameters": [
           {
             "description": "Device ID",
@@ -6964,7 +6785,7 @@
         ]
       },
       "put": {
-        "description": "Creates or updates credentials at the requested priority. The priority in the URL overrides any priority in the request body. Set insert to true to insert and shift later priorities. Platform-managed credentials cannot be updated.",
+        "description": "Creates or updates manual credentials at the requested priority. The priority in the URL overrides any priority in the request body. Set insert to true to insert and shift later priorities.",
         "parameters": [
           {
             "description": "Device ID",
@@ -7033,19 +6854,6 @@
             },
             "description": "Unauthorized"
           },
-          "403": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Cannot update platform-managed credentials"
-          },
           "404": {
             "content": {
               "application/json": {
@@ -7092,128 +6900,6 @@
           }
         ],
         "summary": "Create or update NTRIP credentials at a priority",
-        "tags": [
-          "rtk"
-        ]
-      }
-    },
-    "/devices/{id}/rtk/ntrip/{priority}/provision": {
-      "post": {
-        "description": "Provisions credentials for a device through the configured platform provider at the requested priority. The URL priority overrides any priority in the request body. Root role required. Use force to replace manual credentials at that priority.",
-        "parameters": [
-          {
-            "description": "Device ID",
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "description": "Credential priority",
-            "in": "path",
-            "name": "priority",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.ProvisionNtripRequest"
-              }
-            }
-          },
-          "description": "Provisioning options",
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/lightbug_io_gingin_internal_modules_rtk.NtripCredentials"
-                }
-              }
-            },
-            "description": "Created"
-          },
-          "400": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Invalid device ID, priority, or request body"
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Unauthorized"
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Credentials already exist at this priority"
-          },
-          "500": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Failed to provision credentials"
-          },
-          "501": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "additionalProperties": {
-                    "type": "string"
-                  },
-                  "type": "object"
-                }
-              }
-            },
-            "description": "Provisioning is not implemented"
-          }
-        },
-        "security": [
-          {
-            "ApiKeyAuth": []
-          }
-        ],
-        "summary": "Provision platform-managed NTRIP credentials at a priority",
         "tags": [
           "rtk"
         ]
