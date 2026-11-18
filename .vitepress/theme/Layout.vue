@@ -1,6 +1,7 @@
 <!-- .vitepress/theme/Layout.vue -->
 
 <script setup lang="ts">
+import LegalLinks from './components/LegalLinks.vue'
 import DefaultTheme from 'vitepress/theme'
 import { inBrowser, useData, useRouter } from 'vitepress'
 import { watch } from 'vue'
@@ -41,5 +42,7 @@ watch(
 </script>
 
 <template>
-  <DefaultTheme.Layout />
+  <DefaultTheme.Layout>
+    <template #layout-bottom><LegalLinks /></template>
+  </DefaultTheme.Layout>
 </template>
