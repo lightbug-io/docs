@@ -60,6 +60,7 @@ words:
   - NMEA
   - WCDMA
   - NTRIP
+  - mountpoint
   - GPRS
   - iccid
   - imei
@@ -90,6 +91,7 @@ words:
   - outofscope
   - ibeacon
   - httputil
+  - varnames
 
   # OK abbreviations
   - csum
