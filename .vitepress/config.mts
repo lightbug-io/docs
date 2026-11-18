@@ -663,6 +663,12 @@ export default withMermaid(defineConfig({
                   addedOperations: new Set(),
                 })),
                 collapse(sidebarSpec2.generateSidebarGroup({
+                  tag: ["rtk"],
+                  text: "RTK",
+                  linkPrefix: '/apis/v2/',
+                  addedOperations: new Set(),
+                })),
+                collapse(sidebarSpec2.generateSidebarGroup({
                   tag: ["chasm"],
                   text: "Chasm",
                   linkPrefix: '/apis/v2/',
