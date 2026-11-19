@@ -45,3 +45,13 @@ PR preview workflows and administrator setup: [.github/preview](https://github.c
 The docs site reads `public/files/protocol-v3.yaml` as its public schema input.
 This file is copied in from the protocol source for documentation; protocol
 authoring and schema maintenance do not happen in this repository.
+
+## Legal links
+
+After the document set and public URLs are approved, set
+`VITE_LIGHTBUG_LEGAL_MANIFEST_URL` to the HTTPS URL of the shared backend's
+`/v2/acceptances/legal/documents` endpoint at build time. This is public configuration,
+not a secret. The footer displays the returned terms/EULA versions; no URL
+or legal text is supplied by default. An unset variable, empty manifest or
+failed/invalid response displays no legal links. Documentation browsing
+does not record or require account acceptance.

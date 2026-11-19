@@ -2,7 +2,7 @@ name: Preview build
 on:
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, ready_for_review]
 permissions:
   contents: read
 concurrency:
@@ -10,6 +10,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
