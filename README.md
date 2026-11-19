@@ -50,7 +50,7 @@ authoring and schema maintenance do not happen in this repository.
 
 After the document set and public URLs are approved, set
 `VITE_LIGHTBUG_LEGAL_MANIFEST_URL` to the HTTPS URL of the shared backend's
-`/v2/legal/documents` endpoint at build time. This is public configuration,
+`/v2/acceptances/legal/documents` endpoint at build time. This is public configuration,
 not a secret. The footer displays the returned terms/EULA versions; no URL
 or legal text is supplied by default. An unset variable, empty manifest or
 failed/invalid response displays no legal links. Documentation browsing
