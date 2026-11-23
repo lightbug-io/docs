@@ -128,6 +128,46 @@ A maximum of 10,000 readings can be returned in one request.`,
 
 There is a [full guide](${resolveLink('/guides/notifications-setup-sqs')}) written for this endpoint.`,
     'get-users-id-getRecentActivity': 'Gets recent activity for a user, which focuses around notifications that have been triggered.',
+    'post-users-id-geofences': `Creates a geofence for the user in the path.
+
+To create more than one geofence, send a top-level JSON array of geofence objects. A batch can partly succeed, so list the user's geofences before retrying a failed request.
+
+### Batch request body
+
+\`\`\`json
+[
+  {"name": "North gate", "center": {"lat": 51.5, "lng": -0.12}, "radius": 100},
+  {"name": "South gate", "center": {"lat": 51.49, "lng": -0.12}, "radius": 75}
+]
+\`\`\``,
+    'post-devices-id-notificationTriggers': `Creates a notification trigger for the device in the path.
+
+To create more than one trigger, send a top-level JSON array of trigger objects. Include the recipient's \`userId\` on every item. All triggers in the request apply to the same device; send a separate request for each device. A batch can partly succeed, so list the device's triggers before retrying a failed request.
+
+### Batch request body
+
+Replace the example \`userId\` and \`zoneId\` with your recipient and geofence IDs.
+
+\`\`\`json
+[
+  {
+    "name": "Entered depot",
+    "userId": 1234,
+    "type": "geofence",
+    "parameters": {"zoneId": 5678, "zoneType": "entry"},
+    "muteFor": 0,
+    "delivery": {"push": true, "email": false, "http": false}
+  },
+  {
+    "name": "Left depot",
+    "userId": 1234,
+    "type": "geofence",
+    "parameters": {"zoneId": 5678, "zoneType": "exit"},
+    "muteFor": 0,
+    "delivery": {"push": true, "email": false, "http": false}
+  }
+]
+\`\`\``,
 });
 
 export const v1Deprecated = [
